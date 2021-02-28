@@ -1,5 +1,6 @@
 import React from 'react';
-import { Select, Pagination } from 'antd';
+import { Select, Pagination, Modal, Input, Divider } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import '../../style/pageStyle/ClassStu.less';
 const { Option } = Select;
@@ -102,8 +103,11 @@ class ClassStu extends React.Component {
                 count: 23,
                 classNum: 12345678,
                 creatDate: '2020-12-12',
-            },
+            }
         ],
+        newPici: ['01期', '02期', '03期'],
+        newPiciVal: '01期',
+        isVisible: false
     };
     handlePiCi(val: any) {
         console.log(val);
@@ -117,9 +121,39 @@ class ClassStu extends React.Component {
     handleBanJiF(val: any) {
         console.log(val);
     }
+    handleOk(val: any) {
+        console.log(val);
+        this.setState({
+            isVisible: false
+        });
+        window.location.href = '/#/app/class/main/class';
+    }
+    handleCancel(val: any) {
+        console.log(val);
+        this.setState({
+            isVisible: false
+        });
+    }
+    showModal() {
+        this.setState({
+            isVisible: true
+        });
+    }
+    onNewPiciValChange(event: any) {
+        this.setState({
+            newPiciVal: event.target.value,
+        });
+    }
+    addItem() {
+        console.log('addItem');
+        const { newPiciVal, newPici } = this.state;
+        this.setState({
+            newPici: [...newPici, newPiciVal]
+        });
+    }
 
     render() {
-        const { pici, banji, nowClass, finClass, piciF, banjiF } = this.state;
+        const { pici, banji, nowClass, finClass, piciF, banjiF, isVisible, newPici, newPiciVal } = this.state;
         return (
             <div className="class-main-wrapper">
                 <div className="bread-title">
@@ -160,25 +194,60 @@ class ClassStu extends React.Component {
                 <div className="now-area">
                     <div className="item-area">
                         {nowClass.map((item, index) => (
-                            <div className="item" key={index}>
-                                <div className="title">{item.class}</div>
-                                <div className="sec-line">
-                                    <div>班级人数</div>
-                                    <div>班级码</div>
-                                </div>
-                                <div className="thr-line">
-                                    <div>
-                                        {item.count}
-                                        <span>人</span>
+                            <Link to={'/app/class/main/class'} key={index}>
+                                <div className="item">
+                                    <div className="title">{item.class}</div>
+                                    <div className="sec-line">
+                                        <div>班级人数</div>
+                                        <div>班级码</div>
                                     </div>
-                                    <div>{item.classNum}</div>
+                                    <div className="thr-line">
+                                        <div>
+                                            {item.count}
+                                            <span>人</span>
+                                        </div>
+                                        <div>{item.classNum}</div>
+                                    </div>
+                                    <div className="aline">创建时间:{item.creatDate}</div>
                                 </div>
-                                <div className="aline">创建时间:{item.creatDate}</div>
-                            </div>
+                            </Link>
                         ))}
-                        <Link className="item-add" to={'/app/class/main/class'}>
+                        <div className="item-add" onClick={this.showModal.bind(this)}>
                             新增班级
-                        </Link>
+                        </div>
+                        <Modal title="新增班级" visible={isVisible} onOk={this.handleOk.bind(this)} onCancel={this.handleCancel.bind(this)}>
+                            <div className="module-area">
+                                学员批次: 
+                                <Select
+                                    className="gap"
+                                    style={{ width: 240 }}
+                                    placeholder="请选择学员批次"
+                                    dropdownRender={menu => (
+                                    <div>
+                                        {menu}
+                                        <Divider style={{ margin: '4px 0' }} />
+                                        <div style={{ display: 'flex', flexWrap: 'nowrap', padding: 8 }}>
+                                        <Input style={{ flex: 'auto' }} value={newPiciVal} onChange={this.onNewPiciValChange.bind(this)} />
+                                        <div
+                                            style={{ flex: 'none', padding: '8px', display: 'block', cursor: 'pointer' }}
+                                            onClick={this.addItem.bind(this)}
+                                        >
+                                            <PlusOutlined /> 新增
+                                        </div>
+                                        </div>
+                                    </div>
+                                    )}
+                                >
+                                    {newPici.map((item, index) => (
+                                    <Option key={index} value={item}>{item}</Option>
+                                    ))}
+                                </Select>
+                            </div>
+                            <div className="module-area">
+                                班级名称:
+                                <Input className="gap" style={{ width: 240 }} placeholder="请输入班级名称" />
+                            </div>
+                        </Modal>
                     </div>
                     <div className="pag">
                         <Pagination defaultCurrent={1} total={50} />

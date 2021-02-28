@@ -1,7 +1,7 @@
 import React from 'react';
 // import { Row, Col, Tabs, DatePicker, Table } from 'antd';
 // import moment from 'moment';
-import { PageHeader, Table } from 'antd';
+import { PageHeader, Table, Popconfirm } from 'antd';
 import { Link } from 'react-router-dom';
 import '../../style/pageStyle/MainClass.less';
 
@@ -112,9 +112,11 @@ class MainClass extends React.Component {
                 title: '操作',
                 key: 'control',
                 render: (text: any, record: any) => (
-                    <div className="control">
-                        <div>删除</div>
-                    </div>
+                    <Popconfirm key={text.key} placement="top" title="您确定删除该学员么？" onConfirm={this.confirmDel.bind(this)} okText="确认" cancelText="取消">
+                        <div className="control">
+                            <div>删除</div>
+                        </div>
+                    </Popconfirm>
                 ),
             },
         ],
@@ -156,6 +158,9 @@ class MainClass extends React.Component {
             },
         ],
     };
+    confirmDel(val: any) {
+        console.log('删除', val);
+    }
 
     render() {
         const { columns1, data1, columns2, data2 } = this.state;
