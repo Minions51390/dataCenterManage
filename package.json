@@ -80,6 +80,8 @@
         "react-dom": "^16.10.2",
         "react-draft-wysiwyg": "^1.13.2",
         "react-draggable": "^4.0.3",
+        "react-github-calendar": "^2.0.2",
+        "react-github-contribution-calendar": "^2.0.0",
         "react-loadable": "^5.5.0",
         "react-qmap": "^0.1.6",
         "react-router-dom": "^5.1.2",
@@ -106,18 +108,11 @@
         "build": "node scripts/build.js production",
         "starandsea": "node scripts/build.js starandsea",
         "test": "node scripts/test.js",
-        "commit": "git-cz",
         "release": "standard-version"
     },
     "config": {
         "commitizen": {
             "path": "node_modules/cz-conventional-changelog"
-        }
-    },
-    "husky": {
-        "hooks": {
-            "commit-msg": "commitlint -e $GIT_PARAMS",
-            "pre-commit": "pretty-quick --staged"
         }
     },
     "eslintConfig": {

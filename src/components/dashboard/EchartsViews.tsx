@@ -1,116 +1,62 @@
 import React from 'react';
 import ReactEcharts from 'echarts-for-react';
-import echarts from 'echarts';
+// import echarts from 'echarts';
 
 const option = {
-    title: {
-        text: '最近7天用户访问量',
-        left: '50%',
-        show: false,
-        textAlign: 'center'
-    },
     tooltip: {
         trigger: 'axis',
-        axisPointer: {
-            lineStyle: {
-                color: '#ddd'
-            }
-        },
-        backgroundColor: 'rgba(255,255,255,1)',
-        padding: [5, 10],
-        textStyle: {
-            color: '#7588E4',
-        },
-        extraCssText: 'box-shadow: 0 0 5px rgba(0,0,0,0.3)'
     },
     legend: {
-        right: 20,
-        orient: 'vertical',
+        data: ['你的评分', '同期最优评分', '同期平均分'],
+        left: 'left',
+    },
+    grid: {
+        left: '0',
+        right: '0',
+        bottom: '0',
+        containLabel: true,
+    },
+    toolbox: {
+        feature: {
+            saveAsImage: {},
+        },
     },
     xAxis: {
         type: 'category',
-        data: ['2021-01-24', '2021-01-24', '2021-01-24', '2021-01-24', '2021-01-24', '2021-01-24','2021-01-24'],
-        boundaryGap: false,
-        splitLine: {
-            show: true,
-            interval: 'auto',
-            lineStyle: {
-                color: ['#D4DFF5']
-            }
-        },
-        axisTick: {
-            show: false
-        },
-        axisLine: {
-            lineStyle: {
-                color: '#609ee9'
-            }
-        },
-        axisLabel: {
-            margin: 10,
-            textStyle: {
-                fontSize: 10
-            }
-        }
+        data: ['2020/01', '2020/02', '2020/03', '2020/04', '2020/05', '2020/06'],
     },
     yAxis: {
         type: 'value',
-        splitLine: {
-            lineStyle: {
-                color: ['#D4DFF5']
-            }
-        },
-        axisTick: {
-            show: false
-        },
-        axisLine: {
-            lineStyle: {
-                color: '#609ee9'
-            }
-        },
-        axisLabel: {
-            margin: 0,
-            textStyle: {
-                fontSize: 8
-            }
-        }
     },
-    series: [{
-        name: '昨日',
-        type: 'line',
-        smooth: true,
-        showSymbol: false,
-        symbol: 'circle',
-        symbolSize: 6,
-        data: ['1200', '1400', '808', '811', '626', '488', '1600'],
-        areaStyle: {
-            normal: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                    offset: 0,
-                    color: 'rgba(216, 244, 247,1)'
-                }, {
-                    offset: 1,
-                    color: 'rgba(216, 244, 247,1)'
-                }], false)
-            }
+    series: [
+        {
+            name: '你的评分',
+            type: 'line',
+            smooth: true,
+            data: [50, 75, 35, 52, 40, 52],
         },
-        itemStyle: {
-            normal: {
-                color: '#58c8da'
-            }
+        {
+            name: '同期最优评分',
+            type: 'line',
+            smooth: true,
+            data: [100, 80, 75, 90, 60, 90],
         },
-        lineStyle: {
-            normal: {
-                width: 3
-            }
-        }
-    }]
+        {
+            name: '同期平均分',
+            type: 'line',
+            smooth: true,
+            lineStyle: {
+                type: 'dashed',
+            },
+            data: [80, 65, 50, 80, 60, 90],
+        },
+    ],
 };
 
 const EchartsViews = () => (
     <ReactEcharts
         option={option}
-        style={{height: '350px', width: '100%'}}
+        style={{ height: '260px', width: '100%' }}
         className={'react_for_echarts'}
     />
 );

@@ -14,6 +14,9 @@ import Tabs from './ui/Tabs';
 import Banners from './ui/banners';
 import Drags from './ui/Draggable';
 import Dashboard from './dashboard/Dashboard';
+import ClassStu from './classStu/ClassStu';
+import MainClass from './classStu/MainClass';
+import MainSet from './classStu/MainSet';
 import Gallery from './ui/Gallery';
 import BasicAnimations from './animation/BasicAnimations';
 import ExampleAnimations from './animation/ExampleAnimations';
@@ -57,6 +60,9 @@ export default {
     WysiwygBundle,
     Cssmodule,
     MapUi,
+    ClassStu,
+    MainClass,
+    MainSet,
     QueryParams,
     Visitor,
     MultipleMenu,

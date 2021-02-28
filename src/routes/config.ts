@@ -21,7 +21,9 @@ const menus: {
 } = {
     menus: [
         // 菜单相关路由
-        { key: '/app/dashboard/index', title: '首页', icon: 'mobile', component: 'Dashboard' },
+
+        { key: '/app/class/main', title: '班级和学员管理', icon: 'mobile', component: 'ClassStu' },
+        { key: '/app/dashboard', title: '数据中心', icon: 'mobile', component: 'Dashboard' },
         // {
         //     key: '/app/ui',
         //     title: 'UI',
@@ -151,7 +153,10 @@ const menus: {
         //     ],
         // },
     ],
-    others: [], // 非菜单相关路由
+    others: [
+        { key: '/app/class/main/class', title: '', icon: 'mobile', component: 'MainClass' },
+        { key: '/app/class/main/class/set', title: '', icon: 'mobile', component: 'MainSet' },
+    ], // 非菜单相关路由
 };
 
 export default menus;
