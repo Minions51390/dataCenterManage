@@ -3,130 +3,116 @@ import { Select, Pagination, Modal, Input, Divider } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import '../../style/pageStyle/ClassStu.less';
+import { get, post } from '../../service/tools';
 const { Option } = Select;
 
 class ClassStu extends React.Component {
     state = {
-        pici: ['一批次', '二批次'],
-        banji: ['一班', '二班'],
-        piciF: ['一批次', '二批次'],
-        banjiF: ['一班', '二班'],
-        nowClass: [
-            {
-                class: '五期01班',
-                count: 23,
-                classNum: 12345678,
-                creatDate: '2020-12-12',
-            },
-            {
-                class: '五期01班',
-                count: 23,
-                classNum: 12345678,
-                creatDate: '2020-12-12',
-            },
-            {
-                class: '五期01班',
-                count: 23,
-                classNum: 12345678,
-                creatDate: '2020-12-12',
-            },
-            {
-                class: '五期01班',
-                count: 23,
-                classNum: 12345678,
-                creatDate: '2020-12-12',
-            },
-            {
-                class: '五期01班',
-                count: 23,
-                classNum: 12345678,
-                creatDate: '2020-12-12',
-            },
-            {
-                class: '五期01班',
-                count: 23,
-                classNum: 12345678,
-                creatDate: '2020-12-12',
-            },
-            {
-                class: '五期01班',
-                count: 23,
-                classNum: 12345678,
-                creatDate: '2020-12-12',
-            },
-        ],
-        finClass: [
-            {
-                class: '五期01班',
-                count: 23,
-                classNum: 12345678,
-                creatDate: '2020-12-12',
-            },
-            {
-                class: '五期01班',
-                count: 23,
-                classNum: 12345678,
-                creatDate: '2020-12-12',
-            },
-            {
-                class: '五期01班',
-                count: 23,
-                classNum: 12345678,
-                creatDate: '2020-12-12',
-            },
-            {
-                class: '五期01班',
-                count: 23,
-                classNum: 12345678,
-                creatDate: '2020-12-12',
-            },
-            {
-                class: '五期01班',
-                count: 23,
-                classNum: 12345678,
-                creatDate: '2020-12-12',
-            },
-            {
-                class: '五期01班',
-                count: 23,
-                classNum: 12345678,
-                creatDate: '2020-12-12',
-            },
-            {
-                class: '五期01班',
-                count: 23,
-                classNum: 12345678,
-                creatDate: '2020-12-12',
-            },
-            {
-                class: '五期01班',
-                count: 23,
-                classNum: 12345678,
-                creatDate: '2020-12-12',
-            }
-        ],
-        newPici: ['01期', '02期', '03期'],
-        newPiciVal: '01期',
+        pici: [],
+        selPici: '',
+        piciF: [],
+        selPiciF: '',
+        nowClass: [],
+        nowPag: 1,
+        finClass: [],
+        finPag: 1,
+        newPici: [],
+        selNewPi: '',
+        newPiciVal: '',
+        newBanji: '',
         isVisible: false
     };
-    handlePiCi(val: any) {
+    componentWillMount() {
+        this.initData();
+    }
+    async initData() {
+        await this.login();
+        const pici = await this.getPici();
+        this.setState({
+            pici,
+            piciF: pici,
+            newPici: pici
+        });
+        let res = await this.getClass(pici[0].batchId, 'coaching');
+        this.setState({
+            selPici: pici[0].batchId,
+            nowClass: res
+        });
+        let res1 = await this.getClass(pici[0].batchId, 'retire');
+        this.setState({
+            selPiciF: pici[0].batchId,
+            finClass: res1
+        });
+        
+    }
+    async login() {
+        let res = await post({
+            url: '/api/auth/login',
+            data: {
+                userName: 'yooky',
+                password: '123'
+            }
+        });
+        console.log(res);
+    }
+    async getPici() {
+        let res = await get({url: '/api/manage/batch/list'});
+        return res.data.detail || [];
+    }
+    async getClass(pici: any, cate: any) {
+        let res = await get({url: `/api/manage/class/list?batchId=${pici}&category=${cate}`});
+        console.log(res);
+        return res.data.detail || [];
+    }
+    async handlePiCi(val: any) {
+        let res = await this.getClass(val, 'coaching');
+        this.setState({
+            selPici: val,
+            nowClass: res
+        });
         console.log(val);
     }
-    handleBanJi(val: any) {
+    // handleBanJi(val: any) {
+    //     this.setState({
+    //         selBanji: val
+    //     });
+    //     console.log(val);
+    // }
+    nowPagChange(val: any) {
+        this.setState({
+            nowPag: val
+        });
         console.log(val);
     }
-    handlePiCiF(val: any) {
+    finPagChange(val: any) {
+        this.setState({
+            finPag: val
+        });
         console.log(val);
     }
-    handleBanJiF(val: any) {
+    async handlePiCiF(val: any) {
+        let res = await this.getClass(val, 'retire');
+        this.setState({
+            selPiciF: val,
+            finClass: res
+        });
         console.log(val);
     }
-    handleOk(val: any) {
+    async handleOk(val: any) {
         console.log(val);
+        const { selNewPi, newBanji } = this.state;
         this.setState({
             isVisible: false
         });
-        window.location.href = '/#/app/class/main/class';
+        let res = await post({
+            url: '/api/manage/class',
+            data: {
+                batchId: selNewPi,
+                className: newBanji
+            }
+        });
+        console.log(res);
+        // window.location.href = '/#/app/class/main/class';
     }
     handleCancel(val: any) {
         console.log(val);
@@ -144,16 +130,40 @@ class ClassStu extends React.Component {
             newPiciVal: event.target.value,
         });
     }
-    addItem() {
-        console.log('addItem');
-        const { newPiciVal, newPici } = this.state;
+    onClassChange(event: any) {
         this.setState({
-            newPici: [...newPici, newPiciVal]
+            newBanji: event.target.value,
         });
+    }
+    handlePiciVal(val: any) {
+        this.setState({
+            selNewPi: val
+        });
+    }
+    async addItem() {
+        console.log('addItem');
+        const { newPiciVal } = this.state;
+        let res = await post({
+            url: '/api/manage/batch',
+            data: {
+                batchName: newPiciVal
+            }
+        });
+        let list = await this.getPici();
+        this.setState({
+            newPici: list
+        });
+        console.log(res);
+        // this.setState({
+        //     newPici: [...newPici, {
+        //         batchId: 'a',
+        //         describe: newPiciVal
+        //     }]
+        // });
     }
 
     render() {
-        const { pici, banji, nowClass, finClass, piciF, banjiF, isVisible, newPici, newPiciVal } = this.state;
+        const { pici, selPici, nowClass, nowPag, finClass, finPag, piciF, selPiciF, isVisible, newPici, newPiciVal, newBanji } = this.state;
         return (
             <div className="class-main-wrapper">
                 <div className="bread-title">
@@ -162,30 +172,32 @@ class ClassStu extends React.Component {
                 </div>
                 <div className="select-area">
                     <div className="fir">当前职教班级</div>
-                    <div className="thr">
+                    {/* <div className="thr">
                         <span className="span">筛选班级:</span>
                         <Select
-                            defaultValue={banji[0]}
+                            disabled={selPici ? false : true}
+                            defaultValue="请选择"
                             style={{ width: 180 }}
                             onChange={this.handleBanJi.bind(this)}
                         >
-                            {banji.map((item) => (
-                                <Option key={item} value={item}>
-                                    {item}
+                            {banji.map((item: any) => (
+                                <Option key={item.classId} value={item.classId}>
+                                    {item.describe}
                                 </Option>
                             ))}
                         </Select>
-                    </div>
+                    </div> */}
                     <div className="sec">
                         <span className="span">学员批次:</span>
                         <Select
-                            defaultValue={pici[0]}
+                            defaultValue="请选择"
                             style={{ width: 180 }}
+                            value={selPici || (pici[0] && (pici[0] as any).describe) || "请选择"}
                             onChange={this.handlePiCi.bind(this)}
                         >
-                            {pici.map((item) => (
-                                <Option key={item} value={item}>
-                                    {item}
+                            {pici.map((item: any) => (
+                                <Option key={item.batchId} value={item.batchId}>
+                                    {item.describe}
                                 </Option>
                             ))}
                         </Select>
@@ -193,22 +205,22 @@ class ClassStu extends React.Component {
                 </div>
                 <div className="now-area">
                     <div className="item-area">
-                        {nowClass.map((item, index) => (
-                            <Link to={'/app/class/main/class'} key={index}>
+                        {nowClass.slice((nowPag - 1) * 7, nowPag * 7).map((item: any, index) => (
+                            <Link to={`/app/class/main/class?classId=${item.classId}`} key={index}>
                                 <div className="item">
-                                    <div className="title">{item.class}</div>
+                                    <div className="title">{item.describe}</div>
                                     <div className="sec-line">
                                         <div>班级人数</div>
                                         <div>班级码</div>
                                     </div>
                                     <div className="thr-line">
                                         <div>
-                                            {item.count}
+                                            {item.classId}
                                             <span>人</span>
                                         </div>
-                                        <div>{item.classNum}</div>
+                                        <div>{item.classCode}</div>
                                     </div>
-                                    <div className="aline">创建时间:{item.creatDate}</div>
+                                    <div className="aline">创建时间:{item.createDate.split('T')[0]}</div>
                                 </div>
                             </Link>
                         ))}
@@ -222,6 +234,7 @@ class ClassStu extends React.Component {
                                     className="gap"
                                     style={{ width: 240 }}
                                     placeholder="请选择学员批次"
+                                    onChange={this.handlePiciVal.bind(this)}
                                     dropdownRender={menu => (
                                     <div>
                                         {menu}
@@ -238,24 +251,24 @@ class ClassStu extends React.Component {
                                     </div>
                                     )}
                                 >
-                                    {newPici.map((item, index) => (
-                                    <Option key={index} value={item}>{item}</Option>
+                                    {newPici.map((item: any, index) => (
+                                    <Option key={index} value={item.batchId}>{item.describe}</Option>
                                     ))}
                                 </Select>
                             </div>
                             <div className="module-area">
                                 班级名称:
-                                <Input className="gap" style={{ width: 240 }} placeholder="请输入班级名称" />
+                                <Input className="gap" style={{ width: 240 }} placeholder="请输入班级名称" value={newBanji} onChange={this.onClassChange.bind(this)} />
                             </div>
                         </Modal>
                     </div>
-                    <div className="pag">
-                        <Pagination defaultCurrent={1} total={50} />
+                    <div className={nowClass.length ? "pag" : "display-none"}>
+                        <Pagination defaultCurrent={1} defaultPageSize={7} current={nowPag} total={nowClass.length} onChange={this.nowPagChange.bind(this)} />
                     </div>
                 </div>
                 <div className="select-area">
                     <div className="fir">已结课班级</div>
-                    <div className="thr">
+                    {/* <div className="thr">
                         <span className="span">筛选班级:</span>
                         <Select
                             defaultValue={banjiF[0]}
@@ -268,44 +281,53 @@ class ClassStu extends React.Component {
                                 </Option>
                             ))}
                         </Select>
-                    </div>
+                    </div> */}
                     <div className="sec">
                         <span className="span">学员批次:</span>
                         <Select
-                            defaultValue={piciF[0]}
+                            defaultValue="请选择"
                             style={{ width: 180 }}
+                            value={selPiciF || (piciF[0] && (piciF[0] as any).batchId) || "请选择"}
                             onChange={this.handlePiCiF.bind(this)}
                         >
-                            {piciF.map((item) => (
-                                <Option key={item} value={item}>
-                                    {item}
+                            {piciF.map((item: any) => (
+                                <Option key={item.batchId} value={item.batchId}>
+                                    {item.describe}
                                 </Option>
                             ))}
                         </Select>
                     </div>
                 </div>
                 <div className="finish-area">
-                    <div className="item-area">
-                        {finClass.map((item, index) => (
-                            <div className="item" key={index}>
-                                <div className="title">{item.class}</div>
-                                <div className="sec-line">
-                                    <div>班级人数</div>
-                                    <div>班级码</div>
-                                </div>
-                                <div className="thr-line">
-                                    <div>
-                                        {item.count}
-                                        <span>人</span>
+                    {   
+                        finClass.length 
+                        ?
+                        (<div className="item-area">
+                            {finClass.map((item: any, index) => (
+                                <div className="item" key={index}>
+                                    <div className="title">{item.describe}</div>
+                                    <div className="sec-line">
+                                        <div>班级人数</div>
+                                        <div>班级码</div>
                                     </div>
-                                    <div>{item.classNum}</div>
+                                    <div className="thr-line">
+                                        <div>
+                                            {item.classId}
+                                            <span>人</span>
+                                        </div>
+                                        <div>{item.classCode}</div>
+                                    </div>
+                                    <div className="aline">创建时间:{item.createDate.split('T')[0]}</div>
                                 </div>
-                                <div className="aline">创建时间:{item.creatDate}</div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="pag">
-                        <Pagination defaultCurrent={1} total={50} />
+                            ))}
+                        </div>)
+                        :
+                        (
+                            <div className="fins-area">暂无数据</div>
+                        )
+                    }
+                    <div className={finClass.length ? "pag" : "display-none"}>
+                        <Pagination defaultCurrent={1} defaultPageSize={7} current={finPag} total={finClass.length} onChange={this.finPagChange.bind(this)} />
                     </div>
                 </div>
             </div>

@@ -3,6 +3,8 @@ import React from 'react';
 // import moment from 'moment';
 import { PageHeader, Radio, Select, Button, Tooltip } from 'antd';
 import '../../style/pageStyle/MainSet.less';
+import { get } from '../../service/tools';
+import axios from 'axios';
 const { Option } = Select;
 
 const routes = [
@@ -11,7 +13,7 @@ const routes = [
         breadcrumbName: '班级和学员管理',
     },
     {
-        path: '/class',
+        path: `/class?classId=${window.location.href.split('=')[1] || 1}`,
         breadcrumbName: '新建班级',
     },
     {
@@ -51,17 +53,70 @@ const content5 = (
 
 class MainSet extends React.Component {
     state = {
+        classId: '',
         wordType: 1,
         wordCount: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
         wordVal: 9,
-        startType: 1,
-        wordDb: ['四级词库', '六级词库'],
-        dbVal: '四级词库',
-        littleType: 1,
-        bigType: 1,
+        startType: '',
+        wordDb: [],
+        dbVal: '',
+        dbName: '',
+        littleType: '',
+        bigType: '',
+        specialTestDate: '',
         firState: 0,
         secState: 0
     };
+    async componentWillMount() {
+        const classId = window.location.href.split('=')[1];
+        let res = await this.getSetInfo(classId);
+        this.setState({
+            startType: res.data.choiceWordMethod,
+            wordVal: +res.data.dailyReciteCount,
+            dbVal: res.data.dictionaryId,
+            littleType: res.data.testType,
+            bigType: res.data.specialTest,
+            specialTestDate: res.data.specialTestDate
+        });
+        this.getKu();
+        this.setState({
+            classId
+        });
+    }
+    async getSetInfo(id: any) {
+        let res = await get({url: `/api/manage/class/task?classId=${id}`});
+        console.log(+res.data.dailyReciteCount);
+        return res;
+    }
+    async getKu() {
+        let res = await get({url: '/api/api/dictionary/info'});
+        this.setState({
+            wordDb: res.data,
+            dbName: res.data[0].dictionaryName
+        })
+        console.log(res);
+    }
+    setSet() {
+        const {startType, wordVal, dbVal, classId} = this.state;
+        axios.patch('/api/manage/class/task/recite', {
+            dailyReciteCount: +wordVal,
+            choiceWordMethod: startType,
+            dictionary: +dbVal,
+            classId: +classId
+        }).then(res => {
+            console.log(res);
+        });
+    }
+    setTest() {
+        const {littleType, bigType, classId} = this.state;
+        axios.patch('/api/manage/class/task/test', {
+            testType: littleType,
+            specialTest: bigType,
+            classId: +classId
+        }).then(res => {
+            console.log(res);
+        });
+    }
     onWordTypeChange(value: any) {
         this.setState({
             wordType: value.target.value
@@ -94,39 +149,54 @@ class MainSet extends React.Component {
     }
     handleWordDb(value: any) {
         console.log(value);
+        const {wordDb} = this.state;
+        let dbName = '';
+        wordDb.map((val: any) => {
+            if (val.dictionaryId === value){
+                dbName = val.dictionaryName;
+            }
+            return '';
+        });
+        console.log(dbName);
         this.setState({
-            dbVal: value
+            dbVal: value,
+            dbName
         });
     }
     saveFir() {
         this.setState({
             firState: 1
         });
+        this.setSet();
     }
-    resetFir() {
+    async resetFir() {
+        const {classId} = this.state;
+        let res = await this.getSetInfo(classId);
         this.setState({
-            firState: 0,
-            wordType: 1,
-            wordVal: 9,
-            startType: 1,
-            dbVal: '四级词库'
+            startType: res.data.choiceWordMethod,
+            wordVal: +res.data.dailyReciteCount,
+            dbVal: res.data.dictionaryId
         });
+        this.getKu();
     }
     saveSec() {
         this.setState({
             secState: 1
         });
+        this.setTest();
     }
-    resetSec() {
+    async resetSec() {
+        const {classId} = this.state;
+        let res = await this.getSetInfo(classId);
         this.setState({
-            secState: 0,
-            littleType: 1,
-            bigType: 1,
+            littleType: res.data.testType,
+            bigType: res.data.specialTest,
+            specialTestDate: res.data.specialTestDate
         });
     }
 
     render() {
-        const {wordType, wordCount, startType, wordDb, littleType, bigType, wordVal, dbVal, firState, secState} = this.state;
+        const {wordType, wordCount, startType, wordDb, dbName, littleType, bigType, wordVal, dbVal, firState, secState} = this.state;
         return (
             <div className="main-set">
                 <div className="title-area">
@@ -171,6 +241,7 @@ class MainSet extends React.Component {
                                     <Select
                                         disabled={wordType === 1 ? true : false}
                                         defaultValue={wordVal}
+                                        value={wordVal}
                                         style={{ width: 240 }}
                                         onChange={this.handleWordCount.bind(this)}
                                     >
@@ -210,15 +281,15 @@ class MainSet extends React.Component {
                             (
                                 <div className="sec">
                                     <Radio.Group onChange={this.onStartTypeChange.bind(this)} value={startType}>
-                                        <Radio value={1}>是</Radio>
-                                        <Radio value={2}>否</Radio>
+                                        <Radio value={'arbitrarily'}>是</Radio>
+                                        <Radio value={'noChoice'}>否</Radio>
                                     </Radio.Group>
                                 </div>
                             ) : 
                             (
                                 <div className="sec">
                                     <div>
-                                        状态: <div className="state-co">{startType === 1 ? '是' : '否'}</div>
+                                        状态: <div className="state-co">{startType === 'arbitrarily' ? '是' : '否'}</div>
                                     </div>
                                 </div>
                             )
@@ -241,12 +312,13 @@ class MainSet extends React.Component {
                                 <div className="sec">
                                     <Select
                                         defaultValue={dbVal}
+                                        value={dbVal || (wordDb[0] && (wordDb[0] as any).dictionaryId) || "请选择"}
                                         style={{ width: 240 }}
                                         onChange={this.handleWordDb.bind(this)}
                                     >
-                                        {wordDb.map((item) => (
-                                            <Option key={item} value={item}>
-                                                {item}
+                                        {wordDb.map((item: any) => (
+                                            <Option key={item.dictionaryId} value={item.dictionaryId}>
+                                                {item.dictionaryName}
                                             </Option>
                                         ))}
                                     </Select>
@@ -255,7 +327,7 @@ class MainSet extends React.Component {
                             (
                                 <div className="sec">
                                     <div>
-                                        当前词库: <div className="state-co">{dbVal}</div>
+                                        当前词库: <div className="state-co">{dbName}</div>
                                     </div>
                                 </div>
                             )
@@ -296,10 +368,10 @@ class MainSet extends React.Component {
                             (
                                 <div className="sec">
                                     <Radio.Group onChange={this.onLittleTypeChange.bind(this)} value={littleType}>
-                                        <Radio value={1}>展示中文释义选择英文</Radio>
-                                        <Radio value={2}>展示英文选择中文释义</Radio>
-                                        <Radio value={3}>填空</Radio>
-                                        <Radio value={4}>随机</Radio>
+                                        <Radio value={'ch-to-en'}>展示中文释义选择英文</Radio>
+                                        <Radio value={'en-to-ch'}>展示英文选择中文释义</Radio>
+                                        <Radio value={'completion'}>填空</Radio>
+                                        <Radio value={'random'}>随机</Radio>
                                     </Radio.Group>
                                 </div>
                             ) : 
@@ -307,11 +379,11 @@ class MainSet extends React.Component {
                                 <div className="sec">
                                     <div>
                                         状态: <div className="state-co">{
-                                            littleType === 1 ? 
+                                            littleType === 'ch-to-en' ? 
                                             '展示中文释义选择英文' : 
-                                            littleType === 2 ?
+                                            littleType === 'en-to-ch' ?
                                             '展示英文选择中文释义' :
-                                            littleType === 3 ? 
+                                            littleType === 'completion' ? 
                                             '填空' :
                                             '随机'}</div>
                                     </div>
@@ -335,15 +407,15 @@ class MainSet extends React.Component {
                             (
                                 <div className="sec">
                                     <Radio.Group onChange={this.onBigTypeChange.bind(this)} value={bigType}>
-                                        <Radio value={1}>暂不开启</Radio>
-                                        <Radio value={2}>开启</Radio>
+                                        <Radio value={"off"}>暂不开启</Radio>
+                                        <Radio value={"on"}>开启</Radio>
                                     </Radio.Group>
                                 </div>
                             ) : 
                             (
                                 <div className="sec">
                                     <div>
-                                        状态: <div className="state-co">{bigType === 1 ? '暂不开启' : '开启'}</div>
+                                        状态: <div className="state-co">{bigType === "off" ? '暂不开启' : '开启'}</div>
                                     </div>
                                 </div>
                             )

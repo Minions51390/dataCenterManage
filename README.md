@@ -20,3 +20,6 @@ yarn start
 ```js
 yarn build
 ```
+
+
+http://192.168.0.104:3006/#/app/dashboard

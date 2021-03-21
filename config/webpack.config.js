@@ -699,7 +699,7 @@ module.exports = function(webpackEnv) {
     node: {
       module: 'empty',
       dgram: 'empty',
-      dns: 'mock',
+      dns: 'empty',
       fs: 'empty',
       http2: 'empty',
       net: 'empty',
