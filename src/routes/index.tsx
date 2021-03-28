@@ -4,7 +4,7 @@ import { useAlita } from 'redux-alita';
 import umbrella from 'umbrella-storage';
 import AllComponents from '../components';
 import routesConfig, { IFMenuBase, IFMenu } from './config';
-import { checkLogin } from '../utils';
+// import { checkLogin } from '../utils';
 import RouteWrapper from './RouteWrapper';
 
 type CRouterProps = {
@@ -24,8 +24,8 @@ const CRouter = (props: CRouterProps) => {
         return component;
     };
     const requireLogin = (component: React.ReactElement, permit: any) => {
-        const permits = getPermits();
-        if (!checkLogin(permits)) {
+        // const permits = getPermits();
+        if (false) {
             // 线上环境判断是否登录
             return <Redirect to={'/login'} />;
         }

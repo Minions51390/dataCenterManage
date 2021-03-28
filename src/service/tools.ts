@@ -37,3 +37,5 @@ export const post = ({ url, data, msg = '接口异常', config }: IFRequestParam
             console.log(err);
             message.warn(msg);
         });
+
+export const baseUrl = '';

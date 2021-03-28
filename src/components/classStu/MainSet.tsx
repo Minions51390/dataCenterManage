@@ -3,7 +3,7 @@ import React from 'react';
 // import moment from 'moment';
 import { PageHeader, Radio, Select, Button, Tooltip } from 'antd';
 import '../../style/pageStyle/MainSet.less';
-import { get } from '../../service/tools';
+import { get, baseUrl } from '../../service/tools';
 import axios from 'axios';
 const { Option } = Select;
 
@@ -84,12 +84,12 @@ class MainSet extends React.Component {
         });
     }
     async getSetInfo(id: any) {
-        let res = await get({url: `/api/manage/class/task?classId=${id}`});
+        let res = await get({url: baseUrl + `/manage/class/task?classId=${id}`});
         console.log(+res.data.dailyReciteCount);
         return res;
     }
     async getKu() {
-        let res = await get({url: '/api/api/dictionary/info'});
+        let res = await get({url: baseUrl + '/api/dictionary/info'});
         this.setState({
             wordDb: res.data,
             dbName: res.data[0].dictionaryName
@@ -98,7 +98,7 @@ class MainSet extends React.Component {
     }
     setSet() {
         const {startType, wordVal, dbVal, classId} = this.state;
-        axios.patch('/api/manage/class/task/recite', {
+        axios.patch(baseUrl + '/manage/class/task/recite', {
             dailyReciteCount: +wordVal,
             choiceWordMethod: startType,
             dictionary: +dbVal,
@@ -109,7 +109,7 @@ class MainSet extends React.Component {
     }
     setTest() {
         const {littleType, bigType, classId} = this.state;
-        axios.patch('/api/manage/class/task/test', {
+        axios.patch(baseUrl + '/manage/class/task/test', {
             testType: littleType,
             specialTest: bigType,
             classId: +classId

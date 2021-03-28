@@ -3,7 +3,7 @@ import { Select, Pagination, Modal, Input, Divider } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import '../../style/pageStyle/ClassStu.less';
-import { get, post } from '../../service/tools';
+import { get, post, baseUrl } from '../../service/tools';
 const { Option } = Select;
 
 class ClassStu extends React.Component {
@@ -47,7 +47,7 @@ class ClassStu extends React.Component {
     }
     async login() {
         let res = await post({
-            url: '/api/auth/login',
+            url: baseUrl + '/auth/login',
             data: {
                 userName: 'yooky',
                 password: '123'
@@ -56,11 +56,11 @@ class ClassStu extends React.Component {
         console.log(res);
     }
     async getPici() {
-        let res = await get({url: '/api/manage/batch/list'});
+        let res = await get({url: baseUrl + '/manage/batch/list'});
         return res.data.detail || [];
     }
     async getClass(pici: any, cate: any) {
-        let res = await get({url: `/api/manage/class/list?batchId=${pici}&category=${cate}`});
+        let res = await get({url: baseUrl + `/manage/class/list?batchId=${pici}&category=${cate}`});
         console.log(res);
         return res.data.detail || [];
     }
@@ -105,7 +105,7 @@ class ClassStu extends React.Component {
             isVisible: false
         });
         let res = await post({
-            url: '/api/manage/class',
+            url: baseUrl + '/manage/class',
             data: {
                 batchId: selNewPi,
                 className: newBanji
@@ -144,7 +144,7 @@ class ClassStu extends React.Component {
         console.log('addItem');
         const { newPiciVal } = this.state;
         let res = await post({
-            url: '/api/manage/batch',
+            url: baseUrl + '/manage/batch',
             data: {
                 batchName: newPiciVal
             }

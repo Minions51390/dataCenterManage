@@ -4,7 +4,7 @@ import React from 'react';
 import { PageHeader, Table, Popconfirm } from 'antd';
 import { Link } from 'react-router-dom';
 import '../../style/pageStyle/MainClass.less';
-import { get } from '../../service/tools';
+import { get, baseUrl } from '../../service/tools';
 import axios from 'axios';
 
 const routes = [
@@ -131,12 +131,12 @@ class MainClass extends React.Component {
         });
     }
     async getClassInfo(id: any) {
-        let res = await get({url: `/api/manage/class/info?classId=${id}`});
+        let res = await get({url: baseUrl + `/manage/class/info?classId=${id}`});
         return res;
     }
     rejectStu(studentId: any) {
         const {classId} = this.state;
-        axios.patch('/api/manage/student/apply', {
+        axios.patch(baseUrl + '/manage/student/apply', {
             studentId: studentId,
             opinion: 'reject',
             classId: +classId
@@ -154,7 +154,7 @@ class MainClass extends React.Component {
     }
     resolveStu(studentId: any) {
         const {classId} = this.state;
-        axios.patch('/api/manage/student/apply', {
+        axios.patch(baseUrl + '/manage/student/apply', {
             studentId: studentId,
             opinion: 'agree',
             classId: +classId
@@ -171,7 +171,7 @@ class MainClass extends React.Component {
         this.resolveStu(stu);
     }
     async delStu(stu: any) {
-        let res = await axios.delete(`/api/manage/student?studentId=${stu}`);
+        let res = await axios.delete(baseUrl + `/manage/student?studentId=${stu}`);
         return res;
     }
     async confirmDel(val: any) {

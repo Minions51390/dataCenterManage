@@ -4,6 +4,44 @@ body {
 .main-wrapper {
     width: auto;
     margin: 65px 24px;
+    .mains {
+        height: 126px;
+        background: #ffffff;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        .fir {
+            margin-top: 16px;
+            font-size: 20px;
+            font-family: PingFangSC-Medium, PingFang SC;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+            line-height: 28px;
+            margin-left: 30px;
+        }
+        .sec {
+            margin-top: 30px;
+            .span {
+                margin-left: 30px;
+                display: inline-block;
+                width: 70px;
+                height: 22px;
+                font-size: 14px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: rgba(0, 0, 0, 0.85);
+                line-height: 22px;
+            }
+        }
+    }
+    .pag {
+        display: flex;
+        flex-direction: row-reverse;
+        margin-top: 24px;
+    }
+    .display-none {
+        display: none;
+    }
     .score-word {
         display: flex;
         height: 90px;
@@ -116,32 +154,34 @@ body {
         font-weight: 400;
         color: #102f5c;
     }
-    .error-content {
-        display: flex;
+    .error-wrapper {
         margin-top: 24px;
-        height: 564px;
         background: #ffffff;
         border-radius: 4px;
-        padding: 24px 24px 0 24px;
-        .left {
-            flex: 1;
-            margin-right: 30px;
-        }
-        .right {
-            flex: 1;
-        }
-        .ant-table-row {
-            &:hover td {
-                background: #fafafa !important;
+        padding: 24px 24px 24px 24px;
+        .error-content {
+            display: flex;
+            height: 564px;
+            .left {
+                flex: 1;
+                margin-right: 30px;
             }
-        }
-        th {
-            text-align: center;
-            color: #032352 !important;
-        }
-        td {
-            text-align: center;
-            color: #032352 !important;
+            .right {
+                flex: 1;
+            }
+            .ant-table-row {
+                &:hover td {
+                    background: #fafafa !important;
+                }
+            }
+            th {
+                text-align: center;
+                color: #032352 !important;
+            }
+            td {
+                text-align: center;
+                color: #032352 !important;
+            }
         }
     }
     .distance-fir {
