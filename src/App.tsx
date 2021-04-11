@@ -75,7 +75,7 @@ const App = (props: AppProps) => {
     }
     return (
         <Layout>
-            {!responsive.isMobile && checkLogin(auth.permissions) && (
+            {!responsive.isMobile && (
                 <SiderCustom collapsed={collapsed} />
             )}
             <ThemePicker />
