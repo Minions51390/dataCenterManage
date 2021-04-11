@@ -23,7 +23,9 @@ const menus: {
         // 菜单相关路由
 
         { key: '/app/class/main', title: '班级和学员管理', icon: 'mobile', component: 'ClassStu' },
+        { key: '/app/ranks', title: '排行榜', icon: 'mobile', component: 'Ranks' },
         { key: '/app/dashboard', title: '数据中心', icon: 'mobile', component: 'Dashboard' },
+        { key: '/app/errorBook', title: '错词本', icon: 'mobile', component: 'ErrorBook' },
         // {
         //     key: '/app/ui',
         //     title: 'UI',

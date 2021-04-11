@@ -14,6 +14,8 @@ import Tabs from './ui/Tabs';
 import Banners from './ui/banners';
 import Drags from './ui/Draggable';
 import Dashboard from './dashboard/Dashboard';
+import Ranks from './rank/Ranks';
+import ErrorBook from './errorBook/ErrorBook'
 import ClassStu from './classStu/ClassStu';
 import MainClass from './classStu/MainClass';
 import MainSet from './classStu/MainSet';
@@ -52,6 +54,8 @@ export default {
     Banners,
     Drags,
     Dashboard,
+    Ranks,
+    ErrorBook,
     Gallery,
     BasicAnimations,
     ExampleAnimations,
