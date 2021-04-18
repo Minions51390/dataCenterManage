@@ -1,5 +1,7 @@
 import React from 'react';
-import { Row, Col, Tabs, DatePicker, Table, Select, Pagination } from 'antd';
+import { Row, Col, Tabs, DatePicker, Table, Select, Pagination, Calendar} from 'antd';
+import locale from 'antd/lib/calendar/locale/zh_CN';
+import 'moment/locale/zh-cn';
 import moment from 'moment';
 import ReactEcharts from 'echarts-for-react';
 // import BreadcrumbCustom from '../widget/BreadcrumbCustom';
@@ -13,7 +15,6 @@ import ReactEcharts from 'echarts-for-react';
 //     SyncOutlined,
 //     SnippetsOutlined,
 // } from '@ant-design/icons';
-import Calendar from 'react-github-contribution-calendar';
 import '../../style/pageStyle/Dashboard.less';
 import { get, post, baseUrl } from '../../service/tools';
 const { Option } = Select;
@@ -319,7 +320,18 @@ class Dashboard extends React.Component {
             }],
             passRate: 0,
             reciteCount: 0
-        }
+        },
+        sketchInfo: {
+            prevReciteStatistics: [],
+            reciteStatistics: [],
+            nextReciteStatistics: [],
+        
+            // prevReciteStatistics: [0, 0, 0, 0, 0, 0, 12, 12, 12, 12, 36, 36, 24, 24, 0, 48, 12, 12, 36, 36, 0, 24, 24, 0, 0, 0, 0, 0, 0, 0, 0],
+            // reciteStatistics: [0, 12, 24, 36, 48, 0, 12, 12, 12, 12, 36, 36, 24, 24, 0, 48, 12, 12, 36, 36, 0, 24, 24, 0, 48, 12, 12, 36, 36, 0, 24],
+            // nextReciteStatistics: [36, 36, 36, 36, 36, 36, 36, 36, 36, 12, 36, 36, 24, 24, 36, 48, 12, 12, 36, 36, 48, 24, 24, 36, 36, 36, 36, 36, 36, 12, 12],
+        },
+        calendarSelectedMouth: moment().month(),
+        calendarSelectedYear:  moment().year(),
     };
     componentWillMount() {
         this.inited();
@@ -327,7 +339,7 @@ class Dashboard extends React.Component {
     echartsReact = React.createRef();
     async inited() {
         let userid = await this.login();
-        let {options, mydate1, mydate2} = this.state;
+        let {options, mydate1, mydate2, calendarSelectedMouth, calendarSelectedYear} = this.state;
         const pici = await this.getPici();
         const banji = await this.getClass(pici[0].batchId);
         const stu = await this.getStu(banji[0].classId);
@@ -372,6 +384,7 @@ class Dashboard extends React.Component {
             word: '暂无数据',
             state: '1'
         }]
+        this.handleSketch(pici[0].batchId, banji[0].classId, stu[0].studentId, calendarSelectedMouth, calendarSelectedYear);
         this.setState({
             pici,
             banji,
@@ -384,11 +397,21 @@ class Dashboard extends React.Component {
             data2,
             allCount: wrongInfo.totalPage,
             options,
-            testInfo
+            testInfo,
         });
         const instance = (this.echartsReact as any).getEchartsInstance();
         instance.setOption(options);
         console.log(userid);
+    }
+    onPanelChange(value: any, mode: any) {
+        const {selPici, selBanji, selStu} = this.state;
+        // Todo 发现问题，接口设计不满足日历与小错题本联动，
+        // 待解决后处理日历改变后驱动错题本修改的回调
+        // this.wrongBook({
+        //     batchId: selPici,
+        //     classId: selBanji,
+        //     studentId: selStu
+        // });
     }
     tabCallback(key: any) {
         this.setState({
@@ -477,6 +500,11 @@ class Dashboard extends React.Component {
         let res = await get({url: baseUrl + `/dataCenter/testResult?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&date=${(new Date() as any).format('yyyy-MM-dd')}`});
         return res.data;
     }
+    async getSketch(params: any) {
+        let res = await get({url: baseUrl + `/dataCenter/studySketch?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&year=${params.calendarSelectedYear}&month=${params.calendarSelectedMouth + 1}`});
+        console.log(res.data)
+        return res.data;
+    }
     async getChart(params: any) {
         const {type} = this.state;
         let res = await get({url: baseUrl + `/dataCenter/studyStatistics?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&type=${parseInt(type)}&startDate=${params.startDate}&endDate=${params.endDate}`});
@@ -537,8 +565,53 @@ class Dashboard extends React.Component {
         });
         console.log(val);
     }
+    async handleSketch(batchId: any, classId: any, studentId: any, calendarSelectedMouth: any, calendarSelectedYear: any) {
+        let prevCalendarSelectedMouth = calendarSelectedMouth - 1
+        let prevCalendarSelectedYear = calendarSelectedYear
+
+        let nextCalendarSelectedMouth = calendarSelectedMouth + 1
+        let nextCalendarSelectedYear = calendarSelectedYear
+        if (calendarSelectedMouth == 0) {
+            prevCalendarSelectedMouth = 11
+            prevCalendarSelectedYear = calendarSelectedYear - 1
+        } else if (calendarSelectedMouth == 11) {
+            nextCalendarSelectedMouth = 0
+            nextCalendarSelectedYear = calendarSelectedYear + 1
+        }
+        let prevSketchItem = await this.getSketch({
+            batchId,
+            classId,
+            studentId,
+            calendarSelectedMouth: prevCalendarSelectedMouth, 
+            calendarSelectedYear: prevCalendarSelectedYear,
+        })
+        let currentSketchItem = await this.getSketch({
+            batchId,
+            classId,
+            studentId,
+            calendarSelectedMouth, 
+            calendarSelectedYear
+        })
+        let nextSketchItem = await this.getSketch({
+            batchId,
+            classId,
+            studentId,
+            calendarSelectedMouth: nextCalendarSelectedMouth, 
+            calendarSelectedYear: nextCalendarSelectedYear,
+        })
+        let sketchInfo = {
+            reciteStatistics: currentSketchItem.reciteStatistics,
+            prevReciteStatistics: prevSketchItem.reciteStatistics,
+            nextReciteStatistics: nextSketchItem.reciteStatistics,
+        };
+        console.log("calendarSelectedMouth", calendarSelectedMouth)
+        this.setState({
+            sketchInfo
+        });
+    }
+
     async handleStu(val: any) {
-        let {selPici, selBanji, selStu, options, mydate2, mydate1} = this.state;
+        let {selPici, selBanji, selStu, options, mydate2, mydate1, calendarSelectedMouth, calendarSelectedYear} = this.state;
         const baseInfo = await this.baseInfo(val);
         const wrongInfo = await this.wrongBook({
             batchId: selPici,
@@ -580,6 +653,7 @@ class Dashboard extends React.Component {
             word: '暂无数据',
             state: '1'
         }]
+        this.handleSketch(selPici, selBanji, selStu, calendarSelectedMouth, calendarSelectedYear);
         this.setState({
             selStu: val,
             baseInfo,
@@ -592,8 +666,60 @@ class Dashboard extends React.Component {
         instance.setOption(options);
         console.log(val);
     }
+    onCalendarGoPrev(value: any, onChange: any) {
+        const {selPici, selBanji, selStu, sketchInfo} = this.state;
+        const month = value.month();
+        const year = value.year();
+        const newValue = value.clone();
+        if(month == 0) {
+            newValue.year(year - 1);
+            newValue.month(11);
+        } else {
+            newValue.month(month - 1);
+        }
+        let prevSketchInfo = {
+            prevReciteStatistics: [],
+            reciteStatistics: sketchInfo.prevReciteStatistics,
+            nextReciteStatistics: sketchInfo.reciteStatistics
+        }
+        this.setState({
+            calendarSelectedMouth: newValue.month(),
+            calendarSelectedYear: newValue.year(),
+            sketchInfo: prevSketchInfo
+        })
+        this.handleSketch(selPici, selBanji, selStu, newValue.month(), newValue.year());
+        console.log('newValue', newValue.format('YYYY-MM-DD'))
+        onChange(newValue);
+    }
+
+    onCalendarGoNext(value: any, onChange: any) {
+        const {selPici, selBanji, selStu, sketchInfo} = this.state;
+        const month = value.month();
+        const year = value.year();
+        const newValue = value.clone();
+        if(month == 11) {
+            newValue.year(year + 1);
+            newValue.month(0);
+        } else {
+            newValue.month(month + 1);
+        }
+        let nextSketchInfo = {
+            prevReciteStatistics: sketchInfo.reciteStatistics,
+            reciteStatistics: sketchInfo.nextReciteStatistics,
+            nextReciteStatistics: []
+        }
+        this.setState({
+            calendarSelectedMouth: newValue.month(),
+            calendarSelectedYear: newValue.year(),
+            sketchInfo: nextSketchInfo
+        })
+        this.handleSketch(selPici, selBanji, selStu, newValue.month(), newValue.year());
+        console.log('newValue', newValue.format('YYYY-MM-DD'))
+        onChange(newValue);
+    }
+
     render() {
-        const { pici, selPici, banji, selBanji, stu, selStu, baseInfo, columns1, data1, columns2, data2, options, testInfo, nowPag, allCount } = this.state;
+        const { pici, selPici, banji, selBanji, stu, selStu, baseInfo, columns1, data1, columns2, data2, options, testInfo, nowPag, allCount, sketchInfo, calendarSelectedMouth, calendarSelectedYear} = this.state;
         return (
             <div className="gutter-example button-demo main-wrapper">
                 {/* <BreadcrumbCustom /> */}
@@ -723,16 +849,58 @@ class Dashboard extends React.Component {
                                 {baseInfo.endDescribe}
                             </div>
                         </div>
-                        <div className="cal-area">
+                        <div className="calendar-area">
                             <div>
-                                <Calendar
-                                    values={values}
-                                    until={until}
-                                    weekNames={weekNames}
-                                    monthNames={monthNames}
-                                    panelColors={panelColors}
-                                    dateFormat={'YYYY-MM-DD'}
-                                />
+                                <div className="site-calendar-demo-card">
+                                    <Calendar fullscreen={false} 
+                                    locale={locale}
+                                    onPanelChange={this.onPanelChange.bind(this)}
+                                    headerRender={({ value, type, onChange, onTypeChange }) => {
+                                        const month = value.month();
+                                        const year = value.year();
+                                        return (
+                                          <div className="custom-header">
+                                            <div className="left-icon" onClick={this.onCalendarGoPrev.bind(this, value, onChange)}/>
+                                            <div className="current-date-title">
+                                                {`${String(year)}年  ${String(month + 1)}月`}
+                                            </div>
+                                            <div className="right-icon" onClick={this.onCalendarGoNext.bind(this, value, onChange)}/>
+                                          </div>
+                                        );
+                                      }}
+                                    dateFullCellRender={(value) => {
+                                        let className = "date-level-0"
+                                        let currentDayReciteStatistics = 0;
+                                        if(moment(value).month() == calendarSelectedMouth) {
+                                            currentDayReciteStatistics = sketchInfo.reciteStatistics[moment(value).date() - 1]
+                                        } else if (moment(value).month() == calendarSelectedMouth - 1 || (moment(value).month() == 11 && calendarSelectedMouth == 0)) {
+                                            currentDayReciteStatistics = sketchInfo.prevReciteStatistics[moment(value).date() - 1]
+                                        } else if (moment(value).month() == calendarSelectedMouth + 1 || (moment(value).month() == 0 && calendarSelectedMouth == 11)) {
+                                            currentDayReciteStatistics = sketchInfo.nextReciteStatistics[moment(value).date() - 1]
+                                        }
+                                        
+                                        console.log('currentDayReciteStatistics' ,currentDayReciteStatistics)
+                                        if(currentDayReciteStatistics == 0) {
+                                            className = "date-level-0"
+                                        } else if (currentDayReciteStatistics > 0 && currentDayReciteStatistics <= 12) {
+                                            className = "date-level-1"
+                                        } else if (currentDayReciteStatistics > 12 && currentDayReciteStatistics <= 24) {
+                                            className = "date-level-2"
+                                        } else if (currentDayReciteStatistics > 24 && currentDayReciteStatistics <= 36) {
+                                            className = "date-level-3"
+                                        } else if (currentDayReciteStatistics > 36) {
+                                            className = "date-level-4"
+                                        }
+                                        return (
+                                          <div className={moment(value).format('YYYY-MM-DD') == moment().format('YYYY-MM-DD') ? "date-level-area-today" : "date-level-area"}>
+                                            <div className={`date-level-item ${className}`}>
+                                            {moment(value).date()}
+                                            </div>
+                                          </div>
+                                        );
+                                    }}
+                                    />
+                                </div>
                             </div>
                         </div>
                         <div className="word-area">
