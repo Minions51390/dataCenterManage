@@ -151,7 +151,7 @@ class Ranks extends React.Component {
         this.inited();
     }
     async inited() {
-        let userid = await this.login();
+        // let userid = await this.login();
         const pici = await this.getPici();
         const banji = await this.getClass(pici[0].batchId || 0);
         this.setState({

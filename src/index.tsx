@@ -9,6 +9,7 @@ import * as apis from './service';
 import './style/lib/animate.css';
 import './style/index.less';
 import './style/antd/index.less';
+import { post, baseUrl } from '../src/service/tools';
 
 setConfig(apis);
 umbrella.config('REACT-ADMIN');
@@ -44,7 +45,17 @@ umbrella.config('REACT-ADMIN');
 //         render(Page);
 //     })
 // }
-
+const login = async () => {
+    let res = await post({
+        url: baseUrl + '/auth/login',
+        data: {
+            userName: 'yooky',
+            password: '123'
+        }
+    });
+    return res;
+};
+login();
 ReactDOM.render(
     // <AppContainer>
     <AlitaProvider>

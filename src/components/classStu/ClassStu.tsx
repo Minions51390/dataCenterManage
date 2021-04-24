@@ -26,7 +26,7 @@ class ClassStu extends React.Component {
         this.initData();
     }
     async initData() {
-        await this.login();
+        // await this.login();
         const pici = await this.getPici();
         this.setState({
             pici,
