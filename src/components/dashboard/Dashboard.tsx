@@ -332,6 +332,7 @@ class Dashboard extends React.Component {
         },
         calendarSelectedMouth: moment().month(),
         calendarSelectedYear:  moment().year(),
+        calendarSelectedDate:  moment(),
     };
     componentWillMount() {
         this.inited();
@@ -349,20 +350,24 @@ class Dashboard extends React.Component {
             classId: banji[0].classId,
             studentId: stu[0].studentId
         });
-        let data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
-            return {
-                key: index + 1,
-                word: val.word,
-                count: val.count
-            }
-        });
-        let data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
-            return {
-                key: index + 1,
-                word: val.word,
-                count: val.count
-            }
-        });
+        let data1 = []
+        let data2 = []
+        if(wrongInfo.detail !== null) {
+            data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
+                return {
+                    key: index + 1,
+                    word: val.word,
+                    count: val.count
+                }
+            });
+            data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
+                return {
+                    key: index + 1,
+                    word: val.word,
+                    count: val.count
+                }
+            });
+        }
         const centerData = await this.getChart({
             batchId: pici[0].batchId,
             classId: banji[0].classId,
@@ -379,6 +384,7 @@ class Dashboard extends React.Component {
             batchId: pici[0].batchId,
             classId: banji[0].classId,
             studentId: stu[0].studentId,
+            testDate: (new Date() as any).format('yyyy-MM-dd'),
         });
         testInfo.detail = testInfo.detail ? testInfo.detail : [{
             word: '暂无数据',
@@ -403,15 +409,23 @@ class Dashboard extends React.Component {
         instance.setOption(options);
         console.log(userid);
     }
-    onPanelChange(value: any, mode: any) {
+    async onDateChange(value: any) {
         const {selPici, selBanji, selStu} = this.state;
-        // Todo 发现问题，接口设计不满足日历与小错题本联动，
-        // 待解决后处理日历改变后驱动错题本修改的回调
-        // this.wrongBook({
-        //     batchId: selPici,
-        //     classId: selBanji,
-        //     studentId: selStu
-        // });
+        console.log('onPanelChange')
+        let testInfo = await this.getTest({
+            batchId: selPici,
+            classId: selBanji,
+            studentId: selStu,
+            testDate: moment(value).format('YYYY-MM-DD'),
+        });
+        testInfo.detail = testInfo.detail ? testInfo.detail : [{
+            word: '暂无数据',
+            state: '1'
+        }]
+        this.setState({
+            testInfo,
+            calendarSelectedDate: moment(value),
+        })
     }
     tabCallback(key: any) {
         this.setState({
@@ -447,20 +461,25 @@ class Dashboard extends React.Component {
             classId: selBanji,
             studentId: selStu
         });
-        let data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
-            return {
-                key: index + 1,
-                word: val.word,
-                count: val.count
-            }
-        });
-        let data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
-            return {
-                key: index + 1,
-                word: val.word,
-                count: val.count
-            }
-        });
+        
+        let data1 = []
+        let data2 = []
+        if(wrongInfo.detail !== null) {
+            data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
+                return {
+                    key: index + 1,
+                    word: val.word,
+                    count: val.count
+                }
+            });
+            data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
+                return {
+                    key: index + 1,
+                    word: val.word,
+                    count: val.count
+                }
+            });
+        }
         this.setState({
             nowPag: val,
             data1,
@@ -496,8 +515,12 @@ class Dashboard extends React.Component {
         const instance = (this.echartsReact as any).getEchartsInstance();
         instance.setOption(options);
     }
+    // async getTest(params: any) {
+    //     let res = await get({url: baseUrl + `/dataCenter/testResult?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&date=${(new Date() as any).format('yyyy-MM-dd')}`});
+    //     return res.data;
+    // }
     async getTest(params: any) {
-        let res = await get({url: baseUrl + `/dataCenter/testResult?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&date=${(new Date() as any).format('yyyy-MM-dd')}`});
+        let res = await get({url: baseUrl + `/dataCenter/testResult?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&date=${params.testDate}`});
         return res.data;
     }
     async getSketch(params: any) {
@@ -618,20 +641,24 @@ class Dashboard extends React.Component {
             classId: selBanji,
             studentId: val
         });
-        let data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
-            return {
-                key: index + 1,
-                word: val.word,
-                count: val.count
-            }
-        });
-        let data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
-            return {
-                key: index + 1,
-                word: val.word,
-                count: val.count
-            }
-        });
+        let data1 = []
+        let data2 = []
+        if(wrongInfo.detail !== null) {
+            data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
+                return {
+                    key: index + 1,
+                    word: val.word,
+                    count: val.count
+                }
+            });
+            data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
+                return {
+                    key: index + 1,
+                    word: val.word,
+                    count: val.count
+                }
+            });
+        }
         const centerData = await this.getChart({
             batchId: selPici,
             classId: selBanji,
@@ -648,19 +675,23 @@ class Dashboard extends React.Component {
             batchId: selPici,
             classId: selBanji,
             studentId: val,
+            testDate: (new Date() as any).format('yyyy-MM-dd'),
         });
         testInfo.detail = testInfo.detail ? testInfo.detail : [{
             word: '暂无数据',
             state: '1'
         }]
-        this.handleSketch(selPici, selBanji, selStu, calendarSelectedMouth, calendarSelectedYear);
+        this.handleSketch(selPici, selBanji, val, moment().month(), moment().year());
         this.setState({
             selStu: val,
             baseInfo,
             data1,
             data2,
             options,
-            testInfo
+            testInfo,
+            calendarSelectedMouth: moment().month(),
+            calendarSelectedYear:  moment().year(),
+            calendarSelectedDate: moment()
         });
         const instance = (this.echartsReact as any).getEchartsInstance();
         instance.setOption(options);
@@ -719,7 +750,7 @@ class Dashboard extends React.Component {
     }
 
     render() {
-        const { pici, selPici, banji, selBanji, stu, selStu, baseInfo, columns1, data1, columns2, data2, options, testInfo, nowPag, allCount, sketchInfo, calendarSelectedMouth, calendarSelectedYear} = this.state;
+        const { pici, selPici, banji, selBanji, stu, selStu, baseInfo, columns1, data1, columns2, data2, options, testInfo, nowPag, allCount, sketchInfo, calendarSelectedMouth, calendarSelectedYear, calendarSelectedDate} = this.state;
         return (
             <div className="gutter-example button-demo main-wrapper">
                 {/* <BreadcrumbCustom /> */}
@@ -853,8 +884,9 @@ class Dashboard extends React.Component {
                             <div>
                                 <div className="site-calendar-demo-card">
                                     <Calendar fullscreen={false} 
+                                    value={calendarSelectedDate}
                                     locale={locale}
-                                    onPanelChange={this.onPanelChange.bind(this)}
+                                    onChange={this.onDateChange.bind(this)}
                                     headerRender={({ value, type, onChange, onTypeChange }) => {
                                         const month = value.month();
                                         const year = value.year();
@@ -891,8 +923,14 @@ class Dashboard extends React.Component {
                                         } else if (currentDayReciteStatistics > 36) {
                                             className = "date-level-4"
                                         }
+                                        let dateClassName = "date-level-area"
+                                        if(moment(value).format('YYYY-MM-DD') == calendarSelectedDate.format('YYYY-MM-DD')) {
+                                            dateClassName = "date-level-area-selection"
+                                        } else if (moment(value).format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
+                                            dateClassName = "date-level-area-today"
+                                        }
                                         return (
-                                          <div className={moment(value).format('YYYY-MM-DD') == moment().format('YYYY-MM-DD') ? "date-level-area-today" : "date-level-area"}>
+                                          <div className={dateClassName}>
                                             <div className={`date-level-item ${className}`}>
                                             {moment(value).date()}
                                             </div>
