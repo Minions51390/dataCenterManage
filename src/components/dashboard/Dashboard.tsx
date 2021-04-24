@@ -616,7 +616,7 @@ class Dashboard extends React.Component {
         const wrongInfo = await this.wrongBook({
             batchId: selPici,
             classId: selBanji,
-            studentId: selStu
+            studentId: val
         });
         let data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
             return {
@@ -635,7 +635,7 @@ class Dashboard extends React.Component {
         const centerData = await this.getChart({
             batchId: selPici,
             classId: selBanji,
-            studentId: selStu,
+            studentId: val,
             startDate: mydate1,
             endDate: mydate2
         });
@@ -647,7 +647,7 @@ class Dashboard extends React.Component {
         let testInfo = await this.getTest({
             batchId: selPici,
             classId: selBanji,
-            studentId: selStu,
+            studentId: val,
         });
         testInfo.detail = testInfo.detail ? testInfo.detail : [{
             word: '暂无数据',
