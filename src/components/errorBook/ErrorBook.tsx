@@ -46,7 +46,7 @@ class ErrorBook extends React.Component {
         this.inited();
     }
     async inited() {
-        let userid = await this.login();
+        // let userid = await this.login();
         let res = await this.getKu();
         this.setState({
             wordDb: res,

@@ -338,7 +338,7 @@ class Dashboard extends React.Component {
     }
     echartsReact = React.createRef();
     async inited() {
-        let userid = await this.login();
+        // let userid = await this.login();
         let {options, mydate1, mydate2, calendarSelectedMouth, calendarSelectedYear} = this.state;
         const pici = await this.getPici();
         const banji = await this.getClass(pici[0].batchId);
@@ -401,7 +401,6 @@ class Dashboard extends React.Component {
         });
         const instance = (this.echartsReact as any).getEchartsInstance();
         instance.setOption(options);
-        console.log(userid);
     }
     onPanelChange(value: any, mode: any) {
         const {selPici, selBanji, selStu} = this.state;
