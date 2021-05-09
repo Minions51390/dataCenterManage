@@ -38,4 +38,12 @@ export const post = ({ url, data, msg = '接口异常', config }: IFRequestParam
             message.warn(msg);
         });
 
+export const patch = ({ url, data, msg = '接口异常', config }: IFRequestParam) =>
+    axios
+        .patch(url, data, config)
+        .then((res) => res.data)
+        .catch((err) => {
+            console.log(err);
+            message.warn(msg);
+        });
 export const baseUrl = '/api';

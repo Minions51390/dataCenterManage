@@ -353,7 +353,8 @@ class Dashboard extends React.Component {
         
         let data1 = []
         let data2 = []
-        if(wrongInfo.detail !== null) {
+        let allCount;
+        if(wrongInfo != null && wrongInfo.detail !== null) {
             data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
                 return {
                     key: index + 1,
@@ -368,6 +369,7 @@ class Dashboard extends React.Component {
                     count: val.count
                 }
             });
+            allCount =  wrongInfo.totalPage;
         }
         const centerData = await this.getChart({
             batchId: pici[0].batchId,
@@ -402,7 +404,7 @@ class Dashboard extends React.Component {
             baseInfo,
             data1,
             data2,
-            allCount: wrongInfo.totalPage,
+            allCount,
             options,
             testInfo,
         });
@@ -463,7 +465,8 @@ class Dashboard extends React.Component {
         });
         let data1 = []
         let data2 = []
-        if(wrongInfo.detail !== null) {
+        let allCount
+        if(wrongInfo != null && wrongInfo.detail !== null) {
             data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
                 return {
                     key: index + 1,
@@ -478,12 +481,13 @@ class Dashboard extends React.Component {
                     count: val.count
                 }
             });
+            allCount = wrongInfo.totalPage;
         }
         this.setState({
             nowPag: val,
             data1,
             data2,
-            allCount: wrongInfo.totalPage
+            allCount
         });
     }
     async dataChange(data: any) {
@@ -638,7 +642,7 @@ class Dashboard extends React.Component {
         });
         let data1 = []
         let data2 = []
-        if(wrongInfo.detail !== null) {
+        if(wrongInfo != null && wrongInfo.detail !== null) {
             data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
                 return {
                     key: index + 1,

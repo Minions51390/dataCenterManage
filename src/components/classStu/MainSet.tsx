@@ -92,12 +92,14 @@ class MainSet extends React.Component {
         let res = await get({url: baseUrl + '/api/dictionary/info'});
         this.setState({
             wordDb: res.data,
-            dbName: res.data[0].dictionaryName
+            dbName: res.data[0].dictionaryName,
+            dbVal: res.data[0].dictionaryId,
         })
         console.log(res);
     }
     setSet() {
         const {startType, wordVal, dbVal, classId} = this.state;
+        console.log('liushufang', dbVal, +dbVal)
         axios.patch(baseUrl + '/manage/class/task/recite', {
             dailyReciteCount: +wordVal,
             choiceWordMethod: startType,

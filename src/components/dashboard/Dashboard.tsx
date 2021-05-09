@@ -17,91 +17,97 @@ import ReactEcharts from 'echarts-for-react';
 // } from '@ant-design/icons';
 import '../../style/pageStyle/Dashboard.less';
 import { get, post, baseUrl } from '../../service/tools';
+import { getDefaultKeyBinding } from 'draft-js';
 const { Option } = Select;
 const { TabPane } = Tabs;
 const { RangePicker } = DatePicker;
 // const { Column, ColumnGroup } = Table;
 const dateFormat = 'YYYY/MM/DD';
-let values = {
-    '2016-01-23': 1,
-    '2016-01-26': 2,
-    '2016-01-27': 3,
-    '2016-01-28': 4,
-    '2016-01-29': 4,
-    '2016-02-23': 1,
-    '2016-02-26': 2,
-    '2016-02-27': 3,
-    '2016-02-28': 4,
-    '2016-02-29': 4,
-    '2016-03-23': 1,
-    '2016-03-26': 2,
-    '2016-03-27': 3,
-    '2016-03-28': 4,
-    '2016-03-29': 4,
-    '2016-04-23': 1,
-    '2016-04-26': 2,
-    '2016-04-27': 3,
-    '2016-04-28': 4,
-    '2016-04-29': 4,
-    '2016-05-23': 1,
-    '2016-05-26': 2,
-    '2016-05-27': 3,
-    '2016-05-28': 4,
-    '2016-05-29': 4,
-    '2016-06-23': 1,
-    '2016-06-26': 2,
-    '2016-06-27': 3,
-    '2016-06-28': 4,
-    '2016-06-29': 4,
-    '2016-07-23': 1,
-    '2016-07-26': 2,
-    '2016-07-27': 3,
-    '2016-07-28': 4,
-    '2016-07-29': 4,
-    '2016-08-23': 1,
-    '2016-08-26': 2,
-    '2016-08-27': 3,
-    '2016-08-28': 4,
-    '2016-08-29': 4,
-    '2016-09-23': 1,
-    '2016-09-26': 2,
-    '2016-09-27': 3,
-    '2016-09-28': 4,
-    '2016-09-29': 4,
-    '2016-10-23': 1,
-    '2016-10-26': 2,
-    '2016-10-27': 3,
-    '2016-10-28': 4,
-    '2016-10-29': 4,
-    '2016-11-23': 1,
-    '2016-11-26': 2,
-    '2016-11-27': 3,
-    '2016-11-28': 4,
-    '2016-11-29': 4,
-    '2016-12-23': 1,
-    '2016-12-26': 2,
-    '2016-12-27': 3,
-    '2016-12-28': 4,
-    '2016-12-29': 4,
+const defaultOptions = {
+    tooltip: {
+        trigger: 'axis',
+    },
+    legend: {
+        data: [{
+            name: '当前学员',
+            icon: 'rect', // 用矩形替换
+        },
+            {
+            name: '同期综合评分最优学员',
+            icon: 'rect',
+        },
+        {
+            name: '同期综合评分最差学员',
+            icon: 'rect', // 用矩形替换
+        },
+        {
+            name: '该指标同期平均值',
+            icon: 'rect',
+        }
+        ],
+        itemWidth: 40, //矩形宽度
+        itemHeight: 2, //矩形高度
+        textPosition: 'left',
+        left: 'left',
+        itemGap: 30,
+        align:'right',
+    },
+    grid: {
+        left: '0',
+        right: '0',
+        bottom: '0',
+        containLabel: true,
+    },
+    xAxis: {
+        type: 'category',
+        data: ['2020/01', '2020/02', '2020/03', '2020/04', '2020/05', '2020/06'],
+    },
+    yAxis: {
+        type: 'value',
+    },
+    series: [
+        {
+            name: '当前学员',
+            type: 'line',
+            smooth: true,
+            data: [0, 0, 0, 0, 0, 0],
+        },
+        {
+            name: '同期综合评分最优学员',
+            type: 'line',
+            smooth: true,
+            data: [0, 0, 0, 0, 0, 0],
+        },
+        {
+            name: '同期综合评分最差学员',
+            type: 'line',
+            smooth: true,
+            data: [0, 0, 0, 0, 0, 0],
+        },
+        {
+            name: '该指标同期平均值',
+            type: 'line',
+            smooth: true,
+            lineStyle: {
+                type: 'dashed',
+            },
+            data: [0, 0, 0, 0, 0, 0],
+        },
+    ],
+    color: ['#0089FF', '#00CF2C', '#FF1010', '#91949A']
 };
-let until = '2016-12-30';
-let weekNames = ['一', '二', '三', '四', '五', '六', '日'];
-let monthNames = [
-    '1月',
-    '2月',
-    '3月',
-    '4月',
-    '5月',
-    '6月',
-    '7月',
-    '8月',
-    '9月',
-    '10月',
-    '11月',
-    '12月',
-];
-let panelColors = ['#EEEEEE', '#F78A23', '#F87D09', '#AC5808', '#7B3F06'];
-
+const getDefaultOption = () => {
+    return JSON.parse(JSON.stringify(defaultOptions))
+}
+const defaultTestInfo = {
+    date: '',
+    detail: [{
+        word: '暂无数据',
+        result: '1'
+    }],
+    passRate: 0,
+    reciteCount: 0
+};
 (Date.prototype as any).format = function(fmt: any) { 
     let o: any = { 
        'M+' : this.getMonth()+1,
@@ -147,6 +153,7 @@ const getDateBetween = (start: any, end: any) => {
     }
     return result;
 };
+let instance: any;
 class Dashboard extends React.Component {
     state = {
         pici: [],
@@ -256,80 +263,12 @@ class Dashboard extends React.Component {
         ],
         nowPag: 1,
         allCount: 10,
-        options: {
-            tooltip: {
-                trigger: 'axis',
-            },
-            legend: {
-                data: ['你的评分', '同期最优评分', '同期差评分', '同期平均分'],
-                left: 'left',
-            },
-            grid: {
-                left: '0',
-                right: '0',
-                bottom: '0',
-                containLabel: true,
-            },
-            toolbox: {
-                feature: {
-                    saveAsImage: {},
-                },
-            },
-            xAxis: {
-                type: 'category',
-                data: ['2020/01', '2020/02', '2020/03', '2020/04', '2020/05', '2020/06'],
-            },
-            yAxis: {
-                type: 'value',
-            },
-            series: [
-                {
-                    name: '你的评分',
-                    type: 'line',
-                    smooth: true,
-                    data: [0, 0, 0, 0, 0, 0],
-                },
-                {
-                    name: '同期最优评分',
-                    type: 'line',
-                    smooth: true,
-                    data: [0, 0, 0, 0, 0, 0],
-                },
-                {
-                    name: '同期差评分',
-                    type: 'line',
-                    smooth: true,
-                    data: [0, 0, 0, 0, 0, 0],
-                },
-                {
-                    name: '同期平均分',
-                    type: 'line',
-                    smooth: true,
-                    lineStyle: {
-                        type: 'dashed',
-                    },
-                    data: [0, 0, 0, 0, 0, 0],
-                },
-            ],
-            color: ['#0089FF', '#FF1E1E', '#91949A', '#FFCD00']
-        },
-        testInfo: {
-            date: '',
-            detail: [{
-                word: '',
-                state: ''
-            }],
-            passRate: 0,
-            reciteCount: 0
-        },
+        options: getDefaultOption(),
+        testInfo: defaultTestInfo,
         sketchInfo: {
             prevReciteStatistics: [],
             reciteStatistics: [],
             nextReciteStatistics: [],
-        
-            // prevReciteStatistics: [0, 0, 0, 0, 0, 0, 12, 12, 12, 12, 36, 36, 24, 24, 0, 48, 12, 12, 36, 36, 0, 24, 24, 0, 0, 0, 0, 0, 0, 0, 0],
-            // reciteStatistics: [0, 12, 24, 36, 48, 0, 12, 12, 12, 12, 36, 36, 24, 24, 0, 48, 12, 12, 36, 36, 0, 24, 24, 0, 48, 12, 12, 36, 36, 0, 24],
-            // nextReciteStatistics: [36, 36, 36, 36, 36, 36, 36, 36, 36, 12, 36, 36, 24, 24, 36, 48, 12, 12, 36, 36, 48, 24, 24, 36, 36, 36, 36, 36, 36, 12, 12],
         },
         calendarSelectedMouth: moment().month(),
         calendarSelectedYear:  moment().year(),
@@ -353,7 +292,8 @@ class Dashboard extends React.Component {
         });
         let data1 = []
         let data2 = []
-        if(wrongInfo.detail !== null) {
+        let allCount;
+        if(wrongInfo != null && wrongInfo.detail !== null) {
             data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
                 return {
                     key: index + 1,
@@ -368,6 +308,7 @@ class Dashboard extends React.Component {
                     count: val.count
                 }
             });
+            allCount = wrongInfo.totalPage;
         }
         const centerData = await this.getChart({
             batchId: pici[0].batchId,
@@ -389,7 +330,7 @@ class Dashboard extends React.Component {
         });
         testInfo.detail = testInfo.detail ? testInfo.detail : [{
             word: '暂无数据',
-            state: '1'
+            result: '1'
         }]
         this.handleSketch(pici[0].batchId, banji[0].classId, stu[0].studentId, calendarSelectedMouth, calendarSelectedYear);
         this.setState({
@@ -402,12 +343,15 @@ class Dashboard extends React.Component {
             baseInfo,
             data1,
             data2,
-            allCount: wrongInfo.totalPage,
+            allCount,
             options,
             testInfo,
         });
-        const instance = (this.echartsReact as any).getEchartsInstance();
-        instance.setOption(options);
+        if (this.echartsReact != null) {
+            instance = (this.echartsReact as any).getEchartsInstance();
+            instance.clear(); 
+            instance.setOption(options, true);
+        }
     }
     async onDateChange(value: any) {
         const {selPici, selBanji, selStu} = this.state;
@@ -420,7 +364,7 @@ class Dashboard extends React.Component {
         });
         testInfo.detail = testInfo.detail ? testInfo.detail : [{
             word: '暂无数据',
-            state: '1'
+            result: '1'
         }]
         this.setState({
             testInfo,
@@ -449,8 +393,8 @@ class Dashboard extends React.Component {
                 mydate1,
                 mydate2
             });
-            const instance = (this.echartsReact as any).getEchartsInstance();
-            instance.setOption(options);
+            instance.clear(); 
+            instance.setOption(options, true);
         });
         console.log(key);
     }
@@ -464,7 +408,8 @@ class Dashboard extends React.Component {
         
         let data1 = []
         let data2 = []
-        if(wrongInfo.detail !== null) {
+        let allCount;
+        if(wrongInfo != null && wrongInfo.detail !== null) {
             data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
                 return {
                     key: index + 1,
@@ -479,12 +424,13 @@ class Dashboard extends React.Component {
                     count: val.count
                 }
             });
+            allCount = wrongInfo.totalPage;
         }
         this.setState({
             nowPag: val,
             data1,
             data2,
-            allCount: wrongInfo.totalPage
+            allCount
         });
     }
     async dataChange(data: any) {
@@ -512,35 +458,30 @@ class Dashboard extends React.Component {
             mydate1,
             mydate2
         });
-        const instance = (this.echartsReact as any).getEchartsInstance();
         instance.setOption(options);
     }
-    // async getTest(params: any) {
-    //     let res = await get({url: baseUrl + `/dataCenter/testResult?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&date=${(new Date() as any).format('yyyy-MM-dd')}`});
-    //     return res.data;
-    // }
     async getTest(params: any) {
         let res = await get({url: baseUrl + `/dataCenter/testResult?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&date=${params.testDate}`});
-        return res.data;
+        return res ? res.data : null;
     }
     async getSketch(params: any) {
         let res = await get({url: baseUrl + `/dataCenter/studySketch?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&year=${params.calendarSelectedYear}&month=${params.calendarSelectedMouth + 1}`});
         console.log(res.data)
-        return res.data;
+        return res ? res.data : null;
     }
     async getChart(params: any) {
         const {type} = this.state;
         let res = await get({url: baseUrl + `/dataCenter/studyStatistics?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&type=${parseInt(type)}&startDate=${params.startDate}&endDate=${params.endDate}`});
-        return res.data;
+        return res ? res.data : null;
     }
     async wrongBook(params: any) {
         const {pageNo} = this.state;
         let res = await get({url: baseUrl + `/dataCenter/wrongBook?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&pageSize=20&pageNo=${pageNo}`});
-        return res.data;
+        return res ? res.data : null;
     }
     async baseInfo(stuid: string) {
         let res = await get({url: baseUrl + `/dataCenter/baseInfo?studentId=${stuid}`});
-        return res.data;
+        return res ? res.data : null;
     }
     async login() {
         let res = await post({
@@ -567,9 +508,11 @@ class Dashboard extends React.Component {
         console.log(res);
         return res.data.detail || [];
     }
+
     async handlePiCi(val: any) {
         let res = await this.getClass(val);
         let res1 = await this.getStu(res[0] ? res[0].classId : 0);
+        let selStu = res1[0] ? res1[0].studentId : 0
         this.setState({
             selPici: val,
             banji: res,
@@ -578,16 +521,114 @@ class Dashboard extends React.Component {
             selStu: res1[0] ? res1[0].classId : 0,
         });
         console.log(val);
+        this.handleStu(selStu);
     }
+
     async handleBanji(val: any) {
         let res = await this.getStu(val);
+        let selStu = res[0] ? res[0].studentId : 0
         this.setState({
             selBanji: val,
             stu: res,
-            selStu: res[0] ? res[0].studentId : 0
+            selStu
         });
         console.log(val);
+        this.handleStu(selStu);
     }
+
+    async handleStu(val: any) {
+        let {selPici, selBanji, selStu, options, mydate2, mydate1, calendarSelectedMouth, calendarSelectedYear} = this.state;
+        if(val == 0) {
+            let newDefaultOption = getDefaultOption()
+            if (this.echartsReact != null) {
+                instance.clear(); 
+                let date1 = (new Date(FunGetDateStr(-5, new Date()) + " 00:00:00") as any).format('yyyy-MM-dd')
+                let date2 = (new Date() as any).format('yyyy-MM-dd')
+                newDefaultOption.xAxis.data = getDateBetween(date1, date2);
+                instance.setOption(newDefaultOption, true);
+            }
+            this.setState({
+                selStu: '',
+                baseInfo: {
+                    baseScore: '',
+                    endDescribe: '',
+                    reciteCount: '',
+                    studentName: ''
+                },
+                data1: [],
+                data2: [],
+                options: newDefaultOption,
+                testInfo: defaultTestInfo,
+                calendarSelectedMouth: moment().month(),
+                calendarSelectedYear:  moment().year(),
+                calendarSelectedDate: moment()
+            });
+            return
+        }
+        
+        const baseInfo = await this.baseInfo(val);
+        const wrongInfo = await this.wrongBook({
+            batchId: selPici,
+            classId: selBanji,
+            studentId: val
+        });
+        let data1 = []
+        let data2 = []
+        if(wrongInfo != null && wrongInfo.detail != null) {
+            data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
+                return {
+                    key: index + 1,
+                    word: val.word,
+                    count: val.count
+                }
+            });
+            data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
+                return {
+                    key: index + 11,
+                    word: val.word,
+                    count: val.count
+                }
+            });
+        }
+        const centerData = await this.getChart({
+            batchId: selPici,
+            classId: selBanji,
+            studentId: val,
+            startDate: mydate1,
+            endDate: mydate2
+        });
+        options.series[0].data = centerData.personal;
+        options.series[1].data = centerData.best;
+        options.series[2].data = centerData.worst;
+        options.series[3].data = centerData.average;
+        options.xAxis.data = getDateBetween(mydate1, mydate2);
+        let testInfo = await this.getTest({
+            batchId: selPici,
+            classId: selBanji,
+            studentId: val,
+            testDate: (new Date() as any).format('yyyy-MM-dd'),
+        });
+        testInfo.detail = testInfo.detail ? testInfo.detail : [{
+            word: '暂无数据',
+            result: '1'
+        }]
+        this.handleSketch(selPici, selBanji, val, moment().month(), moment().year());
+        this.setState({
+            selStu: val,
+            baseInfo,
+            data1,
+            data2,
+            options,
+            testInfo,
+            calendarSelectedMouth: moment().month(),
+            calendarSelectedYear:  moment().year(),
+            calendarSelectedDate: moment()
+        });
+        instance.clear(); 
+        instance.setOption(options, true);
+        console.log(val);
+    }
+
     async handleSketch(batchId: any, classId: any, studentId: any, calendarSelectedMouth: any, calendarSelectedYear: any) {
         let prevCalendarSelectedMouth = calendarSelectedMouth - 1
         let prevCalendarSelectedYear = calendarSelectedYear
@@ -633,70 +674,6 @@ class Dashboard extends React.Component {
         });
     }
 
-    async handleStu(val: any) {
-        let {selPici, selBanji, selStu, options, mydate2, mydate1, calendarSelectedMouth, calendarSelectedYear} = this.state;
-        const baseInfo = await this.baseInfo(val);
-        const wrongInfo = await this.wrongBook({
-            batchId: selPici,
-            classId: selBanji,
-            studentId: val
-        });
-        let data1 = []
-        let data2 = []
-        if(wrongInfo.detail !== null) {
-            data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
-                return {
-                    key: index + 1,
-                    word: val.word,
-                    count: val.count
-                }
-            });
-            data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
-                return {
-                    key: index + 1,
-                    word: val.word,
-                    count: val.count
-                }
-            });
-        }
-        const centerData = await this.getChart({
-            batchId: selPici,
-            classId: selBanji,
-            studentId: val,
-            startDate: mydate1,
-            endDate: mydate2
-        });
-        options.series[0].data = centerData.personal;
-        options.series[1].data = centerData.best;
-        options.series[2].data = centerData.worst;
-        options.series[3].data = centerData.average;
-        options.xAxis.data = getDateBetween(mydate1, mydate2);
-        let testInfo = await this.getTest({
-            batchId: selPici,
-            classId: selBanji,
-            studentId: val,
-            testDate: (new Date() as any).format('yyyy-MM-dd'),
-        });
-        testInfo.detail = testInfo.detail ? testInfo.detail : [{
-            word: '暂无数据',
-            state: '1'
-        }]
-        this.handleSketch(selPici, selBanji, val, moment().month(), moment().year());
-        this.setState({
-            selStu: val,
-            baseInfo,
-            data1,
-            data2,
-            options,
-            testInfo,
-            calendarSelectedMouth: moment().month(),
-            calendarSelectedYear:  moment().year(),
-            calendarSelectedDate: moment()
-        });
-        const instance = (this.echartsReact as any).getEchartsInstance();
-        instance.setOption(options);
-        console.log(val);
-    }
     onCalendarGoPrev(value: any, onChange: any) {
         const {selPici, selBanji, selStu, sketchInfo} = this.state;
         const month = value.month();
@@ -809,7 +786,7 @@ class Dashboard extends React.Component {
                             </div>
                             <div className="right">
                                 <span className="label">综合评分：</span>
-                                <span className="num">{baseInfo.baseScore}</span>
+                                <span className="num">{(+baseInfo.baseScore).toFixed(2)}</span>
                                 <span className="word">分</span>
                             </div>
                             <div className="right">
@@ -954,7 +931,7 @@ class Dashboard extends React.Component {
                                         {testInfo.detail.slice(0, 6).map((val, index) => {
                                             return (
                                                 <div
-                                                    className={val.state ? 'yes' : 'no'}
+                                                    className={val.result ? 'yes' : 'no'}
                                                     key={index}
                                                 >
                                                     {index + 1}.{val.word}
@@ -965,7 +942,7 @@ class Dashboard extends React.Component {
                                 </div>
                                 <div className="right">
                                     <div className="main">
-                                        <span className="big">{testInfo.passRate}</span>
+                                        <span className="big">{(testInfo.passRate*100).toFixed(2)}</span>
                                         <span className="small">%</span>
                                     </div>
                                     <div className="sub">当日测试通过率</div>
@@ -973,7 +950,7 @@ class Dashboard extends React.Component {
                                         {testInfo.detail.slice(6, 12).map((val, index) => {
                                             return (
                                                 <div
-                                                    className={val.state ? 'yes' : 'no'}
+                                                    className={val.result ? 'yes' : 'no'}
                                                     key={index}
                                                 >
                                                     {index + 7}.{val.word}
