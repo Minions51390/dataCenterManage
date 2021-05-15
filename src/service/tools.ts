@@ -38,4 +38,4 @@ export const post = ({ url, data, msg = '接口异常', config }: IFRequestParam
             message.warn(msg);
         });
 
-export const baseUrl = '/api';
+export const baseUrl = '';
