@@ -215,7 +215,7 @@ class ClassStu extends React.Component {
                                     </div>
                                     <div className="thr-line">
                                         <div>
-                                            {item.classId}
+                                            {item.studentCount}
                                             <span>人</span>
                                         </div>
                                         <div>{item.classCode}</div>
@@ -312,7 +312,7 @@ class ClassStu extends React.Component {
                                     </div>
                                     <div className="thr-line">
                                         <div>
-                                            {item.classId}
+                                            {item.studentCount}
                                             <span>人</span>
                                         </div>
                                         <div>{item.classCode}</div>

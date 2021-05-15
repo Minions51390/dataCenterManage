@@ -68,7 +68,10 @@ const SiderMenu = ({ menus, ...props }: SiderMenuProps) => {
                 {(provided, snapshot) => (
                     <div ref={provided.innerRef} {...provided.droppableProps}>
                         {dragItems.map((item: IFMenu, index: number) => (
-                            <Draggable key={item.key} draggableId={item.key} index={index}>
+                            <Draggable 
+                            key={item.key} 
+                            draggableId={item.key}
+                            index={index}>
                                 {(provided, snapshot) => (
                                     <div
                                         ref={provided.innerRef}

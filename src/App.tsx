@@ -73,6 +73,7 @@ const App = (props: AppProps) => {
     function toggle() {
         setCollapsed(!collapsed);
     }
+    
     return (
         <Layout>
             {!responsive.isMobile && (
@@ -82,7 +83,7 @@ const App = (props: AppProps) => {
             <Layout
                 className={classNames('app_layout', { 'app_layout-mobile': responsive.isMobile })}
             >
-                <HeaderCustom toggle={toggle} collapsed={collapsed} user={auth || {}} />
+                <HeaderCustom toggle={toggle} collapsed={collapsed} user={auth || {}} collapsible={false}/>
                 <Content className="app_layout_content">
                     <Routes auth={auth} />
                 </Content>
