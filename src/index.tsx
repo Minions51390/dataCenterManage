@@ -49,8 +49,8 @@ const login = async () => {
     let res = await post({
         url: baseUrl + '/auth/login',
         data: {
-            userName: 'yooky',
-            password: '123'
+            userName: 'stu',
+            password: '111'
         }
     });
     return res;
