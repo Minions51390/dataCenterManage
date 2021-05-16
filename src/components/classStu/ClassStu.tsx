@@ -100,16 +100,20 @@ class ClassStu extends React.Component {
     }
     async handleOk(val: any) {
         console.log(val);
-        const { selNewPi, newBanji } = this.state;
+        const { selNewPi, newBanji, selPici, pici } = this.state;
         this.setState({
             isVisible: false
         });
         let res = await post({
             url: baseUrl + '/manage/class',
             data: {
-                batchId: selNewPi,
+                batchId: selNewPi || selPici,
                 className: newBanji
             }
+        });
+        let list = await this.getClass((pici[0] as any).batchId, 'coaching');
+        this.setState({
+            nowClass: list
         });
         console.log(res);
         // window.location.href = '/#/app/class/main/class';
@@ -231,6 +235,7 @@ class ClassStu extends React.Component {
                             <div className="module-area">
                                 学员批次: 
                                 <Select
+                                    defaultValue={selPici}
                                     className="gap"
                                     style={{ width: 240 }}
                                     placeholder="请选择学员批次"

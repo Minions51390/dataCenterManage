@@ -296,12 +296,6 @@ class Dashboard extends React.Component {
                     data: [0, 0, 0, 0, 0, 0],
                 },
                 {
-                    name: '同期差评分',
-                    type: 'line',
-                    smooth: true,
-                    data: [0, 0, 0, 0, 0, 0],
-                },
-                {
                     name: '同期平均分',
                     type: 'line',
                     smooth: true,
@@ -380,8 +374,7 @@ class Dashboard extends React.Component {
         });
         options.series[0].data = centerData.personal;
         options.series[1].data = centerData.best;
-        options.series[2].data = centerData.worst;
-        options.series[3].data = centerData.average;
+        options.series[2].data = centerData.average;
         options.xAxis.data = getDateBetween(mydate1, mydate2);
         let testInfo = await this.getTest({
             batchId: pici[0].batchId,
@@ -443,8 +436,7 @@ class Dashboard extends React.Component {
             });
             options.series[0].data = centerData.personal;
             options.series[1].data = centerData.best;
-            options.series[2].data = centerData.worst;
-            options.series[3].data = centerData.average;
+            options.series[2].data = centerData.average;
             options.xAxis.data = getDateBetween(mydate1, mydate2);
             this.setState({
                 options,
@@ -507,8 +499,7 @@ class Dashboard extends React.Component {
         });
         options.series[0].data = centerData.personal;
         options.series[1].data = centerData.best;
-        options.series[2].data = centerData.worst;
-        options.series[3].data = centerData.average;
+        options.series[2].data = centerData.average;
         options.xAxis.data = getDateBetween(mydate1, mydate2);
         this.setState({
             options,
@@ -667,8 +658,7 @@ class Dashboard extends React.Component {
         });
         options.series[0].data = centerData.personal;
         options.series[1].data = centerData.best;
-        options.series[2].data = centerData.worst;
-        options.series[3].data = centerData.average;
+        options.series[2].data = centerData.average;
         options.xAxis.data = getDateBetween(mydate1, mydate2);
         let testInfo = await this.getTest({
             batchId: selPici,

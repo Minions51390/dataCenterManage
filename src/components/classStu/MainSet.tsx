@@ -65,12 +65,14 @@ class MainSet extends React.Component {
         bigType: '',
         specialTestDate: '',
         firState: 0,
-        secState: 0
+        secState: 0,
+        reciteSetting: false
     };
     async componentWillMount() {
         const classId = window.location.href.split('=')[1];
         let res = await this.getSetInfo(classId);
         this.setState({
+            firState: res.data.reciteSetting ? 1 : 0,
             startType: res.data.choiceWordMethod,
             wordVal: +res.data.dailyReciteCount,
             dbVal: res.data.dictionaryId,
@@ -236,12 +238,12 @@ class MainSet extends React.Component {
                             !firState ? 
                             (
                                 <div className="sec">
-                                    <Radio.Group onChange={this.onWordTypeChange.bind(this)} value={wordType}>
+                                    {/* <Radio.Group onChange={this.onWordTypeChange.bind(this)} value={wordType}>
                                         <Radio value={1}>学生自定义</Radio>
                                         <Radio value={2}>教师设置</Radio>
-                                    </Radio.Group>
+                                    </Radio.Group> */}
+                                    <span style={{'marginRight': '12px'}}>教师设置</span>
                                     <Select
-                                        disabled={wordType === 1 ? true : false}
                                         defaultValue={wordVal}
                                         value={wordVal}
                                         style={{ width: 240 }}
@@ -261,7 +263,7 @@ class MainSet extends React.Component {
                             (
                                 <div className="sec">
                                     <div>
-                                        状态: <div className="state-co">{wordType === 1 ? '学生自定义' : '教师设置'} {wordType !== 1 ? ` 背词数: ${wordVal} 个` : ''}</div>
+                                        状态: <div className="state-co">教师设置 {` 背词数: ${wordVal} 个`}</div>
                                     </div>
                                 </div>
                             )
