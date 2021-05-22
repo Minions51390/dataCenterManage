@@ -9,6 +9,8 @@ import { ThemePicker, Copyright } from './components/widget';
 import { checkLogin } from './utils';
 // import { fetchMenu } from './service';
 import classNames from 'classnames';
+import { get, baseUrl } from './service/tools';
+import { message } from 'antd';
 // import { SmileOutlined } from '@ant-design/icons';
 
 const { Content, Footer } = Layout;
@@ -52,6 +54,30 @@ function handleResize(handler: (isMobile: boolean) => void) {
 //     });
 // }
 
+
+// 获取用户信息
+async function getMes() {
+    let res = await get({
+        url: baseUrl + '/api/teacher/profile',
+    });
+
+    console.log('yangqi liu2', res);
+    if (!res && !res.data && res.data.state == null) {
+        message.error('服务器开小差了')
+        return
+    }
+    if (res.data.state == 401) {
+        message.error('请登录后使用')
+        window.location.href = `${baseUrl}/#/home`;
+        return
+    } else if (res.data.state == 403) {
+        message.error('当前身份无法访问该页面，请登录教师账号')
+        window.location.href = `${baseUrl}/#/home`;
+        return
+    }
+    return res
+}
+
 const App = (props: AppProps) => {
     const [collapsed, setCollapsed] = useState<boolean>(false);
     const [auth, responsive, setAlita] = useAlita(
@@ -59,6 +85,19 @@ const App = (props: AppProps) => {
         { responsive: { isMobile: false } },
         { light: true }
     );
+    const [phone, setPhone] = useState('');
+    const [realName, setRealName] = useState('');
+    const [userName, setUserName] = useState('');
+    
+    useEffect(() => {
+        getMes().then((res) => {
+            console.log('yangqi phone', res.data.phone);
+            setPhone(res.data.phone)
+            setRealName(res.data.realName)
+            setUserName(res.data.userName)
+        });
+        
+    }, [])
 
     useEffect(() => {
         let user = umbrella.getLocalStorage('user');
@@ -83,7 +122,7 @@ const App = (props: AppProps) => {
             <Layout
                 className={classNames('app_layout', { 'app_layout-mobile': responsive.isMobile })}
             >
-                <HeaderCustom toggle={toggle} collapsed={collapsed} user={auth || {}} collapsible={false}/>
+                <HeaderCustom toggle={toggle} collapsed={collapsed} user={auth || {}} collapsible={false} realName={realName} userName={userName} phone={phone}/>
                 <Content className="app_layout_content">
                     <Routes auth={auth} />
                 </Content>

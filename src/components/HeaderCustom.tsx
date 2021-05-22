@@ -22,41 +22,19 @@ type HeaderCustomProps = {
     responsive?: any;
     path?: string;
     collapsible?: boolean;
+    phone?: any;
+    realName?: any;
+    userName?: any;
 };
 
 const HeaderCustom = (props: HeaderCustomProps) => {
-    const [user, setUser] = useState<any>();
-    
     const [responsive] = useAlita('responsive', { light: true });
-    // const [collapsible] = useAlita('collapsible', true);
+    // const [phone] = useAlita('phone');
+    // const [realName] = useAlita('realName');
+    // const [userName] = useAlita('userName');
+    console.log("yangqi1", props, props.realName)
     const [visible, turn] = useSwitch();
-    const history = useHistory();
-    
-    useEffect(() => {
-        const query = parseQuery();
-        let storageUser = umbrella.getLocalStorage('user');
 
-        if (!storageUser && query.code) {
-            gitOauthToken(query.code as string).then((res: any) => {
-                gitOauthInfo(res.access_token).then((info: any) => {
-                    setUser({
-                        user: info,
-                    });
-                    umbrella.setLocalStorage('user', info);
-                });
-            });
-        } else {
-            setUser({
-                user: storageUser,
-            });
-        }
-    }, []);
-    
-    
-    const logout = () => {
-        umbrella.removeLocalStorage('user');
-        history.push('/login');
-    };
     return (
         <Header className="custom-theme header">
             {props.collapsible && <div>
@@ -84,7 +62,7 @@ const HeaderCustom = (props: HeaderCustomProps) => {
                 </div>
             }
             <div style={{ lineHeight: '64px', float: 'right' }}>
-                <HeaderMenuComp user={user} logout={logout}></HeaderMenuComp>
+                <HeaderMenuComp userName={props.userName} realName={props.realName} phone={props.phone}></HeaderMenuComp>
             </div>
             
             

@@ -18,13 +18,14 @@ const { SubMenu } = Menu;
 const phoneReg = /^[1][1,2,3,4,5,7,8,9][0-9]{9}$/;
  class HeaderMenuComp extends React.Component {
 	constructor(props) {
-    super(props);
-    this.state = {
-				showOver: false,
-				realName: '',
-				phone: '',
-    };
-  }
+		super(props);
+		this.state = {
+			showOver: false,
+			realName: this.props.realName,
+			userName: this.props.userName,
+			phone: this.props.phone,
+		};
+	}
 		screenFull = () => {
 			if (screenfull.isEnabled) {
 					screenfull.toggle();
@@ -40,9 +41,6 @@ const phoneReg = /^[1][1,2,3,4,5,7,8,9][0-9]{9}$/;
 		}
 		openMenu = (v) => {
 				console.log(v);
-				// setOpenKey({
-				// 				openKey: v[v.length - 1],
-				// 		})
 		}
 		showOverPop = () => {
 			this.setState({
@@ -76,7 +74,42 @@ const phoneReg = /^[1][1,2,3,4,5,7,8,9][0-9]{9}$/;
 		rowLength(val) {
 			return val.length >= 254 ? true : false;
 		}
-
+		
+		componentDidMount() {
+			// this.getMes();
+		}
+		componentDidUpdate(prevProps) {
+			if(prevProps.realName !== this.props.realName){
+				this.setState({
+					realName: this.props.realName,
+					userName: this.props.userName,
+					phone: this.props.phone,
+				});
+			}
+		}
+		// 获取用户信息
+		async getMes() {
+			let res = await get({
+				url: baseUrl + 'api/teacher/profile',
+			});
+			if (!res && !res.data && res.data.state == null) {
+				message.error('服务器开小差了')
+				return
+			}
+			if (res.data.state == 401) {
+				message.error('请登录后使用')
+				window.location.href = `${baseUrl}/#/home`;
+				return
+			} else if (res.data.state == 403) {
+				message.error('当前身份无法访问该页面，请登录教师账号')
+				window.location.href = `${baseUrl}/#/home`;
+				return
+			}
+			this.setState({ 
+				phone: res.data.data.phone,
+				realName: res.data.data.realName,
+				userName: res.data.data.userName});
+		}
 		  // 提交信息
 		async saveMes() {
 			const {realName, phone} = this.state;
@@ -117,8 +150,9 @@ const phoneReg = /^[1][1,2,3,4,5,7,8,9][0-9]{9}$/;
    	render() {
 			const {
 				showOver,
-				realName,
 				phone,
+				realName,
+				userName,
 			} = this.state;
 			return (
 				<div>
@@ -140,7 +174,7 @@ const phoneReg = /^[1][1,2,3,4,5,7,8,9][0-9]{9}$/;
 									<span className="avatar">
 											<img src={avater} alt="头像" />
 											<i className="on bottom b-white" />
-											{` 你好 - ${realName ? realName : this.props.user?.userName}`}
+											{` 你好 - ${realName != null ? realName : userName}`}
 									</span>
 							}
 						>
