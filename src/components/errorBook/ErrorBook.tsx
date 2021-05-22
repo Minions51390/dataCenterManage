@@ -80,7 +80,7 @@ class ErrorBook extends React.Component {
         const {pageNo, dbVal} = this.state;
         let res = await get({url: baseUrl + `/census/wrongBook?dictionaryId=${dbVal}&batchId=${pici}&classId=${classid}&pageNo=${pageNo}&pageSize=20`});
         console.log(res);
-        let data1 = res.data.detail ? res.data.detail.slice(0, 10).map((val: any, index: number) => {
+        let data1 = res.data.detail ? res.data.detail.map((val: any, index: number) => {
             return {
                 key: index + 1,
                 en: val.en,
@@ -94,17 +94,6 @@ class ErrorBook extends React.Component {
             allCount: res.data.totalPage
         });
         return res.data || [];
-    }
-
-    async login() {
-        let res = await post({
-            url: baseUrl + '/auth/login',
-            data: {
-                userName: 'yooky',
-                password: '123'
-            }
-        });
-        return res;
     }
 
     async handlePiCi(val: any) {
@@ -201,7 +190,7 @@ class ErrorBook extends React.Component {
                         />
                     </div>
                     <div className={data1.length ? "pag" : "display-none"}>
-                        <Pagination defaultCurrent={1} defaultPageSize={20} current={pageNo} total={allCount} onChange={this.nowPagChange.bind(this)} />
+                        <Pagination defaultCurrent={1} pageSize={20} current={pageNo} total={allCount * 20} onChange={this.nowPagChange.bind(this)} />
                     </div>
                 </div>
             </div>

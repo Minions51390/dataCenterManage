@@ -296,12 +296,6 @@ class Dashboard extends React.Component {
                     data: [0, 0, 0, 0, 0, 0],
                 },
                 {
-                    name: '同期差评分',
-                    type: 'line',
-                    smooth: true,
-                    data: [0, 0, 0, 0, 0, 0],
-                },
-                {
                     name: '同期平均分',
                     type: 'line',
                     smooth: true,
@@ -341,10 +335,10 @@ class Dashboard extends React.Component {
     async inited() {
         // let userid = await this.login();
         let {options, mydate1, mydate2, calendarSelectedMouth, calendarSelectedYear} = this.state;
-        const pici = await this.getPici();
-        const banji = await this.getClass(pici[0].batchId);
-        const stu = await this.getStu(banji[0].classId);
-        const baseInfo = await this.baseInfo(stu[0] ? stu[0].studentId : 0);
+        const pici = [{batchId: 0}];
+        const banji = [{classId: 0}];
+        const stu = [{studentId: 0}];
+        const baseInfo = await this.baseInfo();
         const wrongInfo = await this.wrongBook({
             batchId: pici[0].batchId,
             classId: banji[0].classId,
@@ -380,8 +374,7 @@ class Dashboard extends React.Component {
         });
         options.series[0].data = centerData.personal;
         options.series[1].data = centerData.best;
-        options.series[2].data = centerData.worst;
-        options.series[3].data = centerData.average;
+        options.series[2].data = centerData.average;
         options.xAxis.data = getDateBetween(mydate1, mydate2);
         let testInfo = await this.getTest({
             batchId: pici[0].batchId,
@@ -443,8 +436,7 @@ class Dashboard extends React.Component {
             });
             options.series[0].data = centerData.personal;
             options.series[1].data = centerData.best;
-            options.series[2].data = centerData.worst;
-            options.series[3].data = centerData.average;
+            options.series[2].data = centerData.average;
             options.xAxis.data = getDateBetween(mydate1, mydate2);
             this.setState({
                 options,
@@ -507,8 +499,7 @@ class Dashboard extends React.Component {
         });
         options.series[0].data = centerData.personal;
         options.series[1].data = centerData.best;
-        options.series[2].data = centerData.worst;
-        options.series[3].data = centerData.average;
+        options.series[2].data = centerData.average;
         options.xAxis.data = getDateBetween(mydate1, mydate2);
         this.setState({
             options,
@@ -519,26 +510,26 @@ class Dashboard extends React.Component {
         instance.setOption(options);
     }
     async getTest(params: any) {
-        let res = await get({url: baseUrl + `/dataCenter/testResult?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&date=${params.testDate}`});
+        let res = await get({url: baseUrl + `/dataCenter/testResult?date=${params.testDate}`});
         return res.data;
     }
     async getSketch(params: any) {
-        let res = await get({url: baseUrl + `/dataCenter/studySketch?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&year=${params.calendarSelectedYear}&month=${params.calendarSelectedMouth + 1}`});
+        let res = await get({url: baseUrl + `/dataCenter/studySketch?year=${params.calendarSelectedYear}&month=${params.calendarSelectedMouth + 1}`});
         console.log(res.data)
         return res.data;
     }
     async getChart(params: any) {
         const {type} = this.state;
-        let res = await get({url: baseUrl + `/dataCenter/studyStatistics?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&type=${parseInt(type)}&startDate=${params.startDate}&endDate=${params.endDate}`});
+        let res = await get({url: baseUrl + `/dataCenter/studyStatistics?type=${parseInt(type)}&startDate=${params.startDate}&endDate=${params.endDate}`});
         return res.data;
     }
     async wrongBook(params: any) {
         const {pageNo} = this.state;
-        let res = await get({url: baseUrl + `/dataCenter/wrongBook?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&pageSize=20&pageNo=${pageNo}`});
+        let res = await get({url: baseUrl + `/dataCenter/wrongBook?pageSize=20&pageNo=${pageNo}`});
         return res.data;
     }
-    async baseInfo(stuid: string) {
-        let res = await get({url: baseUrl + `/dataCenter/baseInfo?studentId=${stuid}`});
+    async baseInfo() {
+        let res = await get({url: baseUrl + `/dataCenter/baseInfo`});
         return res.data;
     }
     async login() {
@@ -634,7 +625,7 @@ class Dashboard extends React.Component {
 
     async handleStu(val: any) {
         let {selPici, selBanji, selStu, options, mydate2, mydate1, calendarSelectedMouth, calendarSelectedYear} = this.state;
-        const baseInfo = await this.baseInfo(val);
+        const baseInfo = await this.baseInfo();
         const wrongInfo = await this.wrongBook({
             batchId: selPici,
             classId: selBanji,
@@ -667,8 +658,7 @@ class Dashboard extends React.Component {
         });
         options.series[0].data = centerData.personal;
         options.series[1].data = centerData.best;
-        options.series[2].data = centerData.worst;
-        options.series[3].data = centerData.average;
+        options.series[2].data = centerData.average;
         options.xAxis.data = getDateBetween(mydate1, mydate2);
         let testInfo = await this.getTest({
             batchId: selPici,
@@ -754,11 +744,11 @@ class Dashboard extends React.Component {
         return (
             <div className="gutter-example button-demo main-wrapper" style={{'background': '#F6F8FB', 'margin': '0', 'padding': '65px 24px'}}>
                 {/* <BreadcrumbCustom /> */}
-                <div className="mains">
+                <div className="mains" style={{'height': '56px'}}>
                     <div className="fir">
                         数据中心
                     </div>
-                    <div className="sec">
+                    {/* <div className="sec">
                         <span className="span">学员批次:</span>
                         <Select
                             defaultValue="请选择"
@@ -798,7 +788,7 @@ class Dashboard extends React.Component {
                                 </Option>
                             ))}
                         </Select>
-                    </div>
+                    </div> */}
                 </div>
                 <Row gutter={[30, 0]}>
                     <Col span={16}>
@@ -870,7 +860,7 @@ class Dashboard extends React.Component {
                                 </div>
                             </div>
                             <div className={data1.length ? "pag" : "display-none"}>
-                                <Pagination defaultCurrent={1} defaultPageSize={20} current={nowPag} total={allCount} onChange={this.nowPagChange.bind(this)} />
+                                <Pagination defaultCurrent={1} defaultPageSize={20} current={nowPag} total={allCount * 20} onChange={this.nowPagChange.bind(this)} />
                             </div>
                         </div>
                     </Col>

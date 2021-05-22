@@ -21,5 +21,10 @@ yarn start
 yarn build
 ```
 
+上线前的修改
+
+index login
+
+tools baseurl
 
 http://192.168.0.104:3006/#/app/dashboard

@@ -1,25 +1,37 @@
 import React from 'react';
 // import { Row, Col, Tabs, DatePicker, Table } from 'antd';
 // import moment from 'moment';
-import { PageHeader, Table, Popconfirm } from 'antd';
+import { PageHeader, Table, Popconfirm, message } from 'antd';
 import { Link } from 'react-router-dom';
 import '../../style/pageStyle/MainClass.less';
 import { get, baseUrl } from '../../service/tools';
 import axios from 'axios';
 
-const routes = [
-    {
-        path: '/app/class/main',
-        breadcrumbName: '班级和学员管理',
-    },
-    {
-        path: '/class',
-        breadcrumbName: '新建班级',
-    },
-];
+function GetRequest() {
+    const url = `?${window.location.href.split('?')[1]}`; //获取url中"?"符后的字串
+    let theRequest: any = new Object();
+    if (url.indexOf("?") != -1) {
+       let str = url.substr(1);
+       let strs = str.split("&");
+       for(let i = 0; i < strs.length; i ++) {
+          theRequest[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+       }
+    }
+    return theRequest;
+}
 
 class MainClass extends React.Component {
     state = {
+        routes: [
+            {
+                path: '/app/class/main',
+                breadcrumbName: '班级和学员管理',
+            },
+            {
+                path: '/class',
+                breadcrumbName: `${sessionStorage.getItem('className') || '新建班级'}`,
+            },
+        ],
         classId: '',
         classInfo: {
             classCode: "",
@@ -101,7 +113,10 @@ class MainClass extends React.Component {
         this.initList();
     }
     async initList() {
-        const classId = window.location.href.split('=')[1];
+        const classId = GetRequest()['classId'];
+        const piciId = GetRequest()['piciId'];
+        sessionStorage.setItem('classId', classId as any);
+        sessionStorage.setItem('piciId', piciId as any);
         let res = await this.getClassInfo(classId);
         let data1 = res.data.apply.detail.map((item: any, index: any) => {
             return {
@@ -141,7 +156,13 @@ class MainClass extends React.Component {
             opinion: 'reject',
             classId: +classId
         }).then(res => {
-            console.log(res)
+            console.log(res);
+            if (res.data.msg === '请设置班级任务后再进行此操作: ') {
+                message.error({
+                    content: '请设置班级任务后再进行此操作!!!',
+                    className: 'custom-class'
+                });
+            }
         });
         this.initList();
     }
@@ -159,7 +180,16 @@ class MainClass extends React.Component {
             opinion: 'agree',
             classId: +classId
         }).then(res => {
-            console.log(res)
+            console.log(res);
+            if (res.data.msg === '请设置班级任务后再进行此操作: ') {
+                message.error({
+                    content: '请设置班级任务后再进行此操作!!!',
+                    className: 'custom-class',
+                    style: {
+                      marginTop: '20vh',
+                    },
+                });
+            }
         });
         this.initList();
     }
@@ -182,7 +212,7 @@ class MainClass extends React.Component {
     }
 
     render() {
-        const { classId, classInfo, columns1, data1, columns2, data2 } = this.state;
+        const { classId, classInfo, columns1, data1, columns2, data2, routes } = this.state;
         return (
             <div className="main-class">
                 <div className="title-area">

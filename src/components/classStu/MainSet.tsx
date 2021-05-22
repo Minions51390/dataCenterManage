@@ -7,20 +7,19 @@ import { get, baseUrl } from '../../service/tools';
 import axios from 'axios';
 const { Option } = Select;
 
-const routes = [
-    {
-        path: '/app/class/main',
-        breadcrumbName: '班级和学员管理',
-    },
-    {
-        path: `/class?classId=${window.location.href.split('=')[1] || 1}`,
-        breadcrumbName: '新建班级',
-    },
-    {
-        path: '/set',
-        breadcrumbName: '设置学习任务',
-    },
-];
+function GetRequest() {
+    const url = `?${window.location.href.split('?')[1]}`; //获取url中"?"符后的字串
+    let theRequest: any = new Object();
+    if (url.indexOf("?") != -1) {
+       let str = url.substr(1);
+       let strs = str.split("&");
+       for(let i = 0; i < strs.length; i ++) {
+          theRequest[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+       }
+    }
+    return theRequest;
+}
+
 const content1 = (
     <div className="popColor">
       <div>学生自定义：学生可以自行选择每日背词数</div>
@@ -65,12 +64,28 @@ class MainSet extends React.Component {
         bigType: '',
         specialTestDate: '',
         firState: 0,
-        secState: 0
+        secState: 0,
+        reciteSetting: false,
+        routes: [
+            {
+                path: '/app/class/main',
+                breadcrumbName: '班级和学员管理',
+            },
+            {
+                path: `/class?classId=${GetRequest()['classId']}`,
+                breadcrumbName: `${sessionStorage.getItem('className') || '新建班级'}`,
+            },
+            {
+                path: '/set',
+                breadcrumbName: '设置学习任务',
+            },
+        ]
     };
     async componentWillMount() {
         const classId = window.location.href.split('=')[1];
         let res = await this.getSetInfo(classId);
         this.setState({
+            firState: res.data.reciteSetting ? 1 : 0,
             startType: res.data.choiceWordMethod,
             wordVal: +res.data.dailyReciteCount,
             dbVal: res.data.dictionaryId,
@@ -198,7 +213,7 @@ class MainSet extends React.Component {
     }
 
     render() {
-        const {wordType, wordCount, startType, wordDb, dbName, littleType, bigType, wordVal, dbVal, firState, secState} = this.state;
+        const {wordType, wordCount, startType, wordDb, dbName, littleType, bigType, wordVal, dbVal, firState, secState, routes} = this.state;
         return (
             <div className="main-set">
                 <div className="title-area">
@@ -236,12 +251,12 @@ class MainSet extends React.Component {
                             !firState ? 
                             (
                                 <div className="sec">
-                                    <Radio.Group onChange={this.onWordTypeChange.bind(this)} value={wordType}>
+                                    {/* <Radio.Group onChange={this.onWordTypeChange.bind(this)} value={wordType}>
                                         <Radio value={1}>学生自定义</Radio>
                                         <Radio value={2}>教师设置</Radio>
-                                    </Radio.Group>
+                                    </Radio.Group> */}
+                                    <span style={{'marginRight': '12px'}}>教师设置</span>
                                     <Select
-                                        disabled={wordType === 1 ? true : false}
                                         defaultValue={wordVal}
                                         value={wordVal}
                                         style={{ width: 240 }}
@@ -261,7 +276,7 @@ class MainSet extends React.Component {
                             (
                                 <div className="sec">
                                     <div>
-                                        状态: <div className="state-co">{wordType === 1 ? '学生自定义' : '教师设置'} {wordType !== 1 ? ` 背词数: ${wordVal} 个` : ''}</div>
+                                        状态: <div className="state-co">教师设置 {` 背词数: ${wordVal} 个`}</div>
                                     </div>
                                 </div>
                             )
