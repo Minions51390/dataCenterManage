@@ -7,20 +7,19 @@ import { get, baseUrl } from '../../service/tools';
 import axios from 'axios';
 const { Option } = Select;
 
-const routes = [
-    {
-        path: '/app/class/main',
-        breadcrumbName: '班级和学员管理',
-    },
-    {
-        path: `/class?classId=${window.location.href.split('=')[1] || 1}`,
-        breadcrumbName: '新建班级',
-    },
-    {
-        path: '/set',
-        breadcrumbName: '设置学习任务',
-    },
-];
+function GetRequest() {
+    const url = `?${window.location.href.split('?')[1]}`; //获取url中"?"符后的字串
+    let theRequest: any = new Object();
+    if (url.indexOf("?") != -1) {
+       let str = url.substr(1);
+       let strs = str.split("&");
+       for(let i = 0; i < strs.length; i ++) {
+          theRequest[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+       }
+    }
+    return theRequest;
+}
+
 const content1 = (
     <div className="popColor">
       <div>学生自定义：学生可以自行选择每日背词数</div>
@@ -66,7 +65,21 @@ class MainSet extends React.Component {
         specialTestDate: '',
         firState: 0,
         secState: 0,
-        reciteSetting: false
+        reciteSetting: false,
+        routes: [
+            {
+                path: '/app/class/main',
+                breadcrumbName: '班级和学员管理',
+            },
+            {
+                path: `/class?classId=${GetRequest()['classId']}`,
+                breadcrumbName: `${sessionStorage.getItem('className') || '新建班级'}`,
+            },
+            {
+                path: '/set',
+                breadcrumbName: '设置学习任务',
+            },
+        ]
     };
     async componentWillMount() {
         const classId = window.location.href.split('=')[1];
@@ -200,7 +213,7 @@ class MainSet extends React.Component {
     }
 
     render() {
-        const {wordType, wordCount, startType, wordDb, dbName, littleType, bigType, wordVal, dbVal, firState, secState} = this.state;
+        const {wordType, wordCount, startType, wordDb, dbName, littleType, bigType, wordVal, dbVal, firState, secState, routes} = this.state;
         return (
             <div className="main-set">
                 <div className="title-area">

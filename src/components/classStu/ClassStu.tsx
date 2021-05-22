@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import '../../style/pageStyle/ClassStu.less';
 import { get, post, baseUrl } from '../../service/tools';
 const { Option } = Select;
-
 class ClassStu extends React.Component {
     state = {
         pici: [],
@@ -28,6 +27,10 @@ class ClassStu extends React.Component {
     async initData() {
         // await this.login();
         const pici = await this.getPici();
+        let selPici = parseInt(sessionStorage.getItem('piciId') as any) || pici[0].batchId;
+        this.setState({
+            selPici
+        });
         this.setState({
             pici,
             piciF: pici,
@@ -35,7 +38,7 @@ class ClassStu extends React.Component {
         });
         let res = await this.getClass(pici[0].batchId, 'coaching');
         this.setState({
-            selPici: pici[0].batchId,
+            selPici,
             nowClass: res
         });
         let res1 = await this.getClass(pici[0].batchId, 'retire');
@@ -43,7 +46,6 @@ class ClassStu extends React.Component {
             selPiciF: pici[0].batchId,
             finClass: res1
         });
-        
     }
     async login() {
         let res = await post({
@@ -165,6 +167,9 @@ class ClassStu extends React.Component {
         //     }]
         // });
     }
+    setClassName(val: any) {
+        sessionStorage.setItem('className', val);
+    }
 
     render() {
         const { pici, selPici, nowClass, nowPag, finClass, finPag, piciF, selPiciF, isVisible, newPici, newPiciVal, newBanji } = this.state;
@@ -210,7 +215,7 @@ class ClassStu extends React.Component {
                 <div className="now-area">
                     <div className="item-area">
                         {nowClass.slice((nowPag - 1) * 7, nowPag * 7).map((item: any, index) => (
-                            <Link to={`/app/class/main/class?classId=${item.classId}`} key={index}>
+                            <Link onMouseDown={this.setClassName.bind(this, item.describe)} to={`/app/class/main/class?classId=${item.classId}&piciId=${selPici}`} key={index}>
                                 <div className="item">
                                     <div className="title">{item.describe}</div>
                                     <div className="sec-line">
