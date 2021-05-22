@@ -279,7 +279,7 @@ class Ranks extends React.Component {
                         />
                     </div>
                     <div className={data1.length ? "pag" : "display-none"}>
-                        <Pagination defaultCurrent={1} defaultPageSize={20} current={pageNo} total={allCount} onChange={this.nowPagChange.bind(this)} />
+                        <Pagination defaultCurrent={1} defaultPageSize={20} current={pageNo} total={allCount * 20} onChange={this.nowPagChange.bind(this)} />
                     </div>
                 </div>
             </div>

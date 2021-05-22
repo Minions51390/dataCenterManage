@@ -847,7 +847,7 @@ class Dashboard extends React.Component {
                                 </div>
                             </div>
                             <div className={data1.length ? "pag" : "display-none"}>
-                                <Pagination defaultCurrent={1} defaultPageSize={20} current={nowPag} total={allCount} onChange={this.nowPagChange.bind(this)} />
+                                <Pagination defaultCurrent={1} defaultPageSize={20} current={nowPag} total={allCount * 20} onChange={this.nowPagChange.bind(this)} />
                             </div>
                         </div>
                     </Col>
