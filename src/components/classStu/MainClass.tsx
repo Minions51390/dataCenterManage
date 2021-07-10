@@ -115,8 +115,12 @@ class MainClass extends React.Component {
     async initList() {
         const classId = GetRequest()['classId'];
         const piciId = GetRequest()['piciId'];
-        sessionStorage.setItem('classId', classId as any);
-        sessionStorage.setItem('piciId', piciId as any);
+        if(classId) {
+            sessionStorage.setItem('classId', classId as any);
+        }
+        if(piciId) {
+            sessionStorage.setItem('piciId', piciId as any);
+        }
         let res = await this.getClassInfo(classId);
         let data1 = res.data.apply.detail.map((item: any, index: any) => {
             return {

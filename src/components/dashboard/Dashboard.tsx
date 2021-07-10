@@ -435,6 +435,9 @@ class Dashboard extends React.Component {
     }
     async dataChange(data: any) {
         let {selPici, selBanji, selStu, options, mydate2, mydate1} = this.state;
+        if(!data) {
+            return
+        }
         mydate1 = (new Date(data[0]._d) as any).format('yyyy-MM-dd');
         mydate2 = (new Date(data[1]._d) as any).format('yyyy-MM-dd');
         console.log(
@@ -888,7 +891,6 @@ class Dashboard extends React.Component {
                                             currentDayReciteStatistics = sketchInfo.nextReciteStatistics[moment(value).date() - 1]
                                         }
                                         
-                                        console.log('currentDayReciteStatistics' ,currentDayReciteStatistics)
                                         if(currentDayReciteStatistics == 0) {
                                             className = "date-level-0"
                                         } else if (currentDayReciteStatistics > 0 && currentDayReciteStatistics <= 12) {

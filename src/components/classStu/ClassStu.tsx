@@ -36,7 +36,7 @@ class ClassStu extends React.Component {
             piciF: pici,
             newPici: pici
         });
-        let res = await this.getClass(pici[0].batchId, 'coaching');
+        let res = await this.getClass(selPici, 'coaching');
         this.setState({
             selPici,
             nowClass: res
@@ -59,18 +59,29 @@ class ClassStu extends React.Component {
     }
     async getPici() {
         let res = await get({url: baseUrl + '/manage/batch/list'});
-        return res.data.detail || [];
+        console.log('lll', res)
+        if(res != null) {
+            return res.data.detail;
+        } else {
+            return [];
+        }
+        
     }
     async getClass(pici: any, cate: any) {
         let res = await get({url: baseUrl + `/manage/class/list?batchId=${pici}&category=${cate}`});
         console.log(res);
-        return res.data.detail || [];
+        if(res != null) {
+            return res.data.detail;
+        } else {
+            return [];
+        }
     }
     async handlePiCi(val: any) {
         let res = await this.getClass(val, 'coaching');
         this.setState({
             selPici: val,
-            nowClass: res
+            nowClass: res,
+            nowPag: 1
         });
         console.log(val);
     }
@@ -102,20 +113,34 @@ class ClassStu extends React.Component {
     }
     async handleOk(val: any) {
         console.log(val);
-        const { selNewPi, newBanji, selPici, pici } = this.state;
+        const { selNewPi, newBanji, selPici } = this.state;
         this.setState({
             isVisible: false
         });
+
+        let batchId = selNewPi || selPici
         let res = await post({
             url: baseUrl + '/manage/class',
             data: {
-                batchId: selNewPi || selPici,
+                batchId: batchId,
                 className: newBanji
             }
         });
-        let list = await this.getClass((pici[0] as any).batchId, 'coaching');
         this.setState({
-            nowClass: list
+            selPici: selNewPi
+        });
+        let list = await this.getClass(batchId, 'coaching');
+        let nowPag = 1
+        if (list.length <= 7) {
+            nowPag = 1
+        } else if (list.length > 7 && list.length % 7 > 0) {
+            nowPag = Math.floor(list.length / 7) + 1
+        } else {
+            nowPag = list.length / 7
+        }
+        this.setState({
+            nowClass: list,
+            nowPag: nowPag
         });
         console.log(res);
         // window.location.href = '/#/app/class/main/class';

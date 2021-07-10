@@ -54,9 +54,9 @@ class MainSet extends React.Component {
     state = {
         classId: '',
         wordType: 1,
-        wordCount: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        wordCount: [9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60],
         wordVal: 9,
-        startType: '',
+        startType: 'arbitrarily',
         wordDb: [],
         dbVal: '',
         dbName: '',
@@ -83,17 +83,28 @@ class MainSet extends React.Component {
     };
     async componentWillMount() {
         const classId = window.location.href.split('=')[1];
+        await this.getKu();
         let res = await this.getSetInfo(classId);
+        let dbName = ''
+        
+        const {wordDb} = this.state
+        wordDb.forEach((val: any) => {
+            if (val.dictionaryId === res.data.dictionaryId){
+                dbName = val.dictionaryName;
+                // console.log('ssss', dbName)
+            }
+        });
+
         this.setState({
             firState: res.data.reciteSetting ? 1 : 0,
-            startType: res.data.choiceWordMethod,
-            wordVal: +res.data.dailyReciteCount,
+            startType: res.data.choiceWordMethod || 'arbitrarily',
+            wordVal: +res.data.dailyReciteCount || 9,
             dbVal: res.data.dictionaryId,
+            dbName: dbName,
             littleType: res.data.testType,
             bigType: res.data.specialTest,
             specialTestDate: res.data.specialTestDate
         });
-        this.getKu();
         this.setState({
             classId
         });
@@ -107,8 +118,8 @@ class MainSet extends React.Component {
         let res = await get({url: baseUrl + '/api/dictionary/info'});
         this.setState({
             wordDb: res.data,
-            dbName: res.data[0].dictionaryName,
-            dbVal: res.data[0].dictionaryId,
+            // dbName: res.data[0].dictionaryName,
+            // dbVal: res.data[0].dictionaryId,
         })
         console.log(res);
     }
@@ -116,7 +127,7 @@ class MainSet extends React.Component {
         const {startType, wordVal, dbVal, classId} = this.state;
         console.log('liushufang', dbVal, +dbVal)
         axios.patch(baseUrl + '/manage/class/task/recite', {
-            dailyReciteCount: +wordVal,
+            dailyReciteCount: + wordVal,
             choiceWordMethod: startType,
             dictionary: +dbVal,
             classId: +classId
@@ -297,7 +308,7 @@ class MainSet extends React.Component {
                             !firState ? 
                             (
                                 <div className="sec">
-                                    <Radio.Group onChange={this.onStartTypeChange.bind(this)} value={startType}>
+                                    <Radio.Group onChange={this.onStartTypeChange.bind(this)} value={startType} defaultValue='arbitrarily'>
                                         <Radio value={'arbitrarily'}>是</Radio>
                                         <Radio value={'noChoice'}>否</Radio>
                                     </Radio.Group>
