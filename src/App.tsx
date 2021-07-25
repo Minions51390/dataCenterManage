@@ -62,15 +62,15 @@ async function getMes() {
     });
 
     console.log('yangqi liu2', res);
-    if (!res && !res.data && res.data.state == null) {
+    if (!res && !res.state == null) {
         message.error('服务器开小差了')
         return
     }
-    if (res.data.state == 401) {
+    if (res.state == 401) {
         message.error('请登录后使用')
         window.location.href = `${baseUrl}/#/home`;
         return
-    } else if (res.data.state == 403) {
+    } else if (res.state == 403) {
         message.error('当前身份无法访问该页面，请登录教师账号')
         window.location.href = `${baseUrl}/#/home`;
         return

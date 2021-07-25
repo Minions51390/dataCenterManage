@@ -92,23 +92,23 @@ const phoneReg = /^[1][1,2,3,4,5,7,8,9][0-9]{9}$/;
 			let res = await get({
 				url: baseUrl + 'api/teacher/profile',
 			});
-			if (!res && !res.data && res.data.state == null) {
+			if (!res && !res.state == null) {
 				message.error('服务器开小差了')
 				return
 			}
-			if (res.data.state == 401) {
+			if (res.state == 401) {
 				message.error('请登录后使用')
 				window.location.href = `${baseUrl}/#/home`;
 				return
-			} else if (res.data.state == 403) {
+			} else if (res.state == 403) {
 				message.error('当前身份无法访问该页面，请登录教师账号')
 				window.location.href = `${baseUrl}/#/home`;
 				return
 			}
 			this.setState({ 
-				phone: res.data.data.phone,
-				realName: res.data.data.realName,
-				userName: res.data.data.userName});
+				phone: res.data.phone,
+				realName: res.data.realName,
+				userName: res.data.userName});
 		}
 		  // 提交信息
 		async saveMes() {

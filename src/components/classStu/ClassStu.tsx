@@ -205,7 +205,7 @@ class ClassStu extends React.Component {
                     <div className="sec-title">班级和学员管理</div>
                 </div>
                 <div className="select-area">
-                    <div className="fir">当前职教班级</div>
+                    <div className="fir">当前执教班级</div>
                     {/* <div className="thr">
                         <span className="span">筛选班级:</span>
                         <Select

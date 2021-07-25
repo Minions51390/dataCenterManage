@@ -358,7 +358,7 @@ class Dashboard extends React.Component {
             });
             data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
                 return {
-                    key: index + 1,
+                    key: index + 11,
                     word: val.word,
                     count: val.count
                 }
@@ -449,7 +449,10 @@ class Dashboard extends React.Component {
         console.log(key);
     }
     async nowPagChange(val: any) {
-        let {selPici, selBanji, selStu} = this.state;
+        let {selPici, selBanji, selStu, pageNo} = this.state;
+        this.setState({
+            pageNo: val
+        })
         const wrongInfo = await this.wrongBook({
             batchId: selPici,
             classId: selBanji,
@@ -461,14 +464,14 @@ class Dashboard extends React.Component {
         if(wrongInfo != null && wrongInfo.detail !== null) {
             data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
                 return {
-                    key: index + 1,
+                    key: val * 20 + index - 19,
                     word: val.word,
                     count: val.count
                 }
             });
             data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
                 return {
-                    key: index + 1,
+                    key: val * 20 + index - 9,
                     word: val.word,
                     count: val.count
                 }
@@ -643,7 +646,7 @@ class Dashboard extends React.Component {
             });
             data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
                 return {
-                    key: index + 1,
+                    key: index + 11,
                     word: val.word,
                     count: val.count
                 }

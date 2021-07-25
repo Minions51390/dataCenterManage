@@ -398,7 +398,7 @@ class MainSet extends React.Component {
                                     <Radio.Group onChange={this.onLittleTypeChange.bind(this)} value={littleType}>
                                         <Radio value={'ch-to-en'}>展示中文释义选择英文</Radio>
                                         <Radio value={'en-to-ch'}>展示英文选择中文释义</Radio>
-                                        <Radio value={'completion'}>填空</Radio>
+                                        {/* <Radio value={'completion'}>填空</Radio> */}
                                         <Radio value={'random'}>随机</Radio>
                                     </Radio.Group>
                                 </div>
