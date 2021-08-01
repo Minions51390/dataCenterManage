@@ -115,7 +115,8 @@ class ClassStu extends React.Component {
         console.log(val);
         const { selNewPi, newBanji, selPici } = this.state;
         this.setState({
-            isVisible: false
+            isVisible: false,
+            newBanji
         });
 
         let batchId = selNewPi || selPici
@@ -127,7 +128,8 @@ class ClassStu extends React.Component {
             }
         });
         this.setState({
-            selPici: selNewPi
+            selPici: selNewPi,
+            newBanji: ''
         });
         let list = await this.getClass(batchId, 'coaching');
         let nowPag = 1
@@ -148,7 +150,8 @@ class ClassStu extends React.Component {
     handleCancel(val: any) {
         console.log(val);
         this.setState({
-            isVisible: false
+            isVisible: false,
+            newBanji: ''
         });
     }
     showModal() {
@@ -167,8 +170,9 @@ class ClassStu extends React.Component {
         });
     }
     handlePiciVal(val: any) {
+        console.log('lsf selNewPi', val)
         this.setState({
-            selNewPi: val
+            selNewPi: val,
         });
     }
     async addItem() {
@@ -182,8 +186,11 @@ class ClassStu extends React.Component {
         });
         let list = await this.getPici();
         this.setState({
-            newPici: list
+            newPici: list,
+            pici: list,
+            selNewPi: list[list.length - 1].batchId
         });
+        
         console.log(res);
         // this.setState({
         //     newPici: [...newPici, {
@@ -197,7 +204,7 @@ class ClassStu extends React.Component {
     }
 
     render() {
-        const { pici, selPici, nowClass, nowPag, finClass, finPag, piciF, selPiciF, isVisible, newPici, newPiciVal, newBanji } = this.state;
+        const { pici, selPici, nowClass, nowPag, finClass, finPag, piciF, selPiciF, isVisible, newPici, newPiciVal, newBanji, selNewPi } = this.state;
         return (
             <div className="class-main-wrapper">
                 <div className="bread-title">
@@ -270,6 +277,7 @@ class ClassStu extends React.Component {
                                     style={{ width: 240 }}
                                     placeholder="请选择学员批次"
                                     onChange={this.handlePiciVal.bind(this)}
+                                    value={selNewPi || selPici}
                                     dropdownRender={menu => (
                                     <div>
                                         {menu}

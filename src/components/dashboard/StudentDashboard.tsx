@@ -162,7 +162,7 @@ class Dashboard extends React.Component {
             reciteCount: '',
             studentName: ''
         },
-        type: '1',
+        type: 'score',
         centerData: {
 
         },
@@ -281,6 +281,13 @@ class Dashboard extends React.Component {
             },
             yAxis: {
                 type: 'value',
+                label: {
+                    formatter: (v: any) => {
+                        return ''.concat(v).replace(/\d{1,3}(?=(\d{3})+$)/g, function (s) {
+                        return ''.concat(s, ',');
+                        });
+                    },
+                },
             },
             series: [
                 {
@@ -309,8 +316,8 @@ class Dashboard extends React.Component {
         testInfo: {
             date: '',
             detail: [{
-                word: '',
-                state: ''
+                word: '暂无数据',
+                result: '1'
             }],
             passRate: 0,
             reciteCount: 0
@@ -342,7 +349,8 @@ class Dashboard extends React.Component {
         const wrongInfo = await this.wrongBook({
             batchId: pici[0].batchId,
             classId: banji[0].classId,
-            studentId: stu[0].studentId
+            studentId: stu[0].studentId,
+            pageVal: 1
         });
         
         let data1 = []
@@ -384,7 +392,7 @@ class Dashboard extends React.Component {
         });
         testInfo.detail = testInfo.detail ? testInfo.detail : [{
             word: '暂无数据',
-            state: '1'
+            result: '1'
         }]
         this.handleSketch(pici[0].batchId, banji[0].classId, stu[0].studentId, calendarSelectedMouth, calendarSelectedYear);
         this.setState({
@@ -450,13 +458,15 @@ class Dashboard extends React.Component {
     }
     async nowPagChange(val: any) {
         let {selPici, selBanji, selStu, pageNo} = this.state;
+        let pageVal = val
         this.setState({
             pageNo: val
         })
         const wrongInfo = await this.wrongBook({
             batchId: selPici,
             classId: selBanji,
-            studentId: selStu
+            studentId: selStu,
+            pageVal,
         });
         let data1 = []
         let data2 = []
@@ -464,14 +474,14 @@ class Dashboard extends React.Component {
         if(wrongInfo != null && wrongInfo.detail !== null) {
             data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
                 return {
-                    key: val * 20 + index - 19,
+                    key: pageVal * 20 + index - 19,
                     word: val.word,
                     count: val.count
                 }
             });
             data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
                 return {
-                    key: val * 20 + index - 9,
+                    key: pageVal * 20 + index - 9,
                     word: val.word,
                     count: val.count
                 }
@@ -523,12 +533,11 @@ class Dashboard extends React.Component {
     }
     async getChart(params: any) {
         const {type} = this.state;
-        let res = await get({url: baseUrl + `/dataCenter/studyStatistics?type=${parseInt(type)}&startDate=${params.startDate}&endDate=${params.endDate}`});
+        let res = await get({url: baseUrl + `/dataCenter/studyStatistics?type=${type}&startDate=${params.startDate}&endDate=${params.endDate}`});
         return res.data;
     }
     async wrongBook(params: any) {
-        const {pageNo} = this.state;
-        let res = await get({url: baseUrl + `/dataCenter/wrongBook?pageSize=20&pageNo=${pageNo}`});
+        let res = await get({url: baseUrl + `/dataCenter/wrongBook?pageSize=20&pageNo=${params.pageNo}`});
         return res.data;
     }
     async baseInfo() {
@@ -632,7 +641,8 @@ class Dashboard extends React.Component {
         const wrongInfo = await this.wrongBook({
             batchId: selPici,
             classId: selBanji,
-            studentId: val
+            studentId: val,
+            pageVal: 1,
         });
         let data1 = []
         let data2 = []
@@ -812,11 +822,12 @@ class Dashboard extends React.Component {
                             </div>
                         </div>
                         <div className="line-chart">
-                            <Tabs defaultActiveKey="1" onChange={this.tabCallback.bind(this)}>
-                                <TabPane tab="综合评分趋势" key="1" />
-                                <TabPane tab="测试成绩" key="2" />
-                                <TabPane tab="每日学习时长" key="3" />
-                                <TabPane tab="每日背词数" key="4" />
+                            <Tabs defaultActiveKey="score" onChange={this.tabCallback.bind(this)}>
+                                <TabPane tab="综合评分趋势" key="score" />
+                                <TabPane tab="测试通过率" key="pass_rate" />
+                                <TabPane tab="每日学习时长" key="study_time" />
+                                <TabPane tab="每日背词数" key="recite_count" />
+                                <TabPane tab="大考通过率" key="spt_pass_rate" />
                             </Tabs>
                             <div className="tab-content">
                                 <div className="content">
@@ -947,7 +958,7 @@ class Dashboard extends React.Component {
                                         {testInfo.detail.slice(0, 6).map((val, index) => {
                                             return (
                                                 <div
-                                                    className={val.state ? 'yes' : 'no'}
+                                                    className={val.result ? 'yes' : 'no'}
                                                     key={index}
                                                 >
                                                     {index + 1}.{val.word}
@@ -966,7 +977,7 @@ class Dashboard extends React.Component {
                                         {testInfo.detail.slice(6, 12).map((val, index) => {
                                             return (
                                                 <div
-                                                    className={val.state ? 'yes' : 'no'}
+                                                    className={val.result ? 'yes' : 'no'}
                                                     key={index}
                                                 >
                                                     {index + 7}.{val.word}

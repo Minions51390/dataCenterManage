@@ -138,8 +138,8 @@ class MainSet extends React.Component {
     setTest() {
         const {littleType, bigType, classId} = this.state;
         axios.patch(baseUrl + '/manage/class/task/test', {
-            testType: littleType,
-            specialTest: bigType,
+            testType: littleType || 'random',
+            specialTest: bigType || 'on',
             classId: +classId
         }).then(res => {
             console.log(res);
@@ -195,6 +195,21 @@ class MainSet extends React.Component {
         this.setState({
             firState: 1
         });
+        const {wordDb, dbVal} = this.state;
+        let dbName = '';
+        let newdbVal =  +dbVal ? +dbVal : wordDb[0] && (wordDb[0] as any).dictionaryId
+
+        wordDb.map((val: any) => {
+            if (val.dictionaryId === newdbVal){
+                dbName = val.dictionaryName;
+            }
+            return '';
+        });
+        console.log(dbName);
+        this.setState({
+            dbVal: newdbVal,
+            dbName
+        });
         this.setSet();
     }
     async resetFir() {
@@ -217,6 +232,7 @@ class MainSet extends React.Component {
         const {classId} = this.state;
         let res = await this.getSetInfo(classId);
         this.setState({
+            secState: 0,
             littleType: res.data.testType,
             bigType: res.data.specialTest,
             specialTestDate: res.data.specialTestDate
@@ -411,8 +427,8 @@ class MainSet extends React.Component {
                                             '展示中文释义选择英文' : 
                                             littleType === 'en-to-ch' ?
                                             '展示英文选择中文释义' :
-                                            littleType === 'completion' ? 
-                                            '填空' :
+                                            // littleType === 'completion' ? 
+                                            // '填空' :
                                             '随机'}</div>
                                     </div>
                                 </div>

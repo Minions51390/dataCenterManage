@@ -13,6 +13,7 @@ class Ranks extends React.Component {
         wordsCount: 'asc',
         studyTime: 'asc',
         passRate: 'asc',
+        sptPassRate: 'asc',
         pageNo: 1,
         allCount: 1,
         columns1: [
@@ -51,6 +52,33 @@ class Ranks extends React.Component {
                         return a.evaluation - b.evaluation;
                     },
                     multiple: 4,
+                },
+            },
+            {
+                title: '大考通过率',
+                dataIndex: 'sptPassRate',
+                key: 'sptPassRate',
+                sorter: {
+                    compare: (a: any, b: any) => {
+                        console.log(a, b);
+                        // let {selPici, selBanji, evaluation} = this.state;
+                        // if (evaluation === 'asc') {
+                        //     evaluation = 'desc';
+                        // } else if (evaluation === 'desc') {
+                        //     evaluation = '';
+                        // } else {
+                        //     evaluation = 'asc';
+                        // }
+                        // this.setState({
+                        //     evaluation,
+                        //     pageNo: 1
+                        // }, async () => {
+                        //     const ranklist = await this.getRank(selPici, selBanji);
+                        // });
+
+                        return parseFloat(a.sptPassRate) - parseFloat(b.sptPassRate);
+                    },
+                    multiple: 3,
                 },
             },
             {
@@ -173,8 +201,8 @@ class Ranks extends React.Component {
         return res.data.detail || [];
     }
     async getRank(pici: any, classid: any) {
-        const {evaluation, wordsCount, studyTime, passRate, pageNo} = this.state;
-        let res = await get({url: baseUrl + `/census/rankList?batchId=${pici}&classId=${classid}&evaluation=${evaluation}&wordsCount=${wordsCount}&studyTime=${studyTime}&passRate=${passRate}&pageNo=${pageNo}&pageSize=20`});
+        const {evaluation, wordsCount, studyTime, passRate, pageNo, sptPassRate} = this.state;
+        let res = await get({url: baseUrl + `/census/rankList?batchId=${pici}&classId=${classid}&evaluation=${evaluation}&wordsCount=${wordsCount}&studyTime=${studyTime}&sptPassRate=${sptPassRate}&passRate=${passRate}&pageNo=${pageNo}&pageSize=20`});
         console.log(res);
         let data1 = res.data.detail ? res.data.detail.slice(0, 10).map((val: any, index: number) => {
             return {
@@ -184,6 +212,7 @@ class Ranks extends React.Component {
                 wordsCount: val.wordsCount,
                 studyTime: `${val.studyTime}小时`,
                 passRate: `${val.passRate.toFixed(2)}%`,
+                sptPassRate: `${val.sptPassRate.toFixed(2)}%`,
                 batchDescribe: val.batchDescribe,
                 classDescribe: val.classDescribe
             }

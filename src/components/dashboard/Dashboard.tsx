@@ -64,6 +64,13 @@ const defaultOptions = {
     },
     yAxis: {
         type: 'value',
+        label: {
+            formatter: (v: any) => {
+                return ''.concat(v).replace(/\d{1,3}(?=(\d{3})+$)/g, function (s) {
+                return ''.concat(s, ',');
+                });
+            },
+        },
     },
     series: [
         {
@@ -153,6 +160,11 @@ const getDateBetween = (start: any, end: any) => {
     }
     return result;
 };
+
+const getyAxisBetween = () => {
+
+}
+
 let instance: any;
 class Dashboard extends React.Component {
     state = {
@@ -169,7 +181,7 @@ class Dashboard extends React.Component {
             reciteCount: '',
             studentName: ''
         },
-        type: '1',
+        type: 'score',
         centerData: {
 
         },
@@ -288,7 +300,8 @@ class Dashboard extends React.Component {
         const wrongInfo = await this.wrongBook({
             batchId: pici[0].batchId,
             classId: banji[0].classId,
-            studentId: stu[0].studentId
+            studentId: stu[0].studentId,
+            pageVal: 1
         });
         let data1 = []
         let data2 = []
@@ -388,6 +401,7 @@ class Dashboard extends React.Component {
             options.series[2].data = centerData.worst;
             options.series[3].data = centerData.average;
             options.xAxis.data = getDateBetween(mydate1, mydate2);
+            // options.yAxis.data = getyAxisBetween(mydate1, mydate2);
             this.setState({
                 options,
                 mydate1,
@@ -400,13 +414,15 @@ class Dashboard extends React.Component {
     }
     async nowPagChange(val: any) {
         let {selPici, selBanji, selStu, pageNo} = this.state;
+        let pageVal = val
         this.setState({
             pageNo: val
         })
         const wrongInfo = await this.wrongBook({
             batchId: selPici,
             classId: selBanji,
-            studentId: selStu
+            studentId: selStu,
+            pageVal,
         });
         
         let data1 = []
@@ -415,14 +431,14 @@ class Dashboard extends React.Component {
         if(wrongInfo != null && wrongInfo.detail !== null) {
             data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
                 return {
-                    key: val*20 + index - 19,
+                    key: pageVal*20 + index - 19,
                     word: val.word,
                     count: val.count
                 }
             });
             data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
                 return {
-                    key: val*20 + index - 9,
+                    key: pageVal*20 + index - 9,
                     word: val.word,
                     count: val.count
                 }
@@ -477,12 +493,11 @@ class Dashboard extends React.Component {
     }
     async getChart(params: any) {
         const {type} = this.state;
-        let res = await get({url: baseUrl + `/dataCenter/studyStatistics?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&type=${parseInt(type)}&startDate=${params.startDate}&endDate=${params.endDate}`});
+        let res = await get({url: baseUrl + `/dataCenter/studyStatistics?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&type=${type}&startDate=${params.startDate}&endDate=${params.endDate}`});
         return res ? res.data : null;
     }
     async wrongBook(params: any) {
-        const {pageNo} = this.state;
-        let res = await get({url: baseUrl + `/dataCenter/wrongBook?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&pageSize=20&pageNo=${pageNo}`});
+        let res = await get({url: baseUrl + `/dataCenter/wrongBook?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&pageSize=20&pageNo=${params.pageVal}`});
         return res ? res.data : null;
     }
     async baseInfo(stuid: string) {
@@ -576,7 +591,8 @@ class Dashboard extends React.Component {
         const wrongInfo = await this.wrongBook({
             batchId: selPici,
             classId: selBanji,
-            studentId: val
+            studentId: val,
+            pageVal: 1,
         });
         let data1 = []
         let data2 = []
@@ -802,11 +818,12 @@ class Dashboard extends React.Component {
                             </div>
                         </div>
                         <div className="line-chart">
-                            <Tabs defaultActiveKey="1" onChange={this.tabCallback.bind(this)}>
-                                <TabPane tab="综合评分趋势" key="1" />
-                                <TabPane tab="测试成绩" key="2" />
-                                <TabPane tab="每日学习时长" key="3" />
-                                <TabPane tab="每日背词数" key="4" />
+                            <Tabs defaultActiveKey="score" onChange={this.tabCallback.bind(this)}>
+                                <TabPane tab="综合评分趋势" key="score" />
+                                <TabPane tab="测试通过率" key="pass_rate" />
+                                <TabPane tab="每日学习时长" key="study_time" />
+                                <TabPane tab="每日背词数" key="recite_count" />
+                                <TabPane tab="大考通过率" key="spt_pass_rate" />
                             </Tabs>
                             <div className="tab-content">
                                 <div className="content">
