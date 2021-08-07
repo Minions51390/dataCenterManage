@@ -64,13 +64,9 @@ const defaultOptions = {
     },
     yAxis: {
         type: 'value',
-        label: {
-            formatter: (v: any) => {
-                return ''.concat(v).replace(/\d{1,3}(?=(\d{3})+$)/g, function (s) {
-                return ''.concat(s, ',');
-                });
-            },
-        },
+        axisLabel: {
+            formatter: '{value}分'
+        }
     },
     series: [
         {
@@ -161,8 +157,28 @@ const getDateBetween = (start: any, end: any) => {
     return result;
 };
 
-const getyAxisBetween = () => {
-
+const getyAxisBetween = (key: any) => {
+    let label = ''
+    switch(key) {
+        case 'score':
+           label = '分'
+           break;
+        case 'pass_rate':
+            label = '%'
+           break;
+        case 'study_time':
+           label = '小时'
+          break;
+        case 'recite_count':
+            label = '个'
+           break;
+        case 'spt_pass_rate':
+            label = '%'
+           break;
+        default:
+            break
+   } 
+    return '{value}' + label;
 }
 
 let instance: any;
@@ -401,7 +417,7 @@ class Dashboard extends React.Component {
             options.series[2].data = centerData.worst;
             options.series[3].data = centerData.average;
             options.xAxis.data = getDateBetween(mydate1, mydate2);
-            // options.yAxis.data = getyAxisBetween(mydate1, mydate2);
+            options.yAxis.axisLabel.formatter = getyAxisBetween(key);
             this.setState({
                 options,
                 mydate1,
@@ -950,7 +966,7 @@ class Dashboard extends React.Component {
                                     </div>
                                     <div className="sub">当日背词数</div>
                                     <div className="list">
-                                        {testInfo.detail.slice(0, 6).map((val, index) => {
+                                        {testInfo.detail.slice(0, Math.ceil(testInfo.detail.length/2)).map((val, index) => {
                                             return (
                                                 <div
                                                     className={val.result ? 'yes' : 'no'}
@@ -969,13 +985,13 @@ class Dashboard extends React.Component {
                                     </div>
                                     <div className="sub">当日测试通过率</div>
                                     <div className="list">
-                                        {testInfo.detail.slice(6, 12).map((val, index) => {
+                                        {testInfo.detail.slice(Math.ceil(testInfo.detail.length/2), testInfo.detail.length).map((val, index) => {
                                             return (
                                                 <div
                                                     className={val.result ? 'yes' : 'no'}
                                                     key={index}
                                                 >
-                                                    {index + 7}.{val.word}
+                                                    {index + Math.ceil(testInfo.detail.length/2) + 1}.{val.word}
                                                 </div>
                                             );
                                         })}

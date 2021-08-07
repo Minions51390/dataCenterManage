@@ -28,7 +28,7 @@ class Ranks extends React.Component {
                 key: 'name',
             },
             {
-                title: '综合评价',
+                title: '综合评分(平均)',
                 dataIndex: 'evaluation',
                 key: 'evaluation',
                 sorter: {
@@ -55,7 +55,7 @@ class Ranks extends React.Component {
                 },
             },
             {
-                title: '大考通过率',
+                title: '大考成绩(平均)',
                 dataIndex: 'sptPassRate',
                 key: 'sptPassRate',
                 sorter: {
@@ -82,7 +82,7 @@ class Ranks extends React.Component {
                 },
             },
             {
-                title: '考试通过率',
+                title: '小测成绩(平均)',
                 dataIndex: 'passRate',
                 key: 'passRate',
                 sorter: {
@@ -109,7 +109,7 @@ class Ranks extends React.Component {
                 },
             },
             {
-                title: '学习时长',
+                title: '学习时长(累计)',
                 dataIndex: 'studyTime',
                 key: 'studyTime',
                 sorter: {
@@ -136,7 +136,7 @@ class Ranks extends React.Component {
                 },
             },
             {
-                title: '背词数',
+                title: '累计背词数(累计)',
                 dataIndex: 'wordsCount',
                 key: 'wordsCount',
                 sorter: {
