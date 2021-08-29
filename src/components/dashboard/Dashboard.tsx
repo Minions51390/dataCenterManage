@@ -4,20 +4,8 @@ import locale from 'antd/lib/calendar/locale/zh_CN';
 import 'moment/locale/zh-cn';
 import moment from 'moment';
 import ReactEcharts from 'echarts-for-react';
-// import BreadcrumbCustom from '../widget/BreadcrumbCustom';
-// import EchartsViews from './EchartsViews';
-// import EchartsProjects from './EchartsProjects';
-// import b1 from '../../style/imgs/b1.png';
-// import {
-//     CloudOutlined,
-//     HeartOutlined,
-//     MailOutlined,
-//     SyncOutlined,
-//     SnippetsOutlined,
-// } from '@ant-design/icons';
 import '../../style/pageStyle/Dashboard.less';
 import { get, post, baseUrl } from '../../service/tools';
-import { getDefaultKeyBinding } from 'draft-js';
 const { Option } = Select;
 const { TabPane } = Tabs;
 const { RangePicker } = DatePicker;
