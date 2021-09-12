@@ -9,11 +9,11 @@ class Ranks extends React.Component {
         selPici: '',
         banji: [],
         selBanji: '',
-        evaluation: 'asc',
-        wordsCount: 'asc',
-        studyTime: 'asc',
-        passRate: 'asc',
-        sptPassRate: 'asc',
+        evaluation: 'desc',
+        wordsCount: 'desc',
+        studyTime: 'desc',
+        passRate: 'desc',
+        sptPassRate: 'desc',
         pageNo: 1,
         allCount: 1,
         columns1: [
@@ -202,7 +202,7 @@ class Ranks extends React.Component {
     }
     async getRank(pici: any, classid: any) {
         const {evaluation, wordsCount, studyTime, passRate, pageNo, sptPassRate} = this.state;
-        let res = await get({url: baseUrl + `/census/rankList?batchId=${pici}&classId=${classid}&evaluation=${evaluation}&wordsCount=${wordsCount}&studyTime=${studyTime}&sptPassRate=${sptPassRate}&passRate=${passRate}&pageNo=${pageNo}&pageSize=20`});
+        let res = await get({url: baseUrl + `/census/rankList?batchId=${pici}&classId=${classid}&evaluation=${evaluation}&wordsCount=${wordsCount}&studyTime=${studyTime}&sptPassRate=${sptPassRate}&passRate=${passRate}&pageNo=${pageNo}&pageSize=200`});
         console.log(res);
         let data1 = res.data.detail ? res.data.detail.slice(0, 10).map((val: any, index: number) => {
             return {
