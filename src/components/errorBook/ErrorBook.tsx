@@ -35,7 +35,7 @@ class ErrorBook extends React.Component {
                 key: 'phoneticSymbols',
             },
             {
-                title: '出错人数',
+                title: '出错人次',
                 dataIndex: 'wrongCount',
                 key: 'wrongCount',
             }
