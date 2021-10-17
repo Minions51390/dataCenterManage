@@ -2,7 +2,7 @@ import React from 'react';
 import ReactEcharts from 'echarts-for-react';
 // import echarts from 'echarts';
 
-const option = {
+const option: any = {
     tooltip: {
         trigger: 'axis',
     },

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactEcharts from 'echarts-for-react';
 
-const option = {
+const option: any = {
     title: {
         text: 'Customized Pie',
         left: 'center',

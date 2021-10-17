@@ -401,7 +401,7 @@ const convertData = function(data: any) {
     return res;
 };
 
-const option = {
+const option: any = {
     backgroundColor: '#404a59',
     title: {
         text: '全国主要城市空气质量',

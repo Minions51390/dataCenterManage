@@ -14,7 +14,7 @@ for (var i = 1; i < 20000; i++) {
     data.push(Math.round((Math.random() - 0.5) * 20 + data[i - 1]));
 }
 
-const option = {
+const option: any = {
     tooltip: {
         trigger: 'axis',
         position: function(pt: any) {

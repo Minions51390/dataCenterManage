@@ -8,7 +8,7 @@ for (let i = 0; i < 50; i++) {
     data.push(Math.ceil((Math.cos(i / 5) * (i / 5) + i / 6) * 5) + 10);
 }
 
-const option = {
+const option: any = {
     title: {
         text: '最近50天每天背单词情况',
         left: 'center',
