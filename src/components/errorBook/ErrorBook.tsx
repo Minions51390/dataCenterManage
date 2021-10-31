@@ -186,7 +186,7 @@ class ErrorBook extends React.Component {
                                 </Option>
                             ))}
                         </Select>
-                        <span className="span1">{dictionary}</span>
+                        <span className="span1 span3">{dictionary}</span>
                     </div>
                     <div className="thr">
                         <Table

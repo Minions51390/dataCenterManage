@@ -268,7 +268,7 @@ class MainClass extends React.Component {
             captcha: searchText
         }).then(res => {
             console.log(res);
-            window.location.href = `${baseUrl}/#/app/class/main`;
+            window.location.href = `/#/app/class/main`;
         });
     }
 
