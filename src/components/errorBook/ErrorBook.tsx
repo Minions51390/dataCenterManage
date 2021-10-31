@@ -41,6 +41,7 @@ class ErrorBook extends React.Component {
             }
         ],
         data1: [],
+        dictionary: "",
     };
     componentWillMount() {
         this.inited();
@@ -48,6 +49,9 @@ class ErrorBook extends React.Component {
     async inited() {
         // let userid = await this.login();
         let res = await this.getKu();
+        if (!res[0]) {
+            return;
+        }
         this.setState({
             wordDb: res,
             dbVal: res[0].dictionaryId
@@ -78,7 +82,8 @@ class ErrorBook extends React.Component {
     }
     async getRank(pici: any, classid: any) {
         const {pageNo, dbVal} = this.state;
-        let res = await get({url: baseUrl + `/census/wrongBook?dictionaryId=${dbVal}&batchId=${pici}&classId=${classid}&pageNo=${pageNo}&pageSize=20`});
+        // let res = await get({url: baseUrl + `/census/wrongBook?dictionaryId=${dbVal}&batchId=${pici}&classId=${classid}&pageNo=${pageNo}&pageSize=20`});
+        let res = await get({url: baseUrl + `/census/wrongBook?batchId=${pici}&classId=${classid}&pageNo=${pageNo}&pageSize=20`});
         console.log(res);
         let data1 = res.data.detail ? res.data.detail.map((val: any, index: number) => {
             return {
@@ -89,9 +94,11 @@ class ErrorBook extends React.Component {
                 wrongCount: val.wrongCount
             }
         }) : [];
+        let dictionary = res.data.dictionary;
         this.setState({
             data1,
-            allCount: res.data.totalPage
+            allCount: res.data.totalPage,
+            dictionary: dictionary,
         });
         return res.data || [];
     }
@@ -131,7 +138,7 @@ class ErrorBook extends React.Component {
     }
 
     render() {
-        const { pici, selPici, banji, selBanji, columns1, data1, pageNo, allCount, wordDb, dbVal } = this.state;
+        const { pici, selPici, banji, selBanji, columns1, data1, pageNo, allCount, wordDb, dbVal, dictionary } = this.state;
         return (
             <div className="rank-wrapper">
                 <div className="header">
@@ -140,7 +147,7 @@ class ErrorBook extends React.Component {
                 </div>
                 <div className="body">
                     <div className="sec">
-                        <span className="span">词库设置:</span>
+                        {/* <span className="span">词库设置:</span>
                         <Select
                             defaultValue={dbVal}
                             value={dbVal || (wordDb[0] && (wordDb[0] as any).dictionaryId) || "请选择"}
@@ -152,7 +159,7 @@ class ErrorBook extends React.Component {
                                     {item.dictionaryName}
                                 </Option>
                             ))}
-                        </Select>
+                        </Select> */}
                         <span className="span2">学员批次:</span>
                         <Select
                             defaultValue="请选择"
@@ -179,6 +186,7 @@ class ErrorBook extends React.Component {
                                 </Option>
                             ))}
                         </Select>
+                        <span className="span1">{dictionary}</span>
                     </div>
                     <div className="thr">
                         <Table

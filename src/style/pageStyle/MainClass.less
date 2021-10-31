@@ -17,16 +17,31 @@
                 color: rgba(0, 0, 0, 0.85);
                 line-height: 28px;
             }
-            .div1 {
+            .div-w {
                 display: flex;
-                width: 116px;
-                height: 32px;
-                background: #1890ff;
-                color: #fff;
-                cursor: pointer;
-                justify-content: center;
-                align-items: center;
-                border-radius: 4px;
+                .div-r {
+                    display: flex;
+                    width: 65px;
+                    margin-right: 24px;
+                    height: 32px;
+                    color: rgba(0, 0, 0, 0.65);
+                    cursor: pointer;
+                    justify-content: center;
+                    align-items: center;
+                    border-radius: 4px;
+                    border: 1px solid #D9D9D9;
+                }
+                .div1 {
+                    display: flex;
+                    width: 116px;
+                    height: 32px;
+                    background: #1890ff;
+                    color: #fff;
+                    cursor: pointer;
+                    justify-content: center;
+                    align-items: center;
+                    border-radius: 4px;
+                }
             }
         }
         .sec-line {
@@ -268,5 +283,38 @@
                 color: #032352 !important;
             }
         }
+    }
+}
+
+.m-text {
+    color: rgba(0, 0, 0, 0.45);
+    margin-bottom: 0;
+    margin-left: 64px;
+    span {
+        color: #102F5C;
+    }
+}
+
+.mar {
+    margin-top: 16px;
+}
+
+.qrcode {
+    display: flex;
+    width: 344px;
+    margin-left: 64px;
+    margin-top: 48px;
+    .m-in {
+        width: 200px;
+    }
+    .m-btn {
+        display: flex;
+        align-items: center;
+        margin-left: 16px;
+        width: 128px;
+        color: #102F5C;
+    }
+    .disable {
+        color: rgba(0, 0, 0, 0.45);
     }
 }

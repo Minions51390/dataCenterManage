@@ -1,7 +1,8 @@
 import React from 'react';
 // import { Row, Col, Tabs, DatePicker, Table } from 'antd';
 // import moment from 'moment';
-import { PageHeader, Table, Popconfirm, message } from 'antd';
+import { PageHeader, Table, Popconfirm, message, Modal, Alert, Input } from 'antd';
+import { LockOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import '../../style/pageStyle/MainClass.less';
 import { get, baseUrl } from '../../service/tools';
@@ -108,6 +109,10 @@ class MainClass extends React.Component {
             },
         ],
         data2: [],
+        showModule: false,
+        email: "",
+        btnState: true,
+        searchText: "",
     };
     componentWillMount() {
         this.initList();
@@ -215,17 +220,71 @@ class MainClass extends React.Component {
         this.initList();
     }
 
+    setShowModal() {
+        this.setState({
+            showModule: true,
+        });
+    }
+
+    handleOk() {
+        this.finClass();
+        this.setState({
+            showModule: false,
+            btnState: true,
+        });
+    }
+
+    handleCancel() {
+        this.setState({
+            showModule: false,
+            btnState: true,
+        });
+    }
+
+    getCode() {
+        const {classId} = this.state;
+        axios.post(baseUrl + '/manage/class/delete/email', {
+            classId: +classId
+        }).then(res => {
+            console.log(res);
+            if (res.data.data) {
+                this.setState({
+                    email: res.data.data.email,
+                    btnState: false,
+                });
+            }
+        });
+    }
+
+    onInputChange = (e: any) => {
+        console.log(e);
+        this.setState({ searchText: e.target.value });
+    };
+
+    finClass() {
+        const { classId, searchText } = this.state;
+        axios.post(baseUrl + '/manage/class/delete', {
+            classId: +classId,
+            captcha: searchText
+        }).then(res => {
+            console.log(res);
+        });
+    }
+
     render() {
-        const { classId, classInfo, columns1, data1, columns2, data2, routes } = this.state;
+        const { classId, classInfo, columns1, data1, columns2, data2, routes, showModule, email, btnState } = this.state;
         return (
             <div className="main-class">
                 <div className="title-area">
                     <PageHeader title="" breadcrumb={{ routes }} />
                     <div className="fir-line">
                         <div className="div">{classInfo.className}</div>
-                        <Link className="div1" to={`/app/class/main/class/set?classId=${classId}`}>
-                            设置学习任务
-                        </Link>
+                        <div className="div-w"> 
+                            <div className="div-r" onClick={this.setShowModal.bind(this)}>结课</div>
+                            <Link className="div1" to={`/app/class/main/class/set?classId=${classId}`}>
+                                设置学习任务
+                            </Link>
+                        </div>
                     </div>
                     <div className="sec-line">
                         <div className="left">
@@ -282,6 +341,37 @@ class MainClass extends React.Component {
                         />
                     </div>
                 </div>
+                <Modal
+                    closable={false}
+                    visible={showModule}
+                    onOk={this.handleOk.bind(this)}
+                    onCancel={this.handleCancel.bind(this)}
+                    okText="确定"
+                    cancelText="取消"
+                >
+                    <Alert message="结课后该班级学员将无法继续使用本平台进行学习，且不能恢复，需谨慎操作。为此我们将通过您的邮箱进行验证。" type="info" showIcon />
+                    <div className="qrcode">
+                        <div className="m-in">
+                            <Input
+                                size="large"
+                                placeholder="请输入验证码"
+                                prefix={<LockOutlined />}
+                                value={this.state.searchText}
+                                onChange={this.onInputChange}
+                            />
+                        </div>
+                        {
+                            btnState ?
+                                <div className="m-btn" onClick={this.getCode.bind(this)}>发送验证码到邮箱</div>
+                            :
+                                <div className="m-btn disable" >已发送</div>
+                        }
+                    </div>
+                    <p className="m-text mar">
+                        已向电子邮箱<span>{email}</span>发送验证码
+                    </p>
+                    <p className="m-text">请注意查收</p>
+                </Modal>
             </div>
         );
     }
