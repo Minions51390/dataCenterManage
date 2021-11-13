@@ -113,6 +113,7 @@ class MainClass extends React.Component {
         email: "",
         btnState: true,
         searchText: "",
+        isSelfTeacher: true,
     };
     componentWillMount() {
         this.initList();
@@ -156,8 +157,18 @@ class MainClass extends React.Component {
     }
     async getClassInfo(id: any) {
         let res = await get({url: baseUrl + `/manage/class/info?classId=${id}`});
+        if (res.data.classInfo.classTeacherAccount === localStorage.getItem("classTeacherAccount")) {
+            this.setState({
+                isSelfTeacher: true,
+            });
+        } else {
+            this.setState({
+                isSelfTeacher: false,
+            });
+        }
         return res;
     }
+
     rejectStu(studentId: any) {
         const {classId} = this.state;
         axios.patch(baseUrl + '/manage/student/apply', {
@@ -176,7 +187,10 @@ class MainClass extends React.Component {
         this.initList();
     }
     rejectAll() {
-        const {data1} = this.state;
+        const {data1, isSelfTeacher} = this.state;
+        if (!isSelfTeacher) {
+            return;
+        }
         let stu = data1.map((val: any) => {
             return val.studentId;
         });
@@ -203,7 +217,10 @@ class MainClass extends React.Component {
         this.initList();
     }
     resolveAll() {
-        const {data1} = this.state;
+        const {data1, isSelfTeacher} = this.state;
+        if (!isSelfTeacher) {
+            return;
+        }
         let stu = data1.map((val: any) => {
             return val.studentId;
         });
@@ -221,6 +238,9 @@ class MainClass extends React.Component {
     }
 
     setShowModal() {
+        if (!this.state.isSelfTeacher) {
+            return;
+        }
         this.setState({
             showModule: true,
         });
@@ -268,23 +288,28 @@ class MainClass extends React.Component {
             captcha: searchText
         }).then(res => {
             console.log(res);
-            window.location.href = `/#/app/class/main`;
+            window.history.back();
         });
     }
 
     render() {
-        const { classId, classInfo, columns1, data1, columns2, data2, routes, showModule, email, btnState } = this.state;
+        const { classId, classInfo, columns1, data1, columns2, data2, routes, showModule, email, btnState, isSelfTeacher } = this.state;
         return (
             <div className="main-class">
                 <div className="title-area">
                     <PageHeader title="" breadcrumb={{ routes }} />
                     <div className="fir-line">
                         <div className="div">{classInfo.className}</div>
-                        <div className="div-w"> 
-                            <div className="div-r" onClick={this.setShowModal.bind(this)}>结课</div>
-                            <Link className="div1" to={`/app/class/main/class/set?classId=${classId}`}>
-                                设置学习任务
-                            </Link>
+                        <div className="div-w">
+                            <div className={isSelfTeacher ? 'div-r' : 'div-r disable'} onClick={this.setShowModal.bind(this)}>结课</div>
+                            {
+                                isSelfTeacher ?
+                                <Link className={isSelfTeacher ? 'div1' : 'div1 disable'} to={`/app/class/main/class/set?classId=${classId}`}>
+                                    设置学习任务
+                                </Link>
+                                :
+                                <div className={isSelfTeacher ? 'div1' : 'div1 disable'}>设置学习任务</div>
+                            }
                         </div>
                     </div>
                     <div className="sec-line">
@@ -313,8 +338,8 @@ class MainClass extends React.Component {
                 <div className="stu-oby">
                     <div className="title">
                         <div>新生申请</div>
-                        <div onClick={this.resolveAll.bind(this)}>全部同意</div>
-                        <div onClick={this.rejectAll.bind(this)}>全部拒绝</div>
+                        <div className={isSelfTeacher ? '' : 'disable'} onClick={this.resolveAll.bind(this)}>全部同意</div>
+                        <div className={isSelfTeacher ? '' : 'disable'} onClick={this.rejectAll.bind(this)}>全部拒绝</div>
                     </div>
                     <div className="aline" />
                     <div className="tell">

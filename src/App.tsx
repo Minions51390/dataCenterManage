@@ -75,6 +75,7 @@ async function getMes() {
         window.location.href = `${baseUrl}/#/home`;
         return
     }
+    localStorage.setItem("classTeacherAccount", res.data.userName);
     return res
 }
 
