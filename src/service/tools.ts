@@ -7,6 +7,28 @@ interface IFRequestParam {
     config?: any;
     data?: any;
 }
+
+const service = axios.create({
+    timeout: 50000 // 请求超时时间
+});
+
+
+service.interceptors.response.use(
+    response => {
+      const res = response.data
+      if (res.resultCode === '403') { // 后台返回码，根据自己的业务进行修改
+        // 权限问题
+        message.error("权限不够!!!");
+        return Promise.reject('error');
+      } else {
+        return response;
+      }
+    },
+    error => {
+      console.log('err' + error) // for debug
+      return Promise.reject(error);
+});
+
 /**
  * 公用get请求
  * @param url       接口地址
@@ -14,7 +36,7 @@ interface IFRequestParam {
  * @param headers   接口所需header配置
  */
 export const get = ({ url, msg = '接口异常', config }: IFRequestParam) =>
-    axios
+    service
         .get(url, config)
         .then((res) => res.data)
         .catch((err) => {
@@ -30,7 +52,7 @@ export const get = ({ url, msg = '接口异常', config }: IFRequestParam) =>
  * @param headers   接口所需header配置
  */
 export const post = ({ url, data, msg = '接口异常', config }: IFRequestParam) =>
-    axios
+    service
         .post(url, data, config)
         .then((res) => res.data)
         .catch((err) => {
@@ -39,7 +61,7 @@ export const post = ({ url, data, msg = '接口异常', config }: IFRequestParam
         });
 
 export const patch = ({ url, data, msg = '接口异常', config }: IFRequestParam) =>
-    axios
+    service
         .patch(url, data, config)
         .then((res) => res.data)
         .catch((err) => {
