@@ -15,11 +15,11 @@ const service = axios.create({
 
 service.interceptors.response.use(
     response => {
-      const res = response.data
-      if (res.resultCode === '403') { // 后台返回码，根据自己的业务进行修改
+      const res = response.data;
+      if (res.state === 1) { // 后台返回码，根据自己的业务进行修改
         // 权限问题
-        message.error("权限不够!!!");
-        return Promise.reject('error');
+        message.error((res && res.msg) || "错误");
+        return response;
       } else {
         return response;
       }
