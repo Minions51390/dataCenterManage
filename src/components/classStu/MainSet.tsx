@@ -3,8 +3,7 @@ import React from 'react';
 // import moment from 'moment';
 import { PageHeader, Radio, Select, Button, Tooltip } from 'antd';
 import '../../style/pageStyle/MainSet.less';
-import { get, baseUrl } from '../../service/tools';
-import axios from 'axios';
+import { get, patch, baseUrl } from '../../service/tools';
 const { Option } = Select;
 
 function GetRequest() {
@@ -126,22 +125,22 @@ class MainSet extends React.Component {
     setSet() {
         const {startType, wordVal, dbVal, classId} = this.state;
         console.log('liushufang', dbVal, +dbVal)
-        axios.patch(baseUrl + '/manage/class/task/recite', {
+        patch({url: baseUrl + '/manage/class/task/recite', data: {
             dailyReciteCount: + wordVal,
             choiceWordMethod: startType,
             dictionary: +dbVal,
             classId: +classId
-        }).then(res => {
+        }}).then(res => {
             console.log(res);
         });
     }
     setTest() {
         const {littleType, bigType, classId} = this.state;
-        axios.patch(baseUrl + '/manage/class/task/test', {
+        patch({url: baseUrl + '/manage/class/task/test', data: {
             testType: littleType || 'random',
             specialTest: bigType || 'on',
             classId: +classId
-        }).then(res => {
+        }}).then(res => {
             console.log(res);
         });
     }

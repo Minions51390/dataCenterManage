@@ -5,8 +5,7 @@ import { PageHeader, Table, Popconfirm, message, Modal, Alert, Input } from 'ant
 import { LockOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import '../../style/pageStyle/MainClass.less';
-import { get, baseUrl } from '../../service/tools';
-import axios from 'axios';
+import { post, get, patch, del, baseUrl } from '../../service/tools';
 
 function GetRequest() {
     const url = `?${window.location.href.split('?')[1]}`; //获取url中"?"符后的字串
@@ -161,13 +160,13 @@ class MainClass extends React.Component {
 
     rejectStu(studentId: any) {
         const {classId} = this.state;
-        axios.patch(baseUrl + '/manage/student/apply', {
+        patch({url: baseUrl + '/manage/student/apply', data: {
             studentId: studentId,
             opinion: 'reject',
             classId: +classId
-        }).then(res => {
+        }}).then(res => {
             console.log(res);
-            if (res.data.msg === '请设置班级任务后再进行此操作: ') {
+            if (res.msg === '请设置班级任务后再进行此操作: ') {
                 message.error({
                     content: '请设置班级任务后再进行此操作!!!',
                     className: 'custom-class'
@@ -185,13 +184,13 @@ class MainClass extends React.Component {
     }
     resolveStu(studentId: any) {
         const {classId} = this.state;
-        axios.patch(baseUrl + '/manage/student/apply', {
+        patch({url: baseUrl + '/manage/student/apply', data: {
             studentId: studentId,
             opinion: 'agree',
             classId: +classId
-        }).then(res => {
+        }}).then(res => {
             console.log(res);
-            if (res.data.msg === '请设置班级任务后再进行此操作: ') {
+            if (res.msg === '请设置班级任务后再进行此操作: ') {
                 message.error({
                     content: '请设置班级任务后再进行此操作!!!',
                     className: 'custom-class',
@@ -211,7 +210,7 @@ class MainClass extends React.Component {
         this.resolveStu(stu);
     }
     async delStu(stu: any) {
-        let res = await axios.delete(baseUrl + `/manage/student?studentId=${stu}`);
+        let res = await del({url: baseUrl + `/manage/student?studentId=${stu}`});
         return res;
     }
     async confirmDel(val: any) {
@@ -244,13 +243,13 @@ class MainClass extends React.Component {
 
     getCode() {
         const {classId} = this.state;
-        axios.post(baseUrl + '/manage/class/delete/email', {
+        post({url: baseUrl + '/manage/class/delete/email', data: {
             classId: +classId
-        }).then(res => {
+        }}).then(res => {
             console.log(res);
-            if (res.data.data) {
+            if (res.data) {
                 this.setState({
-                    email: res.data.data.email,
+                    email: res.data.email,
                     btnState: false,
                 });
             }
@@ -264,10 +263,10 @@ class MainClass extends React.Component {
 
     finClass() {
         const { classId, searchText } = this.state;
-        axios.post(baseUrl + '/manage/class/delete', {
+        post({ url: baseUrl + '/manage/class/delete', data: {
             classId: +classId,
             captcha: searchText
-        }).then(res => {
+        }}).then(res => {
             console.log(res);
             window.history.back();
         });
