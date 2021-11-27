@@ -202,7 +202,7 @@ class Ranks extends React.Component {
     }
     async getRank(pici: any, classid: any) {
         const {evaluation, wordsCount, studyTime, passRate, pageNo, sptPassRate} = this.state;
-        let res = await get({url: baseUrl + `/census/rankList?batchId=${pici}&classId=${classid}&evaluation=${evaluation}&wordsCount=${wordsCount}&studyTime=${studyTime}&sptPassRate=${sptPassRate}&passRate=${passRate}&pageNo=${pageNo}&pageSize=200`});
+        let res = await get({url: baseUrl + `/census/rankList?batchId=${pici}&classId=${classid}&evaluation=${evaluation}&wordsCount=${wordsCount}&studyTime=${studyTime}&sptPassRate=${sptPassRate}&passRate=${passRate}&pageNo=${pageNo}&pageSize=10`});
         console.log(res);
         let data1 = res.data.detail ? res.data.detail.slice(0, 10).map((val: any, index: number) => {
             return {
@@ -240,7 +240,8 @@ class Ranks extends React.Component {
         this.setState({
             selPici: val,
             banji: res,
-            selBanji: res[0] ? res[0].classId : 0
+            selBanji: res[0] ? res[0].classId : 0,
+            pageNo: 1,
         });
         console.log(val);
     }
@@ -248,9 +249,11 @@ class Ranks extends React.Component {
         const {selPici} = this.state;
         this.setState({
             selBanji: val,
+            pageNo: 1,
+        }, async () => {
+            let rankList = await this.getRank(selPici, val);
+            console.log(val);
         });
-        let rankList = await this.getRank(selPici, val);
-        console.log(val);
     }
     nowPagChange(val: any) {
         let {selPici, selBanji} = this.state;
@@ -308,7 +311,7 @@ class Ranks extends React.Component {
                         />
                     </div>
                     <div className={data1.length ? "pag" : "display-none"}>
-                        <Pagination defaultCurrent={1} defaultPageSize={20} current={pageNo} total={allCount * 20} onChange={this.nowPagChange.bind(this)} />
+                        <Pagination defaultCurrent={1} defaultPageSize={10} current={pageNo} total={allCount * 10} onChange={this.nowPagChange.bind(this)} />
                     </div>
                 </div>
             </div>
