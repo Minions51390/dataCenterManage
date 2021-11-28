@@ -305,7 +305,7 @@ class Dashboard extends React.Component {
             batchId: pici[0].batchId,
             classId: banji[0].classId,
             studentId: stu[0].studentId,
-            pageVal: 1
+            pageNo: 1
         });
         let data1 = []
         let data2 = []
@@ -426,7 +426,7 @@ class Dashboard extends React.Component {
             batchId: selPici,
             classId: selBanji,
             studentId: selStu,
-            pageVal,
+            pageNo: pageVal,
         });
 
         let data1 = []
@@ -596,7 +596,7 @@ class Dashboard extends React.Component {
             batchId: selPici,
             classId: selBanji,
             studentId: val,
-            pageVal: 1,
+            pageNo: 1,
         });
         let data1 = []
         let data2 = []
