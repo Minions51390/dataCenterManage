@@ -55,7 +55,7 @@ const login = async () => {
     });
     return res;
 };
-// login();
+login();
 ReactDOM.render(
     // <AppContainer>
     <AlitaProvider>
