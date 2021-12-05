@@ -14,6 +14,8 @@ import Tabs from './ui/Tabs';
 import Banners from './ui/banners';
 import Drags from './ui/Draggable';
 import Dashboard from './dashboard/Dashboard';
+import QueBankCreate from './queBankCreate/QueBankCreate';
+import TestPaper from './testPaper/TestPaper';
 import Ranks from './rank/Ranks';
 import ErrorBook from './errorBook/ErrorBook'
 import ClassStu from './classStu/ClassStu';
@@ -67,6 +69,8 @@ export default {
     ClassStu,
     MainClass,
     MainSet,
+    QueBankCreate,
+    TestPaper,
     QueryParams,
     Visitor,
     MultipleMenu,

@@ -26,6 +26,8 @@ const menus: {
         { key: '/app/ranks', title: '排行榜', icon: 'mobile', component: 'Ranks' },
         { key: '/app/dashboard', title: '数据中心', icon: 'mobile', component: 'Dashboard' },
         { key: '/app/errorBook', title: '错词本', icon: 'mobile', component: 'ErrorBook' },
+        { key: '/app/queBankCreate', title: '题库建设', icon: 'mobile', component: 'QueBankCreate' },
+        { key: '/app/testPaper', title: '试卷管理', icon: 'mobile', component: 'TestPaper' },
         // {
         //     key: '/app/ui',
         //     title: 'UI',

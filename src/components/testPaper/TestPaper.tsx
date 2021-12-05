@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row, Col, Tabs, DatePicker, Table, Select, Pagination } from 'antd';
-import '../../style/pageStyle/ErrorBook.less';
+import '../../style/pageStyle/TestPaper.less';
 import { get, post, baseUrl } from '../../service/tools';
 const { Option } = Select;
 class ErrorBook extends React.Component {
@@ -140,10 +140,10 @@ class ErrorBook extends React.Component {
     render() {
         const { pici, selPici, banji, selBanji, columns1, data1, pageNo, allCount, wordDb, dbVal, dictionary } = this.state;
         return (
-            <div className="rank-wrapper">
+            <div className="paper-wrapper">
                 <div className="header">
-                    <div className="fir">错词本</div>
-                    <div className="sec">错词本</div>
+                    <div className="fir">试卷管理</div>
+                    <div className="sec">试卷列表</div>
                 </div>
                 <div className="body">
                     <div className="sec">
