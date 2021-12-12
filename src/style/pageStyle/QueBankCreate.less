@@ -1,8 +1,8 @@
-.bank-wrapper {
+.quebank-wrapper {
     overflow-y: auto;
     .header {
         height: 98px;
-        background: #FFFFFF;
+        background: #ffffff;
         overflow: hidden;
         .fir {
             margin-left: 32px;
@@ -29,54 +29,41 @@
         width: auto;
         margin: 24px;
         margin-bottom: 0;
-        background: #FFFFFF;
+        background: #ffffff;
         padding: 32px;
-        .sec {
-            .span {
-                display: inline-block;
-                width: 70px;
-                height: 22px;
-                font-size: 14px;
-                font-family: PingFangSC-Regular, PingFang SC;
-                font-weight: 400;
-                color: rgba(0, 0, 0, 0.85);
-                line-height: 22px;
+        .fir {
+            display: flex;
+            justify-content: space-between;
+            .gap-12 {
+                margin-left: 12px;
             }
-            .span2 {
-                margin-left: 30px;
-                display: inline-block;
-                width: 70px;
-                height: 22px;
-                font-size: 14px;
-                font-family: PingFangSC-Regular, PingFang SC;
-                font-weight: 400;
-                color: rgba(0, 0, 0, 0.85);
-                line-height: 22px;
-            }
-            .span1 {
-                margin-left: 30px;
-                display: inline-block;
-                width: 40px;
-                height: 22px;
-                font-size: 14px;
-                font-family: PingFangSC-Regular, PingFang SC;
-                font-weight: 400;
-                color: rgba(0, 0, 0, 0.85);
-                line-height: 22px;
-            }
-            .span3 {
-                width: 200px;
+            .gap-48 {
+                margin-left: 48px;
             }
         }
         .thr {
             margin-top: 24px;
+            .edit {
+                display: flex;
+                justify-content: center;
+                div {
+                    width: 56px;
+                    height: 22px;
+                    font-size: 14px;
+                    font-family: PingFangSC-Regular, PingFang SC;
+                    font-weight: 400;
+                    color: #1890ff;
+                    line-height: 22px;
+                    cursor: pointer;
+                }
+            }
             th {
                 text-align: center;
-                color: #032352 !important;
+                color: #000 !important;
             }
             td {
                 text-align: center;
-                color: #032352 !important;
+                color: #595959 !important;
             }
         }
         .pag {
