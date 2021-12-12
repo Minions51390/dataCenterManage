@@ -13,25 +13,39 @@ class ErrorBook extends React.Component {
                 key: 'key'
             },
             {
-                title: '单词',
-                dataIndex: 'en',
-                key: 'en',
+                title: '试卷名称',
+                dataIndex: 'name',
+                key: 'name',
             },
             {
-                title: '中文',
-                dataIndex: 'ch',
-                key: 'ch',
+                title: '创建人',
+                dataIndex: 'createPeo',
+                key: 'createPeo',
             },
             {
-                title: '音标',
-                dataIndex: 'phoneticSymbols',
-                key: 'phoneticSymbols',
+                title: '试卷id',
+                dataIndex: 'testId',
+                key: 'testId',
             },
             {
-                title: '出错人次',
-                dataIndex: 'wrongCount',
-                key: 'wrongCount',
-            }
+                title: '创建时间',
+                dataIndex: 'createTime',
+                key: 'createTime',
+            },
+            {
+                title: '更新时间',
+                dataIndex: 'updateTime',
+                key: 'updateTime',
+            },
+            {
+                title: '操作',
+                key: 'control',
+                render: (text: any) => (
+                    <div className="copy">
+                        <div>复制ID</div>
+                    </div>
+                ),
+            },
         ],
         data1: [],
     };
