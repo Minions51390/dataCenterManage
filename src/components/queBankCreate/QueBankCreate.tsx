@@ -1,8 +1,10 @@
 import React from 'react';
 import { Table, Pagination, Input, Button, Modal, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import { createBrowserHistory } from 'history';
 import '../../style/pageStyle/QueBankCreate.less';
 // import { get, post, baseUrl } from '../../service/tools';
+export const history = createBrowserHistory();
 const { Option } = Select;
 class QueBank extends React.Component {
     state = {
@@ -87,10 +89,20 @@ class QueBank extends React.Component {
     }
 
     /** 确认新建 */
-    handleCreateOk(val: any) {
+    async handleCreateOk(val: any) {
+        const { bankName } = this.state;
         this.setState({
             isVisible: false,
         });
+        const bankID = await this.confimeNew();
+        sessionStorage.setItem("bankDetailId", bankID);
+        sessionStorage.setItem("bankDetailName", bankName);
+        window.location.href = "/#/app/queBankCreate/bankDetail"
+    }
+
+    /** 确认新建接口 */
+    async confimeNew() {
+        return "1";
     }
 
     /** 取消新建 */
@@ -161,7 +173,7 @@ class QueBank extends React.Component {
                         </div>
                         <div onClick={this.showCreateModal.bind(this)}>
                             <Button type="primary" icon={<PlusOutlined />}>
-                                新增
+                                新建
                             </Button>
                         </div>
                     </div>
@@ -200,6 +212,7 @@ class QueBank extends React.Component {
                             placeholder="请输入题库名称"
                             value={bankName}
                             onChange={this.onBankNameChange.bind(this)}
+                            maxLength={20}
                         />
                     </div>
                     <div className="module-area">

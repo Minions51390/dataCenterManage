@@ -15,6 +15,7 @@ import Banners from './ui/banners';
 import Drags from './ui/Draggable';
 import Dashboard from './dashboard/Dashboard';
 import QueBankCreate from './queBankCreate/QueBankCreate';
+import BankDetail from './queBankCreate/BankDetail';
 import TestPaper from './testPaper/TestPaper';
 import Ranks from './rank/Ranks';
 import ErrorBook from './errorBook/ErrorBook'
@@ -70,6 +71,7 @@ export default {
     MainClass,
     MainSet,
     QueBankCreate,
+    BankDetail,
     TestPaper,
     QueryParams,
     Visitor,

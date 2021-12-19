@@ -160,6 +160,7 @@ const menus: {
     others: [
         { key: '/app/class/main/class', title: '', icon: 'mobile', component: 'MainClass' },
         { key: '/app/class/main/class/set', title: '', icon: 'mobile', component: 'MainSet' },
+        { key: '/app/queBankCreate/bankDetail', title: '', icon: 'mobile', component: 'BankDetail' },
     ], // 非菜单相关路由
 };
 
