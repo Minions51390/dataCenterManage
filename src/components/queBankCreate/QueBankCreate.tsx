@@ -18,8 +18,8 @@ class QueBank extends React.Component {
         columns1: [
             {
                 title: '序号',
-                dataIndex: 'key',
                 key: 'key',
+                render: (text: any, record: any, index: number) => <div>{index + 1}</div>,
             },
             {
                 title: '题库名称',

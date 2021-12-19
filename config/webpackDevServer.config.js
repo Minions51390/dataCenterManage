@@ -78,9 +78,10 @@ module.exports = function(proxy, allowedHost) {
     // public: allowedHost,
     proxy: {
       '/api': {
-          target: 'http://47.107.238.126:80',
+          target: 'http://www.qingchengeng.com',
           // target: 'http://www.qingcheng-eng.com',
           // target: 'http://www.qingchengeng.com',
+          // http://47.107.238.126:80
           changeOrigin: true,
           secure: false,
           pathRewrite: {

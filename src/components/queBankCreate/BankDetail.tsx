@@ -32,6 +32,76 @@ class BankDetail extends React.Component {
         updateTime: '0000-00-00 00:00:00',
         bankType: 'choice',
         questionCount: '120',
+        columns1: [
+            {
+                title: '序号',
+                key: 'key',
+                render: (text: any, record: any, index: number) => <div>{index + 1}</div>,
+            },
+            {
+                title: '试题内容',
+                key: 'bankName',
+                render: (text: any) => (
+                    <div className="title">
+                        <div className="que">{text.stem}</div>
+                        <div className="choose">
+                            <div className="tr">
+                                <div>
+                                    {text.options[0].key}.{text.options[0].value}
+                                </div>
+                                <div>
+                                    {text.options[1].key}.{text.options[1].value}
+                                </div>
+                            </div>
+                            <div className="tr">
+                                <div>
+                                    {text.options[2].key}.{text.options[2].value}
+                                </div>
+                                <div>
+                                    {text.options[3].key}.{text.options[3].value}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="right">正确答案：{text.rightAnswer}</div>
+                    </div>
+                ),
+            },
+            {
+                title: '操作',
+                key: 'control',
+                render: (text: any) => (
+                    <div className="edit">
+                        <div>编辑</div>
+                        <div>删除</div>
+                    </div>
+                ),
+            },
+        ],
+        data1: [
+            {
+                questionID: 'xxxxx',
+                stem: 'xxxxxxx_____xxxxxx____xxxx',
+                options: [
+                    {
+                        key: 'A',
+                        value: 'xxxx',
+                    },
+                    {
+                        key: 'B',
+                        value: 'xxxx',
+                    },
+                    {
+                        key: 'C',
+                        value: 'xxxx',
+                    },
+                    {
+                        key: 'D',
+                        value: 'xxxx',
+                    },
+                ],
+                rightAnswer: 'A',
+            },
+        ],
     };
     componentWillMount() {
         this.inited();
@@ -107,6 +177,10 @@ class BankDetail extends React.Component {
             bankType,
             updateTime,
             questionCount,
+            columns1,
+            data1,
+            allCount,
+            pageNo,
         } = this.state;
         return (
             <div className="bank-detail-wrapper">
@@ -139,24 +213,42 @@ class BankDetail extends React.Component {
                 </div>
                 <div className="body">
                     <div className="fir">
-                        <div>
-                            搜索题库:
+                        <div>实体列表:</div>
+                        <div className="right">
                             <Input
                                 className="gap-12"
                                 style={{ width: 272 }}
-                                placeholder="请输入关键词"
+                                placeholder="搜索试题"
                                 value={bankQuery}
                                 onChange={this.onBankQueryChange.bind(this)}
                             />
-                            <Button className="gap-48" type="primary">
+                            <Button className="gap-12" type="primary">
                                 查询
                             </Button>
+                            <div className="gap-40" onClick={this.showCreateModal.bind(this)}>
+                                <Button type="primary" icon={<PlusOutlined />}>
+                                    新建
+                                </Button>
+                            </div>
                         </div>
-                        <div onClick={this.showCreateModal.bind(this)}>
-                            <Button type="primary" icon={<PlusOutlined />}>
-                                新建
-                            </Button>
-                        </div>
+                    </div>
+                    <div className="thr">
+                        <Table
+                            columns={columns1}
+                            dataSource={data1}
+                            pagination={false}
+                            size={'middle'}
+                            bordered={false}
+                        />
+                    </div>
+                    <div className={data1.length ? 'pag' : 'display-none'}>
+                        <Pagination
+                            defaultCurrent={1}
+                            pageSize={20}
+                            current={pageNo}
+                            total={allCount * 20}
+                            onChange={this.nowPagChange.bind(this)}
+                        />
                     </div>
                 </div>
             </div>
