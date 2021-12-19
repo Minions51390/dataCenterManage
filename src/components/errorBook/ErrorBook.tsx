@@ -142,8 +142,8 @@ class ErrorBook extends React.Component {
         return (
             <div className="rank-wrapper">
                 <div className="header">
-                    <div className="fir">错题本</div>
-                    <div className="sec">错题本</div>
+                    <div className="fir">错词本</div>
+                    <div className="sec">错词本</div>
                 </div>
                 <div className="body">
                     <div className="sec">
