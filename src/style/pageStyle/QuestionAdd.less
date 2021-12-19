@@ -1,0 +1,130 @@
+.question-add-wrapper {
+    overflow-y: auto;
+    .header {
+        height: 98px;
+        background: #ffffff;
+        overflow: hidden;
+        .sec {
+            display: flex;
+            justify-content: space-between;
+            margin: 0 32px;
+            height: 30px;
+            line-height: 30px;
+            .text {
+                font-size: 20px;
+                font-family: PingFangSC-Medium, PingFang SC;
+                font-weight: 500;
+                color: rgba(0, 0, 0, 0.85);
+            }
+            span {
+                color: rgba(0, 0, 0, 0.65);
+            }
+        }
+        .thr {
+            margin: 0 32px;
+            margin-top: 24px;
+            .tr {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 8px;
+                .sp {
+                    color: rgba(0, 0, 0, 0.45);
+                }
+                .hard {
+                    font-size: 20px;
+                }
+                div {
+                    span {
+                        color: rgba(0, 0, 0, 0.65);
+                    }
+                    &:nth-of-type(1) {
+                        width: 220px;
+                    }
+                    &:nth-of-type(2) {
+                        flex: 1;
+                    }
+                    &:nth-of-type(3) {
+                        width: 70px;
+                    }
+                }
+            }
+        }
+    }
+    .body {
+        width: auto;
+        margin: 24px;
+        margin-bottom: 0;
+        background: #ffffff;
+        padding: 32px;
+        .fir {
+            display: block;
+            width: 100%;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #e8e8e8;
+            .gap-12 {
+                margin-left: 12px;
+            }
+            .gap-40 {
+                margin-left: 40px;
+            }
+            .right {
+                display: flex;
+            }
+        }
+        .content {
+            .item {
+                margin-top: 24px;
+                display: flex;
+                padding-bottom: 8px;
+                border-bottom: 1px solid #e8e8e8;
+                &:last-of-type {
+                    border-bottom: 0;
+                }
+                .num {
+                    padding-top: 5px;
+                    width: 30px;
+                }
+                .con {
+                    flex: 1;
+                    .area {
+                        display: flex;
+                        justify-content: flex-start;
+                        align-items: center;
+                        margin-bottom: 16px;
+                        .title {
+                            display: inline-block;
+                            width: 80px;
+                            text-align: right;
+                        }
+                    }
+                }
+                .del {
+                    width: 60px;
+                    color: #1890ff;
+                    margin-left: 24px;
+                    cursor: pointer;
+                    align-self: center;
+                }
+            }
+        }
+        .add {
+            button {
+                width: 100%;
+            }
+        }
+    }
+}
+.module-area {
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .gap-8 {
+        margin-left: 8px;
+    }
+    .title {
+        display: inline-block;
+        width: 70px;
+        text-align: right;
+    }
+}

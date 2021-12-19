@@ -16,6 +16,7 @@ import Drags from './ui/Draggable';
 import Dashboard from './dashboard/Dashboard';
 import QueBankCreate from './queBankCreate/QueBankCreate';
 import BankDetail from './queBankCreate/BankDetail';
+import QuestionAdd from "./queBankCreate/QuestionAdd";
 import TestPaper from './testPaper/TestPaper';
 import Ranks from './rank/Ranks';
 import ErrorBook from './errorBook/ErrorBook'
@@ -72,6 +73,7 @@ export default {
     MainSet,
     QueBankCreate,
     BankDetail,
+    QuestionAdd,
     TestPaper,
     QueryParams,
     Visitor,

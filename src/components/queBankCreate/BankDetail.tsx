@@ -1,5 +1,6 @@
 import React from 'react';
 import { Table, Pagination, Input, Button, Modal, PageHeader } from 'antd';
+import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/BankDetail.less';
 // import { get, post, baseUrl } from '../../service/tools';
@@ -13,7 +14,7 @@ class BankDetail extends React.Component {
         routes: [
             {
                 path: '/app/queBankCreate',
-                breadcrumbName: '班级和学员管理',
+                breadcrumbName: '题库建设',
             },
             {
                 path: '/bankDetail',
@@ -26,6 +27,7 @@ class BankDetail extends React.Component {
         pageNo: 1,
         allCount: 1,
         /** 默认数据 */
+        bankID: '',
         bankName: sessionStorage.getItem('bankDetailName') || '',
         creator: '',
         createTime: '0000-00-00 00:00:00',
@@ -114,7 +116,7 @@ class BankDetail extends React.Component {
         queNameC: '',
         queNameD: '',
         queNameR: '',
-        questionID: "",
+        questionID: '',
     };
     componentWillMount() {
         this.inited();
@@ -125,6 +127,7 @@ class BankDetail extends React.Component {
     }
     async getBankData() {
         return {
+            bankID: '',
             creator: '老实',
             createTime: '0000-00-00 00:00:00',
             updateTime: '0000-00-00 00:00:00',
@@ -215,7 +218,7 @@ class BankDetail extends React.Component {
                 queNameA: options[0].value,
                 queNameB: options[1].value,
                 queNameC: options[2].value,
-                queNameD: options[3]?.value || "",
+                queNameD: options[3]?.value || '',
                 queNameR: rightAnswer,
             });
         } else {
@@ -228,7 +231,7 @@ class BankDetail extends React.Component {
                 queNameA: options[0].value,
                 queNameB: options[1].value,
                 queNameC: options[2].value,
-                queNameD: options[3]?.value || "",
+                queNameD: options[3]?.value || '',
                 queNameR: rightAnswer,
             });
         }
@@ -259,6 +262,7 @@ class BankDetail extends React.Component {
 
     render() {
         const {
+            bankID,
             bankName,
             bankQuery,
             routes,
@@ -312,7 +316,7 @@ class BankDetail extends React.Component {
                 </div>
                 <div className="body">
                     <div className="fir">
-                        <div>实体列表:</div>
+                        <div>试题列表:</div>
                         <div className="right">
                             <Input
                                 className="gap-12"
@@ -329,9 +333,11 @@ class BankDetail extends React.Component {
                                 查询
                             </Button>
                             <div className="gap-40">
-                                <Button type="primary" icon={<PlusOutlined />}>
-                                    新建
-                                </Button>
+                                <Link to={`/app/queBankCreate/bankDetail/questionAdd?bankID=${bankID}`}>
+                                    <Button type="primary" icon={<PlusOutlined />}>
+                                        新建
+                                    </Button>
+                                </Link>
                             </div>
                         </div>
                     </div>
