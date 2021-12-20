@@ -1,5 +1,6 @@
 import React from 'react';
-import { Table, Pagination, Input, Button, Modal, PageHeader, Alert } from 'antd';
+import { Table, Pagination, Input, Button, Modal, PageHeader, Alert, message } from 'antd';
+import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/QuestionAdd.less';
 // import { get, post, baseUrl } from '../../service/tools';
@@ -62,12 +63,14 @@ class QuestionAdd extends React.Component {
     componentWillMount() {
         this.inited();
     }
+
     async inited() {
         this.setState({
             bankID: GetRequest()['classId'],
         });
     }
 
+    /** 增加输入框 */
     addQuestion() {
         const { questionArr } = this.state;
         const item = {
@@ -94,6 +97,42 @@ class QuestionAdd extends React.Component {
         };
         this.setState({
             questionArr: [...questionArr, item],
+        });
+    }
+
+    /** 保存试题 */
+    saveQuestion() {
+        const { questionArr } = this.state;
+        /** 调用接口 */
+        console.log(questionArr);
+        message.success('保存成功');
+        setTimeout(() => {
+            window.location.href = "/#/app/queBankCreate/bankDetail";
+        }, 200);
+    }
+
+    /** 更新试题 */
+    updateInput(val: any, index: number, type: string, key: number, event: any) {
+        const { questionArr } = this.state;
+        const valData = event.target.value;
+        if (type === "stem") {
+            questionArr[index].stem = valData;
+        } else if (type === "options") {
+            questionArr[index].options[key].value = valData;
+        } else if (type === "rightAnswer") {
+            questionArr[index].rightAnswer = valData;
+        }
+        this.setState({
+            questionArr,
+        });
+    }
+
+    /** 删除试题 */
+    delQuestion(index: number) {
+        const { questionArr } = this.state;
+        questionArr.splice(index, 1)
+        this.setState({
+            questionArr,
         });
     }
 
@@ -124,52 +163,52 @@ class QuestionAdd extends React.Component {
                                         <span className="title">题干：</span>
                                         <TextArea
                                             className="gap-8"
-                                            // value={queNameB}
-                                            // onChange={this.onQueNameChangeB.bind(this)}
+                                            value={val.stem}
+                                            onChange={this.updateInput.bind(this, val, index, "stem", 0)}
                                         />
                                     </div>
                                     <div className="area">
                                         <span className="title">A：</span>
                                         <Input
                                             className="gap-8"
-                                            // value={queNameB}
-                                            // onChange={this.onQueNameChangeB.bind(this)}
+                                            value={val.options[0].value}
+                                            onChange={this.updateInput.bind(this, val, index, "options", 0)}
                                         />
                                     </div>
                                     <div className="area">
                                         <span className="title">B：</span>
                                         <Input
                                             className="gap-8"
-                                            // value={queNameB}
-                                            // onChange={this.onQueNameChangeB.bind(this)}
+                                            value={val.options[1].value}
+                                            onChange={this.updateInput.bind(this, val, index, "options", 1)}
                                         />
                                     </div>
                                     <div className="area">
                                         <span className="title">C：</span>
                                         <Input
                                             className="gap-8"
-                                            // value={queNameB}
-                                            // onChange={this.onQueNameChangeB.bind(this)}
+                                            value={val.options[2].value}
+                                            onChange={this.updateInput.bind(this, val, index, "options", 2)}
                                         />
                                     </div>
                                     <div className="area">
                                         <span className="title">D：</span>
                                         <Input
                                             className="gap-8"
-                                            // value={queNameB}
-                                            // onChange={this.onQueNameChangeB.bind(this)}
+                                            value={val.options[3].value}
+                                            onChange={this.updateInput.bind(this, val, index, "options", 3)}
                                         />
                                     </div>
                                     <div className="area">
                                         <span className="title">正确选项：</span>
                                         <Input
                                             className="gap-8"
-                                            // value={queNameB}
-                                            // onChange={this.onQueNameChangeB.bind(this)}
+                                            value={val.rightAnswer}
+                                            onChange={this.updateInput.bind(this, val, index, "rightAnswer", 0)}
                                         />
                                     </div>
                                 </div>
-                                <div className="del">删除试题</div>
+                                <div className="del" onClick={this.delQuestion.bind(this, index)}>删除试题</div>
                             </div>
                         ))}
                     </div>
@@ -177,6 +216,12 @@ class QuestionAdd extends React.Component {
                         <Button type="dashed" icon={<PlusOutlined />}>
                             添加
                         </Button>
+                    </div>
+                    <div className="tools">
+                        <Button type="primary" onClick={this.saveQuestion.bind(this)}>保存</Button>
+                        <Link to={"/app/queBankCreate/bankDetail"}>
+                            <Button>取消</Button>
+                        </Link>
                     </div>
                 </div>
             </div>
