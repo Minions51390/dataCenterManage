@@ -90,6 +90,7 @@ class TestDetail extends React.Component {
                 rightAnswer: 'A',
             },
         ],
+        selectedRowKeys: [],
     };
     componentWillMount() {
         this.inited();
@@ -144,6 +145,20 @@ class TestDetail extends React.Component {
             });
     }
 
+    /** 选择新的可选项 */
+    onSelectChange = (selectedRowKeys: any) => {
+        console.log('selectedRowKeys changed: ', selectedRowKeys);
+        this.setState({ selectedRowKeys });
+    };
+
+    /** 批量删除 */
+    delArr() {
+        const { selectedRowKeys } = this.state;
+        if (selectedRowKeys.length > 0) {
+            /** 调用删除接口 */
+        }
+    }
+
     render() {
         const {
             testPaperID,
@@ -152,6 +167,7 @@ class TestDetail extends React.Component {
             routes,
             columns1,
             data1,
+            selectedRowKeys,
             allCount,
             pageNo,
             creator,
@@ -159,6 +175,10 @@ class TestDetail extends React.Component {
             updateTime,
             questionCount,
         } = this.state;
+        const rowSelection = {
+            selectedRowKeys,
+            onChange: this.onSelectChange,
+        };
         return (
             <div className="test-detail-wrapper">
                 <div className="header">
@@ -210,14 +230,13 @@ class TestDetail extends React.Component {
                                 <Button type="primary" icon={<PlusOutlined />}>
                                     导入
                                 </Button>
-                                <Button>
-                                    批量删除
-                                </Button>
+                                <Button onClick={this.delArr.bind(this)}>批量删除</Button>
                             </div>
                         </div>
                     </div>
                     <div className="thr">
                         <Table
+                            rowSelection={rowSelection}
                             columns={columns1}
                             dataSource={data1}
                             pagination={false}
