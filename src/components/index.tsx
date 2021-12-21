@@ -18,6 +18,7 @@ import QueBankCreate from './queBankCreate/QueBankCreate';
 import BankDetail from './queBankCreate/BankDetail';
 import QuestionAdd from "./queBankCreate/QuestionAdd";
 import TestPaper from './testPaper/TestPaper';
+import TestDetail from './testPaper/TestDetail';
 import Ranks from './rank/Ranks';
 import ErrorBook from './errorBook/ErrorBook'
 import ClassStu from './classStu/ClassStu';
@@ -75,6 +76,7 @@ export default {
     BankDetail,
     QuestionAdd,
     TestPaper,
+    TestDetail,
     QueryParams,
     Visitor,
     MultipleMenu,

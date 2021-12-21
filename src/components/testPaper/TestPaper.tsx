@@ -85,7 +85,7 @@ class ErrorBook extends React.Component {
     /** 搜索 */
     onTestQueryChange(event: any) {
         this.setState({
-            bankQuery: event.target.value,
+            testQuery: event.target.value,
         });
     }
 
@@ -105,7 +105,7 @@ class ErrorBook extends React.Component {
         const testID = await this.confimeNew();
         sessionStorage.setItem('testDetailId', testID);
         sessionStorage.setItem('testDetailName', testName);
-        window.location.href = '/#/app/queBankCreate/bankDetail';
+        window.location.href = '/#/app/testPaper/testDetail';
     }
 
     /** 确认新建接口 */

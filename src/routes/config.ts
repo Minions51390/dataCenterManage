@@ -162,6 +162,7 @@ const menus: {
         { key: '/app/class/main/class/set', title: '', icon: 'mobile', component: 'MainSet' },
         { key: '/app/queBankCreate/bankDetail', title: '', icon: 'mobile', component: 'BankDetail' },
         { key: '/app/queBankCreate/bankDetail/questionAdd', title: '', icon: 'mobile', component: 'QuestionAdd' },
+        { key: '/app/testPaper/testDetail', title: '', icon: 'mobile', component: 'TestDetail' },
     ], // 非菜单相关路由
 };
 

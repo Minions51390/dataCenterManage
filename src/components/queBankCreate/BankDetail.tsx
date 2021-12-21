@@ -18,7 +18,7 @@ class BankDetail extends React.Component {
             },
             {
                 path: '/bankDetail',
-                breadcrumbName: `${sessionStorage.getItem('bankDetailName') || '新建题库'}`,
+                breadcrumbName: `${sessionStorage.getItem('bankDetailName') || '新建'}题库`,
             },
         ],
         bankQuery: '',
