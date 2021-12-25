@@ -197,7 +197,7 @@ class ErrorBook extends React.Component {
                         <Input
                             className="gap-8"
                             style={{ width: 294 }}
-                            placeholder="请输入题库名称"
+                            placeholder="请输入试卷名称"
                             value={testName}
                             onChange={this.onTestNameChange.bind(this)}
                             maxLength={20}
