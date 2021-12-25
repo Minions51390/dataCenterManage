@@ -101,14 +101,43 @@ class TestDetail extends React.Component {
             },
         ],
         bank: 0,
+        bankName: '全部',
         bankList: [
             {
                 text: '全部',
                 id: 0,
             },
         ],
-        paperData: [],
-        paperColumns: [],
+        pageNom: 1,
+        allCountm: 1,
+        paperData: [
+            {
+                questionID: 'xxxxx',
+                stem: 'xxxxxxx_____xxxxxx____xxxx',
+                options: [
+                    {
+                        key: 'A',
+                        value: 'xxxx',
+                    },
+                    {
+                        key: 'B',
+                        value: 'xxxx',
+                    },
+                    {
+                        key: 'C',
+                        value: 'xxxx',
+                    },
+                    {
+                        key: 'D',
+                        value: 'xxxx',
+                    },
+                ],
+                rightAnswer: 'A',
+            },
+        ],
+        moduleType: 'select',
+        selectedRowKeysM: [],
+        testQueryM: "",
     };
     componentWillMount() {
         this.inited();
@@ -134,6 +163,12 @@ class TestDetail extends React.Component {
         });
     }
 
+    ontestQueryChangeM(event: any) {
+        this.setState({
+            testQueryM: event.target.value,
+        });
+    }
+
     /** 更换页码 */
     nowPagChange(val: any) {
         this.setState(
@@ -152,6 +187,11 @@ class TestDetail extends React.Component {
         console.log(testQuery);
     }
 
+    searchQueryM(val: any) {
+        const { testQueryM } = this.state;
+        console.log(testQueryM);
+    }
+
     /** 复制函数 */
     copyIdFn(id: any) {
         copy(id)
@@ -167,6 +207,11 @@ class TestDetail extends React.Component {
     onSelectChange = (selectedRowKeys: any) => {
         console.log('selectedRowKeys changed: ', selectedRowKeys);
         this.setState({ selectedRowKeys });
+    };
+
+    onSelectChangeM = (selectedRowKeysM: any) => {
+        console.log('selectedRowKeys changed: ', selectedRowKeysM);
+        this.setState({ selectedRowKeysM });
     };
 
     /** 批量删除 */
@@ -211,11 +256,39 @@ class TestDetail extends React.Component {
     handleBank(val: any) {
         this.setState({
             bank: val.id,
+            bankName: val.text,
         });
     }
 
-    confirmParper() {
-        console.log(22);
+    handleSelModule() {
+        this.setState({
+            moduleType: 'select',
+        });
+    }
+
+    handleListModule() {
+        this.setState({
+            moduleType: 'list',
+        });
+    }
+
+    /** 更换页码 */
+    nowPagChangeM(val: any) {
+        this.setState(
+            {
+                pageNom: val,
+            },
+            async () => {
+                /** 更新数据 */
+            }
+        );
+    }
+
+    confirmImport() {
+        this.setState({
+            isVisible: false,
+            moduleType: 'select',
+        })
     }
 
     render() {
@@ -227,6 +300,7 @@ class TestDetail extends React.Component {
             columns1,
             data1,
             selectedRowKeys,
+            selectedRowKeysM,
             allCount,
             pageNo,
             creator,
@@ -238,10 +312,20 @@ class TestDetail extends React.Component {
             bankPeopleList,
             bank,
             bankList,
+            bankName,
+            moduleType,
+            pageNom,
+            allCountm,
+            paperData,
+            testQueryM,
         } = this.state;
         const rowSelection = {
             selectedRowKeys,
             onChange: this.onSelectChange,
+        };
+        const rowSelectionM = {
+            selectedRowKeysM,
+            onChange: this.onSelectChangeM,
         };
         return (
             <div className="test-detail-wrapper">
@@ -280,13 +364,13 @@ class TestDetail extends React.Component {
                                 className="gap-12"
                                 style={{ width: 272 }}
                                 placeholder="请输入关键词"
-                                value={testQuery}
-                                onChange={this.ontestQueryChange.bind(this)}
+                                value={testQueryM}
+                                onChange={this.ontestQueryChangeM.bind(this)}
                             />
                             <Button
                                 className="gap-12"
                                 type="primary"
-                                onClick={this.searchQuery.bind(this)}
+                                onClick={this.searchQueryM.bind(this)}
                             >
                                 查询
                             </Button>
@@ -326,47 +410,109 @@ class TestDetail extends React.Component {
                     title="导入试题"
                     visible={isVisible}
                     footer={null}
+                    width={800}
                     onCancel={this.handleCreateCancel.bind(this)}
                 >
-                    <div className="module-area">
-                        选择题库创建人:
-                        <Select
-                            defaultValue={bankPeople}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            placeholder="选择题库创建人"
-                            onChange={this.handlePeopleType.bind(this)}
-                            value={bankPeople}
-                        >
-                            {bankPeopleList.map((item: any, index: number) => (
-                                <Option key={index} value={item.id}>
-                                    {item.text}
-                                </Option>
-                            ))}
-                        </Select>
-                    </div>
-                    <div className="module-area" style={{ paddingLeft: 41 }}>
-                        选择题库:
-                        <Select
-                            defaultValue={bank}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            placeholder="选择题库"
-                            onChange={this.handleBank.bind(this)}
-                            value={bank}
-                        >
-                            {bankList.map((item: any, index: number) => (
-                                <Option key={index} value={item.id}>
-                                    {item.text}
-                                </Option>
-                            ))}
-                        </Select>
-                    </div>
-                    <div className="module-area">
-                        <Button block type="primary" onClick={this.confirmParper.bind(this)}>
-                            确认
-                        </Button>
-                    </div>
+                    {moduleType === 'select' ? (
+                        <div>
+                            <div className="module-area">
+                                选择题库创建人:
+                                <Select
+                                    defaultValue={bankPeople}
+                                    className="gap-8"
+                                    style={{ width: 294 }}
+                                    placeholder="选择题库创建人"
+                                    onChange={this.handlePeopleType.bind(this)}
+                                    value={bankPeople}
+                                >
+                                    {bankPeopleList.map((item: any, index: number) => (
+                                        <Option key={index} value={item.id}>
+                                            {item.text}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </div>
+                            <div className="module-area" style={{ paddingLeft: 41 }}>
+                                选择题库:
+                                <Select
+                                    defaultValue={bank}
+                                    className="gap-8"
+                                    style={{ width: 294 }}
+                                    placeholder="选择题库"
+                                    onChange={this.handleBank.bind(this)}
+                                    value={bank}
+                                >
+                                    {bankList.map((item: any, index: number) => (
+                                        <Option key={index} value={item.id}>
+                                            {item.text}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </div>
+                            <div className="module-area btnw">
+                                <Button
+                                    block
+                                    type="primary"
+                                    onClick={this.handleListModule.bind(this)}
+                                >
+                                    确认
+                                </Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="details-m">
+                            <div className="fir">
+                                <div>{bankName}</div>
+                                <div className="right">
+                                    <Input
+                                        className="gap-12"
+                                        style={{ width: 272 }}
+                                        placeholder="请输入关键词"
+                                        value={testQuery}
+                                        onChange={this.ontestQueryChange.bind(this)}
+                                    />
+                                    <Button
+                                        className="gap-12"
+                                        type="primary"
+                                        onClick={this.searchQuery.bind(this)}
+                                    >
+                                        查询
+                                    </Button>
+                                </div>
+                            </div>
+                            <div className="thr">
+                                <Table
+                                    rowSelection={rowSelectionM}
+                                    columns={columns1}
+                                    dataSource={paperData}
+                                    pagination={false}
+                                    size={'middle'}
+                                    bordered={false}
+                                />
+                            </div>
+                            <div className={paperData.length ? 'pag' : 'display-none'}>
+                                <Pagination
+                                    defaultCurrent={1}
+                                    pageSize={20}
+                                    current={pageNom}
+                                    total={allCountm * 20}
+                                    onChange={this.nowPagChangeM.bind(this)}
+                                />
+                            </div>
+                            <div className="fir mt-20">
+                                <div>
+                                    <Button type="primary" onClick={this.handleSelModule.bind(this)}>
+                                        返回上一步
+                                    </Button>
+                                </div>
+                                <div className="right">
+                                    <Button type="primary" onClick={this.confirmImport.bind(this)}>
+                                        确认导入
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </Modal>
             </div>
         );

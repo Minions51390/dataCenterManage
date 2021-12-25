@@ -148,3 +148,94 @@
         text-align: right;
     }
 }
+.btnw {
+    button {
+        width: 50%;
+    }
+}
+.details-m {
+    .mt-20 {
+        margin-top: 20px;
+    }
+    .fir {
+        display: flex;
+        justify-content: space-between;
+        .title {
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+        }
+        .gap-12 {
+            margin-left: 12px;
+        }
+        .gap-40 {
+            margin-left: 40px;
+        }
+        .right {
+            display: flex;
+        }
+    }
+    .thr {
+        margin-top: 20px;
+        .title {
+            display: flex;
+            .que {
+                display: flex;
+                align-items: center;
+                flex: 3;
+                text-align: left;
+                min-width: 300px;
+                margin-right: 24px;
+            }
+            .choose {
+                flex: 2;
+                .tr {
+                    display: flex;
+                    div {
+                        text-align: left;
+                        min-width: 100px;
+                    }
+                }
+            }
+            .right {
+                display: flex;
+                align-items: center;
+                margin-right: 24px;
+                width: 81px;
+            }
+        }
+        .edit {
+            display: flex;
+            justify-content: center;
+            div {
+                width: 56px;
+                height: 22px;
+                font-size: 14px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #1890ff;
+                line-height: 22px;
+                cursor: pointer;
+                &:nth-of-type(2) {
+                    color: rgba(0, 0, 0, 0.45);
+                }
+            }
+        }
+        th {
+            text-align: center;
+            color: #000 !important;
+        }
+        td {
+            text-align: center;
+            color: #595959 !important;
+        }
+    }
+    .pag {
+        display: flex;
+        flex-direction: row-reverse;
+        margin-top: 24px;
+    }
+    .display-none {
+        display: none;
+    }
+}
