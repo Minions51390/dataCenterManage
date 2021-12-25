@@ -1,9 +1,10 @@
 import React from 'react';
-import { Table, Pagination, Input, Button, PageHeader, message } from 'antd';
+import { Table, Pagination, Input, Button, PageHeader, message, Modal, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import copy from 'clipboard-copy';
 import '../../style/pageStyle/TestDetail.less';
 // import { get, post, baseUrl } from '../../service/tools';
+const { Option } = Select;
 class TestDetail extends React.Component {
     state = {
         routes: [
@@ -19,6 +20,7 @@ class TestDetail extends React.Component {
         testQuery: '',
         pageNo: 1,
         allCount: 1,
+        isVisible: false,
         /** 默认数据 */
         testPaperID: '',
         testPaperName: sessionStorage.getItem('testDetailName') || '',
@@ -91,6 +93,22 @@ class TestDetail extends React.Component {
             },
         ],
         selectedRowKeys: [],
+        bankPeople: 0,
+        bankPeopleList: [
+            {
+                text: '全部',
+                id: 0,
+            },
+        ],
+        bank: 0,
+        bankList: [
+            {
+                text: '全部',
+                id: 0,
+            },
+        ],
+        paperData: [],
+        paperColumns: [],
     };
     componentWillMount() {
         this.inited();
@@ -159,6 +177,47 @@ class TestDetail extends React.Component {
         }
     }
 
+    /** 展示创建弹窗 */
+    showCreateModal() {
+        this.setState({
+            isVisible: true,
+        });
+    }
+
+    /** 确认新建 */
+    async handleCreateOk(val: any) {
+        const paperData = await this.getPaper();
+        this.setState({
+            paperData,
+        });
+    }
+
+    handleCreateCancel(val: any) {
+        this.setState({
+            isVisible: false,
+        });
+    }
+
+    async getPaper() {
+        return [];
+    }
+
+    handlePeopleType(val: any) {
+        this.setState({
+            bankPeople: val.id,
+        });
+    }
+
+    handleBank(val: any) {
+        this.setState({
+            bank: val.id,
+        });
+    }
+
+    confirmParper() {
+        console.log(22);
+    }
+
     render() {
         const {
             testPaperID,
@@ -174,6 +233,11 @@ class TestDetail extends React.Component {
             createTime,
             updateTime,
             questionCount,
+            isVisible,
+            bankPeople,
+            bankPeopleList,
+            bank,
+            bankList,
         } = this.state;
         const rowSelection = {
             selectedRowKeys,
@@ -227,7 +291,11 @@ class TestDetail extends React.Component {
                                 查询
                             </Button>
                             <div className="gap-40">
-                                <Button type="primary" icon={<PlusOutlined />}>
+                                <Button
+                                    type="primary"
+                                    icon={<PlusOutlined />}
+                                    onClick={this.showCreateModal.bind(this)}
+                                >
                                     导入
                                 </Button>
                                 <Button onClick={this.delArr.bind(this)}>批量删除</Button>
@@ -254,6 +322,52 @@ class TestDetail extends React.Component {
                         />
                     </div>
                 </div>
+                <Modal
+                    title="导入试题"
+                    visible={isVisible}
+                    footer={null}
+                    onCancel={this.handleCreateCancel.bind(this)}
+                >
+                    <div className="module-area">
+                        选择题库创建人:
+                        <Select
+                            defaultValue={bankPeople}
+                            className="gap-8"
+                            style={{ width: 294 }}
+                            placeholder="选择题库创建人"
+                            onChange={this.handlePeopleType.bind(this)}
+                            value={bankPeople}
+                        >
+                            {bankPeopleList.map((item: any, index: number) => (
+                                <Option key={index} value={item.id}>
+                                    {item.text}
+                                </Option>
+                            ))}
+                        </Select>
+                    </div>
+                    <div className="module-area" style={{ paddingLeft: 41 }}>
+                        选择题库:
+                        <Select
+                            defaultValue={bank}
+                            className="gap-8"
+                            style={{ width: 294 }}
+                            placeholder="选择题库"
+                            onChange={this.handleBank.bind(this)}
+                            value={bank}
+                        >
+                            {bankList.map((item: any, index: number) => (
+                                <Option key={index} value={item.id}>
+                                    {item.text}
+                                </Option>
+                            ))}
+                        </Select>
+                    </div>
+                    <div className="module-area">
+                        <Button block type="primary" onClick={this.confirmParper.bind(this)}>
+                            确认
+                        </Button>
+                    </div>
+                </Modal>
             </div>
         );
     }
