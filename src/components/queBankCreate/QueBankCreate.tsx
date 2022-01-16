@@ -3,7 +3,7 @@ import { Table, Pagination, Input, Button, Modal, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { createBrowserHistory } from 'history';
 import '../../style/pageStyle/QueBankCreate.less';
-// import { get, post, baseUrl } from '../../service/tools';
+import { get, post, baseUrl } from '../../service/tools';
 export const history = createBrowserHistory();
 const { Option } = Select;
 class QueBank extends React.Component {
@@ -71,8 +71,19 @@ class QueBank extends React.Component {
     componentWillMount() {
         this.inited();
     }
-    async inited() {}
-    async getRank() {}
+    async inited() {
+        this.getBank();
+    }
+    async getBank() {
+        const { bankQuery, pageNo } = this.state;
+        let res = await get({ url: `${baseUrl}/api/questionBank/list?query=${bankQuery}&sortKey=createTime&sortOrder=asc&pageSize=20&pageNo=${pageNo}&all=off` });
+        console.log('------------->', res);
+        if (res != null) {
+            return res.data.detail;
+        } else {
+            return [];
+        }
+    }
 
     /** 搜索 */
     onBankQueryChange(event: any) {
