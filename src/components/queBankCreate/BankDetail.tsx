@@ -3,7 +3,7 @@ import { Table, Pagination, Input, Button, Modal, PageHeader } from 'antd';
 import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/BankDetail.less';
-// import { get, post, baseUrl } from '../../service/tools';
+import { get, post, del, put, baseUrl } from '../../service/tools';
 const ENUM_BANK_TYPE: any = {
     choice: '单选题',
     pack: '填空题',
@@ -25,9 +25,9 @@ class BankDetail extends React.Component {
         isVisible: false,
         bankTypeList: ['choice', 'pack'],
         pageNo: 1,
-        allCount: 1,
+        totalCount: 1,
         /** 默认数据 */
-        bankID: '',
+        bankID: sessionStorage.getItem('bankDetailId') || '',
         bankName: sessionStorage.getItem('bankDetailName') || '',
         creator: '',
         createTime: '0000-00-00 00:00:00',
@@ -49,19 +49,19 @@ class BankDetail extends React.Component {
                         <div className="choose">
                             <div className="tr">
                                 <div>
-                                    {text.options[0].key}.{text.options[0].value}
+                                    {text.option[0].Key}.{text.option[0].Value}
                                 </div>
                                 <div>
-                                    {text.options[1].key}.{text.options[1].value}
+                                    {text.option[1].Key}.{text.option[1].Value}
                                 </div>
                             </div>
                             <div className="tr">
                                 <div>
-                                    {text.options[2].key}.{text.options[2].value}
+                                    {text.option[2].Key}.{text.option[2].Value}
                                 </div>
-                                {text.options[3] ? (
+                                {text.option[3] ? (
                                     <div>
-                                        {text.options[3].key}.{text.options[3].value}
+                                        {text.option[3].Key}.{text.option[3].Value}
                                     </div>
                                 ) : (
                                     ''
@@ -87,7 +87,7 @@ class BankDetail extends React.Component {
             {
                 questionID: 'xxxxx',
                 stem: 'xxxxxxx_____xxxxxx____xxxx',
-                options: [
+                option: [
                     {
                         key: 'A',
                         value: 'xxxx',
@@ -122,18 +122,41 @@ class BankDetail extends React.Component {
         this.inited();
     }
     async inited() {
-        const bankData = await this.getBankData();
+        const bankData = await this.getQuestionBank();
         this.setState({ ...bankData });
+        this.getQuestionList();
     }
-    async getBankData() {
-        return {
-            bankID: '',
-            creator: '老实',
-            createTime: '0000-00-00 00:00:00',
-            updateTime: '0000-00-00 00:00:00',
-            bankType: 'choice',
-            questionCount: '120',
-        };
+
+    /** 单个题库信息 */
+    async getQuestionBank() {
+        const { bankID } = this.state;
+        const res: any = await get({
+            url: `${baseUrl}/api/questionBank?bankID=${bankID}`,
+        });
+        return (
+            res || {
+                bankID: '',
+                creator: '老实',
+                createTime: '0000-00-00 00:00:00',
+                updateTime: '0000-00-00 00:00:00',
+                bankType: 'choice',
+                questionCount: '120',
+            }
+        );
+    }
+
+    /** 题库试题列表 */
+    async getQuestionList() {
+        const { bankID, bankQuery, pageNo } = this.state;
+        const res: any = await get({
+            url: `${baseUrl}/api/questionBank/question/list?bankID=${bankID}&query=${bankQuery}&pageSize=20&pageNo=${pageNo}`,
+        });
+        const questionBankList = res?.data?.questionBankList || [];
+        const totalCount = (res?.data?.totalCount || 0) / 20;
+        this.setState({
+            data1: questionBankList,
+            totalCount,
+        });
     }
 
     /** 搜索 */
@@ -190,12 +213,55 @@ class BankDetail extends React.Component {
         const { canEdit } = this.state;
         if (canEdit) {
             /** 更新数据接口 */
+            this.editQuestionInterface();
         } else {
             /** 删除数据接口 */
+            this.delQuestionInterface();
         }
         this.setState({
             isVisible: false,
         });
+    }
+
+    /** 编辑单个试题 */
+    async editQuestionInterface() {
+        const {questionID, queName, queNameA, queNameB, queNameC, queNameD, queNameR} = this.state;
+        await put({
+            url: `${baseUrl}/api/questionBank/question`,
+            data: {
+                questionID,
+                stem: queName,
+                options: [
+                    {
+                        key: "A",
+                        value: queNameA,
+                    },
+                    {
+                        key: "B",
+                        value: queNameB,
+                    },
+                    {
+                        key: "C",
+                        value: queNameC,
+                    },
+                    {
+                        key: "D",
+                        value: queNameD,
+                    },
+                ],
+                rightAnswer: queNameR,
+            }
+        });
+        this.getQuestionList();
+    }
+
+    /** 删除接口 */
+    async delQuestionInterface() {
+        const { questionID } = this.state;
+        await del({
+            url: `${baseUrl}/api/questionBank/question?questionID=${questionID}`
+        });
+        this.getQuestionList();
     }
 
     /** 取消编辑 */
@@ -207,7 +273,7 @@ class BankDetail extends React.Component {
 
     /** 展示编辑弹窗 */
     showCreateModal(type: string, data: any) {
-        const { questionID, stem, options, rightAnswer } = data;
+        const { questionID, stem, option, rightAnswer } = data;
         if (type === 'edit') {
             this.setState({
                 isVisible: true,
@@ -215,10 +281,10 @@ class BankDetail extends React.Component {
                 canEdit: true,
                 questionID,
                 queName: stem,
-                queNameA: options[0].value,
-                queNameB: options[1].value,
-                queNameC: options[2].value,
-                queNameD: options[3]?.value || '',
+                queNameA: option[0].Value,
+                queNameB: option[1].Value,
+                queNameC: option[2].Value,
+                queNameD: option[3]?.Value || '',
                 queNameR: rightAnswer,
             });
         } else {
@@ -228,10 +294,10 @@ class BankDetail extends React.Component {
                 canEdit: false,
                 questionID,
                 queName: stem,
-                queNameA: options[0].value,
-                queNameB: options[1].value,
-                queNameC: options[2].value,
-                queNameD: options[3]?.value || '',
+                queNameA: option[0].Value,
+                queNameB: option[1].Value,
+                queNameC: option[2].Value,
+                queNameD: option[3]?.Value || '',
                 queNameR: rightAnswer,
             });
         }
@@ -245,20 +311,27 @@ class BankDetail extends React.Component {
             },
             async () => {
                 /** 更新数据 */
+                this.getQuestionList();
             }
         );
     }
 
     /** 搜索接口 */
-    searchQuery(val: any) {
-        const { bankQuery } = this.state;
-        console.log(bankQuery);
+    searchQuery() {
+        this.setState(
+            {
+                pageNo: 1,
+            },
+            () => {
+                this.getQuestionList();
+            }
+        );
     }
 
     /** 删除题库 */
-    delBank() {
-        window.location.href = '/#/app/queBankCreate';
-    }
+    // delBank() {
+    //     window.location.href = '/#/app/queBankCreate';
+    // }
 
     render() {
         const {
@@ -273,7 +346,7 @@ class BankDetail extends React.Component {
             questionCount,
             columns1,
             data1,
-            allCount,
+            totalCount,
             pageNo,
             isVisible,
             moduleName,
@@ -291,7 +364,7 @@ class BankDetail extends React.Component {
                     <PageHeader title="" breadcrumb={{ routes }} />
                     <div className="sec">
                         <div className="text">{bankName}</div>
-                        <Button onClick={this.delBank.bind(this)}>删除题库</Button>
+                        {/* <Button onClick={this.delBank.bind(this)}>删除题库</Button> */}
                     </div>
                     <div className="thr">
                         <div className="tr">
@@ -333,7 +406,9 @@ class BankDetail extends React.Component {
                                 查询
                             </Button>
                             <div className="gap-40">
-                                <Link to={`/app/queBankCreate/bankDetail/questionAdd?bankID=${bankID}`}>
+                                <Link
+                                    to={`/app/queBankCreate/bankDetail/questionAdd?bankID=${bankID}`}
+                                >
                                     <Button type="primary" icon={<PlusOutlined />}>
                                         新建
                                     </Button>
@@ -355,7 +430,7 @@ class BankDetail extends React.Component {
                             defaultCurrent={1}
                             pageSize={20}
                             current={pageNo}
-                            total={allCount * 20}
+                            total={totalCount * 20}
                             onChange={this.nowPagChange.bind(this)}
                         />
                     </div>

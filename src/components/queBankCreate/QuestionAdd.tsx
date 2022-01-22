@@ -1,9 +1,9 @@
 import React from 'react';
-import { Table, Pagination, Input, Button, Modal, PageHeader, Alert, message } from 'antd';
+import { Input, Button, PageHeader, Alert, message } from 'antd';
 import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/QuestionAdd.less';
-// import { get, post, baseUrl } from '../../service/tools';
+import { get, post, baseUrl } from '../../service/tools';
 const { TextArea } = Input;
 /** 截取url */
 const GetRequest = () => {
@@ -66,7 +66,7 @@ class QuestionAdd extends React.Component {
 
     async inited() {
         this.setState({
-            bankID: GetRequest()['classId'],
+            bankID: GetRequest()['bankID'],
         });
     }
 
@@ -101,14 +101,25 @@ class QuestionAdd extends React.Component {
     }
 
     /** 保存试题 */
-    saveQuestion() {
-        const { questionArr } = this.state;
-        /** 调用接口 */
-        console.log(questionArr);
+    async saveQuestion() {
+        await this.saveQuestionInterface();
         message.success('保存成功');
         setTimeout(() => {
             window.location.href = "/#/app/queBankCreate/bankDetail";
         }, 200);
+    }
+
+    /** 保存接口 */
+    async saveQuestionInterface() {
+        const { bankID, questionArr } = this.state;
+        const response: any = await post({
+            url: baseUrl + '/api/questionBank/question',
+            data: {
+                bankID,
+                questionList: questionArr,
+            },
+        });
+        return response;
     }
 
     /** 更新试题 */
