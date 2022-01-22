@@ -6,6 +6,10 @@ import '../../style/pageStyle/QueBankCreate.less';
 import { get, post, baseUrl } from '../../service/tools';
 export const history = createBrowserHistory();
 const { Option } = Select;
+const BANK_TYPE_MAP: any = {
+    choice: '单选',
+    pack: '填空',
+};
 class QueBank extends React.Component {
     state = {
         bankQuery: '',
@@ -14,7 +18,9 @@ class QueBank extends React.Component {
         bankType: 'choice',
         bankTypeList: ['choice', 'pack'],
         pageNo: 1,
-        allCount: 1,
+        totalCount: 1,
+        sortKey: 'creator',
+        sortOrder: 'asc',
         columns1: [
             {
                 title: '序号',
@@ -30,29 +36,32 @@ class QueBank extends React.Component {
                 title: '创建人',
                 dataIndex: 'creator',
                 key: 'creator',
+                sorter: true,
             },
             {
                 title: '题库类型',
-                dataIndex: 'bankType',
                 key: 'bankType',
+                sorter: true,
+                render: (text: any) => <div>{BANK_TYPE_MAP[text.bankType] || '未知'}</div>,
             },
             {
                 title: '创建时间',
                 dataIndex: 'createTime',
                 key: 'createTime',
+                sorter: true,
             },
             {
                 title: '更新时间',
                 dataIndex: 'updateTime',
                 key: 'updateTime',
+                sorter: true,
             },
             {
                 title: '操作',
                 key: 'control',
                 render: (text: any) => (
-                    <div className="edit">
+                    <div className="edit" onClick={this.clickEditButton.bind(this, text)}>
                         <div>编辑</div>
-                        <div>删除</div>
                     </div>
                 ),
             },
@@ -72,17 +81,21 @@ class QueBank extends React.Component {
         this.inited();
     }
     async inited() {
-        this.getBank();
+        this.getQuestionBankList();
     }
-    async getBank() {
-        const { bankQuery, pageNo } = this.state;
-        let res = await get({ url: `${baseUrl}/api/questionBank/list?query=${bankQuery}&sortKey=createTime&sortOrder=asc&pageSize=20&pageNo=${pageNo}&all=off` });
+    /** 获取题库列表 */
+    async getQuestionBankList() {
+        const { bankQuery, pageNo, sortKey, sortOrder } = this.state;
+        let res = await get({
+            url: `${baseUrl}/api/questionBank/list?query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}&all=off`,
+        });
         console.log('------------->', res);
-        if (res != null) {
-            return res.data.detail;
-        } else {
-            return [];
-        }
+        const questionBankList = res?.data?.questionBankList || [];
+        const totalCount = (res?.data?.totalCount || 0) / 20;
+        this.setState({
+            data1: questionBankList,
+            totalCount,
+        });
     }
 
     /** 搜索 */
@@ -90,6 +103,18 @@ class QueBank extends React.Component {
         this.setState({
             bankQuery: event.target.value,
         });
+    }
+
+    /** 点击搜索按钮 */
+    clickSearch() {
+        this.setState(
+            {
+                pageNo: 1,
+            },
+            () => {
+                this.getQuestionBankList();
+            }
+        );
     }
 
     /** 题库名称 */
@@ -106,14 +131,31 @@ class QueBank extends React.Component {
             isVisible: false,
         });
         const bankID = await this.confimeNew();
-        sessionStorage.setItem("bankDetailId", bankID);
-        sessionStorage.setItem("bankDetailName", bankName);
-        window.location.href = "/#/app/queBankCreate/bankDetail"
+        sessionStorage.setItem('bankDetailId', bankID);
+        sessionStorage.setItem('bankDetailName', bankName);
+        window.location.href = '/#/app/queBankCreate/bankDetail';
+    }
+
+    /** 编辑按钮 */
+    clickEditButton(text: any) {
+        const bankID = text.bankID;
+        const bankName = text.bankName;
+        sessionStorage.setItem('bankDetailId', bankID);
+        sessionStorage.setItem('bankDetailName', bankName);
+        window.location.href = '/#/app/queBankCreate/bankDetail';
     }
 
     /** 确认新建接口 */
     async confimeNew() {
-        return "1";
+        const { bankName, bankType } = this.state;
+        const response: any = await post({
+            url: baseUrl + '/api/questionBank',
+            data: {
+                bankName,
+                bankType,
+            },
+        });
+        return response?.data?.bankID || "";
     }
 
     /** 取消新建 */
@@ -138,6 +180,7 @@ class QueBank extends React.Component {
             },
             async () => {
                 /** 更新数据 */
+                this.getQuestionBankList();
             }
         );
     }
@@ -149,12 +192,26 @@ class QueBank extends React.Component {
         });
     }
 
+    /** 排序更换触发 */
+    tableChange(pagination: any, filters: any, sorter: any, extra: any) {
+        if (sorter?.columnKey) {
+            const sortOrder = (sorter?.order || "").replace("end", "");
+            this.setState({
+                sortKey: sorter?.columnKey,
+                sortOrder,
+            }, () => {
+                this.getQuestionBankList();
+            });
+        }
+        console.log(pagination, filters, sorter, extra);
+    }
+
     render() {
         const {
             columns1,
             data1,
             pageNo,
-            allCount,
+            totalCount,
             bankQuery,
             isVisible,
             bankName,
@@ -178,7 +235,11 @@ class QueBank extends React.Component {
                                 value={bankQuery}
                                 onChange={this.onBankQueryChange.bind(this)}
                             />
-                            <Button className="gap-48" type="primary">
+                            <Button
+                                className="gap-48"
+                                type="primary"
+                                onClick={this.clickSearch.bind(this)}
+                            >
                                 查询
                             </Button>
                         </div>
@@ -195,6 +256,7 @@ class QueBank extends React.Component {
                             pagination={false}
                             size={'middle'}
                             bordered={false}
+                            onChange={this.tableChange.bind(this)}
                         />
                     </div>
                     <div className={data1.length ? 'pag' : 'display-none'}>
@@ -202,7 +264,7 @@ class QueBank extends React.Component {
                             defaultCurrent={1}
                             pageSize={20}
                             current={pageNo}
-                            total={allCount * 20}
+                            total={totalCount * 20}
                             onChange={this.nowPagChange.bind(this)}
                         />
                     </div>
@@ -238,7 +300,7 @@ class QueBank extends React.Component {
                         >
                             {bankTypeList.map((item: any, index: number) => (
                                 <Option key={index} value={item}>
-                                    {item}
+                                    {BANK_TYPE_MAP[item] || '未知'}
                                 </Option>
                             ))}
                         </Select>
