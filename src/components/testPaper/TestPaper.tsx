@@ -3,11 +3,11 @@ import { Table, Pagination, Input, Button, Modal, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/TestPaper.less';
 import copy from 'clipboard-copy';
-// import { get, post, baseUrl } from '../../service/tools';
-class ErrorBook extends React.Component {
+import { get, post, baseUrl } from '../../service/tools';
+class TestPaper extends React.Component {
     state = {
         pageNo: 1,
-        allCount: 1,
+        totalCount: 1,
         testQuery: '',
         testName: '',
         isVisible: false,
@@ -65,8 +65,22 @@ class ErrorBook extends React.Component {
     componentWillMount() {
         this.inited();
     }
-    async inited() {}
-    async getTest() {}
+    async inited() {
+        this.getTest();
+    }
+    async getTest() {
+        const { testQuery, pageNo } = this.state;
+        let res = await get({
+            url: `${baseUrl}/api/questionBank/list?query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
+        });
+        console.log('------------->', res);
+        const questionBankList = res?.data?.testPaperList || [];
+        const totalCount = (res?.data?.totalCount || 0) / 20;
+        this.setState({
+            data1: questionBankList,
+            totalCount,
+        });
+    }
 
     /** 取消新建 */
     handleCreateCancel(val: any) {
@@ -87,6 +101,18 @@ class ErrorBook extends React.Component {
         this.setState({
             testQuery: event.target.value,
         });
+    }
+
+    /** 点击搜索按钮 */
+    clickSearch() {
+        this.setState(
+            {
+                pageNo: 1,
+            },
+            () => {
+                this.getTest();
+            }
+        );
     }
 
     /** 试题名称 */
@@ -137,7 +163,7 @@ class ErrorBook extends React.Component {
     }
 
     render() {
-        const { columns1, data1, pageNo, allCount, testQuery, testName, isVisible } = this.state;
+        const { columns1, data1, pageNo, totalCount, testQuery, testName, isVisible } = this.state;
         return (
             <div className="paper-wrapper">
                 <div className="header">
@@ -155,7 +181,7 @@ class ErrorBook extends React.Component {
                                 value={testQuery}
                                 onChange={this.onTestQueryChange.bind(this)}
                             />
-                            <Button className="gap-48" type="primary">
+                            <Button className="gap-48" type="primary" onClick={this.clickSearch.bind(this)}>
                                 查询
                             </Button>
                         </div>
@@ -179,7 +205,7 @@ class ErrorBook extends React.Component {
                             defaultCurrent={1}
                             pageSize={20}
                             current={pageNo}
-                            total={allCount * 20}
+                            total={totalCount * 20}
                             onChange={this.nowPagChange.bind(this)}
                         />
                     </div>
@@ -209,4 +235,4 @@ class ErrorBook extends React.Component {
     }
 }
 
-export default ErrorBook;
+export default TestPaper;
