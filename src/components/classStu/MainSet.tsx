@@ -4,7 +4,7 @@ import '../../style/pageStyle/MainSet.less';
 import { get, patch, baseUrl } from '../../service/tools';
 import moment from 'moment';
 const { Option } = Select;
-const dateFormat = 'YYYY/MM/DD';
+const dateFormat = 'YYYY-MM-DD';
 
 function GetRequest() {
     const url = `?${window.location.href.split('?')[1]}`; //获取url中"?"符后的字串
