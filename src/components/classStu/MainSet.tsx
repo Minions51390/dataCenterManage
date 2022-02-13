@@ -70,7 +70,7 @@ class MainSet extends React.Component {
         secState: 0,
         reciteSetting: false,
         paperId: 0,
-        paperName: '卧槽',
+        paperName: '',
         diyTime: moment().format(dateFormat),
         routes: [
             {
@@ -146,14 +146,27 @@ class MainSet extends React.Component {
         });
     }
     setTest() {
-        const { littleType, bigType, classId } = this.state;
+        const { littleType, bigType, classId, paperId, diyTime } = this.state;
+        let params: any = {};
+        if (bigType === "on") {
+            params = {
+                testType: littleType || 'random',
+                specialTest: bigType || 'off',
+                specialTestType: "customTest",
+                specialTestID: paperId,
+                specialTestDate: diyTime,
+                classId: +classId,
+            }
+        } else {
+            params = {
+                testType: littleType || 'random',
+                specialTest: bigType || 'off',
+                classId: +classId,
+            }
+        }
         patch({
             url: baseUrl + '/manage/class/task/test',
-            data: {
-                testType: littleType || 'random',
-                specialTest: bigType || 'on',
-                classId: +classId,
-            },
+            data: params,
         }).then((res) => {
             console.log(res);
         });
@@ -250,6 +263,10 @@ class MainSet extends React.Component {
             startType: res.data.choiceWordMethod,
             wordVal: +res.data.dailyReciteCount,
             dbVal: res.data.dictionaryId,
+            paperId: res?.data?.specialTestID,
+            diyTime: res?.data?.specialTestDate || new Date(),
+        }, () => {
+            this.getTestData();
         });
         this.getKu();
     }
@@ -273,6 +290,20 @@ class MainSet extends React.Component {
     onPaperIdChange(event: any) {
         this.setState({
             paperId: event.target.value,
+        }, () => {
+            this.getTestData();
+        });
+    }
+
+    /** 单个试卷信息 */
+    async getTestData() {
+        const { paperId } = this.state;
+        let res = await get({
+            url: `${baseUrl}/api/testPaper?testPaperID=${paperId}`,
+        });
+        console.log(res);
+        this.setState({
+            paperName: res?.data?.testPaperName,
         });
     }
 
@@ -481,7 +512,7 @@ class MainSet extends React.Component {
                                 >
                                     <Radio value={'ch-to-en'}>展示中文释义选择英文</Radio>
                                     <Radio value={'en-to-ch'}>展示英文选择中文释义</Radio>
-                                    {/* <Radio value={'completion'}>填空</Radio> */}
+                                    <Radio value={'completion'}>填空</Radio>
                                     <Radio value={'random'}>随机</Radio>
                                 </Radio.Group>
                             </div>
@@ -494,9 +525,9 @@ class MainSet extends React.Component {
                                             ? '展示中文释义选择英文'
                                             : littleType === 'en-to-ch'
                                             ? '展示英文选择中文释义'
-                                            : // littleType === 'completion' ?
-                                              // '填空' :
-                                              '随机'}
+                                            : littleType === 'completion'
+                                            ? '填空'
+                                            : '随机'}
                                     </div>
                                 </div>
                             </div>
@@ -524,7 +555,7 @@ class MainSet extends React.Component {
                                     <Radio value={'off'}>暂不开启</Radio>
                                     <Radio value={'on'}>开启</Radio>
                                 </Radio.Group>
-                                <Space direction="vertical" size={12}>
+                                {/* <Space direction="vertical" size={12}>
                                     <DatePicker
                                         defaultValue={moment(bigTime, dateFormat)}
                                         format={dateFormat}
@@ -536,7 +567,7 @@ class MainSet extends React.Component {
                                     style={{ width: 172 }}
                                     value={bigCount}
                                     onChange={this.onBigCountChange.bind(this)}
-                                />
+                                /> */}
                             </div>
                         ) : (
                             <div className="sec" style={{ display: 'block' }}>
@@ -544,12 +575,12 @@ class MainSet extends React.Component {
                                     状态:{' '}
                                     <div className="state-co">
                                         {bigType === 'off' ? '暂不开启' : '开启'}
-                                        <span style={{ marginLeft: 20 }}>{bigTime}</span>
+                                        {/* <span style={{ marginLeft: 20 }}>{bigTime}</span> */}
                                     </div>
                                 </div>
-                                <div style={{ marginTop: 18 }}>
+                                {/* <div style={{ marginTop: 18 }}>
                                     考试词数: <div className="state-co">{bigCount}</div>
-                                </div>
+                                </div> */}
                             </div>
                         )}
                     </div>
