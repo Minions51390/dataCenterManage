@@ -3,7 +3,7 @@ import { Table, Pagination, Input, Button, PageHeader, message, Modal, Select } 
 import { PlusOutlined } from '@ant-design/icons';
 import copy from 'clipboard-copy';
 import '../../style/pageStyle/TestDetail.less';
-// import { get, post, baseUrl } from '../../service/tools';
+import { get, post, baseUrl } from '../../service/tools';
 const { Option } = Select;
 class TestDetail extends React.Component {
     state = {
@@ -22,7 +22,7 @@ class TestDetail extends React.Component {
         allCount: 1,
         isVisible: false,
         /** 默认数据 */
-        testPaperID: '',
+        testPaperID: sessionStorage.getItem('testDetailId') || '',
         testPaperName: sessionStorage.getItem('testDetailName') || '',
         creator: '',
         createTime: '0000-00-00 00:00:00',
@@ -43,19 +43,19 @@ class TestDetail extends React.Component {
                         <div className="choose">
                             <div className="tr">
                                 <div>
-                                    {text.options[0].key}.{text.options[0].value}
+                                    {text.option[0].Key}.{text.option[0].Value}
                                 </div>
                                 <div>
-                                    {text.options[1].key}.{text.options[1].value}
+                                    {text.option[1].Key}.{text.option[1].Value}
                                 </div>
                             </div>
                             <div className="tr">
                                 <div>
-                                    {text.options[2].key}.{text.options[2].value}
+                                    {text.option[2].Key}.{text.option[2].Value}
                                 </div>
-                                {text.options[3] ? (
+                                {text.option[3] ? (
                                     <div>
-                                        {text.options[3].key}.{text.options[3].value}
+                                        {text.option[3].Key}.{text.option[3].Value}
                                     </div>
                                 ) : (
                                     ''
@@ -69,43 +69,69 @@ class TestDetail extends React.Component {
         ],
         data1: [
             {
+                key: 1,
                 questionID: 'xxxxx',
                 stem: 'xxxxxxx_____xxxxxx____xxxx',
-                options: [
+                option: [
                     {
-                        key: 'A',
-                        value: 'xxxx',
+                        Key: 'A',
+                        Value: 'xxxx',
                     },
                     {
-                        key: 'B',
-                        value: 'xxxx',
+                        Key: 'B',
+                        Value: 'xxxx',
                     },
                     {
-                        key: 'C',
-                        value: 'xxxx',
+                        Key: 'C',
+                        Value: 'xxxx',
                     },
                     {
-                        key: 'D',
-                        value: 'xxxx',
+                        Key: 'D',
+                        Value: 'xxxx',
+                    },
+                ],
+                rightAnswer: 'A',
+            },
+            {
+                key: 2,
+                questionID: 'xxxxx',
+                stem: 'xxxxxxx_____xxxxxx____xxxx',
+                option: [
+                    {
+                        Key: 'A',
+                        Value: 'xxxx',
+                    },
+                    {
+                        Key: 'B',
+                        Value: 'xxxx',
+                    },
+                    {
+                        Key: 'C',
+                        Value: 'xxxx',
+                    },
+                    {
+                        Key: 'D',
+                        Value: 'xxxx',
                     },
                 ],
                 rightAnswer: 'A',
             },
         ],
         selectedRowKeys: [],
+        selectedRows: [],
         bankPeople: 0,
         bankPeopleList: [
             {
-                text: '全部',
-                id: 0,
+                realName: '全部',
+                teacherID: 0,
             },
         ],
         bank: 0,
         bankName: '全部',
         bankList: [
             {
-                text: '全部',
-                id: 0,
+                bankName: '全部',
+                bankID: 0,
             },
         ],
         pageNom: 1,
@@ -114,22 +140,22 @@ class TestDetail extends React.Component {
             {
                 questionID: 'xxxxx',
                 stem: 'xxxxxxx_____xxxxxx____xxxx',
-                options: [
+                option: [
                     {
-                        key: 'A',
-                        value: 'xxxx',
+                        Key: 'A',
+                        Value: 'xxxx',
                     },
                     {
-                        key: 'B',
-                        value: 'xxxx',
+                        Key: 'B',
+                        Value: 'xxxx',
                     },
                     {
-                        key: 'C',
-                        value: 'xxxx',
+                        Key: 'C',
+                        Value: 'xxxx',
                     },
                     {
-                        key: 'D',
-                        value: 'xxxx',
+                        Key: 'D',
+                        Value: 'xxxx',
                     },
                 ],
                 rightAnswer: 'A',
@@ -145,27 +171,135 @@ class TestDetail extends React.Component {
     async inited() {
         const testData = await this.getTestData();
         this.setState({ ...testData });
+        this.getTestList();
+        this.getAllTeacher();
     }
+
+    /** 单个试卷信息 */
     async getTestData() {
+        const { testPaperID } = this.state;
+        let res = await get({
+            url: `${baseUrl}/api/testPaper?testPaperID=${testPaperID}`,
+        });
+        console.log(res);
         return {
-            testPaperID: '11',
-            creator: '老实',
-            createTime: '0000-00-00 00:00:00',
-            updateTime: '0000-00-00 00:00:00',
-            questionCount: '120',
+            testPaperID: res?.data?.testPaperID,
+            creator: res?.data?.creator,
+            createTime: res?.data?.createTime,
+            updateTime: res?.data?.updateTime,
+            questionCount: res?.data?.questionCount,
         };
     }
 
-    /** 搜索 */
-    ontestQueryChange(event: any) {
+    /** 题库试题列表 */
+    async getTestList() {
+        const { testPaperID, testQuery, pageNo } = this.state;
+        const res: any = await get({
+            url: `${baseUrl}/api/testPaper/question/list?testPaperID=${testPaperID}&query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
+        });
+        let testList = res?.data?.questionList || [];
+        testList.forEach((val: any, index: any) => {
+            val.key = index + 1;
+        });
+        const allCount = (res?.data?.totalCount || 0) / 20;
         this.setState({
-            testQuery: event.target.value,
+            data1: testList,
+            allCount,
         });
     }
 
+    /** 获取全部教师接口 */
+    async getAllTeacher() {
+        const res: any = await get({
+            url: `${baseUrl}/api/user/teacher/list`,
+        });
+        this.setState({
+            bankPeopleList: res?.data || [],
+            bankPeople: res?.data[0]?.teacherID || 0,
+        }, () => {
+            this.getQuestionBankList();
+        });
+        console.log(res);
+    }
+
+    /** 获取所有题库列表 */
+    async getQuestionBankList() {
+        const { bankPeople } = this.state;
+        let res = await get({
+            url: `${baseUrl}/api/questionBank/list?query=&creatorID=${bankPeople}&sortKey=createTime&sortOrder=asc&pageSize=20&pageNo=1&all=on`,
+        });
+        console.log('------------->', res);
+        const questionBankList = res?.data?.questionBankList || [];
+        this.setState({
+            bankList: questionBankList,
+            bank: res?.data?.questionBankList[0]?.bankID || 0,
+            bankName: res?.data?.questionBankList[0]?.bankName || "全部",
+        });
+    }
+
+    /** 题库试题列表 */
+    async getQuestionList() {
+        const { bank, testQueryM, pageNom } = this.state;
+        const res: any = await get({
+            url: `${baseUrl}/api/questionBank/question/list?bankID=${bank}&query=${testQueryM}&pageSize=20&pageNo=${pageNom}`,
+        });
+        let questionBankList = res?.data?.questionBankList || [];
+        questionBankList.forEach((val: any, index: any) => {
+            val.key = index + 1;
+        });
+        const allCountm = (res?.data?.totalCount || 0) / 20;
+        this.setState({
+            paperData: questionBankList,
+            allCountm,
+        });
+    }
+
+    /** 批量导入接口 */
+    async addQuestion() {
+        const { testPaperID, selectedRowKeysM } = this.state;
+        const questionList = selectedRowKeysM.map((val: any) => {
+            return val.questionID;
+        })
+        const res = await post({
+            url: baseUrl + '/api/testPaper/question',
+            data: {
+                testPaperID,
+                selectAll: false,
+                questionList,
+            },
+        });
+        this.getTestList();
+        console.log(res);
+    }
+
+    /** 批量删除 */
+    async delQuestion() {
+        const { testPaperID, selectedRows } = this.state;
+        const questionList = selectedRows.map((val: any) => {
+            return val.questionID;
+        });
+        const res = await post({
+            url: baseUrl + '/api/testPaper/question/delete',
+            data: {
+                testPaperID,
+                questionList,
+            }
+        });
+        this.getTestList();
+        console.log(res);
+    }
+
+    /** 弹窗内的搜索 */
     ontestQueryChangeM(event: any) {
         this.setState({
             testQueryM: event.target.value,
+        });
+    }
+
+    /** 外部搜索 */
+    ontestQueryChange(event: any) {
+        this.setState({
+            testQuery: event.target.value,
         });
     }
 
@@ -177,19 +311,33 @@ class TestDetail extends React.Component {
             },
             async () => {
                 /** 更新数据 */
+                this.getTestList();
             }
         );
     }
 
-    /** 搜索接口 */
+    /** 弹窗内搜索接口 */
     searchQuery(val: any) {
-        const { testQuery } = this.state;
-        console.log(testQuery);
+        this.setState(
+            {
+                pageNo: 1,
+            },
+            () => {
+                this.getTestList();
+            }
+        );
     }
 
+    /** 外部搜索接口 */
     searchQueryM(val: any) {
-        const { testQueryM } = this.state;
-        console.log(testQueryM);
+        this.setState(
+            {
+                pageNom: 1,
+            },
+            () => {
+                this.getQuestionList();
+            }
+        );
     }
 
     /** 复制函数 */
@@ -204,21 +352,22 @@ class TestDetail extends React.Component {
     }
 
     /** 选择新的可选项 */
-    onSelectChange = (selectedRowKeys: any) => {
-        console.log('selectedRowKeys changed: ', selectedRowKeys);
-        this.setState({ selectedRowKeys });
+    onSelectChange = (selectedRowKeys: any, selectedRows: any) => {
+        console.log('selectedRowKeys changed: ', selectedRowKeys, selectedRows);
+        this.setState({ selectedRowKeys, selectedRows });
     };
 
-    onSelectChangeM = (selectedRowKeysM: any) => {
-        console.log('selectedRowKeys changed: ', selectedRowKeysM);
-        this.setState({ selectedRowKeysM });
+    onSelectChangeM = (selectedRowKeysM: any, selectedRows: any) => {
+        console.log('selectedRowKeys changed: ', selectedRowKeysM, selectedRows);
+        this.setState({ selectedRowKeysM: selectedRows });
     };
 
     /** 批量删除 */
     delArr() {
-        const { selectedRowKeys } = this.state;
-        if (selectedRowKeys.length > 0) {
+        const { selectedRows } = this.state;
+        if (selectedRows.length > 0) {
             /** 调用删除接口 */
+            this.delQuestion();
         }
     }
 
@@ -249,14 +398,18 @@ class TestDetail extends React.Component {
 
     handlePeopleType(val: any) {
         this.setState({
-            bankPeople: val.id,
+            bankPeople: val,
+        }, () => {
+            this.getQuestionBankList();
         });
     }
 
-    handleBank(val: any) {
+    handleBank(val: any, option: any) {
         this.setState({
-            bank: val.id,
-            bankName: val.text,
+            bank: val,
+            bankName: option.children,
+        }, () => {
+            this.getQuestionList();
         });
     }
 
@@ -280,15 +433,19 @@ class TestDetail extends React.Component {
             },
             async () => {
                 /** 更新数据 */
+                this.getQuestionList();
             }
         );
     }
 
     confirmImport() {
         this.setState({
+            pageNo: 1,
+            pageNom: 1,
             isVisible: false,
             moduleType: 'select',
-        })
+        });
+        this.addQuestion();
     }
 
     render() {
@@ -364,13 +521,13 @@ class TestDetail extends React.Component {
                                 className="gap-12"
                                 style={{ width: 272 }}
                                 placeholder="请输入关键词"
-                                value={testQueryM}
-                                onChange={this.ontestQueryChangeM.bind(this)}
+                                value={testQuery}
+                                onChange={this.ontestQueryChange.bind(this)}
                             />
                             <Button
                                 className="gap-12"
                                 type="primary"
-                                onClick={this.searchQueryM.bind(this)}
+                                onClick={this.searchQuery.bind(this)}
                             >
                                 查询
                             </Button>
@@ -426,8 +583,8 @@ class TestDetail extends React.Component {
                                     value={bankPeople}
                                 >
                                     {bankPeopleList.map((item: any, index: number) => (
-                                        <Option key={index} value={item.id}>
-                                            {item.text}
+                                        <Option key={index} value={item.teacherID}>
+                                            {item.realName}
                                         </Option>
                                     ))}
                                 </Select>
@@ -443,8 +600,8 @@ class TestDetail extends React.Component {
                                     value={bank}
                                 >
                                     {bankList.map((item: any, index: number) => (
-                                        <Option key={index} value={item.id}>
-                                            {item.text}
+                                        <Option key={index} value={item.bankID}>
+                                            {item.bankName}
                                         </Option>
                                     ))}
                                 </Select>
@@ -468,13 +625,13 @@ class TestDetail extends React.Component {
                                         className="gap-12"
                                         style={{ width: 272 }}
                                         placeholder="请输入关键词"
-                                        value={testQuery}
-                                        onChange={this.ontestQueryChange.bind(this)}
+                                        value={testQueryM}
+                                        onChange={this.ontestQueryChangeM.bind(this)}
                                     />
                                     <Button
                                         className="gap-12"
                                         type="primary"
-                                        onClick={this.searchQuery.bind(this)}
+                                        onClick={this.searchQueryM.bind(this)}
                                     >
                                         查询
                                     </Button>

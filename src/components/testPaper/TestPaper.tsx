@@ -71,7 +71,7 @@ class TestPaper extends React.Component {
     async getTest() {
         const { testQuery, pageNo } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/questionBank/list?query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
+            url: `${baseUrl}/api/testPaper/list?query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
         });
         console.log('------------->', res);
         const questionBankList = res?.data?.testPaperList || [];
@@ -136,7 +136,15 @@ class TestPaper extends React.Component {
 
     /** 确认新建接口 */
     async confimeNew() {
-        return '1';
+        const { testName } = this.state;
+        const response: any = await post({
+            url: baseUrl + '/api/testPaper',
+            data: {
+                testPaperName: testName,
+            },
+        });
+        console.log(response);
+        return response?.data?.testPaperID || "1";
     }
 
     /** 更换页面 */
@@ -173,7 +181,7 @@ class TestPaper extends React.Component {
                 <div className="body">
                     <div className="fir">
                         <div>
-                            搜索题库:
+                            搜索试卷:
                             <Input
                                 className="gap-12"
                                 style={{ width: 272 }}
