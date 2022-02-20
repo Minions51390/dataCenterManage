@@ -24,8 +24,8 @@ class TestPaper extends React.Component {
             },
             {
                 title: '创建人',
-                dataIndex: 'createor',
-                key: 'createor',
+                dataIndex: 'creator',
+                key: 'creator',
             },
             {
                 title: '试卷ID',
@@ -46,21 +46,18 @@ class TestPaper extends React.Component {
                 title: '操作',
                 key: 'control',
                 render: (text: any) => (
-                    <div className="copy" onClick={this.copyIdFn.bind(this, text.testPaperID)}>
-                        <div>复制ID</div>
+                    <div className="edit">
+                        <div className="entry" onClick={this.handleEdit.bind(this, text)}>
+                            编辑
+                        </div>
+                        <div className="copy" onClick={this.copyIdFn.bind(this, text.testPaperID)}>
+                            <div>复制ID</div>
+                        </div>
                     </div>
                 ),
             },
         ],
-        data1: [
-            {
-                testPaperName: 'xxxxx',
-                createor: 'xxxx',
-                testPaperID: 'xxxx',
-                createTime: '0000-00-00 00:00:00',
-                updateTime: '0000-00-00 00:00:00',
-            },
-        ],
+        data1: [],
     };
     componentWillMount() {
         this.inited();
@@ -134,6 +131,14 @@ class TestPaper extends React.Component {
         window.location.href = '/#/app/testPaper/testDetail';
     }
 
+    /** 编辑按钮 */
+    async handleEdit(val: any) {
+        console.log(val);
+        sessionStorage.setItem('testDetailId', val.testPaperID);
+        sessionStorage.setItem('testDetailName', val.testPaperName);
+        window.location.href = '/#/app/testPaper/testDetail';
+    }
+
     /** 确认新建接口 */
     async confimeNew() {
         const { testName } = this.state;
@@ -144,7 +149,7 @@ class TestPaper extends React.Component {
             },
         });
         console.log(response);
-        return response?.data?.testPaperID || "1";
+        return response?.data?.testPaperID || '1';
     }
 
     /** 更换页面 */
@@ -163,10 +168,10 @@ class TestPaper extends React.Component {
     copyIdFn(id: any) {
         copy(id)
             .then(() => {
-                message.success("复制成功");
+                message.success('复制成功');
             })
             .catch(() => {
-                message.error("复制失败");
+                message.error('复制失败');
             });
     }
 
@@ -189,7 +194,11 @@ class TestPaper extends React.Component {
                                 value={testQuery}
                                 onChange={this.onTestQueryChange.bind(this)}
                             />
-                            <Button className="gap-48" type="primary" onClick={this.clickSearch.bind(this)}>
+                            <Button
+                                className="gap-48"
+                                type="primary"
+                                onClick={this.clickSearch.bind(this)}
+                            >
                                 查询
                             </Button>
                         </div>

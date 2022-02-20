@@ -69,7 +69,7 @@ class MainSet extends React.Component {
         firState: 0,
         secState: 0,
         reciteSetting: false,
-        paperId: 0,
+        paperId: "",
         paperName: '',
         diyTime: moment().format(dateFormat),
         routes: [

@@ -66,16 +66,7 @@ class QueBank extends React.Component {
                 ),
             },
         ],
-        data1: [
-            {
-                bankID: 'xxxxxxx',
-                bankName: 'xxxxx',
-                creator: 'xxxx',
-                bankType: 'choice',
-                createTime: '0000-00-00 00:00:00',
-                updateTime: '0000-00-00 00:00:00',
-            },
-        ],
+        data1: [],
     };
     componentWillMount() {
         this.inited();
@@ -155,7 +146,7 @@ class QueBank extends React.Component {
                 bankType,
             },
         });
-        return response?.data?.bankID || "";
+        return response?.data?.bankID || '';
     }
 
     /** 取消新建 */
@@ -195,13 +186,16 @@ class QueBank extends React.Component {
     /** 排序更换触发 */
     tableChange(pagination: any, filters: any, sorter: any, extra: any) {
         if (sorter?.columnKey) {
-            const sortOrder = (sorter?.order || "").replace("end", "");
-            this.setState({
-                sortKey: sorter?.columnKey,
-                sortOrder,
-            }, () => {
-                this.getQuestionBankList();
-            });
+            const sortOrder = (sorter?.order || '').replace('end', '');
+            this.setState(
+                {
+                    sortKey: sorter?.columnKey,
+                    sortOrder,
+                },
+                () => {
+                    this.getQuestionBankList();
+                }
+            );
         }
         console.log(pagination, filters, sorter, extra);
     }

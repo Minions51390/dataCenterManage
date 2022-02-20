@@ -83,31 +83,7 @@ class BankDetail extends React.Component {
                 ),
             },
         ],
-        data1: [
-            {
-                questionID: 'xxxxx',
-                stem: 'xxxxxxx_____xxxxxx____xxxx',
-                option: [
-                    {
-                        key: 'A',
-                        value: 'xxxx',
-                    },
-                    {
-                        key: 'B',
-                        value: 'xxxx',
-                    },
-                    {
-                        key: 'C',
-                        value: 'xxxx',
-                    },
-                    {
-                        key: 'D',
-                        value: 'xxxx',
-                    },
-                ],
-                rightAnswer: 'A',
-            },
-        ],
+        data1: [],
         moduleName: '编辑题目',
         canEdit: true,
         queName: '',
@@ -225,7 +201,8 @@ class BankDetail extends React.Component {
 
     /** 编辑单个试题 */
     async editQuestionInterface() {
-        const {questionID, queName, queNameA, queNameB, queNameC, queNameD, queNameR} = this.state;
+        const { questionID, queName, queNameA, queNameB, queNameC, queNameD, queNameR } =
+            this.state;
         await put({
             url: `${baseUrl}/api/questionBank/question`,
             data: {
@@ -233,24 +210,24 @@ class BankDetail extends React.Component {
                 stem: queName,
                 options: [
                     {
-                        key: "A",
+                        key: 'A',
                         value: queNameA,
                     },
                     {
-                        key: "B",
+                        key: 'B',
                         value: queNameB,
                     },
                     {
-                        key: "C",
+                        key: 'C',
                         value: queNameC,
                     },
                     {
-                        key: "D",
+                        key: 'D',
                         value: queNameD,
                     },
                 ],
                 rightAnswer: queNameR,
-            }
+            },
         });
         this.getQuestionList();
     }
@@ -259,7 +236,7 @@ class BankDetail extends React.Component {
     async delQuestionInterface() {
         const { questionID } = this.state;
         await del({
-            url: `${baseUrl}/api/questionBank/question?questionID=${questionID}`
+            url: `${baseUrl}/api/questionBank/question?questionID=${questionID}`,
         });
         this.getQuestionList();
     }

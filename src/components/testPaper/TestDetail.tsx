@@ -67,56 +67,7 @@ class TestDetail extends React.Component {
                 ),
             },
         ],
-        data1: [
-            {
-                key: 1,
-                questionID: 'xxxxx',
-                stem: 'xxxxxxx_____xxxxxx____xxxx',
-                option: [
-                    {
-                        Key: 'A',
-                        Value: 'xxxx',
-                    },
-                    {
-                        Key: 'B',
-                        Value: 'xxxx',
-                    },
-                    {
-                        Key: 'C',
-                        Value: 'xxxx',
-                    },
-                    {
-                        Key: 'D',
-                        Value: 'xxxx',
-                    },
-                ],
-                rightAnswer: 'A',
-            },
-            {
-                key: 2,
-                questionID: 'xxxxx',
-                stem: 'xxxxxxx_____xxxxxx____xxxx',
-                option: [
-                    {
-                        Key: 'A',
-                        Value: 'xxxx',
-                    },
-                    {
-                        Key: 'B',
-                        Value: 'xxxx',
-                    },
-                    {
-                        Key: 'C',
-                        Value: 'xxxx',
-                    },
-                    {
-                        Key: 'D',
-                        Value: 'xxxx',
-                    },
-                ],
-                rightAnswer: 'A',
-            },
-        ],
+        data1: [],
         selectedRowKeys: [],
         selectedRows: [],
         bankPeople: 0,
@@ -163,7 +114,7 @@ class TestDetail extends React.Component {
         ],
         moduleType: 'select',
         selectedRowKeysM: [],
-        testQueryM: "",
+        testQueryM: '',
     };
     componentWillMount() {
         this.inited();
@@ -213,12 +164,15 @@ class TestDetail extends React.Component {
         const res: any = await get({
             url: `${baseUrl}/api/user/teacher/list`,
         });
-        this.setState({
-            bankPeopleList: res?.data || [],
-            bankPeople: res?.data[0]?.teacherID || 0,
-        }, () => {
-            this.getQuestionBankList();
-        });
+        this.setState(
+            {
+                bankPeopleList: res?.data || [],
+                bankPeople: res?.data[0]?.teacherID || 0,
+            },
+            () => {
+                this.getQuestionBankList();
+            }
+        );
         console.log(res);
     }
 
@@ -233,7 +187,7 @@ class TestDetail extends React.Component {
         this.setState({
             bankList: questionBankList,
             bank: res?.data?.questionBankList[0]?.bankID || 0,
-            bankName: res?.data?.questionBankList[0]?.bankName || "全部",
+            bankName: res?.data?.questionBankList[0]?.bankName || '全部',
         });
     }
 
@@ -259,7 +213,7 @@ class TestDetail extends React.Component {
         const { testPaperID, selectedRowKeysM } = this.state;
         const questionList = selectedRowKeysM.map((val: any) => {
             return val.questionID;
-        })
+        });
         const res = await post({
             url: baseUrl + '/api/testPaper/question',
             data: {
@@ -269,6 +223,8 @@ class TestDetail extends React.Component {
             },
         });
         this.getTestList();
+        const testData = await this.getTestData();
+        this.setState({ ...testData, selectedRowKeysM: [] });
         console.log(res);
     }
 
@@ -283,9 +239,11 @@ class TestDetail extends React.Component {
             data: {
                 testPaperID,
                 questionList,
-            }
+            },
         });
         this.getTestList();
+        const testData = await this.getTestData();
+        this.setState({ ...testData, selectedRowKeys: [], selectedRows: [] });
         console.log(res);
     }
 
@@ -363,7 +321,7 @@ class TestDetail extends React.Component {
     };
 
     /** 批量删除 */
-    delArr() {
+    async delArr() {
         const { selectedRows } = this.state;
         if (selectedRows.length > 0) {
             /** 调用删除接口 */
@@ -397,20 +355,26 @@ class TestDetail extends React.Component {
     }
 
     handlePeopleType(val: any) {
-        this.setState({
-            bankPeople: val,
-        }, () => {
-            this.getQuestionBankList();
-        });
+        this.setState(
+            {
+                bankPeople: val,
+            },
+            () => {
+                this.getQuestionBankList();
+            }
+        );
     }
 
     handleBank(val: any, option: any) {
-        this.setState({
-            bank: val,
-            bankName: option.children,
-        }, () => {
-            this.getQuestionList();
-        });
+        this.setState(
+            {
+                bank: val,
+                bankName: option.children,
+            },
+            () => {
+                this.getQuestionList();
+            }
+        );
     }
 
     handleSelModule() {
@@ -658,7 +622,10 @@ class TestDetail extends React.Component {
                             </div>
                             <div className="fir mt-20">
                                 <div>
-                                    <Button type="primary" onClick={this.handleSelModule.bind(this)}>
+                                    <Button
+                                        type="primary"
+                                        onClick={this.handleSelModule.bind(this)}
+                                    >
                                         返回上一步
                                     </Button>
                                 </div>
