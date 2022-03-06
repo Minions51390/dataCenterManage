@@ -55,6 +55,7 @@ const login = async () => {
     });
     return res;
 };
+// 上线前注释掉
 login();
 ReactDOM.render(
     // <AppContainer>

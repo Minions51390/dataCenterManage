@@ -105,7 +105,7 @@ class QuestionAdd extends React.Component {
         await this.saveQuestionInterface();
         message.success('保存成功');
         setTimeout(() => {
-            window.location.href = "/#/app/queBankCreate/bankDetail";
+            window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
         }, 200);
     }
 

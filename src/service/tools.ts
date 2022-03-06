@@ -89,5 +89,6 @@ export const del = ({ url, msg = '接口异常', config }: IFRequestParam) =>
             message.warn(msg);
         });
 
+// 上线前修改
 export const baseUrl = '/api'; //本地调试使用
 // export const baseUrl = '';

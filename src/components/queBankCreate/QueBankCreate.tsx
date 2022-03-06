@@ -124,7 +124,7 @@ class QueBank extends React.Component {
         const bankID = await this.confimeNew();
         sessionStorage.setItem('bankDetailId', bankID);
         sessionStorage.setItem('bankDetailName', bankName);
-        window.location.href = '/#/app/queBankCreate/bankDetail';
+        window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
     }
 
     /** 编辑按钮 */
@@ -133,7 +133,7 @@ class QueBank extends React.Component {
         const bankName = text.bankName;
         sessionStorage.setItem('bankDetailId', bankID);
         sessionStorage.setItem('bankDetailName', bankName);
-        window.location.href = '/#/app/queBankCreate/bankDetail';
+        window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
     }
 
     /** 确认新建接口 */
