@@ -111,7 +111,11 @@ class MainSet extends React.Component {
             littleType: res.data.testType,
             bigType: res.data.specialTest,
             specialTestDate: res.data.specialTestDate,
+            paperId: res?.data?.specialTestID,
+        }, () => {
+            this.getTestData();
         });
+
         this.setState({
             classId,
         });
@@ -284,6 +288,7 @@ class MainSet extends React.Component {
             littleType: res.data.testType,
             bigType: res.data.specialTest,
             specialTestDate: res.data.specialTestDate,
+            paperId: res?.data?.specialTestID,
         });
     }
 
