@@ -9,8 +9,8 @@ import { post, get, patch, del, baseUrl } from '../../service/tools';
 
 function GetRequest() {
     const url = `?${window.location.href.split('?')[1]}`; //获取url中"?"符后的字串
-    let theRequest: any = new Object();
-    if (url.indexOf('?') != -1) {
+    let theRequest: any = {};
+    if (url.indexOf('?') !== -1) {
         let str = url.substr(1);
         let strs = str.split('&');
         for (let i = 0; i < strs.length; i++) {
@@ -124,8 +124,8 @@ class MainClass extends React.Component {
         this.initList();
     }
     async initList() {
-        const classId = GetRequest()['classId'];
-        const piciId = GetRequest()['piciId'];
+        const classId = GetRequest()['classId'] || sessionStorage.getItem('classId');
+        const piciId = GetRequest()['piciId'] || sessionStorage.getItem('piciId');
         if (classId) {
             sessionStorage.setItem('classId', classId as any);
         }

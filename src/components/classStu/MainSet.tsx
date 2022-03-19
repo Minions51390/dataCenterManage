@@ -78,7 +78,7 @@ class MainSet extends React.Component {
                 breadcrumbName: '班级和学员管理',
             },
             {
-                path: `/class?classId=${GetRequest()['classId']}`,
+                path: `/class?classId=${GetRequest()['classId'] || sessionStorage.getItem('classId')}`,
                 breadcrumbName: `${sessionStorage.getItem('className') || '新建班级'}`,
             },
             {
@@ -89,7 +89,7 @@ class MainSet extends React.Component {
     };
     async componentWillMount() {
         console.log(this.state.bigTime);
-        const classId = window.location.href.split('=')[1];
+        const classId = window.location.href.split('=')[1] || sessionStorage.getItem('classId');
         await this.getKu();
         let res = await this.getSetInfo(classId);
         let dbName = '';

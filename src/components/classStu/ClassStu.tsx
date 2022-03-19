@@ -201,7 +201,10 @@ class ClassStu extends React.Component {
         // });
     }
     setClassName(val: any) {
-        sessionStorage.setItem('className', val);
+        const { selPici } = this.state;
+        sessionStorage.setItem('className', val.describe);
+        sessionStorage.setItem('classId', val.classId);
+        sessionStorage.setItem('piciId', selPici);
     }
 
     render() {
@@ -263,7 +266,7 @@ class ClassStu extends React.Component {
                     <div className="item-area">
                         {nowClass.slice((nowPag - 1) * 7, nowPag * 7).map((item: any, index) => (
                             <Link
-                                onMouseDown={this.setClassName.bind(this, item.describe)}
+                                onMouseDown={this.setClassName.bind(this, item)}
                                 to={`/app/class/main/class?classId=${item.classId}&piciId=${selPici}`}
                                 key={index}
                             >
