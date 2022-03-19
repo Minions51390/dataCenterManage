@@ -87,31 +87,7 @@ class TestDetail extends React.Component {
         ],
         pageNom: 1,
         allCountm: 1,
-        paperData: [
-            {
-                questionID: 'xxxxx',
-                stem: 'xxxxxxx_____xxxxxx____xxxx',
-                option: [
-                    {
-                        Key: 'A',
-                        Value: 'xxxx',
-                    },
-                    {
-                        Key: 'B',
-                        Value: 'xxxx',
-                    },
-                    {
-                        Key: 'C',
-                        Value: 'xxxx',
-                    },
-                    {
-                        Key: 'D',
-                        Value: 'xxxx',
-                    },
-                ],
-                rightAnswer: 'A',
-            },
-        ],
+        paperData: [],
         moduleType: 'select',
         selectedRowKeysM: [],
         testQueryM: '',
