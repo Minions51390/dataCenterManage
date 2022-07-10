@@ -172,8 +172,11 @@ class MainClass extends React.Component {
                     className: 'custom-class'
                 });
             }
+            this.initList();
+            setTimeout(() => {
+                this.initList();
+            }, 500);
         });
-        this.initList();
     }
     rejectAll() {
         const {data1} = this.state;
@@ -199,8 +202,11 @@ class MainClass extends React.Component {
                     },
                 });
             }
+            this.initList();
+            setTimeout(() => {
+                this.initList();
+            }, 500);
         });
-        this.initList();
     }
     resolveAll() {
         const {data1} = this.state;
