@@ -19,6 +19,7 @@ import BankDetail from './queBankCreate/BankDetail';
 import QuestionAdd from "./queBankCreate/QuestionAdd";
 import TestPaper from './testPaper/TestPaper';
 import TestRank from './testRank/TestRank';
+import StuRank from './testRank/stuRank';
 import TestDetail from './testPaper/TestDetail';
 import Ranks from './rank/Ranks';
 import ErrorBook from './errorBook/ErrorBook'
@@ -78,6 +79,7 @@ export default {
     QuestionAdd,
     TestPaper,
     TestRank,
+    StuRank,
     TestDetail,
     QueryParams,
     Visitor,

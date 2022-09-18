@@ -171,6 +171,7 @@ const menus: {
         { key: '/app/queBankCreate/bankDetail', title: '', icon: 'mobile', component: 'BankDetail' },
         { key: '/app/queBankCreate/bankDetail/questionAdd', title: '', icon: 'mobile', component: 'QuestionAdd' },
         { key: '/app/test/testPaper/testDetail', title: '', icon: 'mobile', component: 'TestDetail' },
+        { key: '/app/test/testRank/stuRank', title: '', icon: 'mobile', component: 'StuRank' },
     ], // 非菜单相关路由
 };
 

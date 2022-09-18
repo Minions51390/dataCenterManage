@@ -29,7 +29,7 @@ const mockExamList = [
     },
 ]
 
-class TestPaper extends React.Component {
+class TestRank extends React.Component {
     state = {
         pageNo: 1,
         totalCount: 1,
@@ -94,7 +94,7 @@ class TestPaper extends React.Component {
                         <div className="entry">
                             错题排行
                         </div>
-                        <div className="entry">
+                        <div className="entry" onClick={this.jumpStu.bind(this, text)}>
                             成绩排行
                         </div>
                     </div>
@@ -166,6 +166,31 @@ class TestPaper extends React.Component {
             );
         }
         console.log(pagination, filters, sorter, extra);
+    }
+
+    jumpStu(text: any) {
+        console.log(text);
+        const { testPaperResultID, testPaperName } = text;
+        const { selPici, selBanji, pici, banji } = this.state;
+        let piciName = '';
+        let banjiName = '';
+        pici.map((item: any) => {
+            if (item.batchId === selPici) {
+                piciName = item.describe;
+            }
+            return item;
+        });
+        banji.map((item: any) => {
+            if (item.classId === selBanji) {
+                banjiName = item.describe;
+            }
+            return item;
+        });
+        sessionStorage.setItem('testPaperResultID', testPaperResultID);
+        sessionStorage.setItem('testPaperName', testPaperName);
+        sessionStorage.setItem('pici', piciName);
+        sessionStorage.setItem('banji', banjiName);
+        window.location.href = `${window.location.pathname}#/app/test/testRank/stuRank`;
     }
 
     /** 获取批次列表 */
@@ -320,4 +345,4 @@ class TestPaper extends React.Component {
     }
 }
 
-export default TestPaper;
+export default TestRank;
