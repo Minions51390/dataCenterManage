@@ -1,0 +1,323 @@
+import React from 'react';
+import { Table, Pagination, Input, Button, message, Select } from 'antd';
+import '../../style/pageStyle/TestRank.less';
+import copy from 'clipboard-copy';
+import { get, baseUrl } from '../../service/tools';
+const { Option } = Select;
+
+const mockExamList = [
+    {
+        testPaperResultID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
+        testPaperName:"初三下册第一次测验",
+        creator:"大橙子",
+        testPaperID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
+        examTime:"2022-03-19 17:56:43",
+    },
+    {
+        testPaperResultID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
+        testPaperName:"初三下册第一次测验",
+        creator:"大橙子",
+        testPaperID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
+        examTime:"2022-03-19 17:56:43",
+    },
+    {
+        testPaperResultID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
+        testPaperName:"初三下册第一次测验",
+        creator:"大橙子",
+        testPaperID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
+        examTime:"2022-03-19 17:56:43",
+    },
+]
+
+class TestPaper extends React.Component {
+    state = {
+        pageNo: 1,
+        totalCount: 1,
+        pici: [],
+        selPici: '',
+        banji: [],
+        selBanji: '',
+        query: '',
+        queryType: 'testPaperName',
+        queryTypeList: [
+            {
+                type: 'testPaperName',
+                name: '考试名称',
+            },
+            {
+                type: 'creator',
+                name: '创建人',
+            },
+            {
+                type: 'testPaperID',
+                name: '考试ID',
+            }
+        ],
+        sortKey: 'creator',
+        sort: 'asc',
+        columns1: [
+            {
+                title: '序号',
+                key: 'key',
+                render: (text: any, record: any, index: number) => <div>{index + 1}</div>,
+            },
+            {
+                title: '试卷名称',
+                dataIndex: 'testPaperName',
+                key: 'testPaperName',
+            },
+            {
+                title: '创建人',
+                dataIndex: 'creator',
+                key: 'creator',
+                sorter: true,
+            },
+            {
+                title: '试卷ID',
+                dataIndex: 'testPaperID',
+                key: 'testPaperID',
+            },
+            {
+                title: '考试时间',
+                dataIndex: 'examTime',
+                key: 'examTime',
+                sorter: true,
+            },
+            {
+                title: '操作',
+                key: 'control',
+                render: (text: any) => (
+                    <div className="edit">
+                        <div className="copy" onClick={this.copyIdFn.bind(this, text.testPaperID)}>
+                            <div>复制ID</div>
+                        </div>
+                        <div className="entry">
+                            错题排行
+                        </div>
+                        <div className="entry">
+                            成绩排行
+                        </div>
+                    </div>
+                ),
+            },
+        ],
+        data1: [],
+    };
+    componentWillMount() {
+        this.inited();
+    }
+
+    async inited() {
+        const pici = await this.getPici();
+        const banji = await this.getClass(pici[0].batchId);
+        this.setState({
+            pici,
+            banji,
+            selPici: pici[0].batchId,
+            selBanji: banji[0].classId,
+        }, () => {
+            this.getTest();
+        });
+    }
+
+    /** 更换批次列表 */
+    async handlePiCi(val: any) {
+        let res = await this.getClass(val);
+        this.setState({
+            selPici: val,
+            banji: res,
+            selBanji: res[0] ? res[0].classId : 0,
+        });
+    }
+
+    /** 更换班级列表 */
+    handleBanji(val: any) {
+        this.setState({
+            selBanji: val,
+        });
+    }
+
+    /** query的种类 */
+    handleQueryType(val: any) {
+        this.setState({
+            queryType: val,
+        });
+    }
+
+    /** 搜索 */
+    onTestQueryChange(event: any) {
+        this.setState({
+            query: event.target.value,
+        });
+    }
+
+    /** 排序更换触发 */
+    tableChange(pagination: any, filters: any, sorter: any, extra: any) {
+        if (sorter?.columnKey) {
+            const sort = (sorter?.order || '').replace('end', '');
+            this.setState(
+                {
+                    sortKey: sorter?.columnKey,
+                    sort,
+                },
+                () => {
+                    this.getTest();
+                }
+            );
+        }
+        console.log(pagination, filters, sorter, extra);
+    }
+
+    /** 获取批次列表 */
+    async getPici() {
+        let res = await get({url: baseUrl + '/manage/batch/list'});
+        const pici = res.data.detail || [];
+        return pici;
+    }
+
+    /** 获取班级列表 */
+    async getClass(pici: any) {
+        let res = await get({url: baseUrl + `/manage/class/list?batchId=${pici}&category=all`});
+        const banji = res.data.detail || [];
+        return banji;
+    }
+
+    /** 获取成绩列表 */
+    async getTest() {
+        const { pageNo, selPici, selBanji, queryType, query, sortKey, sort } = this.state;
+        let res = await get({
+            url: `${baseUrl}/api/testPaperResult/list?pageSize=20&pageNo=${pageNo}&batch=${selPici}&class=${selBanji}&queryType=${queryType}&query=${query}&sortKey=${sortKey}&sort=${sort}`,
+        });
+        console.log('------------->', res);
+        const examList = res?.data?.examList || mockExamList;
+        const totalCount = (res?.data?.totalCount || 0) / 20;
+        this.setState({
+            data1: examList,
+            totalCount,
+        });
+    }
+
+    /** 点击搜索按钮 */
+    clickSearch() {
+        this.setState(
+            {
+                pageNo: 1,
+            },
+            () => {
+                this.getTest();
+            }
+        );
+    }
+
+    /** 更换页面 */
+    nowPagChange(val: any) {
+        this.setState(
+            {
+                pageNo: val,
+            },
+            async () => {
+                /** 更新数据 */
+            }
+        );
+    }
+
+    /** 复制函数 */
+    copyIdFn(id: any) {
+        copy(id)
+            .then(() => {
+                message.success('复制成功');
+            })
+            .catch(() => {
+                message.error('复制失败');
+            });
+    }
+
+    render() {
+        const { columns1, data1, pageNo, totalCount, selPici, pici, selBanji, banji, query, queryType, queryTypeList } = this.state;
+        return (
+            <div className="paper-rank">
+                <div className="header">
+                    <div className="fir">考试成绩</div>
+                    <div className="sec">已考试卷列表</div>
+                </div>
+                <div className="body">
+                    <div className="fir">
+                        <span className="span">学员批次:</span>
+                        <Select
+                            defaultValue="请选择"
+                            style={{ width: 140 }}
+                            value={selPici || (pici[0] && (pici[0] as any).describe) || "请选择"}
+                            onChange={this.handlePiCi.bind(this)}
+                        >
+                            {pici.map((item: any) => (
+                                <Option key={item.batchId} value={item.batchId}>
+                                    {item.describe}
+                                </Option>
+                            ))}
+                        </Select>
+                        <span className="span2">班级:</span>
+                        <Select
+                            defaultValue="请选择"
+                            style={{ width: 140 }}
+                            value={selBanji || (banji[0] && (banji[0] as any).describe) || "请选择"}
+                            onChange={this.handleBanji.bind(this)}
+                        >
+                            {banji.map((item: any) => (
+                                <Option key={item.classId} value={item.classId}>
+                                    {item.describe}
+                                </Option>
+                            ))}
+                        </Select>
+                        <Input.Group compact>
+                            <Select
+                                defaultValue={queryType}
+                                value={queryType || "请选择"}
+                                onChange={this.handleQueryType.bind(this)}
+                            >
+                                {
+                                    queryTypeList.map((item: any) => (
+                                        <Option value={item.type} key={item.classId}>{ item.name }</Option>
+                                    ))
+                                }
+                            </Select>
+                            <Input
+                                style={{ width: '240px' }}
+                                placeholder="待输入"
+                                value={query}
+                                onChange={this.onTestQueryChange.bind(this)}
+                            />
+                        </Input.Group>
+                        <Button
+                            className="gap-30"
+                            type="primary"
+                            onClick={this.clickSearch.bind(this)}
+                        >
+                            搜索
+                        </Button>
+                    </div>
+                    <div className="thr">
+                        <Table
+                            columns={columns1}
+                            dataSource={data1}
+                            pagination={false}
+                            size={'middle'}
+                            bordered={false}
+                            onChange={this.tableChange.bind(this)}
+                        />
+                    </div>
+                    <div className={data1.length ? 'pag' : 'display-none'}>
+                        <Pagination
+                            defaultCurrent={1}
+                            pageSize={20}
+                            current={pageNo}
+                            total={totalCount * 20}
+                            onChange={this.nowPagChange.bind(this)}
+                        />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+}
+
+export default TestPaper;

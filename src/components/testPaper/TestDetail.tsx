@@ -9,7 +9,7 @@ class TestDetail extends React.Component {
     state = {
         routes: [
             {
-                path: '/app/testPaper',
+                path: '/app/test/testPaper',
                 breadcrumbName: '试卷管理',
             },
             {

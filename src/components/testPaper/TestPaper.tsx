@@ -128,7 +128,7 @@ class TestPaper extends React.Component {
         const testID = await this.confimeNew();
         sessionStorage.setItem('testDetailId', testID);
         sessionStorage.setItem('testDetailName', testName);
-        window.location.href = `${window.location.pathname}#/app/testPaper/testDetail`;
+        window.location.href = `${window.location.pathname}#/app/test/testPaper/testDetail`;
     }
 
     /** 编辑按钮 */
@@ -136,7 +136,7 @@ class TestPaper extends React.Component {
         console.log(val);
         sessionStorage.setItem('testDetailId', val.testPaperID);
         sessionStorage.setItem('testDetailName', val.testPaperName);
-        window.location.href = `${window.location.pathname}#/app/testPaper/testDetail`;
+        window.location.href = `${window.location.pathname}#/app/test/testPaper/testDetail`;
     }
 
     /** 确认新建接口 */

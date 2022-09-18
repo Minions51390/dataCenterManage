@@ -27,7 +27,15 @@ const menus: {
         { key: '/app/dashboard', title: '数据中心', icon: 'mobile', component: 'Dashboard' },
         { key: '/app/errorBook', title: '错词本', icon: 'mobile', component: 'ErrorBook' },
         { key: '/app/queBankCreate', title: '题库建设', icon: 'mobile', component: 'QueBankCreate' },
-        { key: '/app/testPaper', title: '试卷管理', icon: 'mobile', component: 'TestPaper' },
+        {
+            key: '/app/test',
+            title: '试卷管理',
+            icon: 'mobile',
+            subs: [
+                { key: '/app/test/testPaper', title: '试卷管理', icon: 'mobile', component: 'TestPaper' },
+                { key: '/app/test/testRank', title: '考试成绩', icon: 'mobile', component: 'TestRank' },
+            ]
+        },
         // {
         //     key: '/app/ui',
         //     title: 'UI',
@@ -162,7 +170,7 @@ const menus: {
         { key: '/app/class/main/class/set', title: '', icon: 'mobile', component: 'MainSet' },
         { key: '/app/queBankCreate/bankDetail', title: '', icon: 'mobile', component: 'BankDetail' },
         { key: '/app/queBankCreate/bankDetail/questionAdd', title: '', icon: 'mobile', component: 'QuestionAdd' },
-        { key: '/app/testPaper/testDetail', title: '', icon: 'mobile', component: 'TestDetail' },
+        { key: '/app/test/testPaper/testDetail', title: '', icon: 'mobile', component: 'TestDetail' },
     ], // 非菜单相关路由
 };
 
