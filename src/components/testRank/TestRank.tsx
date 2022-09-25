@@ -7,21 +7,21 @@ const { Option } = Select;
 
 const mockExamList = [
     {
-        testPaperResultID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
+        examID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
         testPaperName:"初三下册第一次测验",
         creator:"大橙子",
         testPaperID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
         examTime:"2022-03-19 17:56:43",
     },
     {
-        testPaperResultID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
+        examID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
         testPaperName:"初三下册第一次测验",
         creator:"大橙子",
         testPaperID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
         examTime:"2022-03-19 17:56:43",
     },
     {
-        testPaperResultID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
+        examID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
         testPaperName:"初三下册第一次测验",
         creator:"大橙子",
         testPaperID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
@@ -170,7 +170,7 @@ class TestRank extends React.Component {
 
     jumpStu(text: any) {
         console.log(text);
-        const { testPaperResultID, testPaperName } = text;
+        const { examID, testPaperName } = text;
         const { selPici, selBanji, pici, banji } = this.state;
         let piciName = '';
         let banjiName = '';
@@ -186,7 +186,7 @@ class TestRank extends React.Component {
             }
             return item;
         });
-        sessionStorage.setItem('testPaperResultID', testPaperResultID);
+        sessionStorage.setItem('examID', examID);
         sessionStorage.setItem('testPaperName', testPaperName);
         sessionStorage.setItem('pici', piciName);
         sessionStorage.setItem('banji', banjiName);
@@ -211,7 +211,7 @@ class TestRank extends React.Component {
     async getTest() {
         const { pageNo, selPici, selBanji, queryType, query, sortKey, sort } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/testPaperResult/list?pageSize=20&pageNo=${pageNo}&batch=${selPici}&class=${selBanji}&queryType=${queryType}&query=${query}&sortKey=${sortKey}&sort=${sort}`,
+            url: `${baseUrl}/api/exam/list?pageSize=20&pageNo=${pageNo}&batch=${selPici}&class=${selBanji}&queryType=${queryType}&query=${query}&sortKey=${sortKey}&sort=${sort}`,
         });
         console.log('------------->', res);
         const examList = res?.data?.examList || mockExamList;

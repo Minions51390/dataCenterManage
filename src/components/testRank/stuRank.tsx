@@ -4,7 +4,7 @@ import '../../style/pageStyle/StuRank.less';
 import copy from 'clipboard-copy';
 import { get, baseUrl } from '../../service/tools';
 
-const mockExamList = [
+const mockRollList = [
     {
         rollID: "xxxxx",
         username: "大橙子",
@@ -48,7 +48,7 @@ class StuRank extends React.Component {
         query: '',
         sortKey: 'score',
         sort: 'asc',
-        testPaperResultID: sessionStorage.getItem('testPaperResultID'),
+        examID: sessionStorage.getItem('examID'),
         testPaperName: sessionStorage.getItem('testPaperName'),
         pici: sessionStorage.getItem('pici'),
         banji: sessionStorage.getItem('banji'),
@@ -133,15 +133,15 @@ class StuRank extends React.Component {
 
     /** 获取成绩列表 */
     async getTest() {
-        const { pageNo, query, sortKey, sort, testPaperResultID } = this.state;
+        const { pageNo, query, sortKey, sort, examID } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/testPaperResult/examDetail/list?pageSize=20&pageNo=${pageNo}&testPaperResultID=${testPaperResultID}&query=${query}&sortKey=${sortKey}&sort=${sort}`,
+            url: `${baseUrl}/api/testPaperResult/list?pageSize=20&pageNo=${pageNo}&examID=${examID}&query=${query}&sortKey=${sortKey}&sort=${sort}`,
         });
         console.log('------------->', res);
-        const examList = res?.data?.examList || mockExamList;
+        const rollList = res?.data?.rollList || mockRollList;
         const totalCount = (res?.data?.totalCount || 0) / 20;
         this.setState({
-            data1: examList,
+            data1: rollList,
             totalCount,
         });
     }
