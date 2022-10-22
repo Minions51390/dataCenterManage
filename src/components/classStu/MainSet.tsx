@@ -1,7 +1,8 @@
 import React from 'react';
-import { PageHeader, Radio, Select, Button, Tooltip, DatePicker, Space, Input } from 'antd';
+import { PageHeader, Radio, Select, Button, Tooltip, DatePicker, Space, Input, message } from 'antd';
+import { Link } from 'react-router-dom';
 import '../../style/pageStyle/MainSet.less';
-import { get, patch, baseUrl } from '../../service/tools';
+import { get, post, patch, baseUrl } from '../../service/tools';
 import moment from 'moment';
 const { Option } = Select;
 const dateFormat = 'YYYY-MM-DD';
@@ -68,6 +69,7 @@ class MainSet extends React.Component {
         specialTestDate: '',
         firState: 0,
         secState: 0,
+        thrState: 0,
         reciteSetting: false,
         paperId: "",
         paperName: '',
@@ -291,6 +293,20 @@ class MainSet extends React.Component {
             paperId: res?.data?.specialTestID,
         });
     }
+    saveThr() {
+        this.setState({
+            thrState: 1,
+        });
+        this.diyExam();
+    }
+    async resetThr() {
+        const { classId } = this.state;
+        let res = await this.getSetInfo(classId);
+        this.setState({
+            thrState: 0,
+            paperId: res?.data?.specialTestID,
+        });
+    }
 
     onPaperIdChange(event: any) {
         this.setState({
@@ -319,6 +335,20 @@ class MainSet extends React.Component {
         console.log(date, dateString);
     }
 
+    async diyExam() {
+        const { paperId, classId, diyTime } = this.state;
+        let res = await post({
+            url: baseUrl + '/api/exam',
+            data: {
+                classID: +classId,
+                testPaperID: paperId || '',
+                examTime: diyTime,
+            }
+        });
+        message.success('考试发布成功!');
+        console.log(res);
+    }
+
     render() {
         const {
             wordType,
@@ -338,6 +368,7 @@ class MainSet extends React.Component {
             paperId,
             paperName,
             diyTime,
+            thrState,
         } = this.state;
         return (
             <div className="main-set">
@@ -589,6 +620,21 @@ class MainSet extends React.Component {
                             </div>
                         )}
                     </div>
+                    <div className="last-line">
+                        <div className="div1">
+                            <Button block onClick={this.resetSec.bind(this)}>
+                                复原
+                            </Button>
+                        </div>
+                        <Button type="primary" onClick={this.saveSec.bind(this)}>
+                            保存设置
+                        </Button>
+                    </div>
+                </div>
+                <div className="thr-de-area">
+                    <div className="fir-line">
+                        <div className="left">自定义考试设置</div>
+                    </div>
                     <div className="four-line">
                         <div className="fir">
                             <div className="title" style={{ width: 70 }}>
@@ -598,7 +644,7 @@ class MainSet extends React.Component {
                                 （试卷ID请前往试卷管理模块进行复制，然后粘贴在下方输入框内）
                             </span>
                         </div>
-                        {!secState ? (
+                        {!thrState ? (
                             <div>
                                 <div className="sec">
                                     <div>试卷ID：</div>
@@ -638,13 +684,22 @@ class MainSet extends React.Component {
                         )}
                     </div>
                     <div className="last-line">
-                        <div className="div1">
-                            <Button block onClick={this.resetSec.bind(this)}>
-                                复原
+                        <div className="right">
+                            <div className="div1">
+                                <Button block onClick={this.resetThr.bind(this)}>
+                                    复原
+                                </Button>
+                            </div>
+                            <Button type="primary" onClick={this.saveThr.bind(this)}>
+                                发布考试
                             </Button>
                         </div>
-                        <Button type="primary" onClick={this.saveSec.bind(this)}>
-                            保存设置
+                        <Button type="primary">
+                            <Link
+                                to={`/app/test/testPaper`}
+                            >
+                                查看已发布的考试
+                            </Link>
                         </Button>
                     </div>
                 </div>
