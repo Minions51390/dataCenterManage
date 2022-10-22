@@ -36,7 +36,7 @@ class StuRank extends React.Component {
         routes: [
             {
                 path: '/app/test/testRank',
-                breadcrumbName: '考试成绩',
+                breadcrumbName: '已发布考试/考试成绩',
             },
             {
                 path: '/stuRank',

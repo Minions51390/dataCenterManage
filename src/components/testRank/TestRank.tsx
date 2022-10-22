@@ -1,8 +1,8 @@
 import React from 'react';
-import { Table, Pagination, Input, Button, message, Select } from 'antd';
+import { Table, Pagination, Input, Button, message, Select, Popconfirm } from 'antd';
 import '../../style/pageStyle/TestRank.less';
 import copy from 'clipboard-copy';
-import { get, baseUrl } from '../../service/tools';
+import { get, del, baseUrl } from '../../service/tools';
 const { Option } = Select;
 
 const mockExamList = [
@@ -12,6 +12,7 @@ const mockExamList = [
         creator:"大橙子",
         testPaperID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
         examTime:"2022-03-19 17:56:43",
+        status:1,
     },
     {
         examID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
@@ -19,6 +20,7 @@ const mockExamList = [
         creator:"大橙子",
         testPaperID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
         examTime:"2022-03-19 17:56:43",
+        status:2,
     },
     {
         examID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
@@ -26,8 +28,11 @@ const mockExamList = [
         creator:"大橙子",
         testPaperID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
         examTime:"2022-03-19 17:56:43",
+        status:2,
     },
-]
+];
+
+const statusTextList = ['全部', '待考试', '已考'];
 
 class TestRank extends React.Component {
     state = {
@@ -53,6 +58,21 @@ class TestRank extends React.Component {
                 name: '考试ID',
             }
         ],
+        statusList: [
+            {
+                id: 0,
+                name: '全部',
+            },
+            {
+                id: 1,
+                name: '待考试',
+            },
+            {
+                id: 2,
+                name: '已考',
+            },
+        ],
+        status: 0,
         sortKey: 'creator',
         sort: 'asc',
         columns1: [
@@ -74,8 +94,14 @@ class TestRank extends React.Component {
             },
             {
                 title: '试卷ID',
-                dataIndex: 'testPaperID',
                 key: 'testPaperID',
+                render: (text: any) => (
+                    <div className="edit">
+                        <div className="copy" onClick={this.copyIdFn.bind(this, text.testPaperID)}>
+                            <div>{text.testPaperID}</div>
+                        </div>
+                    </div>
+                ),
             },
             {
                 title: '考试时间',
@@ -84,13 +110,31 @@ class TestRank extends React.Component {
                 sorter: true,
             },
             {
+                title: '试卷状态',
+                key: 'status',
+                render: (text: any) => (
+                    <div>
+                        {statusTextList[text.status]}
+                    </div>
+                ),
+            },
+            {
                 title: '操作',
                 key: 'control',
                 render: (text: any) => (
                     <div className="edit">
-                        <div className="copy" onClick={this.copyIdFn.bind(this, text.testPaperID)}>
-                            <div>复制ID</div>
-                        </div>
+                        {
+                            text.status !== 2 ?
+                            <Popconfirm placement="topLeft" title="是否确认删除？删除后无法恢复!" okText="确认" cancelText="取消" onConfirm={this.delExam.bind(this, text.testPaperID)}>
+                                <div className="copy">
+                                    <div>删除</div>
+                                </div>
+                            </Popconfirm>
+                            :
+                            <div className="gray">
+                                删除
+                            </div>
+                        }
                         <div className="entry">
                             错题排行
                         </div>
@@ -134,6 +178,13 @@ class TestRank extends React.Component {
     handleBanji(val: any) {
         this.setState({
             selBanji: val,
+        });
+    }
+
+    /** 更换考试状态 */
+    handleStatus(val: any) {
+        this.setState({
+            status: val,
         });
     }
 
@@ -209,9 +260,9 @@ class TestRank extends React.Component {
 
     /** 获取成绩列表 */
     async getTest() {
-        const { pageNo, selPici, selBanji, queryType, query, sortKey, sort } = this.state;
+        const { pageNo, selPici, selBanji, queryType, query, sortKey, sort, status } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/exam/list?pageSize=20&pageNo=${pageNo}&batch=${selPici}&class=${selBanji}&queryType=${queryType}&query=${query}&sortKey=${sortKey}&sort=${sort}`,
+            url: `${baseUrl}/api/exam/list?pageSize=20&pageNo=${pageNo}&batch=${selPici}&class=${selBanji}&queryType=${queryType}&query=${query}&sortKey=${sortKey}&sort=${sort}&status=${status}`,
         });
         console.log('------------->', res);
         const examList = res?.data?.examList || mockExamList;
@@ -256,16 +307,56 @@ class TestRank extends React.Component {
                 message.error('复制失败');
             });
     }
+    
+    /** 删除考试 */
+    async delExam(id: any) {
+        let res = await del({ url: baseUrl + `/api/exam?examID=${id}` });
+        console.log(res);
+        this.getTest();
+    }
+
+    /** 确认删除 */
+    onDelConfirm() {
+
+    }
 
     render() {
-        const { columns1, data1, pageNo, totalCount, selPici, pici, selBanji, banji, query, queryType, queryTypeList } = this.state;
+        const { columns1, data1, pageNo, totalCount, selPici, pici, selBanji, banji, query, queryType, queryTypeList, statusList, status } = this.state;
         return (
             <div className="paper-rank">
                 <div className="header">
-                    <div className="fir">考试成绩</div>
+                    <div className="fir">已发布考试/考试成绩</div>
                     <div className="sec">已考试卷列表</div>
                 </div>
                 <div className="body">
+                    <div className="zero">
+                        <Input.Group compact>
+                            <Select
+                                defaultValue={queryType}
+                                value={queryType || "请选择"}
+                                onChange={this.handleQueryType.bind(this)}
+                            >
+                                {
+                                    queryTypeList.map((item: any) => (
+                                        <Option value={item.type} key={item.classId}>{ item.name }</Option>
+                                    ))
+                                }
+                            </Select>
+                            <Input
+                                style={{ width: '240px' }}
+                                placeholder="待输入"
+                                value={query}
+                                onChange={this.onTestQueryChange.bind(this)}
+                            />
+                        </Input.Group>
+                        <Button
+                            className="gap-30"
+                            type="primary"
+                            onClick={this.clickSearch.bind(this)}
+                        >
+                            搜索
+                        </Button>
+                    </div>
                     <div className="fir">
                         <span className="span">学员批次:</span>
                         <Select
@@ -293,32 +384,19 @@ class TestRank extends React.Component {
                                 </Option>
                             ))}
                         </Select>
-                        <Input.Group compact>
-                            <Select
-                                defaultValue={queryType}
-                                value={queryType || "请选择"}
-                                onChange={this.handleQueryType.bind(this)}
-                            >
-                                {
-                                    queryTypeList.map((item: any) => (
-                                        <Option value={item.type} key={item.classId}>{ item.name }</Option>
-                                    ))
-                                }
-                            </Select>
-                            <Input
-                                style={{ width: '240px' }}
-                                placeholder="待输入"
-                                value={query}
-                                onChange={this.onTestQueryChange.bind(this)}
-                            />
-                        </Input.Group>
-                        <Button
-                            className="gap-30"
-                            type="primary"
-                            onClick={this.clickSearch.bind(this)}
+                        <span className="span3">试卷状态:</span>
+                        <Select
+                            defaultValue="请选择"
+                            style={{ width: 140 }}
+                            value={status || (statusList[0] && (statusList[0] as any).name) || "请选择"}
+                            onChange={this.handleStatus.bind(this)}
                         >
-                            搜索
-                        </Button>
+                            {statusList.map((item: any) => (
+                                <Option key={item.id} value={item.id}>
+                                    {item.name}
+                                </Option>
+                            ))}
+                        </Select>
                     </div>
                     <div className="thr">
                         <Table

@@ -33,7 +33,7 @@ const menus: {
             icon: 'mobile',
             subs: [
                 { key: '/app/test/testPaper', title: '试卷管理', icon: 'mobile', component: 'TestPaper' },
-                { key: '/app/test/testRank', title: '考试成绩', icon: 'mobile', component: 'TestRank' },
+                { key: '/app/test/testRank', title: '已发布考试/考试成绩', icon: 'mobile', component: 'TestRank' },
             ]
         },
         // {

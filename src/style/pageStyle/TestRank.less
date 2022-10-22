@@ -31,7 +31,19 @@
         margin-bottom: 0;
         background: #FFFFFF;
         padding: 32px;
+        .zero {
+            .ant-input-group-compact {
+                display: inline-block;
+                width: auto;
+                position: relative;
+                top: -5px;
+            }
+            .gap-30 {
+                margin-left: 30px;
+            }
+        }
         .fir {
+            margin-top: 16px;
             line-height: 32px;
             .span {
                 display: inline-block;
@@ -54,15 +66,16 @@
                 line-height: 22px;
                 margin-left: 30px;
             }
-            .ant-input-group-compact {
+            .span3 {
+                margin-left: 30px;
                 display: inline-block;
-                width: auto;
-                position: relative;
-                top: -5px;
-                margin-left: 30px;
-            }
-            .gap-30 {
-                margin-left: 30px;
+                width: 74px;
+                height: 22px;
+                font-size: 14px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: rgba(0, 0, 0, 0.85);
+                line-height: 22px;
             }
         }
         .sec {
@@ -99,7 +112,15 @@
                 line-height: 22px;
             }
             .span3 {
+                margin-left: 30px;
+                display: inline-block;
                 width: 200px;
+                height: 22px;
+                font-size: 14px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: rgba(0, 0, 0, 0.85);
+                line-height: 22px;
             }
         }
         .thr {
@@ -125,6 +146,11 @@
                     cursor: pointer;
                     margin-right: 6px;
                 }
+            }
+            .gray {
+                color: #999;
+                cursor: not-allowed;
+                margin-right: 6px;
             }
         }
         .pag {
