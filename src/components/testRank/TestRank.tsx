@@ -340,11 +340,6 @@ class TestRank extends React.Component {
         this.getTest();
     }
 
-    /** 确认删除 */
-    onDelConfirm() {
-
-    }
-
     render() {
         const { columns1, data1, pageNo, totalCount, selPici, pici, selBanji, banji, query, queryType, queryTypeList, statusList, status } = this.state;
         return (
