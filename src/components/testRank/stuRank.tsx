@@ -46,7 +46,7 @@ class StuRank extends React.Component {
         pageNo: 1,
         totalCount: 1,
         query: '',
-        sortKey: 'score',
+        sortKey: 'username',
         sort: 'asc',
         examID: sessionStorage.getItem('examID'),
         testPaperName: sessionStorage.getItem('testPaperName'),
@@ -88,9 +88,9 @@ class StuRank extends React.Component {
             {
                 title: '操作',
                 key: 'control',
-                render: (text: any) => (
+                render: (text: any, record: any) => (
                     <div className="edit">
-                        <div className="entry">
+                        <div className="entry" onClick={() => this.goPaperDetail(record.username, record.rollID)}>
                             查看卷面
                         </div>
                     </div>
@@ -101,6 +101,10 @@ class StuRank extends React.Component {
     };
     componentWillMount() {
         this.inited();
+    }
+
+    goPaperDetail = (name: string, rollID: string) => {
+        window.location.href = `${window.location.pathname}#/app/test/testPaper/stuDetail?name=${name}&roleID=${rollID}`;
     }
 
     async inited() {

@@ -135,7 +135,7 @@ class TestRank extends React.Component {
                                 删除
                             </div>
                         }
-                        <div className="entry">
+                        <div className="entry" onClick={() => this.jumpMistake(text)}>
                             错题排行
                         </div>
                         <div className="entry" onClick={this.jumpStu.bind(this, text)}>
@@ -242,6 +242,31 @@ class TestRank extends React.Component {
         sessionStorage.setItem('pici', piciName);
         sessionStorage.setItem('banji', banjiName);
         window.location.href = `${window.location.pathname}#/app/test/testRank/stuRank`;
+    }
+
+    jumpMistake = (text: any) => {
+        console.log(text);
+        const { examID, testPaperName } = text;
+        const { selPici, selBanji, pici, banji } = this.state;
+        let piciName = '';
+        let banjiName = '';
+        pici.map((item: any) => {
+            if (item.batchId === selPici) {
+                piciName = item.describe;
+            }
+            return item;
+        });
+        banji.map((item: any) => {
+            if (item.classId === selBanji) {
+                banjiName = item.describe;
+            }
+            return item;
+        });
+        sessionStorage.setItem('examID', examID);
+        sessionStorage.setItem('testPaperName', testPaperName);
+        sessionStorage.setItem('pici', piciName);
+        sessionStorage.setItem('banji', banjiName);
+        window.location.href = `${window.location.pathname}#/app/test/testRank/mistakeRank`;
     }
 
     /** 获取批次列表 */
