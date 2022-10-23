@@ -341,12 +341,13 @@ class MainSet extends React.Component {
             url: baseUrl + '/api/exam',
             data: {
                 classID: +classId,
-                testPaperID: paperId || '',
+                testPaperID: paperId.trim() || '',
                 examTime: diyTime,
             }
         });
-        message.success('考试发布成功!');
-        console.log(res);
+        if (res.state === 0 && res.msg === 'success') {
+            message.success('考试发布成功!');
+        }
     }
 
     render() {
@@ -696,7 +697,7 @@ class MainSet extends React.Component {
                         </div>
                         <Button type="primary">
                             <Link
-                                to={`/app/test/testPaper`}
+                                to={`/app/test/testRank`}
                             >
                                 查看已发布的考试
                             </Link>

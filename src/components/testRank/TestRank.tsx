@@ -351,7 +351,7 @@ class TestRank extends React.Component {
             <div className="paper-rank">
                 <div className="header">
                     <div className="fir">已发布考试/考试成绩</div>
-                    <div className="sec">已考试卷列表</div>
+                    <div className="sec">已发布考试/考试成绩</div>
                 </div>
                 <div className="body">
                     <div className="zero">
