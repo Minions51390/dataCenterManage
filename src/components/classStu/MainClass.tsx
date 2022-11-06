@@ -9,13 +9,13 @@ import { post, get, patch, del, baseUrl } from '../../service/tools';
 
 function GetRequest() {
     const url = `?${window.location.href.split('?')[1]}`; //获取url中"?"符后的字串
-    let theRequest: any = new Object();
-    if (url.indexOf("?") != -1) {
-       let str = url.substr(1);
-       let strs = str.split("&");
-       for(let i = 0; i < strs.length; i ++) {
-          theRequest[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
-       }
+    let theRequest: any = {};
+    if (url.indexOf('?') !== -1) {
+        let str = url.substr(1);
+        let strs = str.split('&');
+        for (let i = 0; i < strs.length; i++) {
+            theRequest[strs[i].split('=')[0]] = unescape(strs[i].split('=')[1]);
+        }
     }
     return theRequest;
 }
@@ -34,12 +34,12 @@ class MainClass extends React.Component {
         ],
         classId: '',
         classInfo: {
-            classCode: "",
-            classId: "",
-            className: "",
-            classTeacher: "",
-            createDate: "",
-            studentCount: ""
+            classCode: '',
+            classId: '',
+            className: '',
+            classTeacher: '',
+            createDate: '',
+            studentCount: '',
         },
         columns1: [
             {
@@ -99,7 +99,14 @@ class MainClass extends React.Component {
                 title: '操作',
                 key: 'control',
                 render: (text: any) => (
-                    <Popconfirm key={text.key} placement="top" title="您确定删除该学员么？" onConfirm={this.confirmDel.bind(this, text)} okText="确认" cancelText="取消">
+                    <Popconfirm
+                        key={text.key}
+                        placement="top"
+                        title="您确定删除该学员么？"
+                        onConfirm={this.confirmDel.bind(this, text)}
+                        okText="确认"
+                        cancelText="取消"
+                    >
                         <div className="control">
                             <div>删除</div>
                         </div>
@@ -109,20 +116,20 @@ class MainClass extends React.Component {
         ],
         data2: [],
         showModule: false,
-        email: "",
+        email: '',
         btnState: true,
-        searchText: "",
+        searchText: '',
     };
     componentWillMount() {
         this.initList();
     }
     async initList() {
-        const classId = GetRequest()['classId'];
-        const piciId = GetRequest()['piciId'];
-        if(classId) {
+        const classId = GetRequest()['classId'] || sessionStorage.getItem('classId');
+        const piciId = GetRequest()['piciId'] || sessionStorage.getItem('piciId');
+        if (classId) {
             sessionStorage.setItem('classId', classId as any);
         }
-        if(piciId) {
+        if (piciId) {
             sessionStorage.setItem('piciId', piciId as any);
         }
         let res = await this.getClassInfo(classId);
@@ -133,8 +140,8 @@ class MainClass extends React.Component {
                 date: item.date,
                 phoneNumber: item.phoneNumber,
                 studentId: item.studentId,
-                control: ''
-            }
+                control: '',
+            };
         });
         let data2 = res.data.studentInfo.detail.map((item: any, index: any) => {
             return {
@@ -143,33 +150,36 @@ class MainClass extends React.Component {
                 date: item.date,
                 phoneNumber: item.phoneNumber,
                 studentId: item.studentId,
-                control: ''
-            }
+                control: '',
+            };
         });
         this.setState({
             classId,
             classInfo: res.data.classInfo,
             data1,
-            data2
+            data2,
         });
     }
     async getClassInfo(id: any) {
-        let res = await get({url: baseUrl + `/manage/class/info?classId=${id}`});
+        let res = await get({ url: baseUrl + `/manage/class/info?classId=${id}` });
         return res;
     }
 
     rejectStu(studentId: any) {
-        const {classId} = this.state;
-        patch({url: baseUrl + '/manage/student/apply', data: {
-            studentId: studentId,
-            opinion: 'reject',
-            classId: +classId
-        }}).then(res => {
+        const { classId } = this.state;
+        patch({
+            url: baseUrl + '/manage/student/apply',
+            data: {
+                studentId: studentId,
+                opinion: 'reject',
+                classId: +classId,
+            },
+        }).then((res) => {
             console.log(res);
             if (res.msg === '请设置班级任务后再进行此操作: ') {
                 message.error({
                     content: '请设置班级任务后再进行此操作!!!',
-                    className: 'custom-class'
+                    className: 'custom-class',
                 });
             }
             this.initList();
@@ -179,26 +189,29 @@ class MainClass extends React.Component {
         });
     }
     rejectAll() {
-        const {data1} = this.state;
+        const { data1 } = this.state;
         let stu = data1.map((val: any) => {
             return val.studentId;
         });
         this.rejectStu(stu);
     }
     resolveStu(studentId: any) {
-        const {classId} = this.state;
-        patch({url: baseUrl + '/manage/student/apply', data: {
-            studentId: studentId,
-            opinion: 'agree',
-            classId: +classId
-        }}).then(res => {
+        const { classId } = this.state;
+        patch({
+            url: baseUrl + '/manage/student/apply',
+            data: {
+                studentId: studentId,
+                opinion: 'agree',
+                classId: +classId,
+            },
+        }).then((res) => {
             console.log(res);
             if (res.msg === '请设置班级任务后再进行此操作: ') {
                 message.error({
                     content: '请设置班级任务后再进行此操作!!!',
                     className: 'custom-class',
                     style: {
-                      marginTop: '20vh',
+                        marginTop: '20vh',
                     },
                 });
             }
@@ -209,14 +222,14 @@ class MainClass extends React.Component {
         });
     }
     resolveAll() {
-        const {data1} = this.state;
+        const { data1 } = this.state;
         let stu = data1.map((val: any) => {
             return val.studentId;
         });
         this.resolveStu(stu);
     }
     async delStu(stu: any) {
-        let res = await del({url: baseUrl + `/manage/student?studentId=${stu}`});
+        let res = await del({ url: baseUrl + `/manage/student?studentId=${stu}` });
         return res;
     }
     async confirmDel(val: any) {
@@ -248,10 +261,13 @@ class MainClass extends React.Component {
     }
 
     getCode() {
-        const {classId} = this.state;
-        post({url: baseUrl + '/manage/class/delete/email', data: {
-            classId: +classId
-        }}).then(res => {
+        const { classId } = this.state;
+        post({
+            url: baseUrl + '/manage/class/delete/email',
+            data: {
+                classId: +classId,
+            },
+        }).then((res) => {
             console.log(res);
             if (res.data) {
                 this.setState({
@@ -269,17 +285,31 @@ class MainClass extends React.Component {
 
     finClass() {
         const { classId, searchText } = this.state;
-        post({ url: baseUrl + '/manage/class/delete', data: {
-            classId: +classId,
-            captcha: searchText
-        }}).then(res => {
+        post({
+            url: baseUrl + '/manage/class/delete',
+            data: {
+                classId: +classId,
+                captcha: searchText,
+            },
+        }).then((res) => {
             console.log(res);
             window.history.back();
         });
     }
 
     render() {
-        const { classId, classInfo, columns1, data1, columns2, data2, routes, showModule, email, btnState } = this.state;
+        const {
+            classId,
+            classInfo,
+            columns1,
+            data1,
+            columns2,
+            data2,
+            routes,
+            showModule,
+            email,
+            btnState,
+        } = this.state;
         return (
             <div className="main-class">
                 <div className="title-area">
@@ -287,8 +317,13 @@ class MainClass extends React.Component {
                     <div className="fir-line">
                         <div className="div">{classInfo.className}</div>
                         <div className="div-w">
-                            <div className="div-r" onClick={this.setShowModal.bind(this)}>结课</div>
-                            <Link className="div1" to={`/app/class/main/class/set?classId=${classId}`}>
+                            <div className="div-r" onClick={this.setShowModal.bind(this)}>
+                                结课
+                            </div>
+                            <Link
+                                className="div1"
+                                to={`/app/class/main/class/set?classId=${classId}`}
+                            >
                                 设置学习任务
                             </Link>
                         </div>
@@ -356,7 +391,11 @@ class MainClass extends React.Component {
                     okText="确定"
                     cancelText="取消"
                 >
-                    <Alert message="结课后该班级学员将无法继续使用本平台进行学习，且不能恢复，需谨慎操作。为此我们将通过您的邮箱进行验证。" type="info" showIcon />
+                    <Alert
+                        message="结课后该班级学员将无法继续使用本平台进行学习，且不能恢复，需谨慎操作。为此我们将通过您的邮箱进行验证。"
+                        type="info"
+                        showIcon
+                    />
                     <div className="qrcode">
                         <div className="m-in">
                             <Input
@@ -367,12 +406,13 @@ class MainClass extends React.Component {
                                 onChange={this.onInputChange}
                             />
                         </div>
-                        {
-                            btnState ?
-                                <div className="m-btn" onClick={this.getCode.bind(this)}>发送验证码到邮箱</div>
-                            :
-                                <div className="m-btn disable" >已发送</div>
-                        }
+                        {btnState ? (
+                            <div className="m-btn" onClick={this.getCode.bind(this)}>
+                                发送验证码到邮箱
+                            </div>
+                        ) : (
+                            <div className="m-btn disable">已发送</div>
+                        )}
                     </div>
                     <p className="m-text mar">
                         已向电子邮箱<span>{email}</span>发送验证码

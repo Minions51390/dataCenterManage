@@ -9,26 +9,27 @@ interface IFRequestParam {
 }
 
 const service = axios.create({
-    timeout: 50000 // 请求超时时间
+    timeout: 50000, // 请求超时时间
 });
-
 
 service.interceptors.response.use(
-    response => {
-      const res = response.data;
-      console.log("11111111", res);
-      if (res.state === 1) { // 后台返回码，根据自己的业务进行修改
-        // 权限问题
-        message.error((res && res.msg) || "错误");
-        return response;
-      } else {
-        return response;
-      }
+    (response) => {
+        const res = response.data;
+        console.log('11111111', res);
+        if (res.state === 1) {
+            // 后台返回码，根据自己的业务进行修改
+            // 权限问题
+            message.error((res && res.msg) || '错误');
+            return response;
+        } else {
+            return response;
+        }
     },
-    error => {
-      console.log('err' + error) // for debug
-      return Promise.reject(error);
-});
+    (error) => {
+        console.log('err' + error); // for debug
+        return Promise.reject(error);
+    }
+);
 
 /**
  * 公用get请求
@@ -61,6 +62,15 @@ export const post = ({ url, data, msg = '接口异常', config }: IFRequestParam
             message.warn(msg);
         });
 
+export const put = ({ url, data, msg = '接口异常', config }: IFRequestParam) =>
+    service
+        .put(url, data, config)
+        .then((res) => res.data)
+        .catch((err) => {
+            console.log(err);
+            message.warn(msg);
+        });
+
 export const patch = ({ url, data, msg = '接口异常', config }: IFRequestParam) =>
     service
         .patch(url, data, config)
@@ -79,5 +89,7 @@ export const del = ({ url, msg = '接口异常', config }: IFRequestParam) =>
             message.warn(msg);
         });
 
-// export const baseUrl = '/api'; //本地调试使用
-export const baseUrl = '';
+// 上线前修改
+export const baseUrl = '/api'; //本地调试使用
+// export const baseUrl = '';
+

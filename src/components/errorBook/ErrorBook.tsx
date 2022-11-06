@@ -17,7 +17,7 @@ class ErrorBook extends React.Component {
             {
                 title: '序号',
                 dataIndex: 'key',
-                key: 'key'
+                key: 'key',
             },
             {
                 title: '单词',
@@ -38,10 +38,10 @@ class ErrorBook extends React.Component {
                 title: '出错人次',
                 dataIndex: 'wrongCount',
                 key: 'wrongCount',
-            }
+            },
         ],
         data1: [],
-        dictionary: "",
+        dictionary: '',
     };
     componentWillMount() {
         this.inited();
@@ -52,48 +52,60 @@ class ErrorBook extends React.Component {
         if (!res[0]) {
             return;
         }
-        this.setState({
-            wordDb: res,
-            dbVal: res[0].dictionaryId
-        }, async () => {
-            const pici = await this.getPici();
-            const banji = await this.getClass(pici[0].batchId || 0);
-            this.setState({
-                pici,
-                banji,
-                selPici: pici[0].batchId,
-                selBanji: banji[0].classId,
-            });
-        });
+        this.setState(
+            {
+                wordDb: res,
+                dbVal: res[0].dictionaryId,
+            },
+            async () => {
+                const pici = await this.getPici();
+                const banji = await this.getClass(pici[0].batchId || 0);
+                this.setState({
+                    pici,
+                    banji,
+                    selPici: pici[0].batchId,
+                    selBanji: banji[0].classId,
+                });
+            }
+        );
     }
     async getKu() {
-        let res = await get({url: baseUrl + '/api/dictionary/info'});
+        let res = await get({ url: baseUrl + '/api/dictionary/info' });
         return res.data || [];
     }
     async getPici() {
-        let res = await get({url: baseUrl + '/manage/batch/list'});
+        let res = await get({ url: baseUrl + '/manage/batch/list' });
         return res.data.detail || [];
     }
     async getClass(pici: any) {
-        let res = await get({url: baseUrl + `/manage/class/list?batchId=${pici}&category=all`});
-        let rankList = await this.getRank(pici || 0, res.data.detail[0] ? res.data.detail[0].classId : 0);
+        let res = await get({ url: baseUrl + `/manage/class/list?batchId=${pici}&category=all` });
+        let rankList = await this.getRank(
+            pici || 0,
+            res.data.detail[0] ? res.data.detail[0].classId : 0
+        );
         console.log(res);
         return res.data.detail || [];
     }
     async getRank(pici: any, classid: any) {
-        const {pageNo, dbVal} = this.state;
+        const { pageNo, dbVal } = this.state;
         // let res = await get({url: baseUrl + `/census/wrongBook?dictionaryId=${dbVal}&batchId=${pici}&classId=${classid}&pageNo=${pageNo}&pageSize=20`});
-        let res = await get({url: baseUrl + `/census/wrongBook?batchId=${pici}&classId=${classid}&pageNo=${pageNo}&pageSize=20`});
+        let res = await get({
+            url:
+                baseUrl +
+                `/census/wrongBook?batchId=${pici}&classId=${classid}&pageNo=${pageNo}&pageSize=20`,
+        });
         console.log(res);
-        let data1 = res.data.detail ? res.data.detail.map((val: any, index: number) => {
-            return {
-                key: index + 1,
-                en: val.en,
-                ch: val.ch,
-                phoneticSymbols: val.phoneticSymbols,
-                wrongCount: val.wrongCount
-            }
-        }) : [];
+        let data1 = res.data.detail
+            ? res.data.detail.map((val: any, index: number) => {
+                  return {
+                      key: index + 1,
+                      en: val.en,
+                      ch: val.ch,
+                      phoneticSymbols: val.phoneticSymbols,
+                      wrongCount: val.wrongCount,
+                  };
+              })
+            : [];
         let dictionary = res.data.dictionary;
         this.setState({
             data1,
@@ -108,12 +120,12 @@ class ErrorBook extends React.Component {
         this.setState({
             selPici: val,
             banji: res,
-            selBanji: res[0] ? res[0].classId : 0
+            selBanji: res[0] ? res[0].classId : 0,
         });
         console.log(val);
     }
     async handleBanji(val: any) {
-        const {selPici} = this.state;
+        const { selPici } = this.state;
         this.setState({
             selBanji: val,
         });
@@ -121,24 +133,42 @@ class ErrorBook extends React.Component {
         console.log(val);
     }
     async handleWordDb(value: any) {
-        let {selPici, selBanji} = this.state;
-        this.setState({
-            dbVal: value,
-        }, async () => {
-            const ranklist = await this.getRank(selPici, selBanji);
-        });
+        let { selPici, selBanji } = this.state;
+        this.setState(
+            {
+                dbVal: value,
+            },
+            async () => {
+                const ranklist = await this.getRank(selPici, selBanji);
+            }
+        );
     }
     nowPagChange(val: any) {
-        let {selPici, selBanji} = this.state;
-        this.setState({
-            pageNo: val
-        }, async () => {
-            const ranklist = await this.getRank(selPici, selBanji);
-        });
+        let { selPici, selBanji } = this.state;
+        this.setState(
+            {
+                pageNo: val,
+            },
+            async () => {
+                const ranklist = await this.getRank(selPici, selBanji);
+            }
+        );
     }
 
     render() {
-        const { pici, selPici, banji, selBanji, columns1, data1, pageNo, allCount, wordDb, dbVal, dictionary } = this.state;
+        const {
+            pici,
+            selPici,
+            banji,
+            selBanji,
+            columns1,
+            data1,
+            pageNo,
+            allCount,
+            wordDb,
+            dbVal,
+            dictionary,
+        } = this.state;
         return (
             <div className="rank-wrapper">
                 <div className="header">
@@ -164,7 +194,7 @@ class ErrorBook extends React.Component {
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}
-                            value={selPici || (pici[0] && (pici[0] as any).describe) || "请选择"}
+                            value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
                             onChange={this.handlePiCi.bind(this)}
                         >
                             {pici.map((item: any) => (
@@ -177,7 +207,7 @@ class ErrorBook extends React.Component {
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}
-                            value={selBanji || (banji[0] && (banji[0] as any).describe) || "请选择"}
+                            value={selBanji || (banji[0] && (banji[0] as any).describe) || '请选择'}
                             onChange={this.handleBanji.bind(this)}
                         >
                             {banji.map((item: any) => (
@@ -197,8 +227,14 @@ class ErrorBook extends React.Component {
                             bordered={false}
                         />
                     </div>
-                    <div className={data1.length ? "pag" : "display-none"}>
-                        <Pagination defaultCurrent={1} pageSize={20} current={pageNo} total={allCount * 20} onChange={this.nowPagChange.bind(this)} />
+                    <div className={data1.length ? 'pag' : 'display-none'}>
+                        <Pagination
+                            defaultCurrent={1}
+                            pageSize={20}
+                            current={pageNo}
+                            total={allCount * 20}
+                            onChange={this.nowPagChange.bind(this)}
+                        />
                     </div>
                 </div>
             </div>

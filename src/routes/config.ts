@@ -26,6 +26,16 @@ const menus: {
         { key: '/app/ranks', title: '排行榜', icon: 'mobile', component: 'Ranks' },
         { key: '/app/dashboard', title: '数据中心', icon: 'mobile', component: 'Dashboard' },
         { key: '/app/errorBook', title: '错词本', icon: 'mobile', component: 'ErrorBook' },
+        { key: '/app/queBankCreate', title: '题库建设', icon: 'mobile', component: 'QueBankCreate' },
+        {
+            key: '/app/test',
+            title: '试卷管理',
+            icon: 'mobile',
+            subs: [
+                { key: '/app/test/testPaper', title: '试卷管理', icon: 'mobile', component: 'TestPaper' },
+                { key: '/app/test/testRank', title: '已发布考试/考试成绩', icon: 'mobile', component: 'TestRank' },
+            ]
+        },
         // {
         //     key: '/app/ui',
         //     title: 'UI',
@@ -158,6 +168,12 @@ const menus: {
     others: [
         { key: '/app/class/main/class', title: '', icon: 'mobile', component: 'MainClass' },
         { key: '/app/class/main/class/set', title: '', icon: 'mobile', component: 'MainSet' },
+        { key: '/app/queBankCreate/bankDetail', title: '', icon: 'mobile', component: 'BankDetail' },
+        { key: '/app/queBankCreate/bankDetail/questionAdd', title: '', icon: 'mobile', component: 'QuestionAdd' },
+        { key: '/app/test/testPaper/testDetail', title: '', icon: 'mobile', component: 'TestDetail' },
+        { key: '/app/test/testPaper/stuDetail', title: '', icon: 'mobile', component: 'StuPaperDetail' },
+        { key: '/app/test/testRank/stuRank', title: '', icon: 'mobile', component: 'StuRank' },
+        { key: '/app/test/testRank/mistakeRank', title: '', icon: 'mobile', component: 'MistakeRank' },
     ], // 非菜单相关路由
 };
 

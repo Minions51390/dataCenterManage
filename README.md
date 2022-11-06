@@ -21,7 +21,7 @@ yarn start
 yarn build
 ```
 
-上线前的修改
+全局搜索  上线前修改 上线前注释掉
 
 index login
 

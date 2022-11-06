@@ -1,4 +1,4 @@
-.rank-wrapper {
+.stu-rank {
     overflow-y: auto;
     .header {
         height: 98px;
@@ -12,7 +12,7 @@
             font-weight: 400;
             color: rgba(0, 0, 0, 0.45);
             line-height: 22px;
-            margin-top: 16px;
+            margin-bottom: 16px;
         }
         .sec {
             margin-left: 32px;
@@ -22,7 +22,7 @@
             font-weight: 500;
             color: rgba(0, 0, 0, 0.85);
             line-height: 28px;
-            margin-top: 16px;
+            margin-bottom: 16px;
         }
     }
     .body {
@@ -31,6 +31,40 @@
         margin-bottom: 0;
         background: #FFFFFF;
         padding: 32px;
+        .fir {
+            line-height: 32px;
+            .span {
+                display: inline-block;
+                width: 70px;
+                height: 22px;
+                font-size: 14px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: rgba(0, 0, 0, 0.85);
+                line-height: 22px;
+            }
+            .span2 {
+                display: inline-block;
+                width: 40px;
+                height: 22px;
+                font-size: 14px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: rgba(0, 0, 0, 0.85);
+                line-height: 22px;
+                margin-left: 30px;
+            }
+            .ant-input-group-compact {
+                display: inline-block;
+                width: auto;
+                position: relative;
+                top: -5px;
+                margin-left: 30px;
+            }
+            .gap-30 {
+                margin-left: 30px;
+            }
+        }
         .sec {
             .span {
                 display: inline-block;
@@ -77,6 +111,19 @@
             td {
                 text-align: center;
                 color: #032352 !important;
+            }
+            .edit {
+                display: flex;
+                justify-content: center;
+                .copy {
+                    color: #1890FF;
+                    cursor: pointer;
+                    margin-right: 6px;
+                }
+                .entry {
+                    color: #1890FF;
+                    cursor: pointer;
+                }
             }
         }
         .pag {

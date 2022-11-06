@@ -19,7 +19,7 @@ class ClassStu extends React.Component {
         selNewPi: '',
         newPiciVal: '',
         newBanji: '',
-        isVisible: false
+        isVisible: false,
     };
     componentWillMount() {
         this.initData();
@@ -29,22 +29,22 @@ class ClassStu extends React.Component {
         const pici = await this.getPici();
         let selPici = parseInt(sessionStorage.getItem('piciId') as any) || pici[0].batchId;
         this.setState({
-            selPici
+            selPici,
         });
         this.setState({
             pici,
             piciF: pici,
-            newPici: pici
+            newPici: pici,
         });
         let res = await this.getClass(selPici, 'coaching');
         this.setState({
             selPici,
-            nowClass: res
+            nowClass: res,
         });
         let res1 = await this.getClass(pici[0].batchId, 'retire');
         this.setState({
             selPiciF: pici[0].batchId,
-            finClass: res1
+            finClass: res1,
         });
     }
     async login() {
@@ -52,25 +52,26 @@ class ClassStu extends React.Component {
             url: baseUrl + '/auth/login',
             data: {
                 userName: 'yooky',
-                password: '123'
-            }
+                password: '123',
+            },
         });
         console.log(res);
     }
     async getPici() {
-        let res = await get({url: baseUrl + '/manage/batch/list'});
-        console.log('lll', res)
-        if(res != null) {
+        let res = await get({ url: baseUrl + '/manage/batch/list' });
+        console.log('lll', res);
+        if (res != null) {
             return res.data.detail;
         } else {
             return [];
         }
-        
     }
     async getClass(pici: any, cate: any) {
-        let res = await get({url: baseUrl + `/manage/class/list?batchId=${pici}&category=${cate}`});
+        let res = await get({
+            url: baseUrl + `/manage/class/list?batchId=${pici}&category=${cate}`,
+        });
         console.log(res);
-        if(res != null) {
+        if (res != null) {
             return res.data.detail;
         } else {
             return [];
@@ -81,7 +82,7 @@ class ClassStu extends React.Component {
         this.setState({
             selPici: val,
             nowClass: res,
-            nowPag: 1
+            nowPag: 1,
         });
         console.log(val);
     }
@@ -93,13 +94,13 @@ class ClassStu extends React.Component {
     // }
     nowPagChange(val: any) {
         this.setState({
-            nowPag: val
+            nowPag: val,
         });
         console.log(val);
     }
     finPagChange(val: any) {
         this.setState({
-            finPag: val
+            finPag: val,
         });
         console.log(val);
     }
@@ -107,7 +108,7 @@ class ClassStu extends React.Component {
         let res = await this.getClass(val, 'retire');
         this.setState({
             selPiciF: val,
-            finClass: res
+            finClass: res,
         });
         console.log(val);
     }
@@ -116,33 +117,33 @@ class ClassStu extends React.Component {
         const { selNewPi, newBanji, selPici } = this.state;
         this.setState({
             isVisible: false,
-            newBanji
+            newBanji,
         });
 
-        let batchId = selNewPi || selPici
+        let batchId = selNewPi || selPici;
         let res = await post({
             url: baseUrl + '/manage/class',
             data: {
                 batchId: batchId,
-                className: newBanji
-            }
+                className: newBanji,
+            },
         });
         this.setState({
             selPici: selNewPi,
-            newBanji: ''
+            newBanji: '',
         });
         let list = await this.getClass(batchId, 'coaching');
-        let nowPag = 1
+        let nowPag = 1;
         if (list.length <= 7) {
-            nowPag = 1
+            nowPag = 1;
         } else if (list.length > 7 && list.length % 7 > 0) {
-            nowPag = Math.floor(list.length / 7) + 1
+            nowPag = Math.floor(list.length / 7) + 1;
         } else {
-            nowPag = list.length / 7
+            nowPag = list.length / 7;
         }
         this.setState({
             nowClass: list,
-            nowPag: nowPag
+            nowPag: nowPag,
         });
         console.log(res);
         // window.location.href = '/#/app/class/main/class';
@@ -151,12 +152,12 @@ class ClassStu extends React.Component {
         console.log(val);
         this.setState({
             isVisible: false,
-            newBanji: ''
+            newBanji: '',
         });
     }
     showModal() {
         this.setState({
-            isVisible: true
+            isVisible: true,
         });
     }
     onNewPiciValChange(event: any) {
@@ -170,7 +171,7 @@ class ClassStu extends React.Component {
         });
     }
     handlePiciVal(val: any) {
-        console.log('lsf selNewPi', val)
+        console.log('lsf selNewPi', val);
         this.setState({
             selNewPi: val,
         });
@@ -181,16 +182,16 @@ class ClassStu extends React.Component {
         let res = await post({
             url: baseUrl + '/manage/batch',
             data: {
-                batchName: newPiciVal
-            }
+                batchName: newPiciVal,
+            },
         });
         let list = await this.getPici();
         this.setState({
             newPici: list,
             pici: list,
-            selNewPi: list[list.length - 1].batchId
+            selNewPi: list[list.length - 1].batchId,
         });
-        
+
         console.log(res);
         // this.setState({
         //     newPici: [...newPici, {
@@ -200,11 +201,28 @@ class ClassStu extends React.Component {
         // });
     }
     setClassName(val: any) {
-        sessionStorage.setItem('className', val);
+        const { selPici } = this.state;
+        sessionStorage.setItem('className', val.describe);
+        sessionStorage.setItem('classId', val.classId);
+        sessionStorage.setItem('piciId', selPici);
     }
 
     render() {
-        const { pici, selPici, nowClass, nowPag, finClass, finPag, piciF, selPiciF, isVisible, newPici, newPiciVal, newBanji, selNewPi } = this.state;
+        const {
+            pici,
+            selPici,
+            nowClass,
+            nowPag,
+            finClass,
+            finPag,
+            piciF,
+            selPiciF,
+            isVisible,
+            newPici,
+            newPiciVal,
+            newBanji,
+            selNewPi,
+        } = this.state;
         return (
             <div className="class-main-wrapper">
                 <div className="bread-title">
@@ -233,7 +251,7 @@ class ClassStu extends React.Component {
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}
-                            value={selPici || (pici[0] && (pici[0] as any).describe) || "请选择"}
+                            value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
                             onChange={this.handlePiCi.bind(this)}
                         >
                             {pici.map((item: any) => (
@@ -247,7 +265,11 @@ class ClassStu extends React.Component {
                 <div className="now-area">
                     <div className="item-area">
                         {nowClass.slice((nowPag - 1) * 7, nowPag * 7).map((item: any, index) => (
-                            <Link onMouseDown={this.setClassName.bind(this, item.describe)} to={`/app/class/main/class?classId=${item.classId}&piciId=${selPici}`} key={index}>
+                            <Link
+                                onMouseDown={this.setClassName.bind(this, item)}
+                                to={`/app/class/main/class?classId=${item.classId}&piciId=${selPici}`}
+                                key={index}
+                            >
                                 <div className="item">
                                     <div className="title">{item.describe}</div>
                                     <div className="sec-line">
@@ -261,16 +283,23 @@ class ClassStu extends React.Component {
                                         </div>
                                         <div>{item.classCode}</div>
                                     </div>
-                                    <div className="aline">创建时间:{item.createDate.split('T')[0]}</div>
+                                    <div className="aline">
+                                        创建时间:{item.createDate.split('T')[0]}
+                                    </div>
                                 </div>
                             </Link>
                         ))}
                         <div className="item-add" onClick={this.showModal.bind(this)}>
                             新增班级
                         </div>
-                        <Modal title="新增班级" visible={isVisible} onOk={this.handleOk.bind(this)} onCancel={this.handleCancel.bind(this)}>
+                        <Modal
+                            title="新增班级"
+                            visible={isVisible}
+                            onOk={this.handleOk.bind(this)}
+                            onCancel={this.handleCancel.bind(this)}
+                        >
                             <div className="module-area">
-                                学员批次: 
+                                学员批次:
                                 <Select
                                     defaultValue={selPici}
                                     className="gap"
@@ -278,35 +307,64 @@ class ClassStu extends React.Component {
                                     placeholder="请选择学员批次"
                                     onChange={this.handlePiciVal.bind(this)}
                                     value={selNewPi || selPici}
-                                    dropdownRender={menu => (
-                                    <div>
-                                        {menu}
-                                        <Divider style={{ margin: '4px 0' }} />
-                                        <div style={{ display: 'flex', flexWrap: 'nowrap', padding: 8 }}>
-                                        <Input style={{ flex: 'auto' }} value={newPiciVal} onChange={this.onNewPiciValChange.bind(this)} />
-                                        <div
-                                            style={{ flex: 'none', padding: '8px', display: 'block', cursor: 'pointer' }}
-                                            onClick={this.addItem.bind(this)}
-                                        >
-                                            <PlusOutlined /> 新增
+                                    dropdownRender={(menu) => (
+                                        <div>
+                                            {menu}
+                                            <Divider style={{ margin: '4px 0' }} />
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    flexWrap: 'nowrap',
+                                                    padding: 8,
+                                                }}
+                                            >
+                                                <Input
+                                                    style={{ flex: 'auto' }}
+                                                    value={newPiciVal}
+                                                    onChange={this.onNewPiciValChange.bind(this)}
+                                                />
+                                                <div
+                                                    style={{
+                                                        flex: 'none',
+                                                        padding: '8px',
+                                                        display: 'block',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                    onClick={this.addItem.bind(this)}
+                                                >
+                                                    <PlusOutlined /> 新增
+                                                </div>
+                                            </div>
                                         </div>
-                                        </div>
-                                    </div>
                                     )}
                                 >
                                     {newPici.map((item: any, index) => (
-                                    <Option key={index} value={item.batchId}>{item.describe}</Option>
+                                        <Option key={index} value={item.batchId}>
+                                            {item.describe}
+                                        </Option>
                                     ))}
                                 </Select>
                             </div>
                             <div className="module-area">
                                 班级名称:
-                                <Input className="gap" style={{ width: 240 }} placeholder="请输入班级名称" value={newBanji} onChange={this.onClassChange.bind(this)} />
+                                <Input
+                                    className="gap"
+                                    style={{ width: 240 }}
+                                    placeholder="请输入班级名称"
+                                    value={newBanji}
+                                    onChange={this.onClassChange.bind(this)}
+                                />
                             </div>
                         </Modal>
                     </div>
-                    <div className={nowClass.length ? "pag" : "display-none"}>
-                        <Pagination defaultCurrent={1} defaultPageSize={7} current={nowPag} total={nowClass.length} onChange={this.nowPagChange.bind(this)} />
+                    <div className={nowClass.length ? 'pag' : 'display-none'}>
+                        <Pagination
+                            defaultCurrent={1}
+                            defaultPageSize={7}
+                            current={nowPag}
+                            total={nowClass.length}
+                            onChange={this.nowPagChange.bind(this)}
+                        />
                     </div>
                 </div>
                 <div className="select-area">
@@ -330,7 +388,7 @@ class ClassStu extends React.Component {
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}
-                            value={selPiciF || (piciF[0] && (piciF[0] as any).batchId) || "请选择"}
+                            value={selPiciF || (piciF[0] && (piciF[0] as any).batchId) || '请选择'}
                             onChange={this.handlePiCiF.bind(this)}
                         >
                             {piciF.map((item: any) => (
@@ -342,10 +400,8 @@ class ClassStu extends React.Component {
                     </div>
                 </div>
                 <div className="finish-area">
-                    {   
-                        finClass.length 
-                        ?
-                        (<div className="item-area">
+                    {finClass.length ? (
+                        <div className="item-area">
                             {finClass.map((item: any, index) => (
                                 <div className="item" key={index}>
                                     <div className="title">{item.describe}</div>
@@ -360,17 +416,23 @@ class ClassStu extends React.Component {
                                         </div>
                                         <div>{item.classCode}</div>
                                     </div>
-                                    <div className="aline">创建时间:{item.createDate.split('T')[0]}</div>
+                                    <div className="aline">
+                                        创建时间:{item.createDate.split('T')[0]}
+                                    </div>
                                 </div>
                             ))}
-                        </div>)
-                        :
-                        (
-                            <div className="fins-area">暂无数据</div>
-                        )
-                    }
-                    <div className={finClass.length ? "pag" : "display-none"}>
-                        <Pagination defaultCurrent={1} defaultPageSize={7} current={finPag} total={finClass.length} onChange={this.finPagChange.bind(this)} />
+                        </div>
+                    ) : (
+                        <div className="fins-area">暂无数据</div>
+                    )}
+                    <div className={finClass.length ? 'pag' : 'display-none'}>
+                        <Pagination
+                            defaultCurrent={1}
+                            defaultPageSize={7}
+                            current={finPag}
+                            total={finClass.length}
+                            onChange={this.finPagChange.bind(this)}
+                        />
                     </div>
                 </div>
             </div>
