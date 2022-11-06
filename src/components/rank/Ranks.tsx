@@ -34,21 +34,6 @@ class Ranks extends React.Component {
                 sorter: {
                     compare: (a: any, b: any) => {
                         console.log(a, b);
-                        // let {selPici, selBanji, evaluation} = this.state;
-                        // if (evaluation === 'asc') {
-                        //     evaluation = 'desc';
-                        // } else if (evaluation === 'desc') {
-                        //     evaluation = '';
-                        // } else {
-                        //     evaluation = 'asc';
-                        // }
-                        // this.setState({
-                        //     evaluation,
-                        //     pageNo: 1
-                        // }, async () => {
-                        //     const ranklist = await this.getRank(selPici, selBanji);
-                        // });
-
                         return a.evaluation - b.evaluation;
                     },
                     multiple: 4,
@@ -61,21 +46,6 @@ class Ranks extends React.Component {
                 sorter: {
                     compare: (a: any, b: any) => {
                         console.log(a, b);
-                        // let {selPici, selBanji, evaluation} = this.state;
-                        // if (evaluation === 'asc') {
-                        //     evaluation = 'desc';
-                        // } else if (evaluation === 'desc') {
-                        //     evaluation = '';
-                        // } else {
-                        //     evaluation = 'asc';
-                        // }
-                        // this.setState({
-                        //     evaluation,
-                        //     pageNo: 1
-                        // }, async () => {
-                        //     const ranklist = await this.getRank(selPici, selBanji);
-                        // });
-
                         return parseFloat(a.sptPassRate) - parseFloat(b.sptPassRate);
                     },
                     multiple: 3,
@@ -88,20 +58,6 @@ class Ranks extends React.Component {
                 sorter: {
                     compare: (a: any, b: any) => {
                         console.log(a, b);
-                        // let {selPici, selBanji, evaluation} = this.state;
-                        // if (evaluation === 'asc') {
-                        //     evaluation = 'desc';
-                        // } else if (evaluation === 'desc') {
-                        //     evaluation = '';
-                        // } else {
-                        //     evaluation = 'asc';
-                        // }
-                        // this.setState({
-                        //     evaluation,
-                        //     pageNo: 1
-                        // }, async () => {
-                        //     const ranklist = await this.getRank(selPici, selBanji);
-                        // });
 
                         return parseFloat(a.passRate) - parseFloat(b.passRate);
                     },
@@ -115,20 +71,6 @@ class Ranks extends React.Component {
                 sorter: {
                     compare: (a: any, b: any) => {
                         console.log(a, b);
-                        // let {selPici, selBanji, evaluation} = this.state;
-                        // if (evaluation === 'asc') {
-                        //     evaluation = 'desc';
-                        // } else if (evaluation === 'desc') {
-                        //     evaluation = '';
-                        // } else {
-                        //     evaluation = 'asc';
-                        // }
-                        // this.setState({
-                        //     evaluation,
-                        //     pageNo: 1
-                        // }, async () => {
-                        //     const ranklist = await this.getRank(selPici, selBanji);
-                        // });
 
                         return parseInt(a.studyTime) - parseInt(b.studyTime);
                     },
@@ -142,20 +84,6 @@ class Ranks extends React.Component {
                 sorter: {
                     compare: (a: any, b: any) => {
                         console.log(a, b);
-                        // let {selPici, selBanji, evaluation} = this.state;
-                        // if (evaluation === 'asc') {
-                        //     evaluation = 'desc';
-                        // } else if (evaluation === 'desc') {
-                        //     evaluation = '';
-                        // } else {
-                        //     evaluation = 'asc';
-                        // }
-                        // this.setState({
-                        //     evaluation,
-                        //     pageNo: 1
-                        // }, async () => {
-                        //     const ranklist = await this.getRank(selPici, selBanji);
-                        // });
 
                         return a.wordsCount - b.wordsCount;
                     },
@@ -163,14 +91,14 @@ class Ranks extends React.Component {
                 },
             },
             {
-                title: '批次',
-                dataIndex: 'batchDescribe',
-                key: 'batchDescribe',
+                title: '进入班级天数',
+                dataIndex: 'registerDays',
+                key: 'registerDays',
             },
             {
-                title: '班级',
-                dataIndex: 'classDescribe',
-                key: 'classDescribe',
+                title: '平台的学习打卡天数(只有背词算)',
+                dataIndex: 'punchCount',
+                key: 'punchCount',
             },
         ],
         data1: [],
@@ -221,8 +149,8 @@ class Ranks extends React.Component {
                       studyTime: `${val.studyTime}小时`,
                       passRate: `${val.passRate.toFixed(2)}%`,
                       sptPassRate: `${val.sptPassRate.toFixed(2)}%`,
-                      batchDescribe: val.batchDescribe,
-                      classDescribe: val.classDescribe,
+                      registerDays: val.registerDays,
+                      punchCount: val.punchCount,
                   };
               })
             : [];

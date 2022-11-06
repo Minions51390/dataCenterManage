@@ -953,18 +953,6 @@ class Dashboard extends React.Component {
                                         <span className="small">个</span>
                                     </div>
                                     <div className="sub">当日背词数</div>
-                                    <div className="list">
-                                        {testInfo.detail.slice(0, Math.ceil(testInfo.detail.length/2)).map((val, index) => {
-                                            return (
-                                                <div
-                                                    className={val.result ? 'yes' : 'no'}
-                                                    key={index}
-                                                >
-                                                    {index + 1}.{val.word}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
                                 </div>
                                 <div className="right">
                                     <div className="main">
@@ -972,20 +960,38 @@ class Dashboard extends React.Component {
                                         <span className="small">%</span>
                                     </div>
                                     <div className="sub">当日测试通过率</div>
-                                    <div className="list">
-                                        {testInfo.detail.slice(Math.ceil(testInfo.detail.length/2), testInfo.detail.length).map((val, index) => {
-                                            return (
-                                                <div
-                                                    className={val.result ? 'yes' : 'no'}
-                                                    key={index}
-                                                >
-                                                    {index + Math.ceil(testInfo.detail.length/2) + 1}.{val.word}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
                                 </div>
                             </div>
+                            <div className="list-wrap">
+                                    <div className="left">
+                                        <div className="list">
+                                            {testInfo.detail.slice(0, Math.ceil(testInfo.detail.length/2)).map((val, index) => {
+                                                return (
+                                                    <div
+                                                        className={val.result ? 'yes' : 'no'}
+                                                        key={index}
+                                                    >
+                                                        {index + 1}.{val.word}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                    <div className="right">
+                                        <div className="list">
+                                            {testInfo.detail.slice(Math.ceil(testInfo.detail.length/2), testInfo.detail.length).map((val, index) => {
+                                                return (
+                                                    <div
+                                                        className={val.result ? 'yes' : 'no'}
+                                                        key={index}
+                                                    >
+                                                        {index + Math.ceil(testInfo.detail.length/2) + 1}.{val.word}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
                         </div>
                     </Col>
                 </Row>
