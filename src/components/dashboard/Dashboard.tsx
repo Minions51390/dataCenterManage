@@ -487,25 +487,25 @@ class Dashboard extends React.Component {
         instance.setOption(options);
     }
     async getTest(params: any) {
-        let res = await get({url: baseUrl + `/dataCenter/testResult?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&date=${params.testDate}`});
+        let res = await get({url: baseUrl + `/data-center/test-paper-result?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&date=${params.testDate}`});
         return res ? res.data : null;
     }
     async getSketch(params: any) {
-        let res = await get({url: baseUrl + `/dataCenter/studySketch?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&year=${params.calendarSelectedYear}&month=${params.calendarSelectedMouth + 1}`});
+        let res = await get({url: baseUrl + `/data-center/recite-statistics?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&year=${params.calendarSelectedYear}&month=${params.calendarSelectedMouth + 1}`});
         console.log(res.data)
         return res ? res.data : null;
     }
     async getChart(params: any) {
         const {type} = this.state;
-        let res = await get({url: baseUrl + `/dataCenter/studyStatistics?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&type=${type}&startDate=${params.startDate}&endDate=${params.endDate}`});
+        let res = await get({url: baseUrl + `/data-center/score-statistics?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&type=${type}&startDate=${params.startDate}&endDate=${params.endDate}`});
         return res ? res.data : null;
     }
     async wrongBook(params: any) {
-        let res = await get({url: baseUrl + `/dataCenter/wrongBook?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&pageSize=20&pageNo=${params.pageVal}`});
+        let res = await get({url: baseUrl + `/data-center/wrong-book?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&pageSize=20&pageNo=${params.pageVal}`});
         return res ? res.data : null;
     }
     async baseInfo(stuid: string) {
-        let res = await get({url: baseUrl + `/dataCenter/baseInfo?studentId=${stuid}`});
+        let res = await get({url: baseUrl + `/data-center/base-info?studentId=${stuid}`});
         return res ? res.data : null;
     }
     async login() {
@@ -519,17 +519,17 @@ class Dashboard extends React.Component {
         return res;
     }
     async getPici() {
-        let res = await get({url: baseUrl + '/manage/batch/list'});
+        let res = await get({url: baseUrl + '/structure/batch/list'});
         return res.data.detail || [];
     }
     async getClass(pici: any) {
-        let res = await get({url: baseUrl + `/manage/class/list?batchId=${pici}&category=all`});
+        let res = await get({url: baseUrl + `/structure/class/list?batchId=${pici}&category=all`});
         console.log(res);
         return res.data.detail || [];
     }
     async getStu(banji: any) {
         const {selPici} = this.state;
-        let res = await get({url: baseUrl + `/manage/student/list?batchId=${selPici}&classId=${banji}`});
+        let res = await get({url: baseUrl + `/structure/user/list?batchId=${selPici}&classId=${banji}`});
         console.log(res);
         return res.data.detail || [];
     }
@@ -566,7 +566,7 @@ class Dashboard extends React.Component {
         if(val == 0) {
             let newDefaultOption = getDefaultOption()
             if (this.echartsReact != null) {
-                instance.clear(); 
+                instance.clear();
                 let date1 = (new Date(FunGetDateStr(-5, new Date()) + " 00:00:00") as any).format('yyyy-MM-dd')
                 let date2 = (new Date() as any).format('yyyy-MM-dd')
                 newDefaultOption.xAxis.data = getDateBetween(date1, date2);

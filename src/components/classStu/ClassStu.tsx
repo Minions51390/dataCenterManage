@@ -36,12 +36,12 @@ class ClassStu extends React.Component {
             piciF: pici,
             newPici: pici,
         });
-        let res = await this.getClass(selPici, 'coaching');
+        let res = await this.getClass(selPici, 'sc');
         this.setState({
             selPici,
             nowClass: res,
         });
-        let res1 = await this.getClass(pici[0].batchId, 'retire');
+        let res1 = await this.getClass(pici[0].batchId, 'rt');
         this.setState({
             selPiciF: pici[0].batchId,
             finClass: res1,
@@ -58,7 +58,7 @@ class ClassStu extends React.Component {
         console.log(res);
     }
     async getPici() {
-        let res = await get({ url: baseUrl + '/manage/batch/list' });
+        let res = await get({ url: baseUrl + '/structure/batch/list' });
         console.log('lll', res);
         if (res != null) {
             return res.data.detail;
@@ -68,7 +68,7 @@ class ClassStu extends React.Component {
     }
     async getClass(pici: any, cate: any) {
         let res = await get({
-            url: baseUrl + `/manage/class/list?batchId=${pici}&category=${cate}`,
+            url: baseUrl + `/structure/class/list?batchId=${pici}&category=${cate}`,
         });
         console.log(res);
         if (res != null) {
@@ -78,7 +78,7 @@ class ClassStu extends React.Component {
         }
     }
     async handlePiCi(val: any) {
-        let res = await this.getClass(val, 'coaching');
+        let res = await this.getClass(val, 'sc');
         this.setState({
             selPici: val,
             nowClass: res,
@@ -105,7 +105,7 @@ class ClassStu extends React.Component {
         console.log(val);
     }
     async handlePiCiF(val: any) {
-        let res = await this.getClass(val, 'retire');
+        let res = await this.getClass(val, 'rt');
         this.setState({
             selPiciF: val,
             finClass: res,
@@ -122,7 +122,7 @@ class ClassStu extends React.Component {
 
         let batchId = selNewPi || selPici;
         let res = await post({
-            url: baseUrl + '/manage/class',
+            url: baseUrl + '/structure/class',
             data: {
                 batchId: batchId,
                 className: newBanji,
@@ -132,7 +132,7 @@ class ClassStu extends React.Component {
             selPici: selNewPi,
             newBanji: '',
         });
-        let list = await this.getClass(batchId, 'coaching');
+        let list = await this.getClass(batchId, 'sc');
         let nowPag = 1;
         if (list.length <= 7) {
             nowPag = 1;
@@ -180,7 +180,7 @@ class ClassStu extends React.Component {
         console.log('addItem');
         const { newPiciVal } = this.state;
         let res = await post({
-            url: baseUrl + '/manage/batch',
+            url: baseUrl + '/structure/batch',
             data: {
                 batchName: newPiciVal,
             },

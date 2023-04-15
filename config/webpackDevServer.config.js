@@ -81,12 +81,12 @@ module.exports = function(proxy, allowedHost) {
           // target: 'http://www.qingchengeng.com',
           // target: 'http://www.qingcheng-eng.com',
           // target: 'http://www.qingchengeng.com',
-          target: 'http://101.43.227.70:80',
+          target: 'http://101.43.227.70:8022',
           changeOrigin: true,
           secure: false,
-          pathRewrite: {
-              '^/api': '/'
-          },
+        //   pathRewrite: {
+        //       '^/api': '/'
+        //   },
       },
     },
     before(app, server) {

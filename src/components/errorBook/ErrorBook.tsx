@@ -74,11 +74,11 @@ class ErrorBook extends React.Component {
         return res.data || [];
     }
     async getPici() {
-        let res = await get({ url: baseUrl + '/manage/batch/list' });
+        let res = await get({ url: baseUrl + '/structure/batch/list' });
         return res.data.detail || [];
     }
     async getClass(pici: any) {
-        let res = await get({ url: baseUrl + `/manage/class/list?batchId=${pici}&category=all` });
+        let res = await get({ url: baseUrl + `/structure/class/list?batchId=${pici}&category=all` });
         let rankList = await this.getRank(
             pici || 0,
             res.data.detail[0] ? res.data.detail[0].classId : 0
