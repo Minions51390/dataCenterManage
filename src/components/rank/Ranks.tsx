@@ -119,11 +119,11 @@ class Ranks extends React.Component {
     }
 
     async getPici() {
-        let res = await get({ url: baseUrl + '/structure/batch/list' });
+        let res = await get({ url: baseUrl + '/api/v1/structure/batch/list' });
         return res.data.detail || [];
     }
     async getClass(pici: any) {
-        let res = await get({ url: baseUrl + `/structure/class/list?batchId=${pici}&category=all` });
+        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=all` });
         let rankList = await this.getRank(
             pici || 0,
             res.data.detail[0] ? res.data.detail[0].classId : 0
@@ -136,7 +136,7 @@ class Ranks extends React.Component {
         let res = await get({
             url:
                 baseUrl +
-                `/census/rankList?batchId=${pici}&classId=${classid}&evaluation=${evaluation}&wordsCount=${wordsCount}&studyTime=${studyTime}&sptPassRate=${sptPassRate}&passRate=${passRate}&pageNo=${pageNo}&pageSize=10`,
+                `/api/v1/semester-score/list?semesterId=${pici}&classId=${classid}&score=${evaluation}&wordsCount=${wordsCount}&studyTime=${studyTime}&stageTestPassRate=${sptPassRate}&testPassRate=${passRate}&pageNo=${pageNo}&pageSize=10`,
         });
         console.log(res);
         let data1 = res.data.detail
@@ -144,11 +144,11 @@ class Ranks extends React.Component {
                   return {
                       rank: val.rank,
                       name: val.name,
-                      evaluation: val.evaluation,
+                      evaluation: val.score,
                       wordsCount: val.wordsCount,
                       studyTime: `${val.studyTime}小时`,
-                      passRate: `${val.passRate.toFixed(2)}%`,
-                      sptPassRate: `${val.sptPassRate.toFixed(2)}%`,
+                      passRate: `${val.testPassRate.toFixed(2)}%`,
+                      sptPassRate: `${val.stageTestPassRate.toFixed(2)}%`,
                       registerDays: val.registerDays,
                       punchCount: val.punchCount,
                   };
@@ -163,7 +163,7 @@ class Ranks extends React.Component {
 
     async login() {
         let res = await post({
-            url: baseUrl + '/auth/login',
+            url: baseUrl + '/api/v1/auth/login',
             data: {
                 userName: 'yooky',
                 password: '123',

@@ -77,18 +77,18 @@ module.exports = function(proxy, allowedHost) {
     historyApiFallback: true,
     // public: allowedHost,
     proxy: {
-		'/api': {
-			target: 'http://101.43.227.70:8022',
-			// target: 'http://www.qingcheng-eng.com',
-			// target: 'http://www.qingchengeng.com',
-			// target: 'http://81.70.229.127',
-			changeOrigin: true,
-			secure: false,
-			// pathRewrite: {
-			//     '^/proxy': '/'
-			// }
-		}
-	},
+      '/apiV1': {
+		  target: 'http://101.43.227.70:8022',
+		  // target: 'http://www.qingcheng-eng.com',
+		  // target: 'http://www.qingchengeng.com',
+		  // target: 'http://81.70.229.127',
+          changeOrigin: true,
+          secure: false,
+          pathRewrite: {
+              '^/apiV1': '/'
+          },
+      },
+    },
     before(app, server) {
       if (fs.existsSync(paths.proxySetup)) {
         // This registers user provided middleware for proxy reasons

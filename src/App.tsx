@@ -58,7 +58,7 @@ function handleResize(handler: (isMobile: boolean) => void) {
 // 获取用户信息
 async function getMes() {
     let res = await get({
-        url: baseUrl + '/api/teacher/profile',
+        url: baseUrl + '/api/v1/profile/teacher',
     });
 
     console.log('yangqi liu2', res);

@@ -161,7 +161,7 @@ class MainClass extends React.Component {
         });
     }
     async getClassInfo(id: any) {
-        let res = await get({ url: baseUrl + `/manage/class/info?classId=${id}` });
+        let res = await get({ url: baseUrl + `/api/v1/structure/class/info?classId=${id}` });
         return res;
     }
 

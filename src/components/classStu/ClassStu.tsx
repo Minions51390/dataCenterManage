@@ -49,7 +49,7 @@ class ClassStu extends React.Component {
     }
     async login() {
         let res = await post({
-            url: baseUrl + '/auth/login',
+            url: baseUrl + '/api/v1/auth/login',
             data: {
                 userName: 'yooky',
                 password: '123',
@@ -58,7 +58,7 @@ class ClassStu extends React.Component {
         console.log(res);
     }
     async getPici() {
-        let res = await get({ url: baseUrl + '/structure/batch/list' });
+        let res = await get({ url: baseUrl + '/api/v1/structure/batch/list' });
         console.log('lll', res);
         if (res != null) {
             return res.data.detail;
@@ -68,7 +68,7 @@ class ClassStu extends React.Component {
     }
     async getClass(pici: any, cate: any) {
         let res = await get({
-            url: baseUrl + `/structure/class/list?batchId=${pici}&category=${cate}`,
+            url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=${cate}`,
         });
         console.log(res);
         if (res != null) {

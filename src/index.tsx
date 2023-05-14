@@ -47,12 +47,13 @@ umbrella.config('REACT-ADMIN');
 // }
 const login = async () => {
     let res = await post({
-        url: baseUrl + '/auth/login',
+        url: baseUrl + '/api/v1/auth/login',
         data: {
-            userName: 'zhc',
+            userName: 'wutonghetc02',
             password: '123'
         }
     });
+	console.log(886, res);
     return res;
 };
 // 上线前注释掉

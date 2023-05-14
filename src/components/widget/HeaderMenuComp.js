@@ -90,7 +90,7 @@ const phoneReg = /^[1][1,2,3,4,5,7,8,9][0-9]{9}$/;
 		// 获取用户信息
 		async getMes() {
 			let res = await get({
-				url: baseUrl + '/api/teacher/profile',
+				url: baseUrl + '/api/v1/profile/teacher',
 			});
 			if (!res && !res.state == null) {
 				message.error('服务器开小差了')
@@ -124,7 +124,7 @@ const phoneReg = /^[1][1,2,3,4,5,7,8,9][0-9]{9}$/;
 				return;
 			}
 			let res = await patch({
-				url: baseUrl + '/api/teacher/profile',
+				url: baseUrl + '/api/v1/profile/teacher',
 				data: {
 					realName: realName,
 					phone: phone

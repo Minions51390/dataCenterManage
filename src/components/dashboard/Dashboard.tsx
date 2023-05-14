@@ -510,7 +510,7 @@ class Dashboard extends React.Component {
     }
     async login() {
         let res = await post({
-            url: baseUrl + '/auth/login',
+            url: baseUrl + '/api/v1/auth/login',
             data: {
                 userName: 'yooky',
                 password: '123'
@@ -519,17 +519,17 @@ class Dashboard extends React.Component {
         return res;
     }
     async getPici() {
-        let res = await get({url: baseUrl + '/structure/batch/list'});
+        let res = await get({url: baseUrl + '/api/v1/structure/batch/list'});
         return res.data.detail || [];
     }
     async getClass(pici: any) {
-        let res = await get({url: baseUrl + `/structure/class/list?batchId=${pici}&category=all`});
+        let res = await get({url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=all`});
         console.log(res);
         return res.data.detail || [];
     }
     async getStu(banji: any) {
         const {selPici} = this.state;
-        let res = await get({url: baseUrl + `/structure/user/list?batchId=${selPici}&classId=${banji}`});
+        let res = await get({url: baseUrl + `/api/v1/structure/user/list?batchId=${selPici}&classId=${banji}`});
         console.log(res);
         return res.data.detail || [];
     }
