@@ -98,22 +98,22 @@ class MainSet extends React.Component {
 
         const { wordDb } = this.state;
         wordDb.forEach((val: any) => {
-            if (val.dictionaryId === res.data.dictionaryId) {
-                dbName = val.dictionaryName;
+            if (val?.dictionaryId === res?.data?.dictionaryId) {
+                dbName = val?.dictionaryName;
                 // console.log('ssss', dbName)
             }
         });
 
         this.setState({
-            firState: res.data.reciteSetting ? 1 : 0,
-            startType: res.data.choiceWordMethod || 'arbitrarily',
-            wordVal: +res.data.dailyReciteCount || 9,
-            dbVal: res.data.dictionaryId,
-            dbName: dbName,
-            littleType: res.data.testType,
-            bigType: res.data.specialTest,
-            specialTestDate: res.data.specialTestDate,
-            paperId: res?.data?.specialTestID,
+            firState: res?.data?.reciteSetting ? 1 : 0,
+            startType: res?.data?.choiceWordMethod || 'arbitrarily',
+            wordVal: res?.data?.dailyReciteCount ? +res?.data?.dailyReciteCount : 9,
+            dbVal: res?.data?.dictionaryId || 9,
+            dbName: dbName || "",
+            littleType: res?.data?.testType || '',
+            bigType: res?.data?.specialTest || '',
+            specialTestDate: res?.data?.specialTestDate || new Date(),
+            paperId: res?.data?.specialTestID || 1,
         }, () => {
             this.getTestData();
         });
@@ -124,7 +124,7 @@ class MainSet extends React.Component {
     }
     async getSetInfo(id: any) {
         let res = await get({ url: baseUrl + `/api/v1/structure/semester?classId=${id}` });
-        console.log(999999, res, +res.data.reciteVersion);
+        console.log(999999, res);
         return res;
     }
     async getKu() {
@@ -266,10 +266,10 @@ class MainSet extends React.Component {
         const { classId } = this.state;
         let res = await this.getSetInfo(classId);
         this.setState({
-            startType: res.data.choiceWordMethod,
-            wordVal: +res.data.dailyReciteCount,
-            dbVal: res.data.dictionaryId,
-            paperId: res?.data?.specialTestID,
+            startType: res?.data?.choiceWordMethod || 'noChoice',
+            wordVal: res?.data?.dailyReciteCount ? +res?.data?.dailyReciteCount : 9,
+            dbVal: res?.data?.dictionaryId || 3,
+            paperId: res?.data?.specialTestID || '',
             diyTime: res?.data?.specialTestDate || new Date(),
         }, () => {
             this.getTestData();
