@@ -11,6 +11,8 @@ class ClassStu extends React.Component {
         selPici: '',
         piciF: [],
         selPiciF: '',
+        waitClass: [],
+        waitPag: 1,
         nowClass: [],
         nowPag: 1,
         finClass: [],
@@ -44,6 +46,26 @@ class ClassStu extends React.Component {
         this.setState({
             selPiciF: pici[0].batchId,
             finClass: res1,
+        });
+        let res2 = await this.getClass(pici[0].batchId, 'tc1');
+        this.setState({
+            selPiciF: pici[0].batchId,
+            waitClass: [
+                {
+                    classCode: '000001',
+                    classId: 1,
+                    createDate: '2023-03-04',
+                    describe: 'c2',
+                    studentCount: 0,
+                },
+                {
+                    classCode: '000003',
+                    classId: 3,
+                    createDate: '2023-05-20',
+                    describe: '\u52a0\u4e2a\u86cb',
+                    studentCount: 0,
+                },
+            ],
         });
     }
     async getPici() {
@@ -90,6 +112,12 @@ class ClassStu extends React.Component {
     finPagChange(val: any) {
         this.setState({
             finPag: val,
+        });
+        console.log(val);
+    }
+    waitPagChange(val: any) {
+        this.setState({
+            waitPag: val,
         });
         console.log(val);
     }
@@ -196,6 +224,20 @@ class ClassStu extends React.Component {
         sessionStorage.setItem('piciId', selPici);
     }
 
+	jiaojieOk() {
+		// 调用交接接口
+	}
+
+	jiaojieModal(item: any) {
+		Modal.confirm({
+			title: '接收班级',
+			content: `是否接收${item.describe}（班级码${item.classCode}）`,
+			cancelText: '取消',
+			okText: '确定',
+			onOk: this.jiaojieOk,
+		});
+	}
+
     render() {
         const {
             pici,
@@ -204,6 +246,8 @@ class ClassStu extends React.Component {
             nowPag,
             finClass,
             finPag,
+            waitClass,
+            waitPag,
             piciF,
             selPiciF,
             isVisible,
@@ -218,6 +262,47 @@ class ClassStu extends React.Component {
                     <div className="fir-title">班级和学员管理</div>
                     <div className="sec-title">班级和学员管理</div>
                 </div>
+                {/* 待交接班级 */}
+                <div className="select-area">
+                    <div className="fir">待交接班级</div>
+                </div>
+                <div className="finish-area">
+                    {waitClass.length ? (
+                        <div className="item-area">
+                            {waitClass.map((item: any, index) => (
+                                <div className="item" key={index} onClick={this.jiaojieModal.bind(this, item)}>
+                                    <div className="title">{item.describe}</div>
+                                    <div className="sec-line">
+                                        <div>班级人数</div>
+                                        <div>班级码</div>
+                                    </div>
+                                    <div className="thr-line">
+                                        <div>
+                                            {item.studentCount}
+                                            <span>人</span>
+                                        </div>
+                                        <div>{item.classCode}</div>
+                                    </div>
+                                    <div className="aline">
+                                        创建时间:{item.createDate.split('T')[0]}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="fins-area">暂无数据</div>
+                    )}
+                    <div className={waitClass.length ? 'pag' : 'display-none'}>
+                        <Pagination
+                            defaultCurrent={1}
+                            defaultPageSize={7}
+                            current={waitPag}
+                            total={waitClass.length}
+                            onChange={this.waitPagChange.bind(this)}
+                        />
+                    </div>
+                </div>
+                {/* 当前职教班级 */}
                 <div className="select-area">
                     <div className="fir">当前执教班级</div>
                     {/* <div className="thr">
@@ -356,6 +441,7 @@ class ClassStu extends React.Component {
                         />
                     </div>
                 </div>
+                {/* 已结课班级 */}
                 <div className="select-area">
                     <div className="fir">已结课班级</div>
                     {/* <div className="thr">
