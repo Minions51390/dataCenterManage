@@ -1,11 +1,13 @@
 import React from 'react';
 // import { Row, Col, Tabs, DatePicker, Table } from 'antd';
 // import moment from 'moment';
-import { PageHeader, Table, Popconfirm, message, Modal, Alert, Input } from 'antd';
+import { PageHeader, Table, Popconfirm, message, Modal, Alert, Input, Select } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import '../../style/pageStyle/MainClass.less';
 import { post, get, patch, baseUrl } from '../../service/tools';
+
+const { Option } = Select;
 
 function GetRequest() {
     const url = `?${window.location.href.split('?')[1]}`; //获取url中"?"符后的字串
@@ -119,6 +121,9 @@ class MainClass extends React.Component {
         email: '',
         btnState: true,
         searchText: '',
+        jiaojieModal: false,
+        teacher: [],
+        selTeacher: '',
     };
     componentWillMount() {
         this.initList();
@@ -133,6 +138,7 @@ class MainClass extends React.Component {
             sessionStorage.setItem('piciId', piciId as any);
         }
         let res = await this.getClassInfo(classId);
+        let resTeacher = await this.getTeacher();
         let data1 = res.data.apply.detail.map((item: any, index: any) => {
             return {
                 key: index + 1,
@@ -163,6 +169,10 @@ class MainClass extends React.Component {
     async getClassInfo(id: any) {
         let res = await get({ url: baseUrl + `/api/v1/structure/class/info?classId=${id}` });
         return res;
+    }
+
+    async getTeacher() {
+        return [];
     }
 
     rejectStu(studentId: any) {
@@ -297,6 +307,43 @@ class MainClass extends React.Component {
         });
     }
 
+    setJiaojieModal() {
+        this.setState({
+            jiaojieModal: true,
+        });
+    }
+
+    handleJiaojieOk() {
+		const { selTeacher } = this.state;
+        this.setState({
+            jiaojieModal: false,
+        });
+		Modal.confirm({
+			title: '交接班级',
+			content: `学习阶段添加成功！请同步设置班级新的学习任务。${selTeacher}（账号：${selTeacher}）？交接成功后，您将不再拥有对该班级的管理权限，但您仍可以查看该班级的各项信息。`,
+			cancelText: '取消',
+			okText: '确定',
+			onOk: this.sendToTeacher,
+		});
+    }
+
+    handleJiaojieCancel() {
+        this.setState({
+            jiaojieModal: false,
+        });
+    }
+
+    handleTeacher(val: any) {
+        this.setState({
+            selTeacher: val,
+        });
+        console.log(val);
+    }
+
+	async sendToTeacher() {
+		// 调用交接接口
+	}
+
     render() {
         const {
             classId,
@@ -309,6 +356,9 @@ class MainClass extends React.Component {
             showModule,
             email,
             btnState,
+            jiaojieModal,
+            teacher,
+            selTeacher,
         } = this.state;
         return (
             <div className="main-class">
@@ -319,6 +369,9 @@ class MainClass extends React.Component {
                         <div className="div-w">
                             <div className="div-r" onClick={this.setShowModal.bind(this)}>
                                 结课
+                            </div>
+                            <div className="div-r" onClick={this.setJiaojieModal.bind(this)}>
+                                交接班级
                             </div>
                             <Link
                                 className="div1"
@@ -418,6 +471,41 @@ class MainClass extends React.Component {
                         已向电子邮箱<span>{email}</span>发送验证码
                     </p>
                     <p className="m-text">请注意查收</p>
+                </Modal>
+                <Modal
+                    title="交接班级"
+                    closable={false}
+                    visible={jiaojieModal}
+                    onOk={this.handleJiaojieOk.bind(this)}
+                    onCancel={this.handleJiaojieCancel.bind(this)}
+                    okText="交接"
+                    cancelText="取消"
+                >
+                    <div>
+                        <div className="xueqi-line">
+                            <div className="line">
+                                <div className="sec">
+                                    <span style={{ marginRight: '12px' }}>交接老师：</span>
+                                    <Select
+                                        defaultValue="请选择"
+                                        value={
+                                            selTeacher ||
+                                            (teacher[0] && (teacher[0] as any)?.semester_name) ||
+                                            '请选择'
+                                        }
+                                        style={{ width: 240 }}
+                                        onChange={this.handleTeacher.bind(this)}
+                                    >
+                                        {teacher.map((item: any) => (
+                                            <Option key={item.semester_id} value={item.semester_id}>
+                                                {item.semester_name}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </Modal>
             </div>
         );
