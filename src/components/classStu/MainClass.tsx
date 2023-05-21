@@ -313,20 +313,6 @@ class MainClass extends React.Component {
         });
     }
 
-    handleJiaojieOk() {
-        const { selTeacher } = this.state;
-        this.setState({
-            jiaojieModal: false,
-        });
-        Modal.confirm({
-            title: '交接班级',
-            content: `学习阶段添加成功！请同步设置班级新的学习任务。${selTeacher}（账号：${selTeacher}）？交接成功后，您将不再拥有对该班级的管理权限，但您仍可以查看该班级的各项信息。`,
-            cancelText: '取消',
-            okText: '确定',
-            onOk: this.sendToTeacher,
-        });
-    }
-
     handleJiaojieCancel() {
         this.setState({
             jiaojieModal: false,
@@ -338,6 +324,20 @@ class MainClass extends React.Component {
             selTeacher: val,
         });
         console.log(val);
+    }
+
+	handleJiaojieOk() {
+        const { selTeacher } = this.state;
+        this.setState({
+            jiaojieModal: false,
+        });
+        Modal.confirm({
+            title: '交接班级',
+            content: `学习阶段添加成功！请同步设置班级新的学习任务。${selTeacher}（账号：${selTeacher}）？交接成功后，您将不再拥有对该班级的管理权限，但您仍可以查看该班级的各项信息。`,
+            cancelText: '取消',
+            okText: '确定',
+            onOk: this.sendToTeacher,
+        });
     }
 
     async sendToTeacher() {
