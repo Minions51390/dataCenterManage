@@ -107,7 +107,7 @@ class BankDetail extends React.Component {
     async getQuestionBank() {
         const { bankID } = this.state;
         const res: any = await get({
-            url: `${baseUrl}/api/questionBank?bankID=${bankID}`,
+            url: `${baseUrl}/api/v1/question-set?bankID=${bankID}`,
         });
         return (
             res || {
@@ -125,7 +125,7 @@ class BankDetail extends React.Component {
     async getQuestionList() {
         const { bankID, bankQuery, pageNo } = this.state;
         const res: any = await get({
-            url: `${baseUrl}/api/questionBank/question/list?bankID=${bankID}&query=${bankQuery}&pageSize=20&pageNo=${pageNo}`,
+            url: `${baseUrl}/api/v1/question-set/question/list?bankID=${bankID}&query=${bankQuery}&pageSize=20&pageNo=${pageNo}`,
         });
         const questionBankList = res?.data?.questionBankList || [];
         const totalCount = (res?.data?.totalCount || 0) / 20;
@@ -204,7 +204,7 @@ class BankDetail extends React.Component {
         const { questionID, queName, queNameA, queNameB, queNameC, queNameD, queNameR } =
             this.state;
         await put({
-            url: `${baseUrl}/api/questionBank/question`,
+            url: `${baseUrl}/api/v1/question-set/question`,
             data: {
                 questionID,
                 stem: queName,
@@ -236,7 +236,7 @@ class BankDetail extends React.Component {
     async delQuestionInterface() {
         const { questionID } = this.state;
         await del({
-            url: `${baseUrl}/api/questionBank/question?questionID=${questionID}`,
+            url: `${baseUrl}/api/v1/question-set/question?questionID=${questionID}`,
         });
         this.getQuestionList();
     }

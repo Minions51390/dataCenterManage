@@ -5,7 +5,7 @@ import { PageHeader, Table, Popconfirm, message, Modal, Alert, Input } from 'ant
 import { LockOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import '../../style/pageStyle/MainClass.less';
-import { post, get, patch, del, baseUrl } from '../../service/tools';
+import { post, get, patch, baseUrl } from '../../service/tools';
 
 function GetRequest() {
     const url = `?${window.location.href.split('?')[1]}`; //获取url中"?"符后的字串
@@ -168,7 +168,7 @@ class MainClass extends React.Component {
     rejectStu(studentId: any) {
         const { classId } = this.state;
         patch({
-            url: baseUrl + '/manage/student/apply',
+            url: baseUrl + '/api/v1/structure/apply',
             data: {
                 studentId: studentId,
                 opinion: 'reject',
@@ -198,7 +198,7 @@ class MainClass extends React.Component {
     resolveStu(studentId: any) {
         const { classId } = this.state;
         patch({
-            url: baseUrl + '/manage/student/apply',
+            url: baseUrl + '/api/v1/structure/apply',
             data: {
                 studentId: studentId,
                 opinion: 'agree',
@@ -229,7 +229,7 @@ class MainClass extends React.Component {
         this.resolveStu(stu);
     }
     async delStu(stu: any) {
-        let res = await del({ url: baseUrl + `/manage/student?studentId=${stu}` });
+        let res = await post({ url: baseUrl + `/api/v1/structure/user/delete?studentId=${stu}` });
         return res;
     }
     async confirmDel(val: any) {
@@ -263,7 +263,7 @@ class MainClass extends React.Component {
     getCode() {
         const { classId } = this.state;
         post({
-            url: baseUrl + '/manage/class/delete/email',
+            url: baseUrl + '/api/v1/structure/class/delete/email',
             data: {
                 classId: +classId,
             },
@@ -286,7 +286,7 @@ class MainClass extends React.Component {
     finClass() {
         const { classId, searchText } = this.state;
         post({
-            url: baseUrl + '/manage/class/delete',
+            url: baseUrl + '/api/v1/structure/class/delete',
             data: {
                 classId: +classId,
                 captcha: searchText,

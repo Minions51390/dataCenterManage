@@ -66,33 +66,29 @@ class ErrorBook extends React.Component {
                     selPici: pici[0].batchId,
                     selBanji: banji[0].classId,
                 });
+				await this.getRank(pici[0].batchId, banji[0].classId);
             }
         );
     }
     async getKu() {
-        let res = await get({ url: baseUrl + '/api/dictionary/info' });
+        let res = await get({ url: baseUrl + '/api/v1/material/dictionary/list' });
         return res.data || [];
     }
     async getPici() {
         let res = await get({ url: baseUrl + '/api/v1/structure/batch/list' });
-        return res.data.detail || [];
+        return res?.data || [];
     }
     async getClass(pici: any) {
-        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=all` });
-        let rankList = await this.getRank(
-            pici || 0,
-            res.data.detail[0] ? res.data.detail[0].classId : 0
-        );
+        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc` });
         console.log(res);
-        return res.data.detail || [];
+        return res?.data || [];
     }
     async getRank(pici: any, classid: any) {
-        const { pageNo, dbVal } = this.state;
-        // let res = await get({url: baseUrl + `/census/wrongBook?dictionaryId=${dbVal}&batchId=${pici}&classId=${classid}&pageNo=${pageNo}&pageSize=20`});
+        const { pageNo } = this.state;
         let res = await get({
             url:
                 baseUrl +
-                `/census/wrongBook?batchId=${pici}&classId=${classid}&pageNo=${pageNo}&pageSize=20`,
+                `/api/v1/wrong-book?batchId=${pici}&classId=${classid}&pageNo=${pageNo}&pageSize=20`,
         });
         console.log(res);
         let data1 = res.data.detail

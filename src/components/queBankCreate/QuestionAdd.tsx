@@ -113,7 +113,7 @@ class QuestionAdd extends React.Component {
     async saveQuestionInterface() {
         const { bankID, questionArr } = this.state;
         const response: any = await post({
-            url: baseUrl + '/api/questionBank/question',
+            url: baseUrl + '/api/v1/question-set/question',
             data: {
                 bankID,
                 questionList: questionArr,

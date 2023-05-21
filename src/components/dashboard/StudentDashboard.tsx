@@ -487,25 +487,25 @@ class Dashboard extends React.Component {
         instance.setOption(options);
     }
     async getTest(params: any) {
-        let res = await get({url: baseUrl + `/data-center/test-paper-result?date=${params.testDate}`});
+        let res = await get({url: baseUrl + `/api/v1/data-center/test-paper-result?date=${params.testDate}`});
         return res ? res.data : null;
     }
     async getSketch(params: any) {
-        let res = await get({url: baseUrl + `/data-center/recite-statistics?year=${params.calendarSelectedYear}&month=${params.calendarSelectedMouth + 1}`});
+        let res = await get({url: baseUrl + `/api/v1/data-center/recite-statistics?year=${params.calendarSelectedYear}&month=${params.calendarSelectedMouth + 1}`});
         console.log(res.data)
         return res ? res.data : null;
     }
     async getChart(params: any) {
         const {type} = this.state;
-        let res = await get({url: baseUrl + `/data-center/score-statistics?type=${type}&startDate=${params.startDate}&endDate=${params.endDate}`});
+        let res = await get({url: baseUrl + `/api/v1/data-center/score-statistics?type=${type}&startDate=${params.startDate}&endDate=${params.endDate}`});
         return res ? res.data : null;
     }
     async wrongBook(params: any) {
-        let res = await get({url: baseUrl + `/data-center/wrong-book?pageSize=20&pageNo=${params.pageNo}`});
+        let res = await get({url: baseUrl + `/api/v1/data-center/wrong-book?pageSize=20&pageNo=${params.pageNo}`});
         return res ? res.data : null;
     }
     async baseInfo() {
-        let res = await get({url: baseUrl + `/data-center/base-info`});
+        let res = await get({url: baseUrl + `/api/v1/data-center/base-info`});
         return res ? res.data : null;
     }
     async login() {
@@ -523,7 +523,7 @@ class Dashboard extends React.Component {
         return res.data.detail || [];
     }
     async getClass(pici: any) {
-        let res = await get({url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=all`});
+        let res = await get({url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc`});
         console.log(res);
         return res.data.detail || [];
     }

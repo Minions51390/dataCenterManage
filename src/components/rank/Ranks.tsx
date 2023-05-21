@@ -107,7 +107,6 @@ class Ranks extends React.Component {
         this.inited();
     }
     async inited() {
-        // let userid = await this.login();
         const pici = await this.getPici();
         const banji = await this.getClass(pici[0].batchId || 0);
         this.setState({
@@ -120,16 +119,16 @@ class Ranks extends React.Component {
 
     async getPici() {
         let res = await get({ url: baseUrl + '/api/v1/structure/batch/list' });
-        return res.data.detail || [];
+        return res?.data || [];
     }
     async getClass(pici: any) {
-        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=all` });
+        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc` });
         let rankList = await this.getRank(
             pici || 0,
-            res.data.detail[0] ? res.data.detail[0].classId : 0
+            res?.data[0] ? res?.data[0].classId : 0
         );
         console.log(res);
-        return res.data.detail || [];
+        return res?.data || [];
     }
     async getRank(pici: any, classid: any) {
         const { evaluation, wordsCount, studyTime, passRate, pageNo, sptPassRate } = this.state;
@@ -138,16 +137,18 @@ class Ranks extends React.Component {
                 baseUrl +
                 `/api/v1/semester-score/list?semesterId=${pici}&classId=${classid}&score=${evaluation}&wordsCount=${wordsCount}&studyTime=${studyTime}&stageTestPassRate=${sptPassRate}&testPassRate=${passRate}&pageNo=${pageNo}&pageSize=10`,
         });
-        console.log(res);
-        let data1 = res.data.detail
-            ? res.data.detail.slice(0, 10).map((val: any, index: number) => {
+        console.log(99999, res.data.semesterScoreList);
+        let data1 = res.data.semesterScoreList
+
+            ? res.data.semesterScoreList
+			.slice(0, 10).map((val: any, index: number) => {
                   return {
                       rank: val.rank,
                       name: val.name,
                       evaluation: val.score,
                       wordsCount: val.wordsCount,
                       studyTime: `${val.studyTime}小时`,
-                      passRate: `${val.testPassRate.toFixed(2)}%`,
+                      passRate: `${val.testTestPassRate.toFixed(2)}%`,
                       sptPassRate: `${val.stageTestPassRate.toFixed(2)}%`,
                       registerDays: val.registerDays,
                       punchCount: val.punchCount,
@@ -159,17 +160,6 @@ class Ranks extends React.Component {
             allCount: res.data.totalPage,
         });
         return res.data || [];
-    }
-
-    async login() {
-        let res = await post({
-            url: baseUrl + '/api/v1/auth/login',
-            data: {
-                userName: 'yooky',
-                password: '123',
-            },
-        });
-        return res;
     }
 
     async handlePiCi(val: any) {

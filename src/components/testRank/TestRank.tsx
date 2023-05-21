@@ -278,7 +278,7 @@ class TestRank extends React.Component {
 
     /** 获取班级列表 */
     async getClass(pici: any) {
-        let res = await get({url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=all`});
+        let res = await get({url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc`});
         const banji = res.data.detail || [];
         return banji;
     }

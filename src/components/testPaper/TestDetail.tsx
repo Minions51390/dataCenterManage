@@ -156,7 +156,7 @@ class TestDetail extends React.Component {
     async getQuestionBankList() {
         const { bankPeople } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/questionBank/list?query=&creatorID=${bankPeople}&sortKey=createTime&sortOrder=asc&pageSize=20&pageNo=1&all=on`,
+            url: `${baseUrl}/api/v1/question-set/list?query=&creatorID=${bankPeople}&sortKey=createTime&sortOrder=asc&pageSize=20&pageNo=1&all=on`,
         });
         console.log('------------->', res);
         const questionBankList = res?.data?.questionBankList || [];
@@ -171,7 +171,7 @@ class TestDetail extends React.Component {
     async getQuestionList() {
         const { bank, testQueryM, pageNom } = this.state;
         const res: any = await get({
-            url: `${baseUrl}/api/questionBank/question/list?bankID=${bank}&query=${testQueryM}&pageSize=20&pageNo=${pageNom}`,
+            url: `${baseUrl}/api/v1/question-set/question/list?bankID=${bank}&query=${testQueryM}&pageSize=20&pageNo=${pageNom}`,
         });
         let questionBankList = res?.data?.questionBankList || [];
         questionBankList.forEach((val: any, index: any) => {

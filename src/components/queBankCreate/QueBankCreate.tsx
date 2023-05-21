@@ -78,7 +78,7 @@ class QueBank extends React.Component {
     async getQuestionBankList() {
         const { bankQuery, pageNo, sortKey, sortOrder } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/questionBank/list?query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}&all=off`,
+            url: `${baseUrl}/api/v1/question-set/list?query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}&all=off`,
         });
         console.log('------------->', res);
         const questionBankList = res?.data?.questionBankList || [];
@@ -140,7 +140,7 @@ class QueBank extends React.Component {
     async confimeNew() {
         const { bankName, bankType } = this.state;
         const response: any = await post({
-            url: baseUrl + '/api/questionBank',
+            url: baseUrl + '/api/v1/question-set',
             data: {
                 bankName,
                 bankType,
@@ -264,7 +264,7 @@ class QueBank extends React.Component {
                     </div>
                 </div>
                 <Modal
-                    title="新增班级"
+                    title="新增词库"
                     visible={isVisible}
                     cancelText="取消"
                     okText="确定"

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Tabs, DatePicker, Table, Select, Pagination, Calendar} from 'antd';
+import { Row, Col, Tabs, DatePicker, Table, Select, Pagination, Calendar } from 'antd';
 import locale from 'antd/lib/calendar/locale/zh_CN';
 import 'moment/locale/zh-cn';
 import moment from 'moment';
@@ -16,29 +16,30 @@ const defaultOptions = {
         trigger: 'axis',
     },
     legend: {
-        data: [{
-            name: '当前学员',
-            icon: 'rect', // 用矩形替换
-        },
+        data: [
             {
-            name: '同期综合评分最优学员',
-            icon: 'rect',
-        },
-        {
-            name: '同期综合评分最差学员',
-            icon: 'rect', // 用矩形替换
-        },
-        {
-            name: '该指标同期平均值',
-            icon: 'rect',
-        }
+                name: '当前学员',
+                icon: 'rect', // 用矩形替换
+            },
+            {
+                name: '同期综合评分最优学员',
+                icon: 'rect',
+            },
+            {
+                name: '同期综合评分最差学员',
+                icon: 'rect', // 用矩形替换
+            },
+            {
+                name: '该指标同期平均值',
+                icon: 'rect',
+            },
         ],
         itemWidth: 40, //矩形宽度
         itemHeight: 2, //矩形高度
         textPosition: 'left',
         left: 'left',
         itemGap: 30,
-        align:'right',
+        align: 'right',
     },
     grid: {
         left: '0',
@@ -53,8 +54,8 @@ const defaultOptions = {
     yAxis: {
         type: 'value',
         axisLabel: {
-            formatter: '{value}分'
-        }
+            formatter: '{value}分',
+        },
     },
     series: [
         {
@@ -85,47 +86,52 @@ const defaultOptions = {
             data: [0, 0, 0, 0, 0, 0],
         },
     ],
-    color: ['#0089FF', '#00CF2C', '#FF1010', '#91949A']
+    color: ['#0089FF', '#00CF2C', '#FF1010', '#91949A'],
 };
 const getDefaultOption = () => {
-    return JSON.parse(JSON.stringify(defaultOptions))
-}
+    return JSON.parse(JSON.stringify(defaultOptions));
+};
 const defaultTestInfo = {
     date: '',
-    detail: [{
-        word: '暂无数据',
-        result: '1'
-    }],
+    detail: [
+        {
+            word: '暂无数据',
+            result: '1',
+        },
+    ],
     passRate: 0,
-    reciteCount: 0
+    reciteCount: 0,
 };
-(Date.prototype as any).format = function(fmt: any) { 
-    let o: any = { 
-       'M+' : this.getMonth()+1,
-       'd+' : this.getDate(),
-       'h+' : this.getHours(),
-       'm+' : this.getMinutes(),
-       's+' : this.getSeconds(),
-       'q+' : Math.floor((this.getMonth()+3)/3),
-       'S'  : this.getMilliseconds()
-   }; 
-   if(/(y+)/.test(fmt)) {
-           fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length)); 
-   }
-    for(let k in o) {
-       if(new RegExp("("+ k +")").test(fmt)){
-            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+(Date.prototype as any).format = function (fmt: any) {
+    let o: any = {
+        'M+': this.getMonth() + 1,
+        'd+': this.getDate(),
+        'h+': this.getHours(),
+        'm+': this.getMinutes(),
+        's+': this.getSeconds(),
+        'q+': Math.floor((this.getMonth() + 3) / 3),
+        S: this.getMilliseconds(),
+    };
+    if (/(y+)/.test(fmt)) {
+        fmt = fmt.replace(RegExp.$1, (this.getFullYear() + '').substr(4 - RegExp.$1.length));
+    }
+    for (let k in o) {
+        if (new RegExp('(' + k + ')').test(fmt)) {
+            fmt = fmt.replace(
+                RegExp.$1,
+                RegExp.$1.length === 1 ? o[k] : ('00' + o[k]).substr(('' + o[k]).length)
+            );
         }
     }
-   return fmt; 
-}
+    return fmt;
+};
 const FunGetDateStr = (p_count: any, nowDate: any) => {
     let dd = nowDate;
-    dd.setDate(dd.getDate() + p_count);//获取p_count天后的日期 
+    dd.setDate(dd.getDate() + p_count); //获取p_count天后的日期
     let y = dd.getFullYear();
-    let m = dd.getMonth() + 1;//获取当前月份的日期 
+    let m = dd.getMonth() + 1; //获取当前月份的日期
     let d = dd.getDate();
-    return y + "-" + m + "-" + d;
+    return y + '-' + m + '-' + d;
 };
 const getDateBetween = (start: any, end: any) => {
     var result = [];
@@ -135,10 +141,13 @@ const getDateBetween = (start: any, end: any) => {
     while (endTime - startTime >= 0) {
         let year = startTime.getFullYear();
         let month = startTime.getMonth();
-        month = month<9?'0'+(month+1):month+1;
-        let day = startTime.getDate().toString().length === 1 ? "0" + startTime.getDate() : startTime.getDate();
+        month = month < 9 ? '0' + (month + 1) : month + 1;
+        let day =
+            startTime.getDate().toString().length === 1
+                ? '0' + startTime.getDate()
+                : startTime.getDate();
         //加入数组
-        result.push(year + "-" + month + "-" + day);
+        result.push(year + '-' + month + '-' + day);
         //更新日期
         startTime.setDate(startTime.getDate() + 1);
     }
@@ -146,28 +155,28 @@ const getDateBetween = (start: any, end: any) => {
 };
 
 const getyAxisBetween = (key: any) => {
-    let label = ''
-    switch(key) {
+    let label = '';
+    switch (key) {
         case 'score':
-           label = '分'
-           break;
+            label = '分';
+            break;
         case 'pass_rate':
-            label = '%'
-           break;
+            label = '%';
+            break;
         case 'study_time':
-           label = '小时'
-          break;
+            label = '小时';
+            break;
         case 'recite_count':
-            label = '个'
-           break;
+            label = '个';
+            break;
         case 'spt_pass_rate':
-            label = '%'
-           break;
+            label = '%';
+            break;
         default:
-            break
-   } 
+            break;
+    }
     return '{value}' + label;
-}
+};
 
 let instance: any;
 class Dashboard extends React.Component {
@@ -183,13 +192,13 @@ class Dashboard extends React.Component {
             baseScore: '',
             endDescribe: '',
             reciteCount: '',
-            studentName: ''
+            studentName: '',
         },
         type: 'score',
-        centerData: {
-
-        },
-        mydate1: (new Date(FunGetDateStr(-5, new Date()) + " 00:00:00") as any).format('yyyy-MM-dd'),
+        centerData: {},
+        mydate1: (new Date(FunGetDateStr(-5, new Date()) + ' 00:00:00') as any).format(
+            'yyyy-MM-dd'
+        ),
         mydate2: (new Date() as any).format('yyyy-MM-dd'),
         columns1: [
             {
@@ -287,8 +296,8 @@ class Dashboard extends React.Component {
             nextReciteStatistics: [],
         },
         calendarSelectedMouth: moment().month(),
-        calendarSelectedYear:  moment().year(),
-        calendarSelectedDate:  moment(),
+        calendarSelectedYear: moment().year(),
+        calendarSelectedDate: moment(),
     };
     componentWillMount() {
         this.inited();
@@ -296,34 +305,34 @@ class Dashboard extends React.Component {
     echartsReact = React.createRef();
     async inited() {
         // let userid = await this.login();
-        let {options, mydate1, mydate2, calendarSelectedMouth, calendarSelectedYear} = this.state;
+        let { options, mydate1, mydate2, calendarSelectedMouth, calendarSelectedYear } = this.state;
         const pici = await this.getPici();
         const banji = await this.getClass(pici[0].batchId);
-        const stu = await this.getStu(banji[0].classId);
+        const stu = await this.getStu(banji[0]?.classId, pici[0].batchId);
         const baseInfo = await this.baseInfo(stu[0] ? stu[0].studentId : 0);
         const wrongInfo = await this.wrongBook({
             batchId: pici[0].batchId,
             classId: banji[0].classId,
             studentId: stu[0].studentId,
-            pageVal: 1
+            pageVal: 1,
         });
-        let data1 = []
-        let data2 = []
+        let data1 = [];
+        let data2 = [];
         let allCount;
-        if(wrongInfo != null && wrongInfo.detail !== null) {
+        if (wrongInfo != null && wrongInfo.detail !== null) {
             data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
                 return {
                     key: index + 1,
                     word: val.word,
-                    count: val.count
-                }
+                    count: val.count,
+                };
             });
             data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
                 return {
                     key: index + 11,
                     word: val.word,
-                    count: val.count
-                }
+                    count: val.count,
+                };
             });
             allCount = wrongInfo.totalPage;
         }
@@ -332,7 +341,7 @@ class Dashboard extends React.Component {
             classId: banji[0].classId,
             studentId: stu[0].studentId,
             startDate: mydate1,
-            endDate: mydate2
+            endDate: mydate2,
         });
         options.series[0].data = centerData.personal;
         options.series[1].data = centerData.best;
@@ -345,11 +354,21 @@ class Dashboard extends React.Component {
             studentId: stu[0].studentId,
             testDate: (new Date() as any).format('yyyy-MM-dd'),
         });
-        testInfo.detail = testInfo.detail ? testInfo.detail : [{
-            word: '暂无数据',
-            result: '1'
-        }]
-        this.handleSketch(pici[0].batchId, banji[0].classId, stu[0].studentId, calendarSelectedMouth, calendarSelectedYear);
+        testInfo.detail = testInfo.detail
+            ? testInfo.detail
+            : [
+                  {
+                      word: '暂无数据',
+                      result: '1',
+                  },
+              ];
+        this.handleSketch(
+            pici[0].batchId,
+            banji[0].classId,
+            stu[0].studentId,
+            calendarSelectedMouth,
+            calendarSelectedYear
+        );
         this.setState({
             pici,
             banji,
@@ -366,86 +385,93 @@ class Dashboard extends React.Component {
         });
         if (this.echartsReact != null) {
             instance = (this.echartsReact as any).getEchartsInstance();
-            instance.clear(); 
+            instance.clear();
             instance.setOption(options, true);
         }
     }
     async onDateChange(value: any) {
-        const {selPici, selBanji, selStu} = this.state;
-        console.log('onPanelChange')
+        const { selPici, selBanji, selStu } = this.state;
+        console.log('onPanelChange');
         let testInfo = await this.getTest({
             batchId: selPici,
             classId: selBanji,
             studentId: selStu,
             testDate: moment(value).format('YYYY-MM-DD'),
         });
-        testInfo.detail = testInfo.detail ? testInfo.detail : [{
-            word: '暂无数据',
-            result: '1'
-        }]
+        testInfo.detail = testInfo.detail
+            ? testInfo.detail
+            : [
+                  {
+                      word: '暂无数据',
+                      result: '1',
+                  },
+              ];
         this.setState({
             testInfo,
             calendarSelectedDate: moment(value),
-        })
+        });
     }
     tabCallback(key: any) {
-        this.setState({
-            type: key
-        }, async () => {
-            let {selPici, selBanji, selStu, options, mydate2, mydate1} = this.state;
-            const centerData = await this.getChart({
-                batchId: selPici,
-                classId: selBanji,
-                studentId: selStu,
-                startDate: mydate1,
-                endDate: mydate2
-            });
-            options.series[0].data = centerData.personal;
-            options.series[1].data = centerData.best;
-            options.series[2].data = centerData.worst;
-            options.series[3].data = centerData.average;
-            options.xAxis.data = getDateBetween(mydate1, mydate2);
-            options.yAxis.axisLabel.formatter = getyAxisBetween(key);
-            this.setState({
-                options,
-                mydate1,
-                mydate2
-            });
-            instance.clear(); 
-            instance.setOption(options, true);
-        });
+        this.setState(
+            {
+                type: key,
+            },
+            async () => {
+                let { selPici, selBanji, selStu, options, mydate2, mydate1 } = this.state;
+                const centerData = await this.getChart({
+                    batchId: selPici,
+                    classId: selBanji,
+                    studentId: selStu,
+                    startDate: mydate1,
+                    endDate: mydate2,
+                });
+                options.series[0].data = centerData.personal;
+                options.series[1].data = centerData.best;
+                options.series[2].data = centerData.worst;
+                options.series[3].data = centerData.average;
+                options.xAxis.data = getDateBetween(mydate1, mydate2);
+                options.yAxis.axisLabel.formatter = getyAxisBetween(key);
+                this.setState({
+                    options,
+                    mydate1,
+                    mydate2,
+                });
+                instance.clear();
+                instance.setOption(options, true);
+            }
+        );
         console.log(key);
     }
     async nowPagChange(val: any) {
-        let {selPici, selBanji, selStu, pageNo} = this.state;
-        let pageVal = val
+        let { selPici, selBanji, selStu, pageNo } = this.state;
+        let pageVal = val;
         this.setState({
-            pageNo: val
-        })
+            pageNo: val,
+        });
         const wrongInfo = await this.wrongBook({
             batchId: selPici,
             classId: selBanji,
             studentId: selStu,
             pageVal,
         });
-        
-        let data1 = []
-        let data2 = []
+
+        let data1 = [];
+        let data2 = [];
         let allCount;
-        if(wrongInfo != null && wrongInfo.detail !== null) {
+        if (wrongInfo != null && wrongInfo.detail !== null) {
             data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
                 return {
-                    key: pageVal*20 + index - 19,
+                    key: pageVal * 20 + index - 19,
                     word: val.word,
-                    count: val.count
-                }
+                    count: val.count,
+                };
             });
             data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
                 return {
-                    key: pageVal*20 + index - 9,
+                    key: pageVal * 20 + index - 9,
                     word: val.word,
-                    count: val.count
-                }
+                    count: val.count,
+                };
             });
             allCount = wrongInfo.totalPage;
         }
@@ -453,13 +479,13 @@ class Dashboard extends React.Component {
             nowPag: val,
             data1,
             data2,
-            allCount
+            allCount,
         });
     }
     async dataChange(data: any) {
-        let {selPici, selBanji, selStu, options, mydate2, mydate1} = this.state;
-        if(!data) {
-            return
+        let { selPici, selBanji, selStu, options, mydate2, mydate1 } = this.state;
+        if (!data) {
+            return;
         }
         mydate1 = (new Date(data[0]._d) as any).format('yyyy-MM-dd');
         mydate2 = (new Date(data[1]._d) as any).format('yyyy-MM-dd');
@@ -472,7 +498,7 @@ class Dashboard extends React.Component {
             classId: selBanji,
             studentId: selStu,
             startDate: mydate1,
-            endDate: mydate2
+            endDate: mydate2,
         });
         options.series[0].data = centerData.personal;
         options.series[1].data = centerData.best;
@@ -482,30 +508,50 @@ class Dashboard extends React.Component {
         this.setState({
             options,
             mydate1,
-            mydate2
+            mydate2,
         });
         instance.setOption(options);
     }
     async getTest(params: any) {
-        let res = await get({url: baseUrl + `/data-center/test-paper-result?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&date=${params.testDate}`});
+        let res = await get({
+            url:
+                baseUrl +
+                `/api/v1/data-center/test-paper-result?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&date=${params.testDate}`,
+        });
         return res ? res.data : null;
     }
     async getSketch(params: any) {
-        let res = await get({url: baseUrl + `/data-center/recite-statistics?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&year=${params.calendarSelectedYear}&month=${params.calendarSelectedMouth + 1}`});
-        console.log(res.data)
+        let res = await get({
+            url:
+                baseUrl +
+                `/api/v1/data-center/recite-statistics?batchId=${params.batchId}&classId=${
+                    params.classId
+                }&studentId=${params.studentId}&year=${params.calendarSelectedYear}&month=${
+                    params.calendarSelectedMouth + 1
+                }`,
+        });
+        console.log(res.data);
         return res ? res.data : null;
     }
     async getChart(params: any) {
-        const {type} = this.state;
-        let res = await get({url: baseUrl + `/data-center/score-statistics?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&type=${type}&startDate=${params.startDate}&endDate=${params.endDate}`});
+        const { type } = this.state;
+        let res = await get({
+            url:
+                baseUrl +
+                `/api/v1/data-center/score-statistics?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&type=${type}&startDate=${params.startDate}&endDate=${params.endDate}`,
+        });
         return res ? res.data : null;
     }
     async wrongBook(params: any) {
-        let res = await get({url: baseUrl + `/data-center/wrong-book?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&pageSize=20&pageNo=${params.pageVal}`});
+        let res = await get({
+            url:
+                baseUrl +
+                `/api/v1/data-center/wrong-book?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&pageSize=20&pageNo=${params.pageVal}`,
+        });
         return res ? res.data : null;
     }
     async baseInfo(stuid: string) {
-        let res = await get({url: baseUrl + `/data-center/base-info?studentId=${stuid}`});
+        let res = await get({ url: baseUrl + `/api/v1/data-center/base-info?studentId=${stuid}` });
         return res ? res.data : null;
     }
     async login() {
@@ -513,31 +559,37 @@ class Dashboard extends React.Component {
             url: baseUrl + '/api/v1/auth/login',
             data: {
                 userName: 'yooky',
-                password: '123'
-            }
+                password: '123',
+            },
         });
         return res;
     }
     async getPici() {
-        let res = await get({url: baseUrl + '/api/v1/structure/batch/list'});
-        return res.data.detail || [];
+        let res = await get({ url: baseUrl + '/api/v1/structure/batch/list' });
+        console.log('批次', res);
+        return res?.data || [];
     }
     async getClass(pici: any) {
-        let res = await get({url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=all`});
-        console.log(res);
-        return res.data.detail || [];
+        let res = await get({
+            url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc`,
+        });
+        console.log('班级', res);
+        return res?.data || [];
     }
-    async getStu(banji: any) {
-        const {selPici} = this.state;
-        let res = await get({url: baseUrl + `/api/v1/structure/user/list?batchId=${selPici}&classId=${banji}`});
-        console.log(res);
-        return res.data.detail || [];
+    async getStu(banji: any, pici?: any) {
+        const { selPici } = this.state;
+		const realPici = pici || selPici;
+        let res = await get({
+            url: baseUrl + `/api/v1/structure/user/list?batchId=${realPici}&classId=${banji}`,
+        });
+        console.log('学生', res);
+        return res?.data?.detail || [];
     }
 
     async handlePiCi(val: any) {
         let res = await this.getClass(val);
         let res1 = await this.getStu(res[0] ? res[0].classId : 0);
-        let selStu = res1[0] ? res1[0].studentId : 0
+        let selStu = res1[0] ? res1[0].studentId : 0;
         this.setState({
             selPici: val,
             banji: res,
@@ -551,24 +603,35 @@ class Dashboard extends React.Component {
 
     async handleBanji(val: any) {
         let res = await this.getStu(val);
-        let selStu = res[0] ? res[0].studentId : 0
+        let selStu = res[0] ? res[0].studentId : 0;
         this.setState({
             selBanji: val,
             stu: res,
-            selStu
+            selStu,
         });
         console.log(val);
         this.handleStu(selStu);
     }
 
     async handleStu(val: any) {
-        let {selPici, selBanji, selStu, options, mydate2, mydate1, calendarSelectedMouth, calendarSelectedYear} = this.state;
-        if(val == 0) {
-            let newDefaultOption = getDefaultOption()
+        let {
+            selPici,
+            selBanji,
+            selStu,
+            options,
+            mydate2,
+            mydate1,
+            calendarSelectedMouth,
+            calendarSelectedYear,
+        } = this.state;
+        if (val == 0) {
+            let newDefaultOption = getDefaultOption();
             if (this.echartsReact != null) {
                 instance.clear();
-                let date1 = (new Date(FunGetDateStr(-5, new Date()) + " 00:00:00") as any).format('yyyy-MM-dd')
-                let date2 = (new Date() as any).format('yyyy-MM-dd')
+                let date1 = (new Date(FunGetDateStr(-5, new Date()) + ' 00:00:00') as any).format(
+                    'yyyy-MM-dd'
+                );
+                let date2 = (new Date() as any).format('yyyy-MM-dd');
                 newDefaultOption.xAxis.data = getDateBetween(date1, date2);
                 instance.setOption(newDefaultOption, true);
             }
@@ -578,19 +641,19 @@ class Dashboard extends React.Component {
                     baseScore: '',
                     endDescribe: '',
                     reciteCount: '',
-                    studentName: ''
+                    studentName: '',
                 },
                 data1: [],
                 data2: [],
                 options: newDefaultOption,
                 testInfo: defaultTestInfo,
                 calendarSelectedMouth: moment().month(),
-                calendarSelectedYear:  moment().year(),
-                calendarSelectedDate: moment()
+                calendarSelectedYear: moment().year(),
+                calendarSelectedDate: moment(),
             });
-            return
+            return;
         }
-        
+
         const baseInfo = await this.baseInfo(val);
         const wrongInfo = await this.wrongBook({
             batchId: selPici,
@@ -598,22 +661,22 @@ class Dashboard extends React.Component {
             studentId: val,
             pageVal: 1,
         });
-        let data1 = []
-        let data2 = []
-        if(wrongInfo != null && wrongInfo.detail != null) {
+        let data1 = [];
+        let data2 = [];
+        if (wrongInfo != null && wrongInfo.detail != null) {
             data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
                 return {
                     key: index + 1,
                     word: val.word,
-                    count: val.count
-                }
+                    count: val.count,
+                };
             });
             data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
                 return {
                     key: index + 11,
                     word: val.word,
-                    count: val.count
-                }
+                    count: val.count,
+                };
             });
         }
         const centerData = await this.getChart({
@@ -621,7 +684,7 @@ class Dashboard extends React.Component {
             classId: selBanji,
             studentId: val,
             startDate: mydate1,
-            endDate: mydate2
+            endDate: mydate2,
         });
         options.series[0].data = centerData.personal;
         options.series[1].data = centerData.best;
@@ -634,10 +697,14 @@ class Dashboard extends React.Component {
             studentId: val,
             testDate: (new Date() as any).format('yyyy-MM-dd'),
         });
-        testInfo.detail = testInfo.detail ? testInfo.detail : [{
-            word: '暂无数据',
-            result: '1'
-        }]
+        testInfo.detail = testInfo.detail
+            ? testInfo.detail
+            : [
+                  {
+                      word: '暂无数据',
+                      result: '1',
+                  },
+              ];
         this.handleSketch(selPici, selBanji, val, moment().month(), moment().year());
         this.setState({
             selStu: val,
@@ -647,65 +714,71 @@ class Dashboard extends React.Component {
             options,
             testInfo,
             calendarSelectedMouth: moment().month(),
-            calendarSelectedYear:  moment().year(),
-            calendarSelectedDate: moment()
+            calendarSelectedYear: moment().year(),
+            calendarSelectedDate: moment(),
         });
-        instance.clear(); 
+        instance.clear();
         instance.setOption(options, true);
         console.log(val);
     }
 
-    async handleSketch(batchId: any, classId: any, studentId: any, calendarSelectedMouth: any, calendarSelectedYear: any) {
-        let prevCalendarSelectedMouth = calendarSelectedMouth - 1
-        let prevCalendarSelectedYear = calendarSelectedYear
+    async handleSketch(
+        batchId: any,
+        classId: any,
+        studentId: any,
+        calendarSelectedMouth: any,
+        calendarSelectedYear: any
+    ) {
+        let prevCalendarSelectedMouth = calendarSelectedMouth - 1;
+        let prevCalendarSelectedYear = calendarSelectedYear;
 
-        let nextCalendarSelectedMouth = calendarSelectedMouth + 1
-        let nextCalendarSelectedYear = calendarSelectedYear
+        let nextCalendarSelectedMouth = calendarSelectedMouth + 1;
+        let nextCalendarSelectedYear = calendarSelectedYear;
         if (calendarSelectedMouth == 0) {
-            prevCalendarSelectedMouth = 11
-            prevCalendarSelectedYear = calendarSelectedYear - 1
+            prevCalendarSelectedMouth = 11;
+            prevCalendarSelectedYear = calendarSelectedYear - 1;
         } else if (calendarSelectedMouth == 11) {
-            nextCalendarSelectedMouth = 0
-            nextCalendarSelectedYear = calendarSelectedYear + 1
+            nextCalendarSelectedMouth = 0;
+            nextCalendarSelectedYear = calendarSelectedYear + 1;
         }
         let prevSketchItem = await this.getSketch({
             batchId,
             classId,
             studentId,
-            calendarSelectedMouth: prevCalendarSelectedMouth, 
+            calendarSelectedMouth: prevCalendarSelectedMouth,
             calendarSelectedYear: prevCalendarSelectedYear,
-        })
+        });
         let currentSketchItem = await this.getSketch({
             batchId,
             classId,
             studentId,
-            calendarSelectedMouth, 
-            calendarSelectedYear
-        })
+            calendarSelectedMouth,
+            calendarSelectedYear,
+        });
         let nextSketchItem = await this.getSketch({
             batchId,
             classId,
             studentId,
-            calendarSelectedMouth: nextCalendarSelectedMouth, 
+            calendarSelectedMouth: nextCalendarSelectedMouth,
             calendarSelectedYear: nextCalendarSelectedYear,
-        })
+        });
         let sketchInfo = {
             reciteStatistics: currentSketchItem.reciteStatistics,
             prevReciteStatistics: prevSketchItem.reciteStatistics,
             nextReciteStatistics: nextSketchItem.reciteStatistics,
         };
-        console.log("calendarSelectedMouth", calendarSelectedMouth)
+        console.log('calendarSelectedMouth', calendarSelectedMouth);
         this.setState({
-            sketchInfo
+            sketchInfo,
         });
     }
 
     onCalendarGoPrev(value: any, onChange: any) {
-        const {selPici, selBanji, selStu, sketchInfo} = this.state;
+        const { selPici, selBanji, selStu, sketchInfo } = this.state;
         const month = value.month();
         const year = value.year();
         const newValue = value.clone();
-        if(month == 0) {
+        if (month == 0) {
             newValue.year(year - 1);
             newValue.month(11);
         } else {
@@ -714,24 +787,24 @@ class Dashboard extends React.Component {
         let prevSketchInfo = {
             prevReciteStatistics: [],
             reciteStatistics: sketchInfo.prevReciteStatistics,
-            nextReciteStatistics: sketchInfo.reciteStatistics
-        }
+            nextReciteStatistics: sketchInfo.reciteStatistics,
+        };
         this.setState({
             calendarSelectedMouth: newValue.month(),
             calendarSelectedYear: newValue.year(),
-            sketchInfo: prevSketchInfo
-        })
+            sketchInfo: prevSketchInfo,
+        });
         this.handleSketch(selPici, selBanji, selStu, newValue.month(), newValue.year());
-        console.log('newValue', newValue.format('YYYY-MM-DD'))
+        console.log('newValue', newValue.format('YYYY-MM-DD'));
         onChange(newValue);
     }
 
     onCalendarGoNext(value: any, onChange: any) {
-        const {selPici, selBanji, selStu, sketchInfo} = this.state;
+        const { selPici, selBanji, selStu, sketchInfo } = this.state;
         const month = value.month();
         const year = value.year();
         const newValue = value.clone();
-        if(month == 11) {
+        if (month == 11) {
             newValue.year(year + 1);
             newValue.month(0);
         } else {
@@ -740,33 +813,51 @@ class Dashboard extends React.Component {
         let nextSketchInfo = {
             prevReciteStatistics: sketchInfo.reciteStatistics,
             reciteStatistics: sketchInfo.nextReciteStatistics,
-            nextReciteStatistics: []
-        }
+            nextReciteStatistics: [],
+        };
         this.setState({
             calendarSelectedMouth: newValue.month(),
             calendarSelectedYear: newValue.year(),
-            sketchInfo: nextSketchInfo
-        })
+            sketchInfo: nextSketchInfo,
+        });
         this.handleSketch(selPici, selBanji, selStu, newValue.month(), newValue.year());
-        console.log('newValue', newValue.format('YYYY-MM-DD'))
+        console.log('newValue', newValue.format('YYYY-MM-DD'));
         onChange(newValue);
     }
 
     render() {
-        const { pici, selPici, banji, selBanji, stu, selStu, baseInfo, columns1, data1, columns2, data2, options, testInfo, nowPag, allCount, sketchInfo, calendarSelectedMouth, calendarSelectedYear, calendarSelectedDate} = this.state;
+        const {
+            pici,
+            selPici,
+            banji,
+            selBanji,
+            stu,
+            selStu,
+            baseInfo,
+            columns1,
+            data1,
+            columns2,
+            data2,
+            options,
+            testInfo,
+            nowPag,
+            allCount,
+            sketchInfo,
+            calendarSelectedMouth,
+            calendarSelectedYear,
+            calendarSelectedDate,
+        } = this.state;
         return (
             <div className="gutter-example button-demo main-wrapper">
                 {/* <BreadcrumbCustom /> */}
                 <div className="mains">
-                    <div className="fir">
-                        数据中心
-                    </div>
+                    <div className="fir">数据中心</div>
                     <div className="sec">
                         <span className="span">学员批次:</span>
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}
-                            value={selPici || (pici[0] && (pici[0] as any).describe) || "请选择"}
+                            value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
                             onChange={this.handlePiCi.bind(this)}
                         >
                             {pici.map((item: any) => (
@@ -779,7 +870,7 @@ class Dashboard extends React.Component {
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}
-                            value={selBanji || (banji[0] && (banji[0] as any).describe) || "请选择"}
+                            value={selBanji || (banji[0] && (banji[0] as any).describe) || '请选择'}
                             onChange={this.handleBanji.bind(this)}
                         >
                             {banji.map((item: any) => (
@@ -792,7 +883,7 @@ class Dashboard extends React.Component {
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}
-                            value={selStu || (stu[0] && (stu[0] as any).describe) || "请选择"}
+                            value={selStu || (stu[0] && (stu[0] as any).describe) || '请选择'}
                             onChange={this.handleStu.bind(this)}
                         >
                             {stu.map((item: any) => (
@@ -834,7 +925,12 @@ class Dashboard extends React.Component {
                                     <span>时间：</span>
                                     <RangePicker
                                         defaultValue={[
-                                            moment(new Date(FunGetDateStr(-5, new Date()) + " 00:00:00"), dateFormat),
+                                            moment(
+                                                new Date(
+                                                    FunGetDateStr(-5, new Date()) + ' 00:00:00'
+                                                ),
+                                                dateFormat
+                                            ),
                                             moment(new Date(), dateFormat),
                                         ]}
                                         onChange={this.dataChange.bind(this)}
@@ -842,7 +938,7 @@ class Dashboard extends React.Component {
                                     />
                                 </div>
                                 <ReactEcharts
-                                    ref={e => {
+                                    ref={(e) => {
                                         (this.echartsReact as any) = e;
                                     }}
                                     option={options}
@@ -873,73 +969,128 @@ class Dashboard extends React.Component {
                                     />
                                 </div>
                             </div>
-                            <div className={data1.length ? "pag" : "display-none"}>
-                                <Pagination defaultCurrent={1} defaultPageSize={20} current={nowPag} total={allCount * 20} onChange={this.nowPagChange.bind(this)} />
+                            <div className={data1.length ? 'pag' : 'display-none'}>
+                                <Pagination
+                                    defaultCurrent={1}
+                                    defaultPageSize={20}
+                                    current={nowPag}
+                                    total={allCount * 20}
+                                    onChange={this.nowPagChange.bind(this)}
+                                />
                             </div>
                         </div>
                     </Col>
                     <Col span={8}>
                         <div className="distance-fir">
-                            <div>
-                                {baseInfo.endDescribe}
-                            </div>
+                            <div>{baseInfo.endDescribe}</div>
                         </div>
                         <div className="calendar-area">
                             <div>
                                 <div className="site-calendar-demo-card">
-                                    <Calendar fullscreen={false} 
-                                    value={calendarSelectedDate}
-                                    locale={locale}
-                                    onChange={this.onDateChange.bind(this)}
-                                    headerRender={({ value, type, onChange, onTypeChange }) => {
-                                        const month = value.month();
-                                        const year = value.year();
-                                        return (
-                                          <div className="custom-header">
-                                            <div className="left-icon" onClick={this.onCalendarGoPrev.bind(this, value, onChange)}/>
-                                            <div className="current-date-title">
-                                                {`${String(year)}年  ${String(month + 1)}月`}
-                                            </div>
-                                            <div className="right-icon" onClick={this.onCalendarGoNext.bind(this, value, onChange)}/>
-                                          </div>
-                                        );
-                                      }}
-                                    dateFullCellRender={(value) => {
-                                        let className = "date-level-0"
-                                        let currentDayReciteStatistics = 0;
-                                        if(moment(value).month() == calendarSelectedMouth) {
-                                            currentDayReciteStatistics = sketchInfo.reciteStatistics[moment(value).date() - 1]
-                                        } else if (moment(value).month() == calendarSelectedMouth - 1 || (moment(value).month() == 11 && calendarSelectedMouth == 0)) {
-                                            currentDayReciteStatistics = sketchInfo.prevReciteStatistics[moment(value).date() - 1]
-                                        } else if (moment(value).month() == calendarSelectedMouth + 1 || (moment(value).month() == 0 && calendarSelectedMouth == 11)) {
-                                            currentDayReciteStatistics = sketchInfo.nextReciteStatistics[moment(value).date() - 1]
-                                        }
-                                        
-                                        if(currentDayReciteStatistics == 0) {
-                                            className = "date-level-0"
-                                        } else if (currentDayReciteStatistics > 0 && currentDayReciteStatistics <= 12) {
-                                            className = "date-level-1"
-                                        } else if (currentDayReciteStatistics > 12 && currentDayReciteStatistics <= 24) {
-                                            className = "date-level-2"
-                                        } else if (currentDayReciteStatistics > 24 && currentDayReciteStatistics <= 36) {
-                                            className = "date-level-3"
-                                        } else if (currentDayReciteStatistics > 36) {
-                                            className = "date-level-4"
-                                        }
-                                        let dateClassName = "date-level-area"
-                                        if(moment(value).format('YYYY-MM-DD') == calendarSelectedDate.format('YYYY-MM-DD')) {
-                                            dateClassName = "date-level-area-selection"
-                                        } else if (moment(value).format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
-                                            dateClassName = "date-level-area-today"
-                                        }
-                                        return (
-                                          <div className={dateClassName}>
-                                            <div className={`date-level-item ${className}`}>
-                                            {moment(value).date()}
-                                            </div>
-                                          </div>
-                                        );
-                                    }}
+                                    <Calendar
+                                        fullscreen={false}
+                                        value={calendarSelectedDate}
+                                        locale={locale}
+                                        onChange={this.onDateChange.bind(this)}
+                                        headerRender={({ value, type, onChange, onTypeChange }) => {
+                                            const month = value.month();
+                                            const year = value.year();
+                                            return (
+                                                <div className="custom-header">
+                                                    <div
+                                                        className="left-icon"
+                                                        onClick={this.onCalendarGoPrev.bind(
+                                                            this,
+                                                            value,
+                                                            onChange
+                                                        )}
+                                                    />
+                                                    <div className="current-date-title">
+                                                        {`${String(year)}年  ${String(
+                                                            month + 1
+                                                        )}月`}
+                                                    </div>
+                                                    <div
+                                                        className="right-icon"
+                                                        onClick={this.onCalendarGoNext.bind(
+                                                            this,
+                                                            value,
+                                                            onChange
+                                                        )}
+                                                    />
+                                                </div>
+                                            );
+                                        }}
+                                        dateFullCellRender={(value) => {
+                                            let className = 'date-level-0';
+                                            let currentDayReciteStatistics = 0;
+                                            if (moment(value).month() == calendarSelectedMouth) {
+                                                currentDayReciteStatistics =
+                                                    sketchInfo.reciteStatistics[
+                                                        moment(value).date() - 1
+                                                    ];
+                                            } else if (
+                                                moment(value).month() ==
+                                                    calendarSelectedMouth - 1 ||
+                                                (moment(value).month() == 11 &&
+                                                    calendarSelectedMouth == 0)
+                                            ) {
+                                                currentDayReciteStatistics =
+                                                    sketchInfo.prevReciteStatistics[
+                                                        moment(value).date() - 1
+                                                    ];
+                                            } else if (
+                                                moment(value).month() ==
+                                                    calendarSelectedMouth + 1 ||
+                                                (moment(value).month() == 0 &&
+                                                    calendarSelectedMouth == 11)
+                                            ) {
+                                                currentDayReciteStatistics =
+                                                    sketchInfo.nextReciteStatistics[
+                                                        moment(value).date() - 1
+                                                    ];
+                                            }
+
+                                            if (currentDayReciteStatistics == 0) {
+                                                className = 'date-level-0';
+                                            } else if (
+                                                currentDayReciteStatistics > 0 &&
+                                                currentDayReciteStatistics <= 12
+                                            ) {
+                                                className = 'date-level-1';
+                                            } else if (
+                                                currentDayReciteStatistics > 12 &&
+                                                currentDayReciteStatistics <= 24
+                                            ) {
+                                                className = 'date-level-2';
+                                            } else if (
+                                                currentDayReciteStatistics > 24 &&
+                                                currentDayReciteStatistics <= 36
+                                            ) {
+                                                className = 'date-level-3';
+                                            } else if (currentDayReciteStatistics > 36) {
+                                                className = 'date-level-4';
+                                            }
+                                            let dateClassName = 'date-level-area';
+                                            if (
+                                                moment(value).format('YYYY-MM-DD') ==
+                                                calendarSelectedDate.format('YYYY-MM-DD')
+                                            ) {
+                                                dateClassName = 'date-level-area-selection';
+                                            } else if (
+                                                moment(value).format('YYYY-MM-DD') ==
+                                                moment().format('YYYY-MM-DD')
+                                            ) {
+                                                dateClassName = 'date-level-area-today';
+                                            }
+                                            return (
+                                                <div className={dateClassName}>
+                                                    <div className={`date-level-item ${className}`}>
+                                                        {moment(value).date()}
+                                                    </div>
+                                                </div>
+                                            );
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -956,16 +1107,20 @@ class Dashboard extends React.Component {
                                 </div>
                                 <div className="right">
                                     <div className="main">
-                                        <span className="big">{(testInfo.passRate*100).toFixed(2)}</span>
+                                        <span className="big">
+                                            {(testInfo.passRate * 100).toFixed(2)}
+                                        </span>
                                         <span className="small">%</span>
                                     </div>
                                     <div className="sub">当日测试通过率</div>
                                 </div>
                             </div>
                             <div className="list-wrap">
-                                    <div className="left">
-                                        <div className="list">
-                                            {testInfo.detail.slice(0, Math.ceil(testInfo.detail.length/2)).map((val, index) => {
+                                <div className="left">
+                                    <div className="list">
+                                        {testInfo.detail
+                                            .slice(0, Math.ceil(testInfo.detail.length / 2))
+                                            .map((val, index) => {
                                                 return (
                                                     <div
                                                         className={val.result ? 'yes' : 'no'}
@@ -975,23 +1130,31 @@ class Dashboard extends React.Component {
                                                     </div>
                                                 );
                                             })}
-                                        </div>
                                     </div>
-                                    <div className="right">
-                                        <div className="list">
-                                            {testInfo.detail.slice(Math.ceil(testInfo.detail.length/2), testInfo.detail.length).map((val, index) => {
+                                </div>
+                                <div className="right">
+                                    <div className="list">
+                                        {testInfo.detail
+                                            .slice(
+                                                Math.ceil(testInfo.detail.length / 2),
+                                                testInfo.detail.length
+                                            )
+                                            .map((val, index) => {
                                                 return (
                                                     <div
                                                         className={val.result ? 'yes' : 'no'}
                                                         key={index}
                                                     >
-                                                        {index + Math.ceil(testInfo.detail.length/2) + 1}.{val.word}
+                                                        {index +
+                                                            Math.ceil(testInfo.detail.length / 2) +
+                                                            1}
+                                                        .{val.word}
                                                     </div>
                                                 );
                                             })}
-                                        </div>
                                     </div>
                                 </div>
+                            </div>
                         </div>
                     </Col>
                 </Row>

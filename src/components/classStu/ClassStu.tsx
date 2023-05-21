@@ -25,7 +25,6 @@ class ClassStu extends React.Component {
         this.initData();
     }
     async initData() {
-        // await this.login();
         const pici = await this.getPici();
         let selPici = parseInt(sessionStorage.getItem('piciId') as any) || pici[0].batchId;
         this.setState({
@@ -47,21 +46,11 @@ class ClassStu extends React.Component {
             finClass: res1,
         });
     }
-    async login() {
-        let res = await post({
-            url: baseUrl + '/api/v1/auth/login',
-            data: {
-                userName: 'yooky',
-                password: '123',
-            },
-        });
-        console.log(res);
-    }
     async getPici() {
         let res = await get({ url: baseUrl + '/api/v1/structure/batch/list' });
         console.log('lll', res);
         if (res != null) {
-            return res.data.detail;
+            return res.data;
         } else {
             return [];
         }
@@ -72,7 +61,7 @@ class ClassStu extends React.Component {
         });
         console.log(res);
         if (res != null) {
-            return res.data.detail;
+            return res.data;
         } else {
             return [];
         }
@@ -122,7 +111,7 @@ class ClassStu extends React.Component {
 
         let batchId = selNewPi || selPici;
         let res = await post({
-            url: baseUrl + '/structure/class',
+            url: baseUrl + '/api/v1/structure/class',
             data: {
                 batchId: batchId,
                 className: newBanji,
@@ -180,7 +169,7 @@ class ClassStu extends React.Component {
         console.log('addItem');
         const { newPiciVal } = this.state;
         let res = await post({
-            url: baseUrl + '/structure/batch',
+            url: baseUrl + '/api/v1/structure/batch',
             data: {
                 batchName: newPiciVal,
             },

@@ -123,12 +123,12 @@ class MainSet extends React.Component {
         });
     }
     async getSetInfo(id: any) {
-        let res = await get({ url: baseUrl + `/manage/class/task?classId=${id}` });
-        console.log(+res.data.dailyReciteCount);
+        let res = await get({ url: baseUrl + `/api/v1/structure/semester?classId=${id}` });
+        console.log(999999, res, +res.data.reciteVersion);
         return res;
     }
     async getKu() {
-        let res = await get({ url: baseUrl + '/api/dictionary/info' });
+        let res = await get({ url: baseUrl + '/api/v1/material/dictionary/list' });
         this.setState({
             wordDb: res.data,
             // dbName: res.data[0].dictionaryName,
