@@ -185,6 +185,8 @@ class Dashboard extends React.Component {
         selPici: '',
         banji: [],
         selBanji: '',
+        semester: [],
+        selSemester: [],
         stu: [],
         selStu: '',
         pageNo: 1,

@@ -61,7 +61,7 @@ const StuPaperDetail = ({ query }: Props) => {
                         </div>);
                 })
                 return new Array(Math.round(arr.length / 2)).fill('').map((item, index) => {
-                    return <div className='option-line'>{arr.slice(index * 2, index * 2 + 2)}</div>;
+                    return <div className="option-line">{arr.slice(index * 2, index * 2 + 2)}</div>;
                 });
             }
         },
@@ -106,7 +106,7 @@ const StuPaperDetail = ({ query }: Props) => {
 
     useEffect(() => {
         getData();
-    }, [queryType, pageNo, pageSize]);
+    }, [queryType, pageNo, pageSize, getData]);
     return (
         <div className="stu-paper-detail">
             <div className="header">
@@ -116,7 +116,7 @@ const StuPaperDetail = ({ query }: Props) => {
             <div className="body">
                 <div className="top">
                     <span className="span">{bici}/{banji}/{query.name}</span>
-                    <div className='select'>
+                    <div className="select">
                         <div>筛选：</div>
                         <Select style={{ width: 270 }} value={queryType} onChange={handleSelectChange}>
                             <Option value="all">全部</Option>

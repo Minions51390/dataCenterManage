@@ -387,8 +387,12 @@ class MainClass extends React.Component {
                             <div>{classInfo.studentCount}</div>
                         </div>
                         <div className="left">
-                            <div>班级码:</div>
-                            <div>{classInfo.classCode}</div>
+                            <div>创建时间:</div>
+                            <div>{classInfo.createDate.split('T')[0]}</div>
+                        </div>
+                        <div className="left">
+                            <div>当前阶段:</div>
+                            <div>{classInfo.createDate.split('T')[0]}</div>
                         </div>
                         <div className="right">新生申请</div>
                     </div>
@@ -398,8 +402,8 @@ class MainClass extends React.Component {
                             <div>{classInfo.classTeacher || '佚名'}</div>
                         </div>
                         <div className="left">
-                            <div>创建时间:</div>
-                            <div>{classInfo.createDate.split('T')[0]}</div>
+                            <div>班级码:</div>
+                            <div>{classInfo.classCode}</div>
                         </div>
                         <div className="right">{data1.length}</div>
                     </div>

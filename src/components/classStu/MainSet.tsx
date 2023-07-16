@@ -129,7 +129,7 @@ class MainSet extends React.Component {
         this.setState(
             {
                 jieduan: jieduanRes || [],
-                selJieduan: jieduanRes[0]?.semester_id || 0,
+                selJieduan: jieduanRes[0]? jieduanRes.find((item:any)=>item.isCurrent)?.semesterId : 0,
                 firState: res?.data?.reciteSetting ? 1 : 0,
                 startType: res?.data?.choiceWordMethod || 'arbitrarily',
                 wordVal: res?.data?.dailyReciteCount ? +res?.data?.dailyReciteCount : 9,
@@ -185,15 +185,17 @@ class MainSet extends React.Component {
     }
 
     setSet() {
-        const { startType, wordVal, dbVal, classId } = this.state;
+        const { startType, wordVal, dbVal, classId, selJieduan } = this.state;
+        console.log('this.state', this.state)
         console.log('liushufang', dbVal, +dbVal);
         patch({
-            url: baseUrl + '/manage/class/task/recite',
+            url: baseUrl + '/api/v1/structure/semester/recite',
             data: {
-                dailyReciteCount: +wordVal,
-                choiceWordMethod: startType,
-                dictionary: +dbVal,
+                reciteVersion: +wordVal,
+                choiceWordsMethod: startType,
+                dictionaryId: +dbVal,
                 classId: +classId,
+                semesterId: selJieduan,
             },
         }).then((res) => {
             console.log(res);
@@ -386,7 +388,7 @@ class MainSet extends React.Component {
     async getTestData() {
         const { paperId } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/testPaper?testPaperID=${paperId}`,
+            url: `${baseUrl}/api/v1/question-paper/?questionPaperId=${paperId}`,
         });
         console.log(res);
         this.setState({
@@ -439,11 +441,12 @@ class MainSet extends React.Component {
         const { classId } = this.state;
         const res = await this.addXinXueQi();
         const jieduanRes = await this.getJieDuanList(classId);
+        const selJieduan = jieduanRes.find((item:any) => item.isCurrent)?.semesterId ?? 0
         if (res.msg === 'success') {
             this.setState({
                 addJieduanModule: false,
                 jieduan: jieduanRes || [],
-                selJieduan: jieduanRes[0]?.semester_id || 0,
+                selJieduan,
                 jieduanText: '',
             });
             Modal.confirm({
@@ -516,15 +519,15 @@ class MainSet extends React.Component {
                                 defaultValue="当前暂无学习阶段"
                                 value={
                                     selJieduan ||
-                                    (jieduan[0] && (jieduan[0] as any)?.semester_name) ||
+                                    (jieduan[0] && (jieduan[0] as any)?.semesterName) ||
                                     '当前暂无学习阶段'
                                 }
                                 style={{ width: 240 }}
                                 onChange={this.handleJieduan.bind(this)}
                             >
                                 {jieduan.map((item: any) => (
-                                    <Option key={item.semester_id} value={item.semester_id}>
-                                        {item.semester_name}
+                                    <Option key={item.semesterId} value={item.semesterId}>
+                                        {item.semesterName}
                                     </Option>
                                 ))}
                             </Select>
@@ -870,7 +873,7 @@ class MainSet extends React.Component {
                             showIcon
                         />
                         <div className="xueqi-line" style={{ marginTop: '24px' }}>
-                            <div className="line">
+                            <div className="line" style={{ display: 'block' }}>
                                 <div className="sec">
                                     <span style={{ marginRight: '12px' }}>阶段名称：</span>
                                     <Input

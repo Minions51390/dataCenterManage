@@ -1,4 +1,4 @@
-'use strict';
+
 
 const errorOverlayMiddleware = require('react-dev-utils/errorOverlayMiddleware');
 const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware');
@@ -76,6 +76,7 @@ module.exports = function(proxy, allowedHost) {
     // overlay: false,
     historyApiFallback: true,
     // public: allowedHost,
+    https: true,
     proxy: {
       '/apiV1': {
 		  target: 'http://101.43.227.70:8022',

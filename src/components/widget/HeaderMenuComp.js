@@ -67,7 +67,7 @@ const phoneReg = /^[1][1,2,3,4,5,7,8,9][0-9]{9}$/;
 		};
 		 //退出登录
 		async logOut() {
-			let res = await get({url: baseUrl + `/auth/logout`});
+			let res = await get({url: baseUrl + `/api/v1/auth/logout`});
 			window.location.href = `${baseUrl}/#/home`;
 		}
 		
@@ -202,14 +202,16 @@ const phoneReg = /^[1][1,2,3,4,5,7,8,9][0-9]{9}$/;
 													placeholder="请输入真实姓名" 
 													prefix={<div className="my-icon"><img className="input-icon" src={useri} /></div>} 
 													onChange={this.onInputRealName.bind(this)} 
-													value={realName}/>
+													value={realName}
+												/>
 												<Input 
 													className="pass-mar  phone-icon" 
 													size="large" 
 													placeholder="请输入手机号" 
 													prefix={<div className="my-icon"><img className="input-icon" src={phonepng} /></div>} 
 													onChange={this.onInputTele.bind(this)} 
-													value={phone}/>
+													value={phone}
+												/>
 											</div>
 										</div>
 										<div className="save-btn" onClick={this.saveMes.bind(this)}>
@@ -221,7 +223,7 @@ const phoneReg = /^[1][1,2,3,4,5,7,8,9][0-9]{9}$/;
 									</div>
 								</div>
 							) : 
-							<div></div>
+							<div />
 					}
 				</div>
 			);

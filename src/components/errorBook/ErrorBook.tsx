@@ -9,6 +9,8 @@ class ErrorBook extends React.Component {
         selPici: '',
         banji: [],
         selBanji: '',
+        semester: [],
+        selSemester: [],
         pageNo: 1,
         allCount: 1,
         wordDb: [],
@@ -60,13 +62,18 @@ class ErrorBook extends React.Component {
             async () => {
                 const pici = await this.getPici();
                 const banji = await this.getClass(pici[0].batchId || 0);
+                const semester = await this.getSemester(banji[0].classId || 0);
+                const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
+                console.log('inited', selSemester)
                 this.setState({
                     pici,
                     banji,
+                    semester,
                     selPici: pici[0].batchId,
                     selBanji: banji[0].classId,
+                    selSemester,
                 });
-				await this.getRank(pici[0].batchId, banji[0].classId);
+				await this.getRank(JSON.stringify(selSemester));
             }
         );
     }
@@ -83,12 +90,20 @@ class ErrorBook extends React.Component {
         console.log(res);
         return res?.data || [];
     }
-    async getRank(pici: any, classid: any) {
+    async getSemester(classId: any){
+        let res = await get({
+            url: baseUrl + `/api/v1/structure/semester/list?classId=${classId}`
+        })
+        console.log(res);
+        return res?.data || [];
+    }
+    async getRank(semesters: any) {
         const { pageNo } = this.state;
         let res = await get({
             url:
                 baseUrl +
-                `/api/v1/wrong-book?batchId=${pici}&classId=${classid}&pageNo=${pageNo}&pageSize=20`,
+                `/api/v1/wrong-book/?semesters=${semesters}&pageNo=${pageNo}&pageSize=20`,
+            
         });
         console.log(res);
         let data1 = res.data.detail
@@ -112,41 +127,57 @@ class ErrorBook extends React.Component {
     }
 
     async handlePiCi(val: any) {
-        let res = await this.getClass(val);
+        const res = await this.getClass(val);
+        const semester = await this.getSemester(res[0]?.classId);
+        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
+        console.log('handlePiCi', selSemester);
         this.setState({
             selPici: val,
             banji: res,
             selBanji: res[0] ? res[0].classId : 0,
+            semester,
+            selSemester,
         });
         console.log(val);
+        await this.getRank(JSON.stringify(selSemester));
     }
     async handleBanji(val: any) {
-        const { selPici } = this.state;
+        const semester = await this.getSemester(val);
+        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : []
         this.setState({
             selBanji: val,
+            semester,
+            selSemester,
         });
-        let rankList = await this.getRank(selPici, val);
+        await this.getRank(JSON.stringify(selSemester));
         console.log(val);
     }
+    async handleSemester(val: any) {
+        console.log('val', val)
+        this.setState({
+            selSemester: val,
+        });
+        await this.getRank(JSON.stringify(val));
+    }
     async handleWordDb(value: any) {
-        let { selPici, selBanji } = this.state;
+        const { selSemester } = this.state;
         this.setState(
             {
                 dbVal: value,
             },
             async () => {
-                const ranklist = await this.getRank(selPici, selBanji);
+                const ranklist = await this.getRank(JSON.stringify(selSemester));
             }
         );
     }
     nowPagChange(val: any) {
-        let { selPici, selBanji } = this.state;
+        const { selSemester } = this.state;
         this.setState(
             {
                 pageNo: val,
             },
             async () => {
-                const ranklist = await this.getRank(selPici, selBanji);
+                const ranklist = await this.getRank(JSON.stringify(selSemester));
             }
         );
     }
@@ -157,6 +188,8 @@ class ErrorBook extends React.Component {
             selPici,
             banji,
             selBanji,
+            semester,
+            selSemester,
             columns1,
             data1,
             pageNo,
@@ -164,6 +197,7 @@ class ErrorBook extends React.Component {
             wordDb,
             dbVal,
             dictionary,
+            
         } = this.state;
         return (
             <div className="rank-wrapper">
@@ -209,6 +243,20 @@ class ErrorBook extends React.Component {
                             {banji.map((item: any) => (
                                 <Option key={item.classId} value={item.classId}>
                                     {item.describe}
+                                </Option>
+                            ))}
+                        </Select>
+                        <span className="span1">学期:</span>
+                        <Select
+                            mode="multiple"
+                            allowClear
+                            style={{ width: 360 }}
+                            value={selSemester}
+                            onChange={this.handleSemester.bind(this)}
+                        >
+                            {semester.map((item: any) => (
+                                <Option key={item.semesterId} value={item.semesterId}>
+                                    {item.semesterName}
                                 </Option>
                             ))}
                         </Select>

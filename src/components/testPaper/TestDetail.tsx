@@ -106,7 +106,7 @@ class TestDetail extends React.Component {
     async getTestData() {
         const { testPaperID } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/testPaper?testPaperID=${testPaperID}`,
+            url: `${baseUrl}/api/v1/question-paper/?questionPaperId=${testPaperID}`,
         });
         console.log(res);
         return {

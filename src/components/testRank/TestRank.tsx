@@ -153,7 +153,9 @@ class TestRank extends React.Component {
 
     async inited() {
         const pici = await this.getPici();
+        console.log('pici', pici)
         const banji = await this.getClass(pici[0].batchId);
+        console.log('banji', banji)
         this.setState({
             pici,
             banji,
@@ -272,14 +274,14 @@ class TestRank extends React.Component {
     /** 获取批次列表 */
     async getPici() {
         let res = await get({url: baseUrl + '/api/v1/structure/batch/list'});
-        const pici = res.data.detail || [];
+        const pici = res.data || [];
         return pici;
     }
 
     /** 获取班级列表 */
     async getClass(pici: any) {
         let res = await get({url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc`});
-        const banji = res.data.detail || [];
+        const banji = res.data || [];
         return banji;
     }
 

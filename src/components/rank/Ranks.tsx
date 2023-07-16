@@ -9,6 +9,8 @@ class Ranks extends React.Component {
         selPici: '',
         banji: [],
         selBanji: '',
+        semester: [],
+        selSemester: [],
         evaluation: 'desc',
         wordsCount: 'desc',
         studyTime: 'desc',
@@ -109,11 +111,15 @@ class Ranks extends React.Component {
     async inited() {
         const pici = await this.getPici();
         const banji = await this.getClass(pici[0].batchId || 0);
+        const semester = await this.getSemester(banji[0].classId || 0);
+        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
         this.setState({
             pici,
             banji,
+            semester,
             selPici: pici[0].batchId,
             selBanji: banji[0].classId,
+            selSemester,
         });
     }
 
@@ -123,23 +129,28 @@ class Ranks extends React.Component {
     }
     async getClass(pici: any) {
         let res = await get({ url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc` });
-        let rankList = await this.getRank(
-            pici || 0,
-            res?.data[0] ? res?.data[0].classId : 0
-        );
+        // let rankList = await this.getRank(
+        //     pici || 0,
+        //     res?.data[0] ? res?.data[0].classId : 0
+        // );
         console.log(res);
         return res?.data || [];
     }
-    async getRank(pici: any, classid: any) {
+    async getSemester(classId: any){
+        let res = await get({
+            url: baseUrl + `/api/v1/structure/semester/list?classId=${classId}`
+        })
+        return res?.data || [];
+    }
+    async getRank(semesters: any) {
         const { evaluation, wordsCount, studyTime, passRate, pageNo, sptPassRate } = this.state;
         let res = await get({
             url:
                 baseUrl +
-                `/api/v1/semester-score/list?semesterId=${pici}&classId=${classid}&score=${evaluation}&wordsCount=${wordsCount}&studyTime=${studyTime}&stageTestPassRate=${sptPassRate}&testPassRate=${passRate}&pageNo=${pageNo}&pageSize=10`,
+                `/api/v1/semester-score/list?semesters=${semesters}&score=${evaluation}&wordsCount=${wordsCount}&studyTime=${studyTime}&stageTestPassRate=${sptPassRate}&testPassRate=${passRate}&pageNo=${pageNo}&pageSize=10`,
         });
         console.log(99999, res.data.semesterScoreList);
         let data1 = res.data.semesterScoreList
-
             ? res.data.semesterScoreList
 			.slice(0, 10).map((val: any, index: number) => {
                   return {
@@ -163,42 +174,57 @@ class Ranks extends React.Component {
     }
 
     async handlePiCi(val: any) {
-        let res = await this.getClass(val);
+        const res = await this.getClass(val);
+        const semester = await this.getSemester(res[0]?.classId);
+        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
         this.setState({
             selPici: val,
             banji: res,
             selBanji: res[0] ? res[0].classId : 0,
             pageNo: 1,
+            semester,
+            selSemester,
         });
         console.log(val);
     }
     async handleBanji(val: any) {
-        const { selPici } = this.state;
+        const semester = await this.getSemester(val);
+        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : []
         this.setState(
             {
                 selBanji: val,
                 pageNo: 1,
+                semester,
+                selSemester,
             },
             async () => {
-                let rankList = await this.getRank(selPici, val);
+                let rankList = await this.getRank(JSON.stringify(selSemester));
                 console.log(val);
             }
         );
     }
+    async handleSemester(val: any) {
+        console.log('val', val)
+        this.setState({
+            selSemester: val,
+        });
+        await this.getRank(JSON.stringify(val));
+    }
     nowPagChange(val: any) {
-        let { selPici, selBanji } = this.state;
+        let { selSemester } = this.state;
         this.setState(
             {
                 pageNo: val,
             },
             async () => {
-                const ranklist = await this.getRank(selPici, selBanji);
+                const ranklist = await this.getRank(JSON.stringify(selSemester));
             }
         );
     }
 
     render() {
-        const { pici, selPici, banji, selBanji, columns1, data1, pageNo, allCount } = this.state;
+        const { pici, selPici, banji, selBanji, semester, selSemester, columns1, data1, pageNo, allCount } = this.state;
+        console.log('this.state', this.state)
         return (
             <div className="rank-wrapper">
                 <div className="header">
@@ -207,7 +233,20 @@ class Ranks extends React.Component {
                 </div>
                 <div className="body">
                     <div className="sec">
-                        <span className="span">学员批次:</span>
+                        <span className="span">执教老师:</span>
+                        <Select
+                            defaultValue="请选择"
+                            style={{ width: 180 }}
+                            value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
+                            onChange={this.handlePiCi.bind(this)}
+                        >
+                            {pici.map((item: any) => (
+                                <Option key={item.batchId} value={item.batchId}>
+                                    {item.describe}
+                                </Option>
+                            ))}
+                        </Select>
+                        <span className="span2">学员批次:</span>
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}
@@ -233,6 +272,21 @@ class Ranks extends React.Component {
                                 </Option>
                             ))}
                         </Select>
+                        <span className="span1">学期:</span>
+                        <Select
+                            mode="multiple"
+                            allowClear
+                            style={{ width: 260 }}
+                            value={selSemester}
+                            onChange={this.handleSemester.bind(this)}
+                        >
+                            {semester.map((item: any) => (
+                                <Option key={item.semesterId} value={item.semesterId}>
+                                    {item.semesterName}
+                                </Option>
+                            ))}
+                        </Select>
+                        
                     </div>
                     <div className="thr">
                         <Table
