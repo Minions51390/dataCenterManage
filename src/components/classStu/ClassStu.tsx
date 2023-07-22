@@ -48,24 +48,10 @@ class ClassStu extends React.Component {
             finClass: res1,
         });
         let res2 = await this.getClass(pici[0].batchId, 'tc1');
+        let res3 = await this.getClass(pici[0].batchId, 'tc2');
         this.setState({
             selPiciF: pici[0].batchId,
-            waitClass: [
-                {
-                    classCode: '000001',
-                    classId: 1,
-                    createDate: '2023-03-04',
-                    describe: 'c2',
-                    studentCount: 0,
-                },
-                {
-                    classCode: '000003',
-                    classId: 3,
-                    createDate: '2023-05-20',
-                    describe: '\u52a0\u4e2a\u86cb',
-                    studentCount: 0,
-                },
-            ],
+            waitClass: [...res2, ...res3] || [],
         });
     }
     async getPici() {

@@ -70,7 +70,7 @@ class MainSet extends React.Component {
         classId: '',
         wordType: 1,
         wordCount: [9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60],
-        wordVal: 9,
+        wordVal: 0,
         startType: 'arbitrarily',
         wordDb: [],
         dbVal: '',
@@ -114,8 +114,9 @@ class MainSet extends React.Component {
         const classId = window.location.href.split('=')[1] || sessionStorage.getItem('classId');
         await this.getKu();
         const jieduanRes = await this.getJieDuanList(classId);
+        const selJieduan = jieduanRes[0]? jieduanRes.find((item:any)=>item.isCurrent)?.semesterId : 0
         console.log('use jieduan', jieduanRes);
-        let res = await this.getSetInfo(classId);
+        let res = await this.getSetInfo(classId, selJieduan);
         let dbName = '';
 
         const { wordDb } = this.state;
@@ -129,14 +130,14 @@ class MainSet extends React.Component {
         this.setState(
             {
                 jieduan: jieduanRes || [],
-                selJieduan: jieduanRes[0]? jieduanRes.find((item:any)=>item.isCurrent)?.semesterId : 0,
+                selJieduan: selJieduan,
                 firState: res?.data?.reciteSetting ? 1 : 0,
-                startType: res?.data?.choiceWordMethod || 'arbitrarily',
-                wordVal: res?.data?.dailyReciteCount ? +res?.data?.dailyReciteCount : 9,
-                dbVal: res?.data?.dictionaryId || 9,
+                startType: res?.data?.choiceWordsMethod || 'arbitrarily',
+                wordVal: res?.data?.reciteVersion ? +res?.data?.reciteVersion : 0,
+                dbVal: res?.data?.dictionaryId || 0,
                 dbName: dbName || '',
-                littleType: res?.data?.testType || '',
-                bigType: res?.data?.specialTest || '',
+                littleType: res?.data?.wordTestType || '',
+                bigType: res?.data?.stageWordsTest || '',
                 specialTestDate: res?.data?.specialTestDate || new Date(),
                 paperId: res?.data?.specialTestID || 1,
             },
@@ -156,8 +157,8 @@ class MainSet extends React.Component {
         return res?.data;
     }
 
-    async getSetInfo(id: any) {
-        let res = await get({ url: baseUrl + `/api/v1/structure/semester?classId=${id}` });
+    async getSetInfo(classId: any, semesterId: any) {
+        let res = await get({ url: baseUrl + `/api/v1/structure/semester?classId=${classId}&semesterId=${semesterId}` });
         console.log(999999, res);
         return res;
     }
@@ -198,30 +199,36 @@ class MainSet extends React.Component {
                 semesterId: selJieduan,
             },
         }).then((res) => {
-            console.log(res);
+            if(res.state === 0){
+                message.success('背词设置保存成功!');
+            }else{
+                message.error(`背词设置保存失败：${res.msg}`);
+            }
         });
     }
     setTest() {
-        const { littleType, bigType, classId, paperId, diyTime } = this.state;
+        const { littleType, bigType, classId, paperId, diyTime, selJieduan } = this.state;
         let params: any = {};
         if (bigType === 'on') {
             params = {
-                testType: littleType || 'random',
-                specialTest: bigType || 'off',
+                wordTestType: littleType || 'random',
+                stageWordsTest: bigType || 'off',
                 specialTestType: 'customTest',
                 specialTestID: paperId,
                 specialTestDate: diyTime,
                 classId: +classId,
+                semesterId: +selJieduan,
             };
         } else {
             params = {
-                testType: littleType || 'random',
-                specialTest: bigType || 'off',
+                wordTestType: littleType || 'random',
+                stageWordsTest: bigType || 'off',
                 classId: +classId,
+                semesterId: +selJieduan,
             };
         }
         patch({
-            url: baseUrl + '/manage/class/task/test',
+            url: baseUrl + '/api/v1/structure/semester/test',
             data: params,
         }).then((res) => {
             console.log(res);
@@ -325,12 +332,12 @@ class MainSet extends React.Component {
     }
 
     async resetFir() {
-        const { classId } = this.state;
-        let res = await this.getSetInfo(classId);
+        const { classId, selJieduan } = this.state;
+        let res = await this.getSetInfo(classId, selJieduan);
         this.setState(
             {
-                startType: res?.data?.choiceWordMethod || 'noChoice',
-                wordVal: res?.data?.dailyReciteCount ? +res?.data?.dailyReciteCount : 9,
+                startType: res?.data?.choiceWordsMethod || 'noChoice',
+                wordVal: res?.data?.dailyReciteCount ? +res?.data?.dailyReciteCount : 0,
                 dbVal: res?.data?.dictionaryId || 3,
                 paperId: res?.data?.specialTestID || '',
                 diyTime: res?.data?.specialTestDate || new Date(),
@@ -348,12 +355,12 @@ class MainSet extends React.Component {
         this.setTest();
     }
     async resetSec() {
-        const { classId } = this.state;
-        let res = await this.getSetInfo(classId);
+        const { classId, selJieduan } = this.state;
+        let res = await this.getSetInfo(classId, selJieduan);
         this.setState({
             secState: 0,
-            littleType: res.data.testType,
-            bigType: res.data.specialTest,
+            littleType: res.data.wordTestType,
+            bigType: res.data.stageWordsTest,
             specialTestDate: res.data.specialTestDate,
             paperId: res?.data?.specialTestID,
         });
@@ -365,8 +372,8 @@ class MainSet extends React.Component {
         this.diyExam();
     }
     async resetThr() {
-        const { classId } = this.state;
-        let res = await this.getSetInfo(classId);
+        const { classId, selJieduan } = this.state;
+        let res = await this.getSetInfo(classId, selJieduan);
         this.setState({
             thrState: 0,
             paperId: res?.data?.specialTestID,
@@ -431,9 +438,11 @@ class MainSet extends React.Component {
     }
 
     handleJieduan(val: any) {
+        const { classId } = this.state;
         this.setState({
             selJieduan: val,
         });
+        this.getSetInfo(classId, val)
         console.log(val);
     }
 

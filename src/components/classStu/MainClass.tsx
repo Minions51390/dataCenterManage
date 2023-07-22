@@ -1,7 +1,7 @@
 import React from 'react';
 // import { Row, Col, Tabs, DatePicker, Table } from 'antd';
 // import moment from 'moment';
-import { PageHeader, Table, Popconfirm, message, Modal, Alert, Input, Select } from 'antd';
+import { PageHeader, Table, Popconfirm, message, Modal, Alert, Input, Select, Divider } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import '../../style/pageStyle/MainClass.less';
@@ -118,7 +118,6 @@ class MainClass extends React.Component {
         ],
         data2: [],
         showModule: false,
-        email: '',
         btnState: true,
         searchText: '',
         jiaojieModal: false,
@@ -164,6 +163,7 @@ class MainClass extends React.Component {
             classInfo: res.data.classInfo,
             data1,
             data2,
+            teacher: resTeacher
         });
     }
     async getClassInfo(id: any) {
@@ -172,7 +172,8 @@ class MainClass extends React.Component {
     }
 
     async getTeacher() {
-        return [];
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
+        return res?.data??[];
     }
 
     rejectStu(studentId: any) {
@@ -279,9 +280,8 @@ class MainClass extends React.Component {
             },
         }).then((res) => {
             console.log(res);
-            if (res.data) {
+            if (res.state === 0) {
                 this.setState({
-                    email: res.data.email,
                     btnState: false,
                 });
             }
@@ -320,6 +320,7 @@ class MainClass extends React.Component {
     }
 
     handleTeacher(val: any) {
+        console.log('handleTeacher', val)
         this.setState({
             selTeacher: val,
         });
@@ -327,21 +328,33 @@ class MainClass extends React.Component {
     }
 
 	handleJiaojieOk() {
-        const { selTeacher } = this.state;
+        const { selTeacher, classId, teacher } = this.state;
+        const curTeacher = teacher.find((item:any) => item.teacherId === selTeacher);
+        console.log('curTeacher', curTeacher)
         this.setState({
             jiaojieModal: false,
         });
         Modal.confirm({
             title: '交接班级',
-            content: `学习阶段添加成功！请同步设置班级新的学习任务。${selTeacher}（账号：${selTeacher}）？交接成功后，您将不再拥有对该班级的管理权限，但您仍可以查看该班级的各项信息。`,
+            content: `学习阶段添加成功！请同步设置班级新的学习任务。${curTeacher?.['realName']}（账号：${curTeacher?.['realName']}）？交接成功后，您将不再拥有对该班级的管理权限，但您仍可以查看该班级的各项信息。`,
             cancelText: '取消',
             okText: '确定',
-            onOk: this.sendToTeacher,
+            onOk: () => {
+                post({
+                    url: baseUrl + '/api/v1/structure/class/transfer',
+                    data: {
+                        classId: +classId,
+                        receiverId: selTeacher,
+                    },
+                }).then((res) => {
+                    if(res.state === 0){
+                        message.success('交接成功');
+                    }else{
+                        message.error(`交接失败:${res.msg}`);
+                    }
+                });
+            }
         });
-    }
-
-    async sendToTeacher() {
-        // 调用交接接口
     }
 
     render() {
@@ -354,7 +367,6 @@ class MainClass extends React.Component {
             data2,
             routes,
             showModule,
-            email,
             btnState,
             jiaojieModal,
             teacher,
@@ -471,10 +483,13 @@ class MainClass extends React.Component {
                             <div className="m-btn disable">已发送</div>
                         )}
                     </div>
-                    <p className="m-text mar">
-                        已向电子邮箱<span>{email}</span>发送验证码
-                    </p>
-                    <p className="m-text">请注意查收</p>
+                    <div>
+                        {btnState ? '': (
+                            <p className="m-text mar">
+                                已向电子邮箱发送验证码，请注意查收
+                            </p>
+                        )}
+                    </div>
                 </Modal>
                 <Modal
                     title="交接班级"
@@ -489,20 +504,20 @@ class MainClass extends React.Component {
                         <div className="xueqi-line">
                             <div className="line">
                                 <div className="sec">
-                                    <span style={{ marginRight: '12px' }}>交接老师：</span>
+                                    <span style={{ marginRight: '12px' }}>交接教师：</span>
                                     <Select
                                         defaultValue="请选择"
                                         value={
                                             selTeacher ||
-                                            (teacher[0] && (teacher[0] as any)?.semester_name) ||
+                                            (teacher[0] && (teacher[0] as any)?.realName) ||
                                             '请选择'
                                         }
                                         style={{ width: 240 }}
                                         onChange={this.handleTeacher.bind(this)}
                                     >
                                         {teacher.map((item: any) => (
-                                            <Option key={item.semester_id} value={item.semester_id}>
-                                                {item.semester_name}
+                                            <Option key={item.teacherId} value={item.teacherId}>
+                                                {item.realName}
                                             </Option>
                                         ))}
                                     </Select>
