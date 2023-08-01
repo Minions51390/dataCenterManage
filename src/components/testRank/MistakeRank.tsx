@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Pagination, Input, Button, PageHeader, Select, Tooltip } from 'antd';
 import { get, baseUrl } from '../../service/tools';
 import { InfoCircleOutlined } from '@ant-design/icons';
@@ -66,16 +66,16 @@ const MistakeRank = ({}: Props) => {
             render: (text: any[]) => {
                 const arr: any[] = [];
                 text.forEach(item => {
-                    arr.push(<div className='option-item'>{item.key}: {item.value}</div>);
+                    arr.push(<div className="option-item">{item.key}: {item.value}</div>);
                 })
                 return new Array(Math.round(arr.length / 2)).fill('').map((item, index) => {
-                    return <div className='option-line'>{arr.slice(index * 2, index * 2 + 2)}</div>;
+                    return <div className="option-line">{arr.slice(index * 2, index * 2 + 2)}</div>;
                 });
             }
         },
         {
-            key: 'rightAnswer',
-            dataIndex: 'rightAnswer',
+            key: 'rightKey',
+            dataIndex: 'rightKey',
             title: '答案',
             render: (text: string) => `正确答案：${text}`
         },
@@ -86,7 +86,7 @@ const MistakeRank = ({}: Props) => {
         },
     ];
 
-    const getData = async () => {
+    const getData = useCallback(async () => {
         const params = {
             examID: sessionStorage.getItem('examID'),
             queryType,
@@ -107,7 +107,7 @@ const MistakeRank = ({}: Props) => {
         }));
         setList(result);
         setTotal(res?.data?.totalCount);
-    }
+    }, [pageNum, pageSize, query, queryType])
 
     const handleQueryTypeChange = (v: string) => {
         setQueryType(v);
@@ -128,7 +128,7 @@ const MistakeRank = ({}: Props) => {
 
     useEffect(() => {
         getData();
-    }, [pageNum, pageSize]);
+    }, [getData, pageNum, pageSize]);
 
 
     return (
@@ -139,16 +139,16 @@ const MistakeRank = ({}: Props) => {
             </div>
             <div className="body">
                 <div className="select">
-                    <div className='select-item'>
+                    <div className="select-item">
                         <span>学院批次：</span>
                         <span>{bici}</span>
                     </div>
-                    <div className='select-item'>
+                    <div className="select-item">
                         <span className="span2">班级:</span>
                         <span>{banji}</span>
                     </div>
                     <div className={cn('select-item', 'group-select')}>
-                        <Tooltip placement='top' title="请选择“题干”、“选项”或“答案”进行模糊搜索">
+                        <Tooltip placement="top" title="请选择“题干”、“选项”或“答案”进行模糊搜索">
                             <InfoCircleOutlined style={{ marginRight: 9 }} />
                         </Tooltip>
                         <Input.Group compact>

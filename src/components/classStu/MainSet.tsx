@@ -287,8 +287,16 @@ class MainSet extends React.Component {
     }
 
     onTeacherWordChange(event: any) {
+        const wordVal = event.target.value
+        // if(wordVal < 5 || wordVal > 100){
+        //     message.warn('数量限制5~100词');
+        // }else{
+        //     this.setState({
+        //         wordVal: wordVal,
+        //     });
+        // }
         this.setState({
-            wordVal: event.target.value,
+            wordVal: wordVal,
         });
     }
 
@@ -310,10 +318,14 @@ class MainSet extends React.Component {
     }
 
     saveFir() {
+        const { wordDb, dbVal, wordVal } = this.state;
+        if(wordVal < 5 || wordVal > 100){
+            message.warn('数量限制5~100词');
+            return
+        }
         this.setState({
             firState: 1,
         });
-        const { wordDb, dbVal } = this.state;
         let dbName = '';
         let newdbVal = +dbVal ? +dbVal : wordDb[0] && (wordDb[0] as any).dictionaryId;
 
@@ -338,7 +350,7 @@ class MainSet extends React.Component {
             {
                 startType: res?.data?.choiceWordsMethod || 'noChoice',
                 wordVal: res?.data?.dailyReciteCount ? +res?.data?.dailyReciteCount : 0,
-                dbVal: res?.data?.dictionaryId || 3,
+                dbVal: res?.data?.dictionaryId || 0,
                 paperId: res?.data?.specialTestID || '',
                 diyTime: res?.data?.specialTestDate || new Date(),
             },
@@ -384,9 +396,13 @@ class MainSet extends React.Component {
         this.setState(
             {
                 paperId: event.target.value,
-            },
-            () => {
-                this.getTestData();
+            }
+        );
+    }
+    onPaperNameChange(event: any) {
+        this.setState(
+            {
+                paperName: event.target.value,
             }
         );
     }
@@ -399,7 +415,7 @@ class MainSet extends React.Component {
         });
         console.log(res);
         this.setState({
-            paperName: res?.data?.testPaperName,
+            paperName: res?.data?.examName,
         });
     }
 
@@ -411,13 +427,14 @@ class MainSet extends React.Component {
     }
 
     async diyExam() {
-        const { paperId, classId, diyTime } = this.state;
+        const { paperId, paperName, classId, diyTime } = this.state;
         let res = await post({
-            url: baseUrl + '/api/exam',
+            url: baseUrl + '/api/v1/exam/',
             data: {
-                classID: +classId,
-                testPaperID: paperId.trim() || '',
+                classId: +classId,
+                questionPaperId: paperId.trim() || '',
                 examTime: diyTime,
+                examName: paperName,
             },
         });
         if (res.state === 0 && res.msg === 'success') {
@@ -537,6 +554,9 @@ class MainSet extends React.Component {
                                 {jieduan.map((item: any) => (
                                     <Option key={item.semesterId} value={item.semesterId}>
                                         {item.semesterName}
+                                        {
+                                            item.isCurrent ? (<span>（当前阶段）</span>) : '' 
+                                        }
                                     </Option>
                                 ))}
                             </Select>
@@ -645,9 +665,7 @@ class MainSet extends React.Component {
                                 <Select
                                     defaultValue={dbVal}
                                     value={
-                                        dbVal ||
-                                        (wordDb[0] && (wordDb[0] as any).dictionaryId) ||
-                                        '请选择'
+                                        dbVal || '请选择'
                                     }
                                     style={{ width: 240 }}
                                     onChange={this.handleWordDb.bind(this)}
@@ -757,13 +775,13 @@ class MainSet extends React.Component {
                                 </Radio.Group>
                                 {bigType === 'on' ? (
                                     <div>
-                                        <Space direction="vertical" size={12}>
+                                        {/* <Space direction="vertical" size={12}>
                                             <DatePicker
                                                 defaultValue={moment(bigTime, dateFormat)}
                                                 format={dateFormat}
                                                 onChange={this.onBigTimeChange.bind(this)}
                                             />
-                                        </Space>
+                                        </Space> */}
                                         <div style={{ marginLeft: 20, lineHeight: '32px' }}>
                                             考试词数：
                                         </div>
@@ -815,15 +833,20 @@ class MainSet extends React.Component {
                         {!thrState ? (
                             <div>
                                 <div className="sec">
-                                    <div>试卷ID：</div>
+                                    <div style={{ marginRight: 15}}>试卷ID：</div>
                                     <Input
                                         style={{ width: 172 }}
                                         value={paperId}
                                         onChange={this.onPaperIdChange.bind(this)}
                                     />
-                                    <div style={{ marginLeft: 20, color: 'rgba(0,0,0,0.65)' }}>
-                                        {paperName}
-                                    </div>
+                                </div>
+                                <div className="sec">
+                                    <div>试卷名称：</div>
+                                    <Input
+                                        style={{ width: 172 }}
+                                        value={ paperName }
+                                        onChange={this.onPaperNameChange.bind(this)}
+                                    />
                                 </div>
                                 <div className="sec">
                                     <div>考试时间：</div>
@@ -840,10 +863,10 @@ class MainSet extends React.Component {
                             <div className="sec" style={{ display: 'block' }}>
                                 <div style={{ marginTop: 18 }}>
                                     试卷ID:{' '}
-                                    <div className="state-co">
-                                        {paperId}
-                                        <span style={{ marginLeft: 20 }}>{paperName}</span>
-                                    </div>
+                                    <div className="state-co">{paperId}</div>
+                                </div>
+                                <div style={{ marginTop: 18 }}>
+                                    试卷名称: <div className="state-co">{paperName}</div>
                                 </div>
                                 <div style={{ marginTop: 18 }}>
                                     考试时间: <div className="state-co">{diyTime}</div>

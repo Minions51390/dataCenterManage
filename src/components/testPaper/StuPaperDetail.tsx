@@ -53,8 +53,8 @@ const StuPaperDetail = ({ query }: Props) => {
                     arr.push(
                         <div
                             className={cn({
-                                right: item.key === record.rightAnswer && record.choiceAnswer === item.key,
-                                error: record.choiceAnswer === item.key && item.key !== record.rightAnswer,
+                                right: item.key === record.rightKey && record.choiceAnswer === item.key,
+                                error: record.choiceAnswer === item.key && item.key !== record.rightKey,
                             }, 'option-item')}
                         >
                             {item.key}: {item.value}
@@ -69,7 +69,7 @@ const StuPaperDetail = ({ query }: Props) => {
             key: 'result',
             dataIndex: 'result',
             title: '判定',
-            render: (text: string, record: any) => record.rightAnswer === record.choiceAnswer ? '正确' : '错误'
+            render: (text: string, record: any) => record.rightKey === record.choiceAnswer ? '正确' : '错误'
         },
     ];
 

@@ -8,25 +8,25 @@ const { Option } = Select;
 const mockExamList = [
     {
         examID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
-        testPaperName:"初三下册第一次测验",
+        questionPaperName:"初三下册第一次测验",
         creator:"大橙子",
-        testPaperID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
+        questionPaperId:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
         examTime:"2022-03-19 17:56:43",
         status:1,
     },
     {
         examID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
-        testPaperName:"初三下册第一次测验",
+        questionPaperName:"初三下册第一次测验",
         creator:"大橙子",
-        testPaperID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
+        questionPaperId:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
         examTime:"2022-03-19 17:56:43",
         status:2,
     },
     {
         examID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
-        testPaperName:"初三下册第一次测验",
+        questionPaperName:"初三下册第一次测验",
         creator:"大橙子",
-        testPaperID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
+        questionPaperId:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
         examTime:"2022-03-19 17:56:43",
         status:2,
     },
@@ -43,10 +43,10 @@ class TestRank extends React.Component {
         banji: [],
         selBanji: '',
         query: '',
-        queryType: 'testPaperName',
+        queryType: 'questionPaperName',
         queryTypeList: [
             {
-                type: 'testPaperName',
+                type: 'questionPaperName',
                 name: '考试名称',
             },
             {
@@ -54,7 +54,7 @@ class TestRank extends React.Component {
                 name: '创建人',
             },
             {
-                type: 'testPaperID',
+                type: 'questionPaperId',
                 name: '考试ID',
             }
         ],
@@ -83,8 +83,8 @@ class TestRank extends React.Component {
             },
             {
                 title: '试卷名称',
-                dataIndex: 'testPaperName',
-                key: 'testPaperName',
+                dataIndex: 'questionPaperName',
+                key: 'questionPaperName',
             },
             {
                 title: '创建人',
@@ -94,11 +94,11 @@ class TestRank extends React.Component {
             },
             {
                 title: '试卷ID',
-                key: 'testPaperID',
+                key: 'questionPaperId',
                 render: (text: any) => (
                     <div className="edit">
-                        <div className="copy" onClick={this.copyIdFn.bind(this, text.testPaperID)}>
-                            <div>{text.testPaperID}</div>
+                        <div className="copy" onClick={this.copyIdFn.bind(this, text.questionPaperId)}>
+                            <div>{text.questionPaperId}</div>
                         </div>
                     </div>
                 ),
@@ -125,7 +125,7 @@ class TestRank extends React.Component {
                     <div className="edit">
                         {
                             text.status !== 2 ?
-                            <Popconfirm placement="topLeft" title="是否确认删除？删除后无法恢复!" okText="确认" cancelText="取消" onConfirm={this.delExam.bind(this, text.testPaperID)}>
+                            <Popconfirm placement="topLeft" title="是否确认删除？删除后无法恢复!" okText="确认" cancelText="取消" onConfirm={this.delExam.bind(this, text.questionPaperId)}>
                                 <div className="copy">
                                     <div>删除</div>
                                 </div>
@@ -223,7 +223,7 @@ class TestRank extends React.Component {
 
     jumpStu(text: any) {
         console.log(text);
-        const { examID, testPaperName } = text;
+        const { examID, questionPaperName } = text;
         const { selPici, selBanji, pici, banji } = this.state;
         let piciName = '';
         let banjiName = '';
@@ -240,7 +240,7 @@ class TestRank extends React.Component {
             return item;
         });
         sessionStorage.setItem('examID', examID);
-        sessionStorage.setItem('testPaperName', testPaperName);
+        sessionStorage.setItem('questionPaperName', questionPaperName);
         sessionStorage.setItem('pici', piciName);
         sessionStorage.setItem('banji', banjiName);
         window.location.href = `${window.location.pathname}#/app/test/testRank/stuRank`;
@@ -248,7 +248,7 @@ class TestRank extends React.Component {
 
     jumpMistake = (text: any) => {
         console.log(text);
-        const { examID, testPaperName } = text;
+        const { examID, questionPaperName } = text;
         const { selPici, selBanji, pici, banji } = this.state;
         let piciName = '';
         let banjiName = '';
@@ -265,7 +265,7 @@ class TestRank extends React.Component {
             return item;
         });
         sessionStorage.setItem('examID', examID);
-        sessionStorage.setItem('testPaperName', testPaperName);
+        sessionStorage.setItem('questionPaperName', questionPaperName);
         sessionStorage.setItem('pici', piciName);
         sessionStorage.setItem('banji', banjiName);
         window.location.href = `${window.location.pathname}#/app/test/testRank/mistakeRank`;
@@ -289,7 +289,7 @@ class TestRank extends React.Component {
     async getTest() {
         const { pageNo, selPici, selBanji, queryType, query, sortKey, sort, status } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/exam/list?pageSize=20&pageNo=${pageNo}&batch=${selPici}&class=${selBanji}&queryType=${queryType}&query=${query}&sortKey=${sortKey}&sort=${sort}&status=${status}`,
+            url: `${baseUrl}/api/v1/exam/list?pageSize=20&pageNo=${pageNo}&batch=${selPici}&class=${selBanji}&queryType=${queryType}&query=${query}&sortKey=${sortKey}&sort=${sort}&status=${status}`,
         });
         console.log('------------->', res);
         const examList = res?.data?.examList || mockExamList;

@@ -49,26 +49,26 @@ class BankDetail extends React.Component {
                         <div className="choose">
                             <div className="tr">
                                 <div>
-                                    {text.option[0].Key}.{text.option[0].Value}
+                                    {text.options[0].key}.{text.options[0].value}
                                 </div>
                                 <div>
-                                    {text.option[1].Key}.{text.option[1].Value}
+                                    {text.options[1].key}.{text.options[1].value}
                                 </div>
                             </div>
                             <div className="tr">
                                 <div>
-                                    {text.option[2].Key}.{text.option[2].Value}
+                                    {text.options[2].key}.{text.options[2].value}
                                 </div>
-                                {text.option[3] ? (
+                                {text.options[3] ? (
                                     <div>
-                                        {text.option[3].Key}.{text.option[3].Value}
+                                        {text.options[3].key}.{text.options[3].value}
                                     </div>
                                 ) : (
                                     ''
                                 )}
                             </div>
                         </div>
-                        <div className="right">正确答案：{text.rightAnswer}</div>
+                        <div className="right">正确答案：{text.rightKey}</div>
                     </div>
                 ),
             },
@@ -92,7 +92,7 @@ class BankDetail extends React.Component {
         queNameC: '',
         queNameD: '',
         queNameR: '',
-        questionID: '',
+        questionId: '',
     };
     componentWillMount() {
         this.inited();
@@ -107,10 +107,11 @@ class BankDetail extends React.Component {
     async getQuestionBank() {
         const { bankID } = this.state;
         const res: any = await get({
-            url: `${baseUrl}/api/v1/question-set?bankID=${bankID}`,
+            url: `${baseUrl}/api/v1/question-set/?setId=${bankID}`,
         });
+        console.log('getQuestionBank', res)
         return (
-            res || {
+            res?.data || {
                 bankID: '',
                 creator: '老实',
                 createTime: '0000-00-00 00:00:00',
@@ -125,9 +126,9 @@ class BankDetail extends React.Component {
     async getQuestionList() {
         const { bankID, bankQuery, pageNo } = this.state;
         const res: any = await get({
-            url: `${baseUrl}/api/v1/question-set/question/list?bankID=${bankID}&query=${bankQuery}&pageSize=20&pageNo=${pageNo}`,
+            url: `${baseUrl}/api/v1/question-set/question/list?setId=${bankID}&query=${bankQuery}&pageSize=20&pageNo=${pageNo}`,
         });
-        const questionBankList = res?.data?.questionBankList || [];
+        const questionBankList = res?.data?.questionList || [];
         const totalCount = (res?.data?.totalCount || 0) / 20;
         this.setState({
             data1: questionBankList,
@@ -201,12 +202,13 @@ class BankDetail extends React.Component {
 
     /** 编辑单个试题 */
     async editQuestionInterface() {
-        const { questionID, queName, queNameA, queNameB, queNameC, queNameD, queNameR } =
+        const { questionId, queName, queNameA, queNameB, queNameC, queNameD, queNameR } =
             this.state;
+        console.log('editQuestionInterface', questionId)
         await put({
             url: `${baseUrl}/api/v1/question-set/question`,
             data: {
-                questionID,
+                questionId: questionId,
                 stem: queName,
                 options: [
                     {
@@ -226,7 +228,7 @@ class BankDetail extends React.Component {
                         value: queNameD,
                     },
                 ],
-                rightAnswer: queNameR,
+                rightKey: queNameR,
             },
         });
         this.getQuestionList();
@@ -234,9 +236,12 @@ class BankDetail extends React.Component {
 
     /** 删除接口 */
     async delQuestionInterface() {
-        const { questionID } = this.state;
-        await del({
-            url: `${baseUrl}/api/v1/question-set/question?questionID=${questionID}`,
+        const { questionId } = this.state;
+        await post({
+            url: `${baseUrl}/api/v1/question-set/question/delete`,
+            data: {
+                questionId
+            },
         });
         this.getQuestionList();
     }
@@ -250,32 +255,32 @@ class BankDetail extends React.Component {
 
     /** 展示编辑弹窗 */
     showCreateModal(type: string, data: any) {
-        const { questionID, stem, option, rightAnswer } = data;
+        const { questionId, stem, options, rightKey } = data;
         if (type === 'edit') {
             this.setState({
                 isVisible: true,
                 moduleName: '编辑题目',
                 canEdit: true,
-                questionID,
+                questionId,
                 queName: stem,
-                queNameA: option[0].Value,
-                queNameB: option[1].Value,
-                queNameC: option[2].Value,
-                queNameD: option[3]?.Value || '',
-                queNameR: rightAnswer,
+                queNameA: options[0].value,
+                queNameB: options[1].value,
+                queNameC: options[2].value,
+                queNameD: options[3]?.value || '',
+                queNameR: rightKey,
             });
         } else {
             this.setState({
                 isVisible: true,
                 moduleName: '确认删除该试题？',
                 canEdit: false,
-                questionID,
+                questionId,
                 queName: stem,
-                queNameA: option[0].Value,
-                queNameB: option[1].Value,
-                queNameC: option[2].Value,
-                queNameD: option[3]?.Value || '',
-                queNameR: rightAnswer,
+                queNameA: options[0].value,
+                queNameB: options[1].value,
+                queNameC: options[2].value,
+                queNameD: options[3]?.value || '',
+                queNameR: rightKey,
             });
         }
     }

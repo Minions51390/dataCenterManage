@@ -19,8 +19,8 @@ class TestPaper extends React.Component {
             },
             {
                 title: '试卷名称',
-                dataIndex: 'testPaperName',
-                key: 'testPaperName',
+                dataIndex: 'questionPaperName',
+                key: 'questionPaperName',
             },
             {
                 title: '创建人',
@@ -29,8 +29,8 @@ class TestPaper extends React.Component {
             },
             {
                 title: '试卷ID',
-                dataIndex: 'testPaperID',
-                key: 'testPaperID',
+                dataIndex: 'questionPaperId',
+                key: 'questionPaperId',
             },
             {
                 title: '创建时间',
@@ -50,7 +50,7 @@ class TestPaper extends React.Component {
                         <div className="entry" onClick={this.handleEdit.bind(this, text)}>
                             编辑
                         </div>
-                        <div className="copy" onClick={this.copyIdFn.bind(this, text.testPaperID)}>
+                        <div className="copy" onClick={this.copyIdFn.bind(this, text.questionPaperId)}>
                             <div>复制ID</div>
                         </div>
                     </div>
@@ -68,10 +68,9 @@ class TestPaper extends React.Component {
     async getTest() {
         const { testQuery, pageNo } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/testPaper/list?query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
+            url: `${baseUrl}/api/v1/question-paper/list?query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
         });
-        console.log('------------->', res);
-        const questionBankList = res?.data?.testPaperList || [];
+        const questionBankList = res?.data?.questionPaperList || [];
         const totalCount = (res?.data?.totalCount || 0) / 20;
         this.setState({
             data1: questionBankList,
@@ -134,8 +133,8 @@ class TestPaper extends React.Component {
     /** 编辑按钮 */
     async handleEdit(val: any) {
         console.log(val);
-        sessionStorage.setItem('testDetailId', val.testPaperID);
-        sessionStorage.setItem('testDetailName', val.testPaperName);
+        sessionStorage.setItem('testDetailId', val.questionPaperId);
+        sessionStorage.setItem('testDetailName', val.questionPaperName);
         window.location.href = `${window.location.pathname}#/app/test/testPaper/testDetail`;
     }
 
@@ -143,13 +142,13 @@ class TestPaper extends React.Component {
     async confimeNew() {
         const { testName } = this.state;
         const response: any = await post({
-            url: baseUrl + '/api/testPaper',
+            url: baseUrl + '/api/v1/question-paper/',
             data: {
-                testPaperName: testName,
+                questionPaperName: testName,
             },
         });
         console.log(response);
-        return response?.data?.testPaperID || '1';
+        return response?.data?.questionPaperId || '1';
     }
 
     /** 更换页面 */

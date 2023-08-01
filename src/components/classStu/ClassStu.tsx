@@ -1,5 +1,5 @@
 import React from 'react';
-import { Select, Pagination, Modal, Input, Divider } from 'antd';
+import { Select, Pagination, Modal, Input, Divider, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import '../../style/pageStyle/ClassStu.less';
@@ -69,6 +69,9 @@ class ClassStu extends React.Component {
         });
         console.log(res);
         if (res != null) {
+            res.data.forEach((item:any) => {
+                item.category = cate
+            })
             return res.data;
         } else {
             return [];
@@ -211,17 +214,34 @@ class ClassStu extends React.Component {
     }
 
 	jiaojieOk() {
-		// 调用交接接口
+        // 调用交接接口
 	}
 
 	jiaojieModal(item: any) {
-		Modal.confirm({
-			title: '接收班级',
-			content: `是否接收${item.describe}（班级码${item.classCode}）`,
-			cancelText: '取消',
-			okText: '确定',
-			onOk: this.jiaojieOk,
-		});
+        if(item.category === 'tc1'){
+            message.warn('您不可以接收该班级');
+        }else{
+            Modal.confirm({
+                title: '接收班级',
+                content: `是否接收${item.describe}（班级码${item.classCode}）`,
+                cancelText: '取消',
+                okText: '确定',
+                onOk: async ()=>{
+                    let res = await post({
+                        url: baseUrl + '/api/v1/structure/class/transfer/finish',
+                        data: {
+                            classId: item.classId,
+                        },
+                    });
+                    if(res.state === 0){
+                        message.success('交接成功')
+                        this.initData()
+                    }else{
+                        message.error(`${res.msg}`)
+                    }
+                },
+            });
+        }
 	}
 
     render() {

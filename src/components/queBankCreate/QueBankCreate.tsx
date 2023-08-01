@@ -29,7 +29,7 @@ class QueBank extends React.Component {
             },
             {
                 title: '题库名称',
-                dataIndex: 'bankName',
+                dataIndex: 'setName',
                 key: 'bankName',
             },
             {
@@ -40,9 +40,9 @@ class QueBank extends React.Component {
             },
             {
                 title: '题库类型',
-                key: 'bankType',
+                key: 'setType',
                 sorter: true,
-                render: (text: any) => <div>{BANK_TYPE_MAP[text.bankType] || '未知'}</div>,
+                render: (text: any) => <div>{BANK_TYPE_MAP[text.setType] || '未知'}</div>,
             },
             {
                 title: '创建时间',
@@ -81,7 +81,7 @@ class QueBank extends React.Component {
             url: `${baseUrl}/api/v1/question-set/list?query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}&all=off`,
         });
         console.log('------------->', res);
-        const questionBankList = res?.data?.questionBankList || [];
+        const questionBankList = res?.data?.questionSetList || [];
         const totalCount = (res?.data?.totalCount || 0) / 20;
         this.setState({
             data1: questionBankList,
@@ -117,11 +117,13 @@ class QueBank extends React.Component {
 
     /** 确认新建 */
     async handleCreateOk(val: any) {
+        console.log('handleCreateOk', val)
         const { bankName } = this.state;
         this.setState({
             isVisible: false,
         });
         const bankID = await this.confimeNew();
+        console.log('bankID', bankID)
         sessionStorage.setItem('bankDetailId', bankID);
         sessionStorage.setItem('bankDetailName', bankName);
         window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
@@ -129,8 +131,9 @@ class QueBank extends React.Component {
 
     /** 编辑按钮 */
     clickEditButton(text: any) {
-        const bankID = text.bankID;
-        const bankName = text.bankName;
+        console.log('clickEditButton', text)
+        const bankID = text.setId;
+        const bankName = text.setName;
         sessionStorage.setItem('bankDetailId', bankID);
         sessionStorage.setItem('bankDetailName', bankName);
         window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
@@ -140,13 +143,14 @@ class QueBank extends React.Component {
     async confimeNew() {
         const { bankName, bankType } = this.state;
         const response: any = await post({
-            url: baseUrl + '/api/v1/question-set',
+            url: baseUrl + '/api/v1/question-set/',
             data: {
-                bankName,
-                bankType,
+                setName: bankName,
+                setType: bankType,
             },
         });
-        return response?.data?.bankID || '';
+        console.log('confimeNew', response)
+        return response?.data?.setId || '';
     }
 
     /** 取消新建 */

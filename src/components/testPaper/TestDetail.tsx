@@ -43,26 +43,26 @@ class TestDetail extends React.Component {
                         <div className="choose">
                             <div className="tr">
                                 <div>
-                                    {text.option[0].Key}.{text.option[0].Value}
+                                    {text.options[0].key}.{text.options[0].value}
                                 </div>
                                 <div>
-                                    {text.option[1].Key}.{text.option[1].Value}
+                                    {text.options[1].key}.{text.options[1].value}
                                 </div>
                             </div>
                             <div className="tr">
                                 <div>
-                                    {text.option[2].Key}.{text.option[2].Value}
+                                    {text.options[2].key}.{text.options[2].value}
                                 </div>
-                                {text.option[3] ? (
+                                {text.options[3] ? (
                                     <div>
-                                        {text.option[3].Key}.{text.option[3].Value}
+                                        {text.options[3].key}.{text.options[3].value}
                                     </div>
                                 ) : (
                                     ''
                                 )}
                             </div>
                         </div>
-                        <div className="right">正确答案：{text.rightAnswer}</div>
+                        <div className="right">正确答案：{text.rightKey}</div>
                     </div>
                 ),
             },
@@ -70,14 +70,14 @@ class TestDetail extends React.Component {
         data1: [],
         selectedRowKeys: [],
         selectedRows: [],
-        bankPeople: 0,
+        bankPeople: "",
         bankPeopleList: [
             {
                 realName: '全部',
-                teacherID: 0,
+                teacherId: 0,
             },
         ],
-        bank: 0,
+        bank: "",
         bankName: '全部',
         bankList: [
             {
@@ -110,7 +110,7 @@ class TestDetail extends React.Component {
         });
         console.log(res);
         return {
-            testPaperID: res?.data?.testPaperID,
+            testPaperID: res?.data?.questionPaperId,
             creator: res?.data?.creator,
             createTime: res?.data?.createTime,
             updateTime: res?.data?.updateTime,
@@ -118,11 +118,11 @@ class TestDetail extends React.Component {
         };
     }
 
-    /** 题库试题列表 */
+    /** 试卷试题列表 */
     async getTestList() {
         const { testPaperID, testQuery, pageNo } = this.state;
         const res: any = await get({
-            url: `${baseUrl}/api/testPaper/question/list?testPaperID=${testPaperID}&query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
+            url: `${baseUrl}/api/v1/question-paper/question/list?questionPaperId=${testPaperID}&query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
         });
         let testList = res?.data?.questionList || [];
         testList.forEach((val: any, index: any) => {
@@ -138,12 +138,11 @@ class TestDetail extends React.Component {
     /** 获取全部教师接口 */
     async getAllTeacher() {
         const res: any = await get({
-            url: `${baseUrl}/api/user/teacher/list`,
+            url: `${baseUrl}/api/v1/structure/teacher/list`,
         });
         this.setState(
             {
                 bankPeopleList: res?.data || [],
-                bankPeople: res?.data[0]?.teacherID || 0,
             },
             () => {
                 this.getQuestionBankList();
@@ -159,21 +158,20 @@ class TestDetail extends React.Component {
             url: `${baseUrl}/api/v1/question-set/list?query=&creatorID=${bankPeople}&sortKey=createTime&sortOrder=asc&pageSize=20&pageNo=1&all=on`,
         });
         console.log('------------->', res);
-        const questionBankList = res?.data?.questionBankList || [];
+        const questionBankList = res?.data?.questionSetList || [];
         this.setState({
             bankList: questionBankList,
-            bank: res?.data?.questionBankList[0]?.bankID || 0,
-            bankName: res?.data?.questionBankList[0]?.bankName || '全部',
         });
     }
 
     /** 题库试题列表 */
     async getQuestionList() {
+        console.log('getQuestionList')
         const { bank, testQueryM, pageNom } = this.state;
         const res: any = await get({
-            url: `${baseUrl}/api/v1/question-set/question/list?bankID=${bank}&query=${testQueryM}&pageSize=20&pageNo=${pageNom}`,
+            url: `${baseUrl}/api/v1/question-set/question/list?setId=${bank}&query=${testQueryM}&pageSize=20&pageNo=${pageNom}`,
         });
-        let questionBankList = res?.data?.questionBankList || [];
+        let questionBankList = res?.data?.questionList || [];
         questionBankList.forEach((val: any, index: any) => {
             val.key = index + 1;
         });
@@ -187,15 +185,16 @@ class TestDetail extends React.Component {
     /** 批量导入接口 */
     async addQuestion() {
         const { testPaperID, selectedRowKeysM } = this.state;
-        const questionList = selectedRowKeysM.map((val: any) => {
-            return val.questionID;
+        console.log('selectedRowKeysM', selectedRowKeysM)
+        const questionIdList = selectedRowKeysM.map((val: any) => {
+            return val.questionId;
         });
         const res = await post({
-            url: baseUrl + '/api/testPaper/question',
+            url: baseUrl + '/api/v1/question-paper/question',
             data: {
-                testPaperID,
+                questionPaperId: testPaperID,
                 selectAll: false,
-                questionList,
+                questionIdList,
             },
         });
         this.getTestList();
@@ -207,14 +206,15 @@ class TestDetail extends React.Component {
     /** 批量删除 */
     async delQuestion() {
         const { testPaperID, selectedRows } = this.state;
-        const questionList = selectedRows.map((val: any) => {
-            return val.questionID;
+        const questionIdList = selectedRows.map((val: any) => {
+            return val.questionId;
         });
         const res = await post({
-            url: baseUrl + '/api/testPaper/question/delete',
+            url: baseUrl + '/api/v1/question-paper/question/delete',
             data: {
-                testPaperID,
-                questionList,
+                questionPaperId: testPaperID,
+                questionIdList,
+                selectAll: false,
             },
         });
         this.getTestList();
@@ -523,7 +523,7 @@ class TestDetail extends React.Component {
                                     value={bankPeople}
                                 >
                                     {bankPeopleList.map((item: any, index: number) => (
-                                        <Option key={index} value={item.teacherID}>
+                                        <Option key={index} value={item.teacherId}>
                                             {item.realName}
                                         </Option>
                                     ))}
@@ -540,8 +540,8 @@ class TestDetail extends React.Component {
                                     value={bank}
                                 >
                                     {bankList.map((item: any, index: number) => (
-                                        <Option key={index} value={item.bankID}>
-                                            {item.bankName}
+                                        <Option key={index} value={item.setId}>
+                                            {item.setName}
                                         </Option>
                                     ))}
                                 </Select>

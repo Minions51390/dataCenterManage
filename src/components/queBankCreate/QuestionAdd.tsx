@@ -37,26 +37,26 @@ class QuestionAdd extends React.Component {
         bankID: '',
         questionArr: [
             {
-                stem: 'xxxxxxx_____xxxxxx____xxxx',
+                stem: '',
                 options: [
                     {
                         key: 'A',
-                        value: 'xxxx',
+                        value: '',
                     },
                     {
                         key: 'B',
-                        value: 'xxxx',
+                        value: '',
                     },
                     {
                         key: 'C',
-                        value: 'xxxx',
+                        value: '',
                     },
                     {
                         key: 'D',
-                        value: 'xxxx',
+                        value: '',
                     },
                 ],
-                rightAnswer: 'A',
+                rightKey: '',
             },
         ],
     };
@@ -74,26 +74,26 @@ class QuestionAdd extends React.Component {
     addQuestion() {
         const { questionArr } = this.state;
         const item = {
-            stem: 'xxxxxxx_____xxxxxx____xxxx',
+            stem: '',
             options: [
                 {
                     key: 'A',
-                    value: 'xxxx',
+                    value: '',
                 },
                 {
                     key: 'B',
-                    value: 'xxxx',
+                    value: '',
                 },
                 {
                     key: 'C',
-                    value: 'xxxx',
+                    value: '',
                 },
                 {
                     key: 'D',
-                    value: 'xxxx',
+                    value: '',
                 },
             ],
-            rightAnswer: 'A',
+            rightKey: '',
         };
         this.setState({
             questionArr: [...questionArr, item],
@@ -115,7 +115,7 @@ class QuestionAdd extends React.Component {
         const response: any = await post({
             url: baseUrl + '/api/v1/question-set/question',
             data: {
-                bankID,
+                setId: bankID,
                 questionList: questionArr,
             },
         });
@@ -130,8 +130,8 @@ class QuestionAdd extends React.Component {
             questionArr[index].stem = valData;
         } else if (type === "options") {
             questionArr[index].options[key].value = valData;
-        } else if (type === "rightAnswer") {
-            questionArr[index].rightAnswer = valData;
+        } else if (type === "rightKey") {
+            questionArr[index].rightKey = valData;
         }
         this.setState({
             questionArr,
@@ -214,8 +214,8 @@ class QuestionAdd extends React.Component {
                                         <span className="title">正确选项：</span>
                                         <Input
                                             className="gap-8"
-                                            value={val.rightAnswer}
-                                            onChange={this.updateInput.bind(this, val, index, "rightAnswer", 0)}
+                                            value={val.rightKey}
+                                            onChange={this.updateInput.bind(this, val, index, "rightKey", 0)}
                                         />
                                     </div>
                                 </div>
