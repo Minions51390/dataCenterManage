@@ -6,7 +6,7 @@ import { get, baseUrl } from '../../service/tools';
 
 const mockRollList = [
     {
-        rollID: "xxxxx",
+        examPaperId: "xxxxx",
         username: "大橙子",
         score: 80,
         finishTime: "2017-10-31 23:12:00",
@@ -14,7 +14,7 @@ const mockRollList = [
         className: "01班"
     },
     {
-        rollID: "xxxxx",
+        examPaperId: "xxxxx",
         username: "大橙子",
         score: 80,
         finishTime: "2017-10-31 23:12:00",
@@ -22,7 +22,7 @@ const mockRollList = [
         className: "01班"
     },
     {
-        rollID: "xxxxx",
+        examPaperId: "xxxxx",
         username: "大橙子",
         score: 80,
         finishTime: "2017-10-31 23:12:00",
@@ -48,7 +48,7 @@ class StuRank extends React.Component {
         query: '',
         sortKey: 'username',
         sort: 'asc',
-        examID: sessionStorage.getItem('examID'),
+        examId: sessionStorage.getItem('examId'),
         testPaperName: sessionStorage.getItem('testPaperName'),
         pici: sessionStorage.getItem('pici'),
         banji: sessionStorage.getItem('banji'),
@@ -90,7 +90,7 @@ class StuRank extends React.Component {
                 key: 'control',
                 render: (text: any, record: any) => (
                     <div className="edit">
-                        <div className="entry" onClick={() => this.goPaperDetail(record.username, record.rollID)}>
+                        <div className="entry" onClick={() => this.goPaperDetail(record.username, record.examPaperId)}>
                             查看卷面
                         </div>
                     </div>
@@ -103,8 +103,8 @@ class StuRank extends React.Component {
         this.inited();
     }
 
-    goPaperDetail = (name: string, rollID: string) => {
-        window.location.href = `${window.location.pathname}#/app/test/testPaper/stuDetail?name=${name}&roleID=${rollID}`;
+    goPaperDetail = (name: string, examPaperId: string) => {
+        window.location.href = `${window.location.pathname}#/app/test/testPaper/stuDetail?name=${name}&examPaperId=${examPaperId}`;
     }
 
     async inited() {
@@ -137,12 +137,12 @@ class StuRank extends React.Component {
 
     /** 获取成绩列表 */
     async getTest() {
-        const { pageNo, query, sortKey, sort, examID } = this.state;
+        const { pageNo, query, sortKey, sort, examId } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/testPaperResult/list?pageSize=20&pageNo=${pageNo}&examID=${examID}&query=${query}&sortKey=${sortKey}&sort=${sort}`,
+            url: `${baseUrl}/api/v1/exam/paper/list?pageSize=20&pageNo=${pageNo}&examId=${examId}&query=${query}&sortKey=${sortKey}&sort=${sort}`,
         });
         console.log('------------->', res);
-        const rollList = res?.data?.rollList || mockRollList;
+        const rollList = res?.data?.examPaperList || mockRollList;
         const totalCount = (res?.data?.totalCount || 0) / 20;
         this.setState({
             data1: rollList,

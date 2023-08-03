@@ -7,7 +7,7 @@ const { Option } = Select;
 
 const mockExamList = [
     {
-        examID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
+        examId:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
         questionPaperName:"初三下册第一次测验",
         creator:"大橙子",
         questionPaperId:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
@@ -15,7 +15,7 @@ const mockExamList = [
         status:1,
     },
     {
-        examID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
+        examId:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
         questionPaperName:"初三下册第一次测验",
         creator:"大橙子",
         questionPaperId:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
@@ -23,7 +23,7 @@ const mockExamList = [
         status:2,
     },
     {
-        examID:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
+        examId:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
         questionPaperName:"初三下册第一次测验",
         creator:"大橙子",
         questionPaperId:"4175d9df-f29c-4a59-819f-d2b0e92b6dcb",
@@ -42,6 +42,8 @@ class TestRank extends React.Component {
         selPici: '',
         banji: [],
         selBanji: '',
+        semester: [],
+        selSemester: [],
         query: '',
         queryType: 'questionPaperName',
         queryTypeList: [
@@ -156,11 +158,15 @@ class TestRank extends React.Component {
         console.log('pici', pici)
         const banji = await this.getClass(pici[0].batchId);
         console.log('banji', banji)
+        const semester = await this.getSemester(banji[0].classId || 0);
+        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
         this.setState({
             pici,
             banji,
+            semester,
             selPici: pici[0].batchId,
             selBanji: banji[0].classId,
+            selSemester,
         }, () => {
             this.getTest();
         });
@@ -169,18 +175,40 @@ class TestRank extends React.Component {
     /** 更换批次列表 */
     async handlePiCi(val: any) {
         let res = await this.getClass(val);
+        const semester = await this.getSemester(res[0]?.classId);
+        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
         this.setState({
             selPici: val,
             banji: res,
             selBanji: res[0] ? res[0].classId : 0,
+            semester,
+            selSemester,
         });
+        await this.getTest()
     }
 
     /** 更换班级列表 */
-    handleBanji(val: any) {
+    async handleBanji(val: any) {
+        const semester = await this.getSemester(val);
+        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : []
         this.setState({
             selBanji: val,
+            semester,
+            selSemester,
         });
+        await this.getTest()
+    }
+
+    /** 更换阶段列表 */
+    handleSemester(val: any) {
+        console.log('val', val)
+        this.setState({
+            selSemester: val,
+        });
+        setTimeout(async()=>{
+            await this.getTest();
+        }, 0)
+        
     }
 
     /** 更换考试状态 */
@@ -223,7 +251,7 @@ class TestRank extends React.Component {
 
     jumpStu(text: any) {
         console.log(text);
-        const { examID, questionPaperName } = text;
+        const { examId, questionPaperName } = text;
         const { selPici, selBanji, pici, banji } = this.state;
         let piciName = '';
         let banjiName = '';
@@ -239,7 +267,7 @@ class TestRank extends React.Component {
             }
             return item;
         });
-        sessionStorage.setItem('examID', examID);
+        sessionStorage.setItem('examId', examId);
         sessionStorage.setItem('questionPaperName', questionPaperName);
         sessionStorage.setItem('pici', piciName);
         sessionStorage.setItem('banji', banjiName);
@@ -248,7 +276,7 @@ class TestRank extends React.Component {
 
     jumpMistake = (text: any) => {
         console.log(text);
-        const { examID, questionPaperName } = text;
+        const { examId, questionPaperName } = text;
         const { selPici, selBanji, pici, banji } = this.state;
         let piciName = '';
         let banjiName = '';
@@ -264,7 +292,7 @@ class TestRank extends React.Component {
             }
             return item;
         });
-        sessionStorage.setItem('examID', examID);
+        sessionStorage.setItem('examId', examId);
         sessionStorage.setItem('questionPaperName', questionPaperName);
         sessionStorage.setItem('pici', piciName);
         sessionStorage.setItem('banji', banjiName);
@@ -285,11 +313,20 @@ class TestRank extends React.Component {
         return banji;
     }
 
+    /** 获取阶段列表 */
+    async getSemester(classId: any){
+        let res = await get({
+            url: baseUrl + `/api/v1/structure/semester/list?classId=${classId}`
+        })
+        console.log(res);
+        return res?.data || [];
+    }
+
     /** 获取成绩列表 */
     async getTest() {
-        const { pageNo, selPici, selBanji, queryType, query, sortKey, sort, status } = this.state;
+        const { pageNo, selSemester, queryType, query, sortKey, sort, status } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/exam/list?pageSize=20&pageNo=${pageNo}&batch=${selPici}&class=${selBanji}&queryType=${queryType}&query=${query}&sortKey=${sortKey}&sort=${sort}&status=${status}`,
+            url: `${baseUrl}/api/v1/exam/list?pageSize=20&pageNo=${pageNo}&semesters=${JSON.stringify(selSemester)}&queryType=${queryType}&query=${query}&sortKey=${sortKey}&sort=${sort}&status=${status}`,
         });
         console.log('------------->', res);
         const examList = res?.data?.examList || mockExamList;
@@ -337,13 +374,13 @@ class TestRank extends React.Component {
     
     /** 删除考试 */
     async delExam(id: any) {
-        let res = await del({ url: baseUrl + `/api/exam?examID=${id}` });
+        let res = await del({ url: baseUrl + `/api/exam?examId=${id}` });
         console.log(res);
         this.getTest();
     }
 
     render() {
-        const { columns1, data1, pageNo, totalCount, selPici, pici, selBanji, banji, query, queryType, queryTypeList, statusList, status } = this.state;
+        const { columns1, data1, pageNo, totalCount, selPici, pici, selBanji, banji, semester, selSemester, query, queryType, queryTypeList, statusList, status } = this.state;
         return (
             <div className="paper-rank">
                 <div className="header">
@@ -416,6 +453,22 @@ class TestRank extends React.Component {
                             {statusList.map((item: any) => (
                                 <Option key={item.id} value={item.id}>
                                     {item.name}
+                                </Option>
+                            ))}
+                        </Select>
+                    </div>
+                    <div className="fir">
+                        <span className="span">学期:</span>
+                        <Select
+                            mode="multiple"
+                            allowClear
+                            style={{ width: 360 }}
+                            value={selSemester}
+                            onChange={this.handleSemester.bind(this)}
+                        >
+                            {semester.map((item: any) => (
+                                <Option key={item.semesterId} value={item.semesterId}>
+                                    {item.semesterName}
                                 </Option>
                             ))}
                         </Select>

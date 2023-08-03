@@ -75,19 +75,19 @@ const StuPaperDetail = ({ query }: Props) => {
 
     const getData = async () => {
         const params = {
-            rollID: query?.roleID,
+            examPaperId: query?.examPaperId,
             queryType,
             pageSize,
             pageNo: pageNo,
         };
         let res = await get({
-            url: `${baseUrl}/api/testPaperResult/detail`,
+            url: `${baseUrl}/api/v1/exam/paper/question/list`,
             config: {
                 params
             }
         });
         console.log('------------->', res);
-        const result = (res?.data?.answerList)?.map((item: any, index: number) => ({
+        const result = (res?.data?.questionList)?.map((item: any, index: number) => ({
             ...item,
             key: index + 1
         }));
@@ -106,7 +106,7 @@ const StuPaperDetail = ({ query }: Props) => {
 
     useEffect(() => {
         getData();
-    }, [queryType, pageNo, pageSize, getData]);
+    }, [queryType, pageNo, pageSize]);
     return (
         <div className="stu-paper-detail">
             <div className="header">

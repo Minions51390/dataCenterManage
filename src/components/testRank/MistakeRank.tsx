@@ -88,20 +88,20 @@ const MistakeRank = ({}: Props) => {
 
     const getData = useCallback(async () => {
         const params = {
-            examID: sessionStorage.getItem('examID'),
+            examId: sessionStorage.getItem('examId'),
             queryType,
             pageSize,
             pageNo: pageNum,
             query,
         };
         let res = await get({
-            url: `${baseUrl}/api/exam/statistics`,
+            url: `${baseUrl}/api/v1/exam/statistics`,
             config: {
                 params
             }
         });
         console.log('------------->', res);
-        const result = res?.data?.answerList?.map((item: any, index: number) => ({
+        const result = res?.data?.questionList?.map((item: any, index: number) => ({
             ...item,
             key: index + 1
         }));
