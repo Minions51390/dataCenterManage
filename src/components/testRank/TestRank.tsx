@@ -458,7 +458,7 @@ class TestRank extends React.Component {
                         </Select>
                     </div>
                     <div className="fir">
-                        <span className="span">学期:</span>
+                        <span className="span">阶段:</span>
                         <Select
                             mode="multiple"
                             allowClear

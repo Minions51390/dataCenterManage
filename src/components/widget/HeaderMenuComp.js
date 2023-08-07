@@ -104,7 +104,8 @@ const phoneReg = /^[1][1,2,3,4,5,7,8,9][0-9]{9}$/;
 				message.error('当前身份无法访问该页面，请登录教师账号')
 				window.location.href = `${baseUrl}/#/home`;
 				return
-			}
+            }
+            localStorage.setItem("classTeacherId", res.data.teacherId);
 			this.setState({ 
 				phone: res.data.phone,
 				realName: res.data.realName,
@@ -130,7 +131,8 @@ const phoneReg = /^[1][1,2,3,4,5,7,8,9][0-9]{9}$/;
 					phone: phone
 				}
 			});
-			localStorage.setItem("classTeacherAccount", res.data.userName);
+            localStorage.setItem("classTeacherAccount", res.data.userName);
+            localStorage.setItem("classTeacherId", res.data.teacherId);
 			console.log(res)
 			if (!res || !res.data || res.data.state == null) {
 				return

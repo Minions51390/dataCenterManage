@@ -246,7 +246,7 @@ class ErrorBook extends React.Component {
                                 </Option>
                             ))}
                         </Select>
-                        <span className="span1">学期:</span>
+                        <span className="span1">阶段:</span>
                         <Select
                             mode="multiple"
                             allowClear

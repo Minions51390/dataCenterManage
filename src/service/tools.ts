@@ -15,7 +15,6 @@ const service = axios.create({
 service.interceptors.response.use(
     (response) => {
         const res = response.data;
-        console.log('11111111', res);
         if (res.state === 1) {
             // 后台返回码，根据自己的业务进行修改
             // 权限问题

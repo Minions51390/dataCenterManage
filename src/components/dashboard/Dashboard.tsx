@@ -181,6 +181,11 @@ const getyAxisBetween = (key: any) => {
 let instance: any;
 class Dashboard extends React.Component {
     state = {
+        teacher: [],
+        selTeacher: {
+            teacherId: '',
+            realName: '',
+        },
         pici: [],
         selPici: '',
         banji: [],
@@ -308,14 +313,21 @@ class Dashboard extends React.Component {
     async inited() {
         // let userid = await this.login();
         let { options, mydate1, mydate2, calendarSelectedMouth, calendarSelectedYear } = this.state;
-        const pici = await this.getPici();
+        const teacher = await this.getTeacher();
+        const selTeacher = teacher.find((item:any) => {
+            return item.teacherId === Number(localStorage.getItem("classTeacherId"))
+        });
+        const pici = await this.getPici(selTeacher.teacherId);
         const banji = await this.getClass(pici[0].batchId);
         const stu = await this.getStu(banji[0]?.classId, pici[0].batchId);
-        const baseInfo = await this.baseInfo(stu[0] ? stu[0].studentId : 0);
+        const semester = await this.getSemester(banji[0].classId || 0);
+        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
+        const baseInfo = await this.baseInfo(stu[0] ? stu[0].studentId : 0, selSemester);
         const wrongInfo = await this.wrongBook({
             batchId: pici[0].batchId,
             classId: banji[0].classId,
             studentId: stu[0].studentId,
+            selSemester,
             pageVal: 1,
         });
         let data1 = [];
@@ -342,6 +354,7 @@ class Dashboard extends React.Component {
             batchId: pici[0].batchId,
             classId: banji[0].classId,
             studentId: stu[0].studentId,
+            selSemester,
             startDate: mydate1,
             endDate: mydate2,
         });
@@ -354,6 +367,7 @@ class Dashboard extends React.Component {
             batchId: pici[0].batchId,
             classId: banji[0].classId,
             studentId: stu[0].studentId,
+            selSemester,
             testDate: (new Date() as any).format('yyyy-MM-dd'),
         });
         testInfo.detail = testInfo.detail
@@ -368,16 +382,21 @@ class Dashboard extends React.Component {
             pici[0].batchId,
             banji[0].classId,
             stu[0].studentId,
+            selSemester,
             calendarSelectedMouth,
             calendarSelectedYear
         );
         this.setState({
+            teacher,
             pici,
             banji,
             stu,
+            semester,
+            selTeacher,
             selPici: pici[0].batchId,
             selBanji: banji[0].classId,
             selStu: stu[0].studentId,
+            selSemester,
             baseInfo,
             data1,
             data2,
@@ -419,11 +438,12 @@ class Dashboard extends React.Component {
                 type: key,
             },
             async () => {
-                let { selPici, selBanji, selStu, options, mydate2, mydate1 } = this.state;
+                let { selPici, selBanji, selStu, selSemester, options, mydate2, mydate1 } = this.state;
                 const centerData = await this.getChart({
                     batchId: selPici,
                     classId: selBanji,
                     studentId: selStu,
+                    selSemester,
                     startDate: mydate1,
                     endDate: mydate2,
                 });
@@ -445,7 +465,7 @@ class Dashboard extends React.Component {
         console.log(key);
     }
     async nowPagChange(val: any) {
-        let { selPici, selBanji, selStu, pageNo } = this.state;
+        let { selPici, selBanji, selStu, selSemester, pageNo } = this.state;
         let pageVal = val;
         this.setState({
             pageNo: val,
@@ -454,6 +474,7 @@ class Dashboard extends React.Component {
             batchId: selPici,
             classId: selBanji,
             studentId: selStu,
+            selSemester,
             pageVal,
         });
 
@@ -485,7 +506,7 @@ class Dashboard extends React.Component {
         });
     }
     async dataChange(data: any) {
-        let { selPici, selBanji, selStu, options, mydate2, mydate1 } = this.state;
+        let { selPici, selBanji, selStu, selSemester, options, mydate2, mydate1 } = this.state;
         if (!data) {
             return;
         }
@@ -499,6 +520,7 @@ class Dashboard extends React.Component {
             batchId: selPici,
             classId: selBanji,
             studentId: selStu,
+            selSemester,
             startDate: mydate1,
             endDate: mydate2,
         });
@@ -518,7 +540,7 @@ class Dashboard extends React.Component {
         let res = await get({
             url:
                 baseUrl +
-                `/api/v1/data-center/test-paper-result?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&date=${params.testDate}`,
+                `/api/v1/data-center/test-paper-result?batchId=${params.batchId}&classId=${params.classId}&semesters=${JSON.stringify(params.selSemester)}&studentId=${params.studentId}&date=${params.testDate}`,
         });
         return res ? res.data : null;
     }
@@ -528,7 +550,7 @@ class Dashboard extends React.Component {
                 baseUrl +
                 `/api/v1/data-center/recite-statistics?batchId=${params.batchId}&classId=${
                     params.classId
-                }&studentId=${params.studentId}&year=${params.calendarSelectedYear}&month=${
+                }&semesters=${JSON.stringify(params.selSemester)}&studentId=${params.studentId}&year=${params.calendarSelectedYear}&month=${
                     params.calendarSelectedMouth + 1
                 }`,
         });
@@ -540,7 +562,7 @@ class Dashboard extends React.Component {
         let res = await get({
             url:
                 baseUrl +
-                `/api/v1/data-center/score-statistics?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&type=${type}&startDate=${params.startDate}&endDate=${params.endDate}`,
+                `/api/v1/data-center/score-statistics?batchId=${params.batchId}&semesters=${JSON.stringify(params.selSemester)}&classId=${params.classId}&studentId=${params.studentId}&type=${type}&startDate=${params.startDate}&endDate=${params.endDate}`,
         });
         return res ? res.data : null;
     }
@@ -548,12 +570,12 @@ class Dashboard extends React.Component {
         let res = await get({
             url:
                 baseUrl +
-                `/api/v1/data-center/wrong-book?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&pageSize=20&pageNo=${params.pageVal}`,
+                `/api/v1/data-center/wrong-book?batchId=${params.batchId}&classId=${params.classId}&semesters=${JSON.stringify(params.selSemester)}&studentId=${params.studentId}&pageSize=20&pageNo=${params.pageVal}`,
         });
         return res ? res.data : null;
     }
-    async baseInfo(stuid: string) {
-        let res = await get({ url: baseUrl + `/api/v1/data-center/base-info?studentId=${stuid}` });
+    async baseInfo(stuid: string, selSemester: any) {
+        let res = await get({ url: baseUrl + `/api/v1/data-center/base-info?studentId=${stuid}&semesters=${JSON.stringify(selSemester)}` });
         return res ? res.data : null;
     }
     async login() {
@@ -566,8 +588,8 @@ class Dashboard extends React.Component {
         });
         return res;
     }
-    async getPici() {
-        let res = await get({ url: baseUrl + '/api/v1/structure/batch/list' });
+    async getPici(teacherId: any) {
+        let res = await get({ url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}` });
         console.log('批次', res);
         return res?.data || [];
     }
@@ -578,6 +600,10 @@ class Dashboard extends React.Component {
         console.log('班级', res);
         return res?.data || [];
     }
+    async getTeacher() {
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
+        return res?.data??[];
+    }
     async getStu(banji: any, pici?: any) {
         const { selPici } = this.state;
 		const realPici = pici || selPici;
@@ -587,32 +613,45 @@ class Dashboard extends React.Component {
         console.log('学生', res);
         return res?.data?.detail || [];
     }
-
+    async getSemester(classId: any){
+        let res = await get({
+            url: baseUrl + `/api/v1/structure/semester/list?classId=${classId}`
+        })
+        console.log(res);
+        return res?.data || [];
+    }
+    async handleTeacher (val:any){
+        const res = await this.getPici(val);
+        const pici = res[0] ? res[0]?.batchId : '';
+        this.setState({
+            selTeacher: val,
+            pici: res,
+        });
+        this.handlePiCi(pici);
+    }
     async handlePiCi(val: any) {
-        let res = await this.getClass(val);
-        let res1 = await this.getStu(res[0] ? res[0].classId : 0);
-        let selStu = res1[0] ? res1[0].studentId : 0;
+        const res = await this.getClass(val);
+        const selBanji = res[0] ? res[0].classId : 0;
         this.setState({
             selPici: val,
             banji: res,
-            selBanji: res[0] ? res[0].classId : 0,
-            stu: res1,
-            selStu: res1[0] ? res1[0].classId : 0,
         });
-        console.log(val);
-        this.handleStu(selStu);
+        this.handleBanji(selBanji);
     }
 
     async handleBanji(val: any) {
         let res = await this.getStu(val);
         let selStu = res[0] ? res[0].studentId : 0;
+        const semester = await this.getSemester(val);
+        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
         this.setState({
             selBanji: val,
             stu: res,
             selStu,
+            semester,
+            selSemester
         });
-        console.log(val);
-        this.handleStu(selStu);
+        this.handleSemester(selSemester);
     }
 
     async handleStu(val: any) {
@@ -620,6 +659,7 @@ class Dashboard extends React.Component {
             selPici,
             selBanji,
             selStu,
+            selSemester,
             options,
             mydate2,
             mydate1,
@@ -656,11 +696,12 @@ class Dashboard extends React.Component {
             return;
         }
 
-        const baseInfo = await this.baseInfo(val);
+        const baseInfo = await this.baseInfo(val, selSemester);
         const wrongInfo = await this.wrongBook({
             batchId: selPici,
             classId: selBanji,
             studentId: val,
+            selSemester,
             pageVal: 1,
         });
         let data1 = [];
@@ -685,6 +726,7 @@ class Dashboard extends React.Component {
             batchId: selPici,
             classId: selBanji,
             studentId: val,
+            selSemester,
             startDate: mydate1,
             endDate: mydate2,
         });
@@ -696,6 +738,7 @@ class Dashboard extends React.Component {
         let testInfo = await this.getTest({
             batchId: selPici,
             classId: selBanji,
+            selSemester,
             studentId: val,
             testDate: (new Date() as any).format('yyyy-MM-dd'),
         });
@@ -707,7 +750,7 @@ class Dashboard extends React.Component {
                       result: '1',
                   },
               ];
-        this.handleSketch(selPici, selBanji, val, moment().month(), moment().year());
+        this.handleSketch(selPici, selBanji, val, selSemester, moment().month(), moment().year());
         this.setState({
             selStu: val,
             baseInfo,
@@ -723,11 +766,21 @@ class Dashboard extends React.Component {
         instance.setOption(options, true);
         console.log(val);
     }
+    async handleSemester(val: any){
+        const { selStu } = this.state;
+        this.setState({
+            selSemester: val,
+        });
+        setTimeout(()=>{
+            this.handleStu(selStu);
+        }, 0)
+    }
 
     async handleSketch(
         batchId: any,
         classId: any,
         studentId: any,
+        selSemester: any,
         calendarSelectedMouth: any,
         calendarSelectedYear: any
     ) {
@@ -747,6 +800,7 @@ class Dashboard extends React.Component {
             batchId,
             classId,
             studentId,
+            selSemester,
             calendarSelectedMouth: prevCalendarSelectedMouth,
             calendarSelectedYear: prevCalendarSelectedYear,
         });
@@ -754,6 +808,7 @@ class Dashboard extends React.Component {
             batchId,
             classId,
             studentId,
+            selSemester,
             calendarSelectedMouth,
             calendarSelectedYear,
         });
@@ -761,6 +816,7 @@ class Dashboard extends React.Component {
             batchId,
             classId,
             studentId,
+            selSemester,
             calendarSelectedMouth: nextCalendarSelectedMouth,
             calendarSelectedYear: nextCalendarSelectedYear,
         });
@@ -776,7 +832,7 @@ class Dashboard extends React.Component {
     }
 
     onCalendarGoPrev(value: any, onChange: any) {
-        const { selPici, selBanji, selStu, sketchInfo } = this.state;
+        const { selPici, selBanji, selStu, selSemester, sketchInfo } = this.state;
         const month = value.month();
         const year = value.year();
         const newValue = value.clone();
@@ -796,13 +852,13 @@ class Dashboard extends React.Component {
             calendarSelectedYear: newValue.year(),
             sketchInfo: prevSketchInfo,
         });
-        this.handleSketch(selPici, selBanji, selStu, newValue.month(), newValue.year());
+        this.handleSketch(selPici, selBanji, selStu, selSemester, newValue.month(), newValue.year());
         console.log('newValue', newValue.format('YYYY-MM-DD'));
         onChange(newValue);
     }
 
     onCalendarGoNext(value: any, onChange: any) {
-        const { selPici, selBanji, selStu, sketchInfo } = this.state;
+        const { selPici, selBanji, selSemester, selStu, sketchInfo } = this.state;
         const month = value.month();
         const year = value.year();
         const newValue = value.clone();
@@ -822,17 +878,21 @@ class Dashboard extends React.Component {
             calendarSelectedYear: newValue.year(),
             sketchInfo: nextSketchInfo,
         });
-        this.handleSketch(selPici, selBanji, selStu, newValue.month(), newValue.year());
+        this.handleSketch(selPici, selBanji, selStu, selSemester, newValue.month(), newValue.year());
         console.log('newValue', newValue.format('YYYY-MM-DD'));
         onChange(newValue);
     }
 
     render() {
         const {
+            teacher,
+            selTeacher,
             pici,
             selPici,
             banji,
             selBanji,
+            semester,
+            selSemester,
             stu,
             selStu,
             baseInfo,
@@ -855,6 +915,19 @@ class Dashboard extends React.Component {
                 <div className="mains">
                     <div className="fir">数据中心</div>
                     <div className="sec">
+                        <span className="span">执教老师:</span>
+                        <Select
+                            defaultValue="请选择"
+                            style={{ width: 180 }}
+                            value={selTeacher?.realName || (teacher[0] && (teacher[0] as any).realName) || '请选择'}
+                            onChange={this.handleTeacher.bind(this)}
+                        >
+                            {teacher.map((item: any) => (
+                                <Option key={item.teacherId} value={item.teacherId}>
+                                    {item.realName}
+                                </Option>
+                            ))}
+                        </Select>
                         <span className="span">学员批次:</span>
                         <Select
                             defaultValue="请选择"
@@ -891,6 +964,20 @@ class Dashboard extends React.Component {
                             {stu.map((item: any) => (
                                 <Option key={item.studentId} value={item.studentId}>
                                     {item.describe}
+                                </Option>
+                            ))}
+                        </Select>
+                        <span className="span">阶段:</span>
+                        <Select
+                            mode="multiple"
+                            allowClear
+                            style={{ width: 360 }}
+                            value={selSemester}
+                            onChange={this.handleSemester.bind(this)}
+                        >
+                            {semester.map((item: any) => (
+                                <Option key={item.semesterId} value={item.semesterId}>
+                                    {item.semesterName}
                                 </Option>
                             ))}
                         </Select>

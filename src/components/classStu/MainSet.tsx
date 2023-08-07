@@ -538,6 +538,16 @@ class MainSet extends React.Component {
                     </div>
                 </div>
                 <div className="xueqi-line">
+                    {
+                        (selJieduan || jieduan[0]) ? '' : (
+                            <div className="xueqi-tips">
+                                <div>i</div>
+                                <div>
+                                    新创建的班级，需要添加一个学习阶段后，才能设置学习任务。
+                                </div>
+                            </div>
+                        )
+                    }
                     <div className="line">
                         <div className="sec">
                             <span style={{ marginRight: '12px' }}>学习阶段：</span>
@@ -563,7 +573,7 @@ class MainSet extends React.Component {
                         </div>
                         <div className="div1">
                             <Button block onClick={this.addJieduan.bind(this)}>
-                                新增阶段
+                                + 新增阶段
                             </Button>
                         </div>
                     </div>
@@ -595,6 +605,7 @@ class MainSet extends React.Component {
                             <div className="sec">
                                 <span style={{ marginRight: '12px' }}>教师设置</span>
                                 <Input
+                                    disabled={!selJieduan}
                                     style={{ width: 240 }}
                                     value={wordVal}
                                     onChange={this.onTeacherWordChange.bind(this)}
@@ -631,6 +642,7 @@ class MainSet extends React.Component {
                                     onChange={this.onStartTypeChange.bind(this)}
                                     value={startType}
                                     defaultValue="arbitrarily"
+                                    disabled={!selJieduan}
                                 >
                                     <Radio value={'arbitrarily'}>是</Radio>
                                     <Radio value={'noChoice'}>否</Radio>
@@ -664,6 +676,7 @@ class MainSet extends React.Component {
                             <div className="sec">
                                 <Select
                                     defaultValue={dbVal}
+                                    disabled={!selJieduan}
                                     value={
                                         dbVal || '请选择'
                                     }
@@ -677,7 +690,7 @@ class MainSet extends React.Component {
                                     ))}
                                 </Select>
                                 <div className="div1">
-                                    <Button block onClick={this.addCiku.bind(this)}>
+                                    <Button block disabled={!selJieduan} onClick={this.addCiku.bind(this)}>
                                         添加词库
                                     </Button>
                                 </div>
@@ -693,11 +706,11 @@ class MainSet extends React.Component {
                     {!firState ? (
                         <div className="last-line">
                             <div className="div1">
-                                <Button block onClick={this.resetFir.bind(this)}>
+                                <Button block disabled={!selJieduan} onClick={this.resetFir.bind(this)}>
                                     复原
                                 </Button>
                             </div>
-                            <Button type="primary" onClick={this.saveFir.bind(this)}>
+                            <Button type="primary" disabled={!selJieduan} onClick={this.saveFir.bind(this)}>
                                 保存设置
                             </Button>
                         </div>
@@ -727,6 +740,7 @@ class MainSet extends React.Component {
                                 <Radio.Group
                                     onChange={this.onLittleTypeChange.bind(this)}
                                     value={littleType}
+                                    disabled={!selJieduan}
                                 >
                                     <Radio value={'ch-to-en'}>展示中文释义选择英文</Radio>
                                     <Radio value={'en-to-ch'}>展示英文选择中文释义</Radio>
@@ -769,6 +783,7 @@ class MainSet extends React.Component {
                                 <Radio.Group
                                     onChange={this.onBigTypeChange.bind(this)}
                                     value={bigType}
+                                    disabled={!selJieduan}
                                 >
                                     <Radio value={'off'}>暂不开启</Radio>
                                     <Radio value={'on'}>开启</Radio>
@@ -786,6 +801,7 @@ class MainSet extends React.Component {
                                             考试词数：
                                         </div>
                                         <Input
+                                            disabled={!selJieduan}
                                             style={{ width: 172 }}
                                             value={bigCount}
                                             onChange={this.onBigCountChange.bind(this)}
@@ -808,11 +824,11 @@ class MainSet extends React.Component {
                     </div>
                     <div className="last-line">
                         <div className="div1">
-                            <Button block onClick={this.resetSec.bind(this)}>
+                            <Button block disabled={!selJieduan} onClick={this.resetSec.bind(this)}>
                                 复原
                             </Button>
                         </div>
-                        <Button type="primary" onClick={this.saveSec.bind(this)}>
+                        <Button type="primary" disabled={!selJieduan} onClick={this.saveSec.bind(this)}>
                             保存设置
                         </Button>
                     </div>
@@ -835,6 +851,7 @@ class MainSet extends React.Component {
                                 <div className="sec">
                                     <div style={{ marginRight: 15}}>试卷ID：</div>
                                     <Input
+                                        disabled={!selJieduan}
                                         style={{ width: 172 }}
                                         value={paperId}
                                         onChange={this.onPaperIdChange.bind(this)}
@@ -843,6 +860,7 @@ class MainSet extends React.Component {
                                 <div className="sec">
                                     <div>试卷名称：</div>
                                     <Input
+                                        disabled={!selJieduan}
                                         style={{ width: 172 }}
                                         value={ paperName }
                                         onChange={this.onPaperNameChange.bind(this)}
@@ -877,11 +895,11 @@ class MainSet extends React.Component {
                     <div className="last-line">
                         <div className="right">
                             <div className="div1">
-                                <Button block onClick={this.resetThr.bind(this)}>
+                                <Button block disabled={!selJieduan} onClick={this.resetThr.bind(this)}>
                                     复原
                                 </Button>
                             </div>
-                            <Button type="primary" onClick={this.saveThr.bind(this)}>
+                            <Button type="primary" disabled={!selJieduan} onClick={this.saveThr.bind(this)}>
                                 发布考试
                             </Button>
                         </div>
@@ -907,8 +925,10 @@ class MainSet extends React.Component {
                         <div className="xueqi-line" style={{ marginTop: '24px' }}>
                             <div className="line" style={{ display: 'block' }}>
                                 <div className="sec">
+                                    <span style={{ color: 'red', marginRight: '6px' }}>*</span>
                                     <span style={{ marginRight: '12px' }}>阶段名称：</span>
                                     <Input
+                                        disabled={!selJieduan}
                                         placeholder="例：2023届大一上学期"
                                         style={{ width: 240 }}
                                         value={jieduanText}

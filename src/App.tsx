@@ -76,6 +76,7 @@ async function getMes() {
         return
     }
     localStorage.setItem("classTeacherAccount", res.data.userName);
+    localStorage.setItem("classTeacherId", res.data.teacherId);
     return res
 }
 
