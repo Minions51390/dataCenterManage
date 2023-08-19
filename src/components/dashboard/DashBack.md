@@ -75,8 +75,8 @@
                     <SyncOutlined />
                 </span>
                 <Timeline>
-                    <Timeline.Item color="green">倾城背单词成立</Timeline.Item>
-                    <Timeline.Item color="green">倾城背单词初版</Timeline.Item>
+                    <Timeline.Item color="green">倾橙背单词成立</Timeline.Item>
+                    <Timeline.Item color="green">倾橙背单词初版</Timeline.Item>
                     <Timeline.Item color="red">
                         <p>初版收尾</p>
                         <p>后台建设</p>

@@ -140,7 +140,7 @@ const MistakeRank = ({}: Props) => {
             <div className="body">
                 <div className="select">
                     <div className="select-item">
-                        <span>学院批次：</span>
+                        <span>学员批次：</span>
                         <span>{bici}</span>
                     </div>
                     <div className="select-item">

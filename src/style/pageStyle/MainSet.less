@@ -101,7 +101,7 @@
         .fir-line {
             display: flex;
             align-items: center;
-            height: 56px;
+            height: 80px;
             width: 100%;
             border-bottom: 1px solid #e9e9e9;
             .left {
@@ -118,25 +118,21 @@
             .right {
                 display: flex;
                 align-items: center;
-                width: 580px;
-                height: 40px;
+                height: 60px;
                 background: #e6f7ff;
                 border: 1px solid #91d5ff;
                 border-radius: 4px;
-                div {
-                    color: rgba(0, 0, 0, 0.65);
-                    &:nth-of-type(1) {
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        width: 14px;
-                        height: 14px;
-                        background: #1890ff;
-                        border-radius: 50%;
-                        color: #fff;
-                        margin-left: 16px;
-                        margin-right: 8px;
-                    }
+                .fir-line-icon{
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 14px;
+                    height: 14px;
+                    background: #1890ff;
+                    border-radius: 50%;
+                    color: #fff;
+                    margin-left: 16px;
+                    margin-right: 8px;
                 }
             }
         }
@@ -181,6 +177,12 @@
                 margin-top: 12px;
                 display: flex;
                 align-items: center;
+                .ant-btn {
+                    width: 80px;
+                    span {
+                        color: rgba(0, 0, 0, 0.65);
+                    }
+                }
                 .div {
                     margin-left: 8px;
                     width: 284px;
@@ -198,6 +200,9 @@
                     margin-left: 6px;
                     color: rgba(0, 0, 0, 0.65);
                 }
+            }
+            .sec-save{
+                justify-content: space-between;
             }
         }
         .thr-line {

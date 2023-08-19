@@ -360,7 +360,7 @@ class BankDetail extends React.Component {
                         </div>
                         <div className="tr">
                             <div>
-                                题库类型：<span>{ENUM_BANK_TYPE[bankType]}</span>
+                                题库题型：<span>{ENUM_BANK_TYPE[bankType]}</span>
                             </div>
                             <div>
                                 更新时间：<span>{updateTime}</span>

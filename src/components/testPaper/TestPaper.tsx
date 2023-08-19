@@ -1,9 +1,10 @@
 import React from 'react';
-import { Table, Pagination, Input, Button, Modal, message } from 'antd';
+import { Table, Pagination, Input, Button, Select, Modal, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/TestPaper.less';
 import copy from 'clipboard-copy';
 import { get, post, baseUrl } from '../../service/tools';
+const { Option } = Select;
 class TestPaper extends React.Component {
     state = {
         pageNo: 1,
@@ -58,23 +59,56 @@ class TestPaper extends React.Component {
             },
         ],
         data1: [],
+        teacher: [],
+        selTeacher: {
+            teacherId: '',
+            realName: '',
+        }
     };
     componentWillMount() {
         this.inited();
     }
     async inited() {
-        this.getTest();
+        const teacher = await this.getTeacher();
+        const selTeacher = teacher.find((item:any) => {
+            return item.teacherId === Number(localStorage.getItem("classTeacherId"))
+        });
+        this.setState({
+            teacher,
+            selTeacher,
+        }, async () => {
+            this.getTest();
+        });
     }
+
     async getTest() {
-        const { testQuery, pageNo } = this.state;
+        const { testQuery, pageNo, selTeacher } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/question-paper/list?query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
+            url: `${baseUrl}/api/v1/question-paper/list?teacherId=${selTeacher.teacherId}&query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
         });
         const questionBankList = res?.data?.questionPaperList || [];
         const totalCount = (res?.data?.totalCount || 0) / 20;
         this.setState({
             data1: questionBankList,
             totalCount,
+        });
+    }
+
+    /** 获取教师列表 */
+    async getTeacher() {
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
+        return res?.data??[];
+    }
+
+    handleTeacher(val: any){
+        const { teacher } = this.state;
+        const selTeacher = teacher.find((item:any) => {
+            return item.teacherId === val
+        });
+        this.setState({
+            selTeacher,
+        }, async () => {
+            this.getTest();
         });
     }
 
@@ -175,7 +209,7 @@ class TestPaper extends React.Component {
     }
 
     render() {
-        const { columns1, data1, pageNo, totalCount, testQuery, testName, isVisible } = this.state;
+        const { columns1, data1, pageNo, totalCount, testQuery, testName, isVisible, teacher, selTeacher } = this.state;
         return (
             <div className="paper-wrapper">
                 <div className="header">
@@ -206,6 +240,21 @@ class TestPaper extends React.Component {
                                 新建
                             </Button>
                         </div>
+                    </div>
+                    <div className="sec">
+                        <span className="span">执教教师:</span>
+                        <Select
+                            defaultValue="请选择"
+                            style={{ width: 180 }}
+                            value={selTeacher?.realName || (teacher[0] && (teacher[0] as any).realName) || '请选择'}
+                            onChange={this.handleTeacher.bind(this)}
+                        >
+                            {teacher.map((item: any) => (
+                                <Option key={item.teacherId} value={item.teacherId}>
+                                    {item.realName}
+                                </Option>
+                            ))}
+                        </Select>
                     </div>
                     <div className="thr">
                         <Table

@@ -5,6 +5,11 @@ import { get, post, baseUrl } from '../../service/tools';
 const { Option } = Select;
 class Ranks extends React.Component {
     state = {
+        teacher: [],
+        selTeacher: {
+            teacherId: '',
+            realName: '',
+        },
         pici: [],
         selPici: '',
         banji: [],
@@ -42,7 +47,7 @@ class Ranks extends React.Component {
                 },
             },
             {
-                title: '大考成绩(平均)',
+                title: '阶段考成绩(平均)',
                 dataIndex: 'sptPassRate',
                 key: 'sptPassRate',
                 sorter: {
@@ -73,8 +78,7 @@ class Ranks extends React.Component {
                 sorter: {
                     compare: (a: any, b: any) => {
                         console.log(a, b);
-
-                        return parseInt(a.studyTime) - parseInt(b.studyTime);
+                        return parseFloat(a.studyTime) - parseFloat(b.studyTime);
                     },
                     multiple: 2,
                 },
@@ -109,22 +113,35 @@ class Ranks extends React.Component {
         this.inited();
     }
     async inited() {
-        const pici = await this.getPici();
+        const teacher = await this.getTeacher();
+        const selTeacher = teacher.find((item:any) => {
+            return item.teacherId === Number(localStorage.getItem("classTeacherId"))
+        });
+        const pici = await this.getPici(selTeacher.teacherId);
         const banji = await this.getClass(pici[0].batchId || 0);
         const semester = await this.getSemester(banji[0].classId || 0);
         const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
         this.setState({
+            teacher,
             pici,
             banji,
             semester,
             selPici: pici[0].batchId,
             selBanji: banji[0].classId,
             selSemester,
+        }, async () => {
+            this.getRank();
         });
     }
 
-    async getPici() {
-        let res = await get({ url: baseUrl + '/api/v1/structure/batch/list' });
+    /** 获取教师列表 */
+    async getTeacher() {
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
+        return res?.data??[];
+    }
+
+    async getPici(teacherId:any) {
+        let res = await get({ url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}`});
         return res?.data || [];
     }
     async getClass(pici: any) {
@@ -133,7 +150,6 @@ class Ranks extends React.Component {
         //     pici || 0,
         //     res?.data[0] ? res?.data[0].classId : 0
         // );
-        console.log(res);
         return res?.data || [];
     }
     async getSemester(classId: any){
@@ -142,14 +158,13 @@ class Ranks extends React.Component {
         })
         return res?.data || [];
     }
-    async getRank(semesters: any) {
-        const { evaluation, wordsCount, studyTime, passRate, pageNo, sptPassRate } = this.state;
+    async getRank() {
+        const { evaluation, wordsCount, studyTime, passRate, pageNo, sptPassRate, selSemester } = this.state;
         let res = await get({
             url:
                 baseUrl +
-                `/api/v1/semester-score/list?semesters=${semesters}&score=${evaluation}&wordsCount=${wordsCount}&studyTime=${studyTime}&stageTestPassRate=${sptPassRate}&testPassRate=${passRate}&pageNo=${pageNo}&pageSize=10`,
+                `/api/v1/semester-score/list?semesters=${JSON.stringify(selSemester)}&score=${evaluation}&wordsCount=${wordsCount}&studyTime=${studyTime}&stageTestPassRate=${sptPassRate}&testPassRate=${passRate}&pageNo=${pageNo}&pageSize=10`,
         });
-        console.log(99999, res.data.semesterScoreList);
         let data1 = res.data.semesterScoreList
             ? res.data.semesterScoreList
 			.slice(0, 10).map((val: any, index: number) => {
@@ -168,24 +183,37 @@ class Ranks extends React.Component {
             : [];
         this.setState({
             data1,
-            allCount: res.data.totalPage,
+            allCount: res.data.totalCount,
         });
         return res.data || [];
     }
-
+    // 教师切换
+    async handleTeacher(val: any){
+        const { teacher } = this.state;
+        const selTeacher = teacher.find((item:any) => {
+            return item.teacherId === val
+        });
+        const res = await this.getPici(val);
+        const pici = res[0] ? res[0]?.batchId : '';
+        this.setState({
+            selTeacher,
+            pici: res,
+        }, async () => {
+            this.handlePiCi(pici);
+        });
+    }
     async handlePiCi(val: any) {
         const res = await this.getClass(val);
-        const semester = await this.getSemester(res[0]?.classId);
-        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
+        const selBanji = res[0] ? res[0].classId : 0;
         this.setState({
             selPici: val,
             banji: res,
-            selBanji: res[0] ? res[0].classId : 0,
+            selBanji,
             pageNo: 1,
-            semester,
-            selSemester,
+        }, async () => {
+            this.handleBanji(selBanji)
         });
-        console.log(val);
+        
     }
     async handleBanji(val: any) {
         const semester = await this.getSemester(val);
@@ -196,35 +224,31 @@ class Ranks extends React.Component {
                 pageNo: 1,
                 semester,
                 selSemester,
-            },
-            async () => {
-                let rankList = await this.getRank(JSON.stringify(selSemester));
-                console.log(val);
+            }, async () => {
+                this.handleSemester(selSemester);
             }
         );
     }
     async handleSemester(val: any) {
-        console.log('val', val)
         this.setState({
             selSemester: val,
+        }, async () => {
+            this.getRank();
         });
-        await this.getRank(JSON.stringify(val));
     }
     nowPagChange(val: any) {
-        let { selSemester } = this.state;
         this.setState(
             {
                 pageNo: val,
             },
             async () => {
-                const ranklist = await this.getRank(JSON.stringify(selSemester));
+                this.getRank();
             }
         );
     }
 
     render() {
-        const { pici, selPici, banji, selBanji, semester, selSemester, columns1, data1, pageNo, allCount } = this.state;
-        console.log('this.state', this.state)
+        const { teacher, pici, selPici, banji, selBanji, semester, selTeacher, selSemester, columns1, data1, pageNo, allCount } = this.state;
         return (
             <div className="rank-wrapper">
                 <div className="header">
@@ -233,16 +257,16 @@ class Ranks extends React.Component {
                 </div>
                 <div className="body">
                     <div className="sec">
-                        <span className="span">执教老师:</span>
+                        <span className="span">执教教师:</span>
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}
-                            value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
-                            onChange={this.handlePiCi.bind(this)}
+                            value={selTeacher?.realName || (teacher[0] && (teacher[0] as any).realName) || '请选择'}
+                            onChange={this.handleTeacher.bind(this)}
                         >
-                            {pici.map((item: any) => (
-                                <Option key={item.batchId} value={item.batchId}>
-                                    {item.describe}
+                            {teacher.map((item: any) => (
+                                <Option key={item.teacherId} value={item.teacherId}>
+                                    {item.realName}
                                 </Option>
                             ))}
                         </Select>
@@ -302,7 +326,7 @@ class Ranks extends React.Component {
                             defaultCurrent={1}
                             defaultPageSize={10}
                             current={pageNo}
-                            total={allCount * 10}
+                            total={allCount}
                             onChange={this.nowPagChange.bind(this)}
                         />
                     </div>

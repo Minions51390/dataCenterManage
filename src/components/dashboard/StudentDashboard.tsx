@@ -786,7 +786,7 @@ class Dashboard extends React.Component {
                                 <TabPane tab="测试通过率" key="pass_rate" />
                                 <TabPane tab="每日学习时长" key="study_time" />
                                 <TabPane tab="每日背词数" key="recite_count" />
-                                <TabPane tab="大考通过率" key="spt_pass_rate" />
+                                <TabPane tab="单词阶段考通过率" key="spt_pass_rate" />
                             </Tabs>
                             <div className="tab-content">
                                 <div className="content">
@@ -855,11 +855,11 @@ class Dashboard extends React.Component {
                                         const year = value.year();
                                         return (
                                           <div className="custom-header">
-                                            <div className="left-icon" onClick={this.onCalendarGoPrev.bind(this, value, onChange)}/>
+                                            <div className="left-icon" onClick={this.onCalendarGoPrev.bind(this, value, onChange)} />
                                             <div className="current-date-title">
                                                 {`${String(year)}年  ${String(month + 1)}月`}
                                             </div>
-                                            <div className="right-icon" onClick={this.onCalendarGoNext.bind(this, value, onChange)}/>
+                                            <div className="right-icon" onClick={this.onCalendarGoNext.bind(this, value, onChange)} />
                                           </div>
                                         );
                                       }}

@@ -5,6 +5,11 @@ import { get, post, baseUrl } from '../../service/tools';
 const { Option } = Select;
 class ErrorBook extends React.Component {
     state = {
+        teacher: [],
+        selTeacher: {
+            teacherId: '',
+            realName: '',
+        },
         pici: [],
         selPici: '',
         banji: [],
@@ -60,15 +65,21 @@ class ErrorBook extends React.Component {
                 dbVal: res[0].dictionaryId,
             },
             async () => {
-                const pici = await this.getPici();
+                const teacher = await this.getTeacher();
+                const selTeacher = teacher.find((item:any) => {
+                    return item.teacherId === Number(localStorage.getItem("classTeacherId"))
+                });
+                const pici = await this.getPici(selTeacher.teacherId);
                 const banji = await this.getClass(pici[0].batchId || 0);
                 const semester = await this.getSemester(banji[0].classId || 0);
                 const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
                 console.log('inited', selSemester)
                 this.setState({
+                    teacher,
                     pici,
                     banji,
                     semester,
+                    selTeacher,
                     selPici: pici[0].batchId,
                     selBanji: banji[0].classId,
                     selSemester,
@@ -81,8 +92,12 @@ class ErrorBook extends React.Component {
         let res = await get({ url: baseUrl + '/api/v1/material/dictionary/list' });
         return res.data || [];
     }
-    async getPici() {
-        let res = await get({ url: baseUrl + '/api/v1/structure/batch/list' });
+    async getTeacher() {
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
+        return res?.data??[];
+    }
+    async getPici(teacherId: any) {
+        let res = await get({ url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}`});
         return res?.data || [];
     }
     async getClass(pici: any) {
@@ -125,7 +140,19 @@ class ErrorBook extends React.Component {
         });
         return res.data || [];
     }
-
+    async handleTeacher (val:any){
+        const { teacher } = this.state;
+        const selTeacher = teacher.find((item:any) => {
+            return item.teacherId === val
+        });
+        const res = await this.getPici(val);
+        const pici = res[0] ? res[0]?.batchId : '';
+        this.setState({
+            selTeacher,
+            pici: res,
+        });
+        this.handlePiCi(pici);
+    }
     async handlePiCi(val: any) {
         const res = await this.getClass(val);
         const semester = await this.getSemester(res[0]?.classId);
@@ -184,6 +211,8 @@ class ErrorBook extends React.Component {
 
     render() {
         const {
+            teacher,
+            selTeacher,
             pici,
             selPici,
             banji,
@@ -220,6 +249,19 @@ class ErrorBook extends React.Component {
                                 </Option>
                             ))}
                         </Select> */}
+                        <span className="span">执教教师:</span>
+                        <Select
+                            defaultValue="请选择"
+                            style={{ width: 180 }}
+                            value={selTeacher?.realName || (teacher[0] && (teacher[0] as any).realName) || '请选择'}
+                            onChange={this.handleTeacher.bind(this)}
+                        >
+                            {teacher.map((item: any) => (
+                                <Option key={item.teacherId} value={item.teacherId}>
+                                    {item.realName}
+                                </Option>
+                            ))}
+                        </Select>
                         <span className="span2">学员批次:</span>
                         <Select
                             defaultValue="请选择"
@@ -250,7 +292,7 @@ class ErrorBook extends React.Component {
                         <Select
                             mode="multiple"
                             allowClear
-                            style={{ width: 360 }}
+                            style={{ width: 240 }}
                             value={selSemester}
                             onChange={this.handleSemester.bind(this)}
                         >

@@ -42,6 +42,7 @@ class MainClass extends React.Component {
             classTeacher: '',
             createDate: '',
             studentCount: '',
+            currentSemester: '',
         },
         columns1: [
             {
@@ -330,13 +331,12 @@ class MainClass extends React.Component {
 	handleJiaojieOk() {
         const { selTeacher, classId, teacher } = this.state;
         const curTeacher = teacher.find((item:any) => item.teacherId === selTeacher);
-        console.log('curTeacher', curTeacher)
         this.setState({
             jiaojieModal: false,
         });
         Modal.confirm({
             title: '交接班级',
-            content: `学习阶段添加成功！请同步设置班级新的学习任务。${curTeacher?.['realName']}（账号：${curTeacher?.['realName']}）？交接成功后，您将不再拥有对该班级的管理权限，但您仍可以查看该班级的各项信息。`,
+            content: `是否确认将该班级交接给${curTeacher?.['realName']}（账号：${curTeacher?.['realName']}）？交接成功后，您将不再拥有对该班级的管理权限，但您仍可以查看该班级的各项信息。`,
             cancelText: '取消',
             okText: '确定',
             onOk: () => {
@@ -348,9 +348,9 @@ class MainClass extends React.Component {
                     },
                 }).then((res) => {
                     if(res.state === 0){
-                        message.success('交接成功');
+                        message.success('班级交接发布成功');
                     }else{
-                        message.error(`交接失败:${res.msg}`);
+                        message.error(`班级交接发布失败:${res.msg}`);
                     }
                 });
             }
@@ -395,27 +395,27 @@ class MainClass extends React.Component {
                     </div>
                     <div className="sec-line">
                         <div className="left">
-                            <div>班级人数:</div>
-                            <div>{classInfo.studentCount}</div>
+                            <div className="sec-item-title">班级人数:</div>
+                            <div className="sec-item-content">{classInfo.studentCount}</div>
                         </div>
                         <div className="left">
-                            <div>创建时间:</div>
-                            <div>{classInfo.createDate.split('T')[0]}</div>
+                            <div className="sec-item-title">创建时间:</div>
+                            <div className="sec-item-content">{classInfo.createDate.split('T')[0]}</div>
                         </div>
                         <div className="left">
-                            <div>当前阶段:</div>
-                            <div>{classInfo.createDate.split('T')[0]}</div>
+                            <div className="sec-item-title">当前阶段:</div>
+                            <div className="sec-item-content">{classInfo.currentSemester}</div>
                         </div>
                         <div className="right">新生申请</div>
                     </div>
                     <div className="thr-line">
                         <div className="left">
-                            <div>班主任:</div>
-                            <div>{classInfo.classTeacher || '佚名'}</div>
+                            <div className="sec-item-title">班主任:</div>
+                            <div className="sec-item-content">{classInfo.classTeacher || '佚名'}</div>
                         </div>
                         <div className="left">
-                            <div>班级码:</div>
-                            <div>{classInfo.classCode}</div>
+                            <div className="sec-item-title">班级码:</div>
+                            <div className="sec-item-content">{classInfo.classCode}</div>
                         </div>
                         <div className="right">{data1.length}</div>
                     </div>

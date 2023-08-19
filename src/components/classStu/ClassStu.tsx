@@ -234,7 +234,7 @@ class ClassStu extends React.Component {
                         },
                     });
                     if(res.state === 0){
-                        message.success('交接成功')
+                        message.success('接收成功')
                         this.initData()
                     }else{
                         message.error(`${res.msg}`)

@@ -57,11 +57,11 @@ const content4 = (
 );
 const content5 = (
     <div className="popColor">
-        <div>大考将按词库单词顺序依次将单词加入大考测试词库。</div>
+        <div>单词阶段考将按词库单词顺序依次将单词加入单词阶段考测试词库。</div>
         <div>
-            开启大考后，所填考试词数，为本次大考所考词数；如第一次大考则从词库内第一个单词计数。
+            开启单词阶段考后，所填考试词数，为本次单词阶段考所考词数；如第一次单词阶段考则从词库内第一个单词计数。
         </div>
-        <div>若非第一次大考，则从上次大考最后一个词的后一个词开始计数，以此类推。</div>
+        <div>若非第一次单词阶段考，则从上次单词阶段考最后一个词的后一个词开始计数，以此类推。</div>
     </div>
 );
 
@@ -140,6 +140,7 @@ class MainSet extends React.Component {
                 bigType: res?.data?.stageWordsTest || '',
                 specialTestDate: res?.data?.specialTestDate || new Date(),
                 paperId: res?.data?.specialTestID || 1,
+                bigCount: res?.data?.stageTestReciteVersion || 0,
             },
             () => {
                 this.getTestData();
@@ -207,7 +208,7 @@ class MainSet extends React.Component {
         });
     }
     setTest() {
-        const { littleType, bigType, classId, paperId, diyTime, selJieduan } = this.state;
+        const { littleType, bigType, bigCount, classId, paperId, diyTime, selJieduan } = this.state;
         let params: any = {};
         if (bigType === 'on') {
             params = {
@@ -218,6 +219,7 @@ class MainSet extends React.Component {
                 specialTestDate: diyTime,
                 classId: +classId,
                 semesterId: +selJieduan,
+                stageTestReciteVersion: +bigCount,
             };
         } else {
             params = {
@@ -285,19 +287,25 @@ class MainSet extends React.Component {
             wordVal: value,
         });
     }
-
+    onTeacherWordBlur(event: any) {
+        const wordVal = event.target.value
+        if(wordVal && wordVal < 5){
+            message.warn('背词数设置过少');
+        }else if(wordVal > 40){
+            message.warn('背词数设置过多');
+        }
+    }
     onTeacherWordChange(event: any) {
         const wordVal = event.target.value
-        // if(wordVal < 5 || wordVal > 100){
-        //     message.warn('数量限制5~100词');
-        // }else{
-        //     this.setState({
-        //         wordVal: wordVal,
-        //     });
-        // }
         this.setState({
             wordVal: wordVal,
         });
+    }
+
+    wordValChange(){
+        this.setState({
+            firState: 0,
+        })
     }
 
     handleWordDb(value: any) {
@@ -353,6 +361,7 @@ class MainSet extends React.Component {
                 dbVal: res?.data?.dictionaryId || 0,
                 paperId: res?.data?.specialTestID || '',
                 diyTime: res?.data?.specialTestDate || new Date(),
+                bigCount: res?.data?.stageTestReciteVersion || 0,
             },
             () => {
                 this.getTestData();
@@ -375,6 +384,7 @@ class MainSet extends React.Component {
             bigType: res.data.stageWordsTest,
             specialTestDate: res.data.specialTestDate,
             paperId: res?.data?.specialTestID,
+            bigCount: res?.data?.stageTestReciteVersion,
         });
     }
     saveThr() {
@@ -582,9 +592,10 @@ class MainSet extends React.Component {
                     <div className="fir-line">
                         <div className="left">背词设置</div>
                         <div className="right">
-                            <div>i</div>
+                            <div className="fir-line-icon">i</div>
                             <div>
-                                背词设置内各选项只能修改一次；保存设置后或学员开始背词后无法再做更改。
+                                <div>背词设置内除每日背词数选项外，其他选项在当前阶段内只能设置一次；</div>
+                                <div>保存设置后或学员开始背词后无法再做更改。</div>
                             </div>
                         </div>
                     </div>
@@ -608,18 +619,22 @@ class MainSet extends React.Component {
                                     disabled={!selJieduan}
                                     style={{ width: 240 }}
                                     value={wordVal}
+                                    onBlur={this.onTeacherWordBlur.bind(this)}
                                     onChange={this.onTeacherWordChange.bind(this)}
                                 />
                                 <div className="div">(推荐每日背词数为10-20个，最多40个)</div>
                             </div>
                         ) : (
-                            <div className="sec">
+                            <div className="sec sec-save">
                                 <div>
                                     状态:{' '}
                                     <div className="state-co">
                                         教师设置 {` 背词数: ${wordVal} 个`}
                                     </div>
                                 </div>
+                                <Button block onClick={this.wordValChange.bind(this)}>
+                                    修改
+                                </Button>
                             </div>
                         )}
                     </div>
@@ -690,9 +705,16 @@ class MainSet extends React.Component {
                                     ))}
                                 </Select>
                                 <div className="div1">
-                                    <Button block disabled={!selJieduan} onClick={this.addCiku.bind(this)}>
-                                        添加词库
-                                    </Button>
+                                    <Tooltip
+                                        title="可自定义添加词库"
+                                        trigger="hover"
+                                        placement="top"
+                                        color="rgba(0, 0, 0, 0.7)"
+                                    >
+                                        <Button block disabled={!selJieduan} onClick={this.addCiku.bind(this)}>
+                                            添加词库
+                                        </Button>
+                                    </Tooltip>
                                 </div>
                             </div>
                         ) : (

@@ -39,7 +39,7 @@ class QueBank extends React.Component {
                 sorter: true,
             },
             {
-                title: '题库类型',
+                title: '题库题型',
                 key: 'setType',
                 sorter: true,
                 render: (text: any) => <div>{BANK_TYPE_MAP[text.setType] || '未知'}</div>,
@@ -67,18 +67,39 @@ class QueBank extends React.Component {
             },
         ],
         data1: [],
+        teacher: [],
+        selTeacher: {
+            teacherId: '',
+            realName: '',
+        }
     };
     componentWillMount() {
         this.inited();
     }
     async inited() {
+        const teacher = await this.getTeacher();
+        const selTeacher = teacher.find((item:any) => {
+            return item.teacherId === Number(localStorage.getItem("classTeacherId"))
+        });
+        this.setState({
+            teacher,
+            selTeacher,
+        });
         this.getQuestionBankList();
     }
+
+    /** 获取教师列表 */
+    async getTeacher() {
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
+        return res?.data??[];
+    }
+
     /** 获取题库列表 */
     async getQuestionBankList() {
-        const { bankQuery, pageNo, sortKey, sortOrder } = this.state;
+        const { bankQuery, pageNo, sortKey, sortOrder, selTeacher } = this.state;
+        console.log('selTeacher', selTeacher)
         let res = await get({
-            url: `${baseUrl}/api/v1/question-set/list?query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}&all=off`,
+            url: `${baseUrl}/api/v1/question-set/list?teacherId=${selTeacher.teacherId}query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}&all=off`,
         });
         console.log('------------->', res);
         const questionBankList = res?.data?.questionSetList || [];
@@ -179,8 +200,20 @@ class QueBank extends React.Component {
             }
         );
     }
+    /** 教师切换 */
+    handleTeacher(val:any){
+        const { teacher } = this.state;
+        const selTeacher = teacher.find((item:any) => {
+            return item.teacherId === val
+        });
+        this.setState({
+            selTeacher,
+        }, async () => {
+            this.getQuestionBankList();
+        });
+    }
 
-    /** 题库类型 */
+    /** 题库题型 */
     handleBankType(val: any) {
         this.setState({
             bankType: val,
@@ -215,6 +248,8 @@ class QueBank extends React.Component {
             bankName,
             bankTypeList,
             bankType,
+            teacher,
+            selTeacher,
         } = this.state;
         return (
             <div className="quebank-wrapper">
@@ -246,6 +281,21 @@ class QueBank extends React.Component {
                                 新建
                             </Button>
                         </div>
+                    </div>
+                    <div className="sec">
+                        <span className="span">执教教师:</span>
+                        <Select
+                            defaultValue="请选择"
+                            style={{ width: 180 }}
+                            value={selTeacher?.realName || (teacher[0] && (teacher[0] as any).realName) || '请选择'}
+                            onChange={this.handleTeacher.bind(this)}
+                        >
+                            {teacher.map((item: any) => (
+                                <Option key={item.teacherId} value={item.teacherId}>
+                                    {item.realName}
+                                </Option>
+                            ))}
+                        </Select>
                     </div>
                     <div className="thr">
                         <Table
@@ -287,7 +337,7 @@ class QueBank extends React.Component {
                         />
                     </div>
                     <div className="module-area">
-                        题库类型:
+                        题库题型:
                         <Select
                             defaultValue={bankType}
                             className="gap-8"

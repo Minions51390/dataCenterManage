@@ -38,6 +38,11 @@ class TestRank extends React.Component {
     state = {
         pageNo: 1,
         totalCount: 1,
+        teacher: [],
+        selTeacher: {
+            teacherId: '',
+            realName: '',
+        },
         pici: [],
         selPici: '',
         banji: [],
@@ -154,16 +159,20 @@ class TestRank extends React.Component {
     }
 
     async inited() {
-        const pici = await this.getPici();
-        console.log('pici', pici)
+        const teacher = await this.getTeacher();
+        const selTeacher = teacher.find((item:any) => {
+            return item.teacherId === Number(localStorage.getItem("classTeacherId"))
+        });
+        const pici = await this.getPici(selTeacher.teacherId);
         const banji = await this.getClass(pici[0].batchId);
-        console.log('banji', banji)
         const semester = await this.getSemester(banji[0].classId || 0);
         const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
         this.setState({
+            teacher,
             pici,
             banji,
             semester,
+            selTeacher,
             selPici: pici[0].batchId,
             selBanji: banji[0].classId,
             selSemester,
@@ -171,7 +180,19 @@ class TestRank extends React.Component {
             this.getTest();
         });
     }
-
+    async handleTeacher(val:any){
+        const { teacher } = this.state;
+        const selTeacher = teacher.find((item:any) => {
+            return item.teacherId === val
+        });
+        const res = await this.getPici(val);
+        const pici = res[0] ? res[0]?.batchId : '';
+        this.setState({
+            selTeacher,
+            pici: res,
+        });
+        this.handlePiCi(pici);
+    }
     /** 更换批次列表 */
     async handlePiCi(val: any) {
         let res = await this.getClass(val);
@@ -299,9 +320,15 @@ class TestRank extends React.Component {
         window.location.href = `${window.location.pathname}#/app/test/testRank/mistakeRank`;
     }
 
+    /** 获取教师列表 */
+    async getTeacher() {
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
+        return res?.data??[];
+    }
+
     /** 获取批次列表 */
-    async getPici() {
-        let res = await get({url: baseUrl + '/api/v1/structure/batch/list'});
+    async getPici(teacherId: any) {
+        let res = await get({url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}`});
         const pici = res.data || [];
         return pici;
     }
@@ -380,7 +407,7 @@ class TestRank extends React.Component {
     }
 
     render() {
-        const { columns1, data1, pageNo, totalCount, selPici, pici, selBanji, banji, semester, selSemester, query, queryType, queryTypeList, statusList, status } = this.state;
+        const { columns1, data1, pageNo, totalCount, teacher, selTeacher, selPici, pici, selBanji, banji, semester, selSemester, query, queryType, queryTypeList, statusList, status } = this.state;
         return (
             <div className="paper-rank">
                 <div className="header">
@@ -417,7 +444,20 @@ class TestRank extends React.Component {
                         </Button>
                     </div>
                     <div className="fir">
-                        <span className="span">学员批次:</span>
+                        <span className="span">执教教师:</span>
+                        <Select
+                            defaultValue="请选择"
+                            style={{ width: 180 }}
+                            value={selTeacher?.realName || (teacher[0] && (teacher[0] as any).realName) || '请选择'}
+                            onChange={this.handleTeacher.bind(this)}
+                        >
+                            {teacher.map((item: any) => (
+                                <Option key={item.teacherId} value={item.teacherId}>
+                                    {item.realName}
+                                </Option>
+                            ))}
+                        </Select>
+                        <span className="span3">学员批次:</span>
                         <Select
                             defaultValue="请选择"
                             style={{ width: 140 }}

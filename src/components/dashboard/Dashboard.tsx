@@ -588,6 +588,10 @@ class Dashboard extends React.Component {
         });
         return res;
     }
+    async getTeacher() {
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
+        return res?.data??[];
+    }
     async getPici(teacherId: any) {
         let res = await get({ url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}` });
         console.log('批次', res);
@@ -599,10 +603,6 @@ class Dashboard extends React.Component {
         });
         console.log('班级', res);
         return res?.data || [];
-    }
-    async getTeacher() {
-        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
-        return res?.data??[];
     }
     async getStu(banji: any, pici?: any) {
         const { selPici } = this.state;
@@ -621,10 +621,15 @@ class Dashboard extends React.Component {
         return res?.data || [];
     }
     async handleTeacher (val:any){
+        console.log('handleTeacher', val)
+        const { teacher } = this.state;
+        const selTeacher = teacher.find((item:any) => {
+            return item.teacherId === val
+        });
         const res = await this.getPici(val);
         const pici = res[0] ? res[0]?.batchId : '';
         this.setState({
-            selTeacher: val,
+            selTeacher,
             pici: res,
         });
         this.handlePiCi(pici);
@@ -915,7 +920,7 @@ class Dashboard extends React.Component {
                 <div className="mains">
                     <div className="fir">数据中心</div>
                     <div className="sec">
-                        <span className="span">执教老师:</span>
+                        <span className="span">执教教师:</span>
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}
@@ -1007,7 +1012,7 @@ class Dashboard extends React.Component {
                                 <TabPane tab="测试通过率" key="pass_rate" />
                                 <TabPane tab="每日学习时长" key="study_time" />
                                 <TabPane tab="每日背词数" key="recite_count" />
-                                <TabPane tab="大考通过率" key="spt_pass_rate" />
+                                <TabPane tab="单词阶段考通过率" key="spt_pass_rate" />
                             </Tabs>
                             <div className="tab-content">
                                 <div className="content">
