@@ -11,6 +11,7 @@ const mockExamList = [
         questionPaperName: '初三下册第一次测验',
         creator: '大橙子',
         questionPaperId: '4175d9df-f29c-4a59-819f-d2b0e92b6dcb',
+        semesterName: '123',
         examTime: '2022-03-19 17:56:43',
         status: 1,
     },
@@ -19,6 +20,7 @@ const mockExamList = [
         questionPaperName: '初三下册第一次测验',
         creator: '大橙子',
         questionPaperId: '4175d9df-f29c-4a59-819f-d2b0e92b6dcb',
+        semesterName: '123',
         examTime: '2022-03-19 17:56:43',
         status: 2,
     },
@@ -27,6 +29,7 @@ const mockExamList = [
         questionPaperName: '初三下册第一次测验',
         creator: '大橙子',
         questionPaperId: '4175d9df-f29c-4a59-819f-d2b0e92b6dcb',
+        semesterName: '123',
         examTime: '2022-03-19 17:56:43',
         status: 2,
     },
@@ -112,6 +115,12 @@ class TestRank extends React.Component {
                         </div>
                     </div>
                 ),
+            },
+            {
+                title: '阶段',
+                dataIndex: 'semesterName',
+                key: 'semesterName',
+                sorter: true,
             },
             {
                 title: '考试时间',
