@@ -3,11 +3,13 @@ import { Table, Pagination, Input, Button, message, Select, Popconfirm } from 'a
 import '../../style/pageStyle/TestRank.less';
 import copy from 'clipboard-copy';
 import { get, del, baseUrl } from '../../service/tools';
+import { getQueryString } from '../../utils';
 const { Option } = Select;
 
 const mockExamList = [
     {
         examId: '4175d9df-f29c-4a59-819f-d2b0e92b6dcb',
+        examName: '1',
         questionPaperName: '初三下册第一次测验',
         creator: '大橙子',
         questionPaperId: '4175d9df-f29c-4a59-819f-d2b0e92b6dcb',
@@ -17,6 +19,7 @@ const mockExamList = [
     },
     {
         examId: '4175d9df-f29c-4a59-819f-d2b0e92b6dcb',
+        examName: '2',
         questionPaperName: '初三下册第一次测验',
         creator: '大橙子',
         questionPaperId: '4175d9df-f29c-4a59-819f-d2b0e92b6dcb',
@@ -26,6 +29,7 @@ const mockExamList = [
     },
     {
         examId: '4175d9df-f29c-4a59-819f-d2b0e92b6dcb',
+        examName: '3',
         questionPaperName: '初三下册第一次测验',
         creator: '大橙子',
         questionPaperId: '4175d9df-f29c-4a59-819f-d2b0e92b6dcb',
@@ -53,11 +57,15 @@ class TestRank extends React.Component {
         semester: [],
         selSemester: [],
         query: '',
-        queryType: 'questionPaperName',
+        queryType: 'examName',
         queryTypeList: [
             {
-                type: 'questionPaperName',
+                type: 'examName',
                 name: '考试名称',
+            },
+            {
+                type: 'questionPaperName',
+                name: '试卷名称',
             },
             {
                 type: 'creator',
@@ -90,6 +98,11 @@ class TestRank extends React.Component {
                 title: '序号',
                 key: 'key',
                 render: (text: any, record: any, index: number) => <div>{index + 1}</div>,
+            },
+            {
+                title: '考试名称',
+                dataIndex: 'examName',
+                key: 'examName',
             },
             {
                 title: '试卷名称',
@@ -189,6 +202,7 @@ class TestRank extends React.Component {
                 selPici: pici[0].batchId,
                 selBanji: banji[0].classId,
                 selSemester,
+                query: decodeURI(getQueryString().examName) || '',
             },
             () => {
                 this.getTest();
