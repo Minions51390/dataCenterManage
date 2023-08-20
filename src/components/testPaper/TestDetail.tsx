@@ -70,14 +70,14 @@ class TestDetail extends React.Component {
         data1: [],
         selectedRowKeys: [],
         selectedRows: [],
-        bankPeople: "",
+        bankPeople: '',
         bankPeopleList: [
             {
                 realName: '全部',
                 teacherId: 0,
             },
         ],
-        bank: "",
+        bank: '',
         bankName: '全部',
         bankList: [
             {
@@ -166,10 +166,10 @@ class TestDetail extends React.Component {
 
     /** 题库试题列表 */
     async getQuestionList() {
-        console.log('getQuestionList')
+        console.log('getQuestionList');
         const { bank, testQueryM, pageNom } = this.state;
         const res: any = await get({
-            url: `${baseUrl}/api/v1/question-set/question/list?setId=${bank}&query=${testQueryM}&pageSize=20&pageNo=${pageNom}`,
+            url: `${baseUrl}/api/v1/question-set/question/list?setId=${bank}&query=${testQueryM}&pageSize=1000&pageNo=${pageNom}`,
         });
         let questionBankList = res?.data?.questionList || [];
         questionBankList.forEach((val: any, index: any) => {
@@ -185,7 +185,7 @@ class TestDetail extends React.Component {
     /** 批量导入接口 */
     async addQuestion() {
         const { testPaperID, selectedRowKeysM } = this.state;
-        console.log('selectedRowKeysM', selectedRowKeysM)
+        console.log('selectedRowKeysM', selectedRowKeysM);
         const questionIdList = selectedRowKeysM.map((val: any) => {
             return val.questionId;
         });
@@ -200,6 +200,7 @@ class TestDetail extends React.Component {
         this.getTestList();
         const testData = await this.getTestData();
         this.setState({ ...testData, selectedRowKeysM: [] });
+        message.success('导入成功');
         console.log(res);
     }
 
@@ -301,7 +302,12 @@ class TestDetail extends React.Component {
         const { selectedRows } = this.state;
         if (selectedRows.length > 0) {
             /** 调用删除接口 */
-            this.delQuestion();
+            Modal.confirm({
+                title: '是否确认删除试题？',
+                cancelText: '取消',
+                okText: '确定',
+                onOk: this.delQuestion.bind(this),
+            });
         }
     }
 
@@ -590,7 +596,7 @@ class TestDetail extends React.Component {
                             <div className={paperData.length ? 'pag' : 'display-none'}>
                                 <Pagination
                                     defaultCurrent={1}
-                                    pageSize={20}
+                                    pageSize={1000}
                                     current={pageNom}
                                     total={allCountm * 20}
                                     onChange={this.nowPagChangeM.bind(this)}

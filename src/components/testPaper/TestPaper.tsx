@@ -202,6 +202,7 @@ class TestPaper extends React.Component {
             },
             async () => {
                 /** 更新数据 */
+				this.getTest();
             }
         );
     }
