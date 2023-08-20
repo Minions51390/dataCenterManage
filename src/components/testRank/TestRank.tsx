@@ -456,32 +456,53 @@ class TestRank extends React.Component {
                 </div>
                 <div className="body">
                     <div className="zero">
-                        <Input.Group compact>
-                            <Select
-                                defaultValue={queryType}
-                                value={queryType || '请选择'}
-                                onChange={this.handleQueryType.bind(this)}
+                        <div className="left">
+                            <Input.Group compact>
+                                <Select
+                                    defaultValue={queryType}
+                                    value={queryType || '请选择'}
+                                    onChange={this.handleQueryType.bind(this)}
+                                >
+                                    {queryTypeList.map((item: any) => (
+                                        <Option value={item.type} key={item.classId}>
+                                            {item.name}
+                                        </Option>
+                                    ))}
+                                </Select>
+                                <Input
+                                    style={{ width: '240px' }}
+                                    placeholder="待输入"
+                                    value={query}
+                                    onChange={this.onTestQueryChange.bind(this)}
+                                />
+                            </Input.Group>
+                            <Button
+                                className="gap-30"
+                                type="primary"
+                                onClick={this.clickSearch.bind(this)}
                             >
-                                {queryTypeList.map((item: any) => (
-                                    <Option value={item.type} key={item.classId}>
+                                搜索
+                            </Button>
+                        </div>
+                        <div className="right">
+                            <span className="span3">试卷状态:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 140 }}
+                                value={
+                                    status ||
+                                    (statusList[0] && (statusList[0] as any).name) ||
+                                    '请选择'
+                                }
+                                onChange={this.handleStatus.bind(this)}
+                            >
+                                {statusList.map((item: any) => (
+                                    <Option key={item.id} value={item.id}>
                                         {item.name}
                                     </Option>
                                 ))}
                             </Select>
-                            <Input
-                                style={{ width: '240px' }}
-                                placeholder="待输入"
-                                value={query}
-                                onChange={this.onTestQueryChange.bind(this)}
-                            />
-                        </Input.Group>
-                        <Button
-                            className="gap-30"
-                            type="primary"
-                            onClick={this.clickSearch.bind(this)}
-                        >
-                            搜索
-                        </Button>
+                        </div>
                     </div>
                     <div className="fir">
                         <span className="span">执教教师:</span>
@@ -527,34 +548,17 @@ class TestRank extends React.Component {
                                 </Option>
                             ))}
                         </Select>
-                        <span className="span3">试卷状态:</span>
-                        <Select
-                            defaultValue="请选择"
-                            style={{ width: 140 }}
-                            value={
-                                status || (statusList[0] && (statusList[0] as any).name) || '请选择'
-                            }
-                            onChange={this.handleStatus.bind(this)}
-                        >
-                            {statusList.map((item: any) => (
-                                <Option key={item.id} value={item.id}>
-                                    {item.name}
-                                </Option>
-                            ))}
-                        </Select>
-                    </div>
-                    <div className="fir">
-                        <span className="span">阶段:</span>
+                        <span className="span2">阶段:</span>
                         <Select
                             mode="multiple"
                             allowClear
-                            style={{ width: 360 }}
+                            style={{ width: 140 }}
                             value={selSemester}
                             onChange={this.handleSemester.bind(this)}
                         >
                             {semester.map((item: any) => (
                                 <Option key={item.semesterId} value={item.semesterId}>
-                                    {item.semesterName}
+                                    {item.semesterName || item.semesterId}
                                 </Option>
                             ))}
                         </Select>
