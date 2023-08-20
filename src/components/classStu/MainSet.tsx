@@ -950,7 +950,6 @@ class MainSet extends React.Component {
                                     <span style={{ color: 'red', marginRight: '6px' }}>*</span>
                                     <span style={{ marginRight: '12px' }}>阶段名称：</span>
                                     <Input
-                                        disabled={!selJieduan}
                                         placeholder="例：2023届大一上学期"
                                         style={{ width: 240 }}
                                         value={jieduanText}

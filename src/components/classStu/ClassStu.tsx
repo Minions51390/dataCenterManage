@@ -7,16 +7,26 @@ import { get, post, baseUrl } from '../../service/tools';
 const { Option } = Select;
 class ClassStu extends React.Component {
     state = {
+        //待接收班级
+        piciW: [],
+        selPiciW: '',
+        waitClass: [],
+        //当前执教班级
         pici: [],
         selPici: '',
-        piciF: [],
-        selPiciF: '',
-        waitClass: [],
-        waitPag: 1,
         nowClass: [],
         nowPag: 1,
+        // 以结课班级
+        piciF: [],
+        selPiciF: '',
         finClass: [],
         finPag: 1,
+        // 他人执教班级
+        piciO: [],
+        selPiciO: '',
+        othClass: [],
+        othPag: 1,
+        // 新增班级
         newPici: [],
         selNewPi: '',
         newPiciVal: '',
@@ -34,25 +44,18 @@ class ClassStu extends React.Component {
         });
         this.setState({
             pici,
+            piciW: pici,
             piciF: pici,
+            piciO: pici,
             newPici: pici,
-        });
-        let res = await this.getClass(selPici, 'sc');
-        this.setState({
-            selPici,
-            nowClass: res,
-        });
-        let res1 = await this.getClass(pici[0].batchId, 'rt');
-        this.setState({
             selPiciF: pici[0].batchId,
-            finClass: res1,
+            selPiciO: pici[0].batchId,
+            selPiciW: pici[0].batchId,
         });
-        let res2 = await this.getClass(pici[0].batchId, 'tc1');
-        let res3 = await this.getClass(pici[0].batchId, 'tc2');
-        this.setState({
-            selPiciF: pici[0].batchId,
-            waitClass: [...res2, ...res3] || [],
-        });
+        this.getWaitClass();
+        this.getCurClass();
+        this.getFinClass();
+        this.getOthClass();
     }
     async getPici() {
         let res = await get({ url: baseUrl + '/api/v1/structure/batch/list' });
@@ -63,9 +66,9 @@ class ClassStu extends React.Component {
             return [];
         }
     }
-    async getClass(pici: any, cate: any) {
+    async getClass(pici: any, cate: any, pageNo: any, pageSize = 8) {
         let res = await get({
-            url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=${cate}`,
+            url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=${cate}&pageNo=${pageNo}&pageSize=${pageSize}`,
         });
         console.log(res);
         if (res != null) {
@@ -77,44 +80,99 @@ class ClassStu extends React.Component {
             return [];
         }
     }
-    async handlePiCi(val: any) {
-        let res = await this.getClass(val, 'sc');
+    // 获取待接收班级列表
+    async getWaitClass(){
+        const {selPiciW} = this.state;
+        let res1 = await this.getClass(selPiciW, 'tc1', 1, 100);
+        let res2 = await this.getClass(selPiciW, 'tc2', 1, 100);
         this.setState({
-            selPici: val,
-            nowClass: res,
-            nowPag: 1,
+            waitClass: [...res1, ...res2]
         });
-        console.log(val);
     }
-    // handleBanJi(val: any) {
-    //     this.setState({
-    //         selBanji: val
-    //     });
-    //     console.log(val);
-    // }
+    // 获取当前班级列表
+    async getCurClass(){
+        const {selPici, nowPag} = this.state;
+        let res = await this.getClass(selPici, 'sc', nowPag, 7);
+        this.setState({
+            nowClass: res
+        });
+    }
+    // 获取已结课班级列表
+    async getFinClass(){
+        const {selPiciF, finPag} = this.state;
+        let res = await this.getClass(selPiciF, 'rt', finPag);
+        this.setState({
+            finClass: res
+        });
+    }
+    // 获取他人班级列表
+    async getOthClass(){
+        const {selPiciO, othPag} = this.state;
+        let res = await this.getClass(selPiciO, 'oc', othPag);
+        this.setState({
+            othClass: res
+        });
+    }
+    // 当前执教班级翻页
     nowPagChange(val: any) {
         this.setState({
             nowPag: val,
+        }, async () => {
+            this.getCurClass();
         });
-        console.log(val);
     }
+    // 已结课班级翻页
     finPagChange(val: any) {
         this.setState({
             finPag: val,
+        }, async () => {
+            this.getFinClass();
         });
-        console.log(val);
     }
+    // 待交接班级班级翻页
     waitPagChange(val: any) {
         this.setState({
             waitPag: val,
+        }, async () => {
+            this.getWaitClass();
         });
         console.log(val);
     }
+    // 他人执教班级翻页
+    othPagChange(val: any) {
+        this.setState({
+            othPag: val,
+        }, async () => {
+            this.getOthClass();
+        });
+        console.log(val);
+    }
+    // 当前执教班级 学员批次更改
+    async handlePiCi(val: any) {
+        this.setState({
+            selPici: val,
+            nowPag: 1,
+        }, async () => {
+            this.getCurClass();
+        });
+    }
+    // 已结课班级 学员批次更改
     async handlePiCiF(val: any) {
-        let res = await this.getClass(val, 'rt');
         this.setState({
             selPiciF: val,
-            finClass: res,
+            finPag: 1,
+        }, async () => {
+            this.getFinClass();
+        });
+        console.log(val);
+    }
+    // 他人执教班级 学员批次更改
+    async handlePiCiO(val: any) {
+        this.setState({
+            selPiciO: val,
+            othPag: 1,
+        }, async () => {
+            this.getOthClass();
         });
         console.log(val);
     }
@@ -138,7 +196,7 @@ class ClassStu extends React.Component {
             selPici: selNewPi,
             newBanji: '',
         });
-        let list = await this.getClass(batchId, 'sc');
+        let list = await this.getClass(batchId, 'sc', 1, 7);
         let nowPag = 1;
         if (list.length <= 7) {
             nowPag = 1;
@@ -177,7 +235,6 @@ class ClassStu extends React.Component {
         });
     }
     handlePiciVal(val: any) {
-        console.log('lsf selNewPi', val);
         this.setState({
             selNewPi: val,
         });
@@ -250,12 +307,15 @@ class ClassStu extends React.Component {
             selPici,
             nowClass,
             nowPag,
+            waitClass,
             finClass,
             finPag,
-            waitClass,
-            waitPag,
             piciF,
             selPiciF,
+            piciO,
+            selPiciO,
+            othClass,
+            othPag,
             isVisible,
             newPici,
             newPiciVal,
@@ -298,34 +358,10 @@ class ClassStu extends React.Component {
                     ) : (
                         <div className="fins-area">暂无数据</div>
                     )}
-                    <div className={waitClass.length ? 'pag' : 'display-none'}>
-                        <Pagination
-                            defaultCurrent={1}
-                            defaultPageSize={7}
-                            current={waitPag}
-                            total={waitClass.length}
-                            onChange={this.waitPagChange.bind(this)}
-                        />
-                    </div>
                 </div>
                 {/* 当前职教班级 */}
                 <div className="select-area">
                     <div className="fir">当前执教班级</div>
-                    {/* <div className="thr">
-                        <span className="span">筛选班级:</span>
-                        <Select
-                            disabled={selPici ? false : true}
-                            defaultValue="请选择"
-                            style={{ width: 180 }}
-                            onChange={this.handleBanJi.bind(this)}
-                        >
-                            {banji.map((item: any) => (
-                                <Option key={item.classId} value={item.classId}>
-                                    {item.describe}
-                                </Option>
-                            ))}
-                        </Select>
-                    </div> */}
                     <div className="sec">
                         <span className="span">学员批次:</span>
                         <Select
@@ -450,20 +486,6 @@ class ClassStu extends React.Component {
                 {/* 已结课班级 */}
                 <div className="select-area">
                     <div className="fir">已结课班级</div>
-                    {/* <div className="thr">
-                        <span className="span">筛选班级:</span>
-                        <Select
-                            defaultValue={banjiF[0]}
-                            style={{ width: 180 }}
-                            onChange={this.handleBanJiF.bind(this)}
-                        >
-                            {banjiF.map((item) => (
-                                <Option key={item} value={item}>
-                                    {item}
-                                </Option>
-                            ))}
-                        </Select>
-                    </div> */}
                     <div className="sec">
                         <span className="span">学员批次:</span>
                         <Select
@@ -509,10 +531,65 @@ class ClassStu extends React.Component {
                     <div className={finClass.length ? 'pag' : 'display-none'}>
                         <Pagination
                             defaultCurrent={1}
-                            defaultPageSize={7}
+                            defaultPageSize={8}
                             current={finPag}
                             total={finClass.length}
                             onChange={this.finPagChange.bind(this)}
+                        />
+                    </div>
+                </div>
+                {/* 他人执教班级 */}
+                <div className="select-area">
+                    <div className="fir">他人执教班级</div>
+                    <div className="sec">
+                        <span className="span">学员批次:</span>
+                        <Select
+                            defaultValue="请选择"
+                            style={{ width: 180 }}
+                            value={selPiciO || (piciO[0] && (piciO[0] as any).batchId) || '请选择'}
+                            onChange={this.handlePiCiO.bind(this)}
+                        >
+                            {piciO.map((item: any) => (
+                                <Option key={item.batchId} value={item.batchId}>
+                                    {item.describe}
+                                </Option>
+                            ))}
+                        </Select>
+                    </div>
+                </div>
+                <div className="finish-area">
+                    {othClass.length ? (
+                        <div className="item-area">
+                            {othClass.map((item: any, index) => (
+                                <div className="item" key={index}>
+                                    <div className="title">{item.describe}</div>
+                                    <div className="sec-line">
+                                        <div>班级人数</div>
+                                        <div>班级码</div>
+                                    </div>
+                                    <div className="thr-line">
+                                        <div>
+                                            {item.studentCount}
+                                            <span>人</span>
+                                        </div>
+                                        <div>{item.classCode}</div>
+                                    </div>
+                                    <div className="aline">
+                                        创建时间:{item.createDate.split('T')[0]}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="fins-area">暂无数据</div>
+                    )}
+                    <div className={othClass.length ? 'pag' : 'display-none'}>
+                        <Pagination
+                            defaultCurrent={1}
+                            defaultPageSize={8}
+                            current={othPag}
+                            total={othClass.length}
+                            onChange={this.othPagChange.bind(this)}
                         />
                     </div>
                 </div>
