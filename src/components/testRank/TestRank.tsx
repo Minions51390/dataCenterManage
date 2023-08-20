@@ -250,9 +250,14 @@ class TestRank extends React.Component {
 
     /** 更换考试状态 */
     handleStatus(val: any) {
-        this.setState({
-            status: val,
-        });
+        this.setState(
+            {
+                status: val,
+            },
+            () => {
+                this.getTest();
+            }
+        );
     }
 
     /** query的种类 */
