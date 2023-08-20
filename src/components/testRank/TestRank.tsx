@@ -358,8 +358,12 @@ class TestRank extends React.Component {
     /** 获取教师列表 */
     async getTeacher() {
         let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list` });
-        const arr = res?.data || [];
-        return arr;
+        const teacher = res?.data || [];
+        // teacher.unshift({
+        //     realName: '全部',
+        //     teacherId: 0,
+        // });
+        return teacher;
     }
 
     /** 获取批次列表 */
@@ -368,6 +372,10 @@ class TestRank extends React.Component {
             url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}`,
         });
         const pici = res.data || [];
+        // pici.unshift({
+        //     describe: '全部',
+        //     batchId: 0,
+        // });
         return pici;
     }
 
@@ -377,6 +385,13 @@ class TestRank extends React.Component {
             url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc`,
         });
         const banji = res.data || [];
+        // banji.unshift({
+        //     classCode: '',
+        //     classId: 0,
+        //     createDate: '',
+        //     describe: '全部',
+        //     studentCount: 0,
+        // });
         return banji;
     }
 
@@ -385,8 +400,13 @@ class TestRank extends React.Component {
         let res = await get({
             url: baseUrl + `/api/v1/structure/semester/list?classId=${classId}`,
         });
-        console.log(res);
-        return res?.data || [];
+        const semester = res?.data || [];
+        // semester.unshift({
+        //     isCurrent: false,
+        //     semesterId: 0,
+        //     semesterName: '全部',
+        // });
+        return semester;
     }
 
     /** 获取成绩列表 */
