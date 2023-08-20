@@ -46,15 +46,15 @@ class QueBank extends React.Component {
             },
             {
                 title: '创建时间',
-                dataIndex: 'createTime',
                 key: 'createTime',
                 sorter: true,
+                render: (text: any) => <div>{text.createTime.split(' ')[0]}</div>,
             },
             {
                 title: '更新时间',
-                dataIndex: 'updateTime',
                 key: 'updateTime',
                 sorter: true,
+                render: (text: any) => <div>{text.updateTime.split(' ')[0]}</div>,
             },
             {
                 title: '操作',
