@@ -51,7 +51,10 @@ class TestPaper extends React.Component {
                         <div className="entry" onClick={this.handleEdit.bind(this, text)}>
                             编辑
                         </div>
-                        <div className="copy" onClick={this.copyIdFn.bind(this, text.questionPaperId)}>
+                        <div
+                            className="copy"
+                            onClick={this.copyIdFn.bind(this, text.questionPaperId)}
+                        >
                             <div>复制ID</div>
                         </div>
                     </div>
@@ -63,28 +66,31 @@ class TestPaper extends React.Component {
         selTeacher: {
             teacherId: '',
             realName: '',
-        }
+        },
     };
     componentWillMount() {
         this.inited();
     }
     async inited() {
         const teacher = await this.getTeacher();
-        const selTeacher = teacher.find((item:any) => {
-            return item.teacherId === Number(localStorage.getItem("classTeacherId"))
+        const selTeacher = teacher.find((item: any) => {
+            return item.teacherId === Number(localStorage.getItem('classTeacherId'));
         });
-        this.setState({
-            teacher,
-            selTeacher,
-        }, async () => {
-            this.getTest();
-        });
+        this.setState(
+            {
+                teacher,
+                selTeacher,
+            },
+            async () => {
+                this.getTest();
+            }
+        );
     }
 
     async getTest() {
         const { testQuery, pageNo, selTeacher } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/question-paper/list?teacherId=${selTeacher.teacherId}&query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
+            url: `${baseUrl}/api/v1/question-paper/list?creatorId=${selTeacher.teacherId}&query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
         });
         const questionBankList = res?.data?.questionPaperList || [];
         const totalCount = (res?.data?.totalCount || 0) / 20;
@@ -96,20 +102,23 @@ class TestPaper extends React.Component {
 
     /** 获取教师列表 */
     async getTeacher() {
-        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
-        return res?.data??[];
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list` });
+        return res?.data ?? [];
     }
 
-    handleTeacher(val: any){
+    handleTeacher(val: any) {
         const { teacher } = this.state;
-        const selTeacher = teacher.find((item:any) => {
-            return item.teacherId === val
+        const selTeacher = teacher.find((item: any) => {
+            return item.teacherId === val;
         });
-        this.setState({
-            selTeacher,
-        }, async () => {
-            this.getTest();
-        });
+        this.setState(
+            {
+                selTeacher,
+            },
+            async () => {
+                this.getTest();
+            }
+        );
     }
 
     /** 取消新建 */
@@ -193,6 +202,7 @@ class TestPaper extends React.Component {
             },
             async () => {
                 /** 更新数据 */
+                this.getTest();
             }
         );
     }
@@ -209,7 +219,17 @@ class TestPaper extends React.Component {
     }
 
     render() {
-        const { columns1, data1, pageNo, totalCount, testQuery, testName, isVisible, teacher, selTeacher } = this.state;
+        const {
+            columns1,
+            data1,
+            pageNo,
+            totalCount,
+            testQuery,
+            testName,
+            isVisible,
+            teacher,
+            selTeacher,
+        } = this.state;
         return (
             <div className="paper-wrapper">
                 <div className="header">
@@ -246,7 +266,11 @@ class TestPaper extends React.Component {
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}
-                            value={selTeacher?.realName || (teacher[0] && (teacher[0] as any).realName) || '请选择'}
+                            value={
+                                selTeacher?.realName ||
+                                (teacher[0] && (teacher[0] as any).realName) ||
+                                '请选择'
+                            }
                             onChange={this.handleTeacher.bind(this)}
                         >
                             {teacher.map((item: any) => (

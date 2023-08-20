@@ -46,15 +46,15 @@ class QueBank extends React.Component {
             },
             {
                 title: '创建时间',
-                dataIndex: 'createTime',
                 key: 'createTime',
                 sorter: true,
+                render: (text: any) => <div>{text.createTime.split(' ')[0]}</div>,
             },
             {
                 title: '更新时间',
-                dataIndex: 'updateTime',
                 key: 'updateTime',
                 sorter: true,
+                render: (text: any) => <div>{text.updateTime.split(' ')[0]}</div>,
             },
             {
                 title: '操作',
@@ -71,15 +71,15 @@ class QueBank extends React.Component {
         selTeacher: {
             teacherId: '',
             realName: '',
-        }
+        },
     };
     componentWillMount() {
         this.inited();
     }
     async inited() {
         const teacher = await this.getTeacher();
-        const selTeacher = teacher.find((item:any) => {
-            return item.teacherId === Number(localStorage.getItem("classTeacherId"))
+        const selTeacher = teacher.find((item: any) => {
+            return item.teacherId === Number(localStorage.getItem('classTeacherId'));
         });
         this.setState({
             teacher,
@@ -90,16 +90,16 @@ class QueBank extends React.Component {
 
     /** 获取教师列表 */
     async getTeacher() {
-        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
-        return res?.data??[];
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list` });
+        return res?.data ?? [];
     }
 
     /** 获取题库列表 */
     async getQuestionBankList() {
         const { bankQuery, pageNo, sortKey, sortOrder, selTeacher } = this.state;
-        console.log('selTeacher', selTeacher)
+        console.log('selTeacher', selTeacher);
         let res = await get({
-            url: `${baseUrl}/api/v1/question-set/list?teacherId=${selTeacher.teacherId}query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}&all=off`,
+            url: `${baseUrl}/api/v1/question-set/list?creatorId=${selTeacher.teacherId}&query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}&all=off`,
         });
         console.log('------------->', res);
         const questionBankList = res?.data?.questionSetList || [];
@@ -138,13 +138,13 @@ class QueBank extends React.Component {
 
     /** 确认新建 */
     async handleCreateOk(val: any) {
-        console.log('handleCreateOk', val)
+        console.log('handleCreateOk', val);
         const { bankName } = this.state;
         this.setState({
             isVisible: false,
         });
         const bankID = await this.confimeNew();
-        console.log('bankID', bankID)
+        console.log('bankID', bankID);
         sessionStorage.setItem('bankDetailId', bankID);
         sessionStorage.setItem('bankDetailName', bankName);
         window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
@@ -152,7 +152,7 @@ class QueBank extends React.Component {
 
     /** 编辑按钮 */
     clickEditButton(text: any) {
-        console.log('clickEditButton', text)
+        console.log('clickEditButton', text);
         const bankID = text.setId;
         const bankName = text.setName;
         sessionStorage.setItem('bankDetailId', bankID);
@@ -170,7 +170,7 @@ class QueBank extends React.Component {
                 setType: bankType,
             },
         });
-        console.log('confimeNew', response)
+        console.log('confimeNew', response);
         return response?.data?.setId || '';
     }
 
@@ -201,16 +201,19 @@ class QueBank extends React.Component {
         );
     }
     /** 教师切换 */
-    handleTeacher(val:any){
+    handleTeacher(val: any) {
         const { teacher } = this.state;
-        const selTeacher = teacher.find((item:any) => {
-            return item.teacherId === val
+        const selTeacher = teacher.find((item: any) => {
+            return item.teacherId === val;
         });
-        this.setState({
-            selTeacher,
-        }, async () => {
-            this.getQuestionBankList();
-        });
+        this.setState(
+            {
+                selTeacher,
+            },
+            async () => {
+                this.getQuestionBankList();
+            }
+        );
     }
 
     /** 题库题型 */
@@ -287,7 +290,11 @@ class QueBank extends React.Component {
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}
-                            value={selTeacher?.realName || (teacher[0] && (teacher[0] as any).realName) || '请选择'}
+                            value={
+                                selTeacher?.realName ||
+                                (teacher[0] && (teacher[0] as any).realName) ||
+                                '请选择'
+                            }
                             onChange={this.handleTeacher.bind(this)}
                         >
                             {teacher.map((item: any) => (

@@ -49,7 +49,7 @@ const login = async () => {
     let res = await post({
         url: baseUrl + '/api/v1/auth/login',
         data: {
-            userName: 'wutonghe',
+            userName: 'yajie',
             password: '123'
         }
     });

@@ -114,7 +114,9 @@ class MainSet extends React.Component {
         const classId = window.location.href.split('=')[1] || sessionStorage.getItem('classId');
         await this.getKu();
         const jieduanRes = await this.getJieDuanList(classId);
-        const selJieduan = jieduanRes[0]? jieduanRes.find((item:any)=>item.isCurrent)?.semesterId : 0
+        const selJieduan = jieduanRes[0]
+            ? jieduanRes.find((item: any) => item.isCurrent)?.semesterId
+            : 0;
         console.log('use jieduan', jieduanRes);
         let res = await this.getSetInfo(classId, selJieduan);
         let dbName = '';
@@ -159,7 +161,9 @@ class MainSet extends React.Component {
     }
 
     async getSetInfo(classId: any, semesterId: any) {
-        let res = await get({ url: baseUrl + `/api/v1/structure/semester?classId=${classId}&semesterId=${semesterId}` });
+        let res = await get({
+            url: baseUrl + `/api/v1/structure/semester?classId=${classId}&semesterId=${semesterId}`,
+        });
         console.log(999999, res);
         return res;
     }
@@ -188,7 +192,7 @@ class MainSet extends React.Component {
 
     setSet() {
         const { startType, wordVal, dbVal, classId, selJieduan } = this.state;
-        console.log('this.state', this.state)
+        console.log('this.state', this.state);
         console.log('liushufang', dbVal, +dbVal);
         patch({
             url: baseUrl + '/api/v1/structure/semester/recite',
@@ -200,9 +204,9 @@ class MainSet extends React.Component {
                 semesterId: selJieduan,
             },
         }).then((res) => {
-            if(res.state === 0){
+            if (res.state === 0) {
                 message.success('背词设置保存成功!');
-            }else{
+            } else {
                 message.error(`背词设置保存失败：${res.msg}`);
             }
         });
@@ -288,24 +292,24 @@ class MainSet extends React.Component {
         });
     }
     onTeacherWordBlur(event: any) {
-        const wordVal = event.target.value
-        if(wordVal && wordVal < 5){
+        const wordVal = event.target.value;
+        if (wordVal && wordVal < 5) {
             message.warn('背词数设置过少');
-        }else if(wordVal > 40){
+        } else if (wordVal > 40) {
             message.warn('背词数设置过多');
         }
     }
     onTeacherWordChange(event: any) {
-        const wordVal = event.target.value
+        const wordVal = event.target.value;
         this.setState({
             wordVal: wordVal,
         });
     }
 
-    wordValChange(){
+    wordValChange() {
         this.setState({
             firState: 0,
-        })
+        });
     }
 
     handleWordDb(value: any) {
@@ -327,9 +331,9 @@ class MainSet extends React.Component {
 
     saveFir() {
         const { wordDb, dbVal, wordVal } = this.state;
-        if(wordVal < 5 || wordVal > 100){
+        if (wordVal < 5 || wordVal > 100) {
             message.warn('数量限制5~100词');
-            return
+            return;
         }
         this.setState({
             firState: 1,
@@ -403,18 +407,14 @@ class MainSet extends React.Component {
     }
 
     onPaperIdChange(event: any) {
-        this.setState(
-            {
-                paperId: event.target.value,
-            }
-        );
+        this.setState({
+            paperId: event.target.value,
+        });
     }
     onPaperNameChange(event: any) {
-        this.setState(
-            {
-                paperName: event.target.value,
-            }
-        );
+        this.setState({
+            paperName: event.target.value,
+        });
     }
 
     /** 单个试卷信息 */
@@ -469,7 +469,7 @@ class MainSet extends React.Component {
         this.setState({
             selJieduan: val,
         });
-        this.getSetInfo(classId, val)
+        this.getSetInfo(classId, val);
         console.log(val);
     }
 
@@ -477,7 +477,7 @@ class MainSet extends React.Component {
         const { classId } = this.state;
         const res = await this.addXinXueQi();
         const jieduanRes = await this.getJieDuanList(classId);
-        const selJieduan = jieduanRes.find((item:any) => item.isCurrent)?.semesterId ?? 0
+        const selJieduan = jieduanRes.find((item: any) => item.isCurrent)?.semesterId ?? 0;
         if (res.msg === 'success') {
             this.setState({
                 addJieduanModule: false,
@@ -548,16 +548,14 @@ class MainSet extends React.Component {
                     </div>
                 </div>
                 <div className="xueqi-line">
-                    {
-                        (selJieduan || jieduan[0]) ? '' : (
-                            <div className="xueqi-tips">
-                                <div>i</div>
-                                <div>
-                                    新创建的班级，需要添加一个学习阶段后，才能设置学习任务。
-                                </div>
-                            </div>
-                        )
-                    }
+                    {selJieduan || jieduan[0] ? (
+                        ''
+                    ) : (
+                        <div className="xueqi-tips">
+                            <div>i</div>
+                            <div>新创建的班级，需要添加一个学习阶段后，才能设置学习任务。</div>
+                        </div>
+                    )}
                     <div className="line">
                         <div className="sec">
                             <span style={{ marginRight: '12px' }}>学习阶段：</span>
@@ -574,9 +572,7 @@ class MainSet extends React.Component {
                                 {jieduan.map((item: any) => (
                                     <Option key={item.semesterId} value={item.semesterId}>
                                         {item.semesterName}
-                                        {
-                                            item.isCurrent ? (<span>（当前阶段）</span>) : '' 
-                                        }
+                                        {item.isCurrent ? <span>（当前阶段）</span> : ''}
                                     </Option>
                                 ))}
                             </Select>
@@ -594,7 +590,9 @@ class MainSet extends React.Component {
                         <div className="right">
                             <div className="fir-line-icon">i</div>
                             <div>
-                                <div>背词设置内除每日背词数选项外，其他选项在当前阶段内只能设置一次；</div>
+                                <div>
+                                    背词设置内除每日背词数选项外，其他选项在当前阶段内只能设置一次；
+                                </div>
                                 <div>保存设置后或学员开始背词后无法再做更改。</div>
                             </div>
                         </div>
@@ -692,9 +690,7 @@ class MainSet extends React.Component {
                                 <Select
                                     defaultValue={dbVal}
                                     disabled={!selJieduan}
-                                    value={
-                                        dbVal || '请选择'
-                                    }
+                                    value={dbVal || '请选择'}
                                     style={{ width: 240 }}
                                     onChange={this.handleWordDb.bind(this)}
                                 >
@@ -711,7 +707,11 @@ class MainSet extends React.Component {
                                         placement="top"
                                         color="rgba(0, 0, 0, 0.7)"
                                     >
-                                        <Button block disabled={!selJieduan} onClick={this.addCiku.bind(this)}>
+                                        <Button
+                                            block
+                                            disabled={!selJieduan}
+                                            onClick={this.addCiku.bind(this)}
+                                        >
                                             添加词库
                                         </Button>
                                     </Tooltip>
@@ -728,11 +728,19 @@ class MainSet extends React.Component {
                     {!firState ? (
                         <div className="last-line">
                             <div className="div1">
-                                <Button block disabled={!selJieduan} onClick={this.resetFir.bind(this)}>
+                                <Button
+                                    block
+                                    disabled={!selJieduan}
+                                    onClick={this.resetFir.bind(this)}
+                                >
                                     复原
                                 </Button>
                             </div>
-                            <Button type="primary" disabled={!selJieduan} onClick={this.saveFir.bind(this)}>
+                            <Button
+                                type="primary"
+                                disabled={!selJieduan}
+                                onClick={this.saveFir.bind(this)}
+                            >
                                 保存设置
                             </Button>
                         </div>
@@ -850,7 +858,11 @@ class MainSet extends React.Component {
                                 复原
                             </Button>
                         </div>
-                        <Button type="primary" disabled={!selJieduan} onClick={this.saveSec.bind(this)}>
+                        <Button
+                            type="primary"
+                            disabled={!selJieduan}
+                            onClick={this.saveSec.bind(this)}
+                        >
                             保存设置
                         </Button>
                     </div>
@@ -871,7 +883,7 @@ class MainSet extends React.Component {
                         {!thrState ? (
                             <div>
                                 <div className="sec">
-                                    <div style={{ marginRight: 15}}>试卷ID：</div>
+                                    <div style={{ marginRight: 15 }}>试卷ID：</div>
                                     <Input
                                         disabled={!selJieduan}
                                         style={{ width: 172 }}
@@ -884,7 +896,7 @@ class MainSet extends React.Component {
                                     <Input
                                         disabled={!selJieduan}
                                         style={{ width: 172 }}
-                                        value={ paperName }
+                                        value={paperName}
                                         onChange={this.onPaperNameChange.bind(this)}
                                     />
                                 </div>
@@ -902,8 +914,7 @@ class MainSet extends React.Component {
                         ) : (
                             <div className="sec" style={{ display: 'block' }}>
                                 <div style={{ marginTop: 18 }}>
-                                    试卷ID:{' '}
-                                    <div className="state-co">{paperId}</div>
+                                    试卷ID: <div className="state-co">{paperId}</div>
                                 </div>
                                 <div style={{ marginTop: 18 }}>
                                     试卷名称: <div className="state-co">{paperName}</div>
@@ -917,16 +928,26 @@ class MainSet extends React.Component {
                     <div className="last-line">
                         <div className="right">
                             <div className="div1">
-                                <Button block disabled={!selJieduan} onClick={this.resetThr.bind(this)}>
+                                <Button
+                                    block
+                                    disabled={!selJieduan}
+                                    onClick={this.resetThr.bind(this)}
+                                >
                                     复原
                                 </Button>
                             </div>
-                            <Button type="primary" disabled={!selJieduan} onClick={this.saveThr.bind(this)}>
+                            <Button
+                                type="primary"
+                                disabled={!selJieduan}
+                                onClick={this.saveThr.bind(this)}
+                            >
                                 发布考试
                             </Button>
                         </div>
                         <Button type="primary">
-                            <Link to={`/app/test/testRank`}>查看已发布的考试</Link>
+                            <Link to={`/app/test/testRank?examName=${encodeURI(paperName)}`}>
+                                查看已发布的考试
+                            </Link>
                         </Button>
                     </div>
                 </div>
