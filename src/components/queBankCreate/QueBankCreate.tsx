@@ -99,7 +99,7 @@ class QueBank extends React.Component {
         const { bankQuery, pageNo, sortKey, sortOrder, selTeacher } = this.state;
         console.log('selTeacher', selTeacher)
         let res = await get({
-            url: `${baseUrl}/api/v1/question-set/list?teacherId=${selTeacher.teacherId}query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}&all=off`,
+            url: `${baseUrl}/api/v1/question-set/list?creatorId=${selTeacher.teacherId}&query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}&all=off`,
         });
         console.log('------------->', res);
         const questionBankList = res?.data?.questionSetList || [];
