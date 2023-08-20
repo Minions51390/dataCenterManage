@@ -202,7 +202,7 @@ class TestRank extends React.Component {
                 selPici: pici[0].batchId,
                 selBanji: banji[0].classId,
                 selSemester,
-                query: decodeURI(getQueryString().examName) || '',
+                query: decodeURI(getQueryString().examName || ''),
             },
             () => {
                 this.getTest();
@@ -358,7 +358,8 @@ class TestRank extends React.Component {
     /** 获取教师列表 */
     async getTeacher() {
         let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list` });
-        return res?.data ?? [];
+        const arr = res?.data || [];
+        return arr;
     }
 
     /** 获取批次列表 */
