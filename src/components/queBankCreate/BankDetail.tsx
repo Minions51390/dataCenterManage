@@ -133,6 +133,7 @@ class BankDetail extends React.Component {
         this.setState({
             data1: questionBankList,
             totalCount,
+            questionCount: questionBankList.length
         });
     }
 

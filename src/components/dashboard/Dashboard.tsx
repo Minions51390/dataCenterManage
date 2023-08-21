@@ -326,7 +326,7 @@ class Dashboard extends React.Component {
         const wrongInfo = await this.wrongBook({
             batchId: pici[0].batchId,
             classId: banji[0].classId,
-            studentId: stu[0].studentId,
+            studentId: stu[0]?.studentId ?? 0,
             selSemester,
             pageVal: 1,
         });
@@ -411,11 +411,12 @@ class Dashboard extends React.Component {
         }
     }
     async onDateChange(value: any) {
-        const { selPici, selBanji, selStu } = this.state;
+        const { selPici, selBanji, selStu, selSemester} = this.state;
         console.log('onPanelChange');
         let testInfo = await this.getTest({
             batchId: selPici,
             classId: selBanji,
+            selSemester,
             studentId: selStu,
             testDate: moment(value).format('YYYY-MM-DD'),
         });

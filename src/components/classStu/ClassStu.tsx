@@ -38,17 +38,16 @@ class ClassStu extends React.Component {
     }
     async initData() {
         const pici = await this.getPici();
-        let selPici = parseInt(sessionStorage.getItem('piciId') as any) || pici[0].batchId;
+        const selfPici = await this.getPici(Number(localStorage.getItem("classTeacherId")));
+        let selPici = parseInt(sessionStorage.getItem('piciId') as any) || selfPici[0].batchId;
         this.setState({
-            selPici,
-        });
-        this.setState({
-            pici,
+            pici: selfPici,
             piciW: pici,
-            piciF: pici,
+            piciF: selfPici,
             piciO: pici,
             newPici: pici,
-            selPiciF: pici[0].batchId,
+            selPici,
+            selPiciF: selfPici[0].batchId,
             selPiciO: pici[0].batchId,
             selPiciW: pici[0].batchId,
         });
@@ -57,8 +56,8 @@ class ClassStu extends React.Component {
         this.getFinClass();
         this.getOthClass();
     }
-    async getPici() {
-        let res = await get({ url: baseUrl + '/api/v1/structure/batch/list' });
+    async getPici(teacherId = 0) {
+        let res = await get({ url: `${baseUrl}/api/v1/structure/batch/list${teacherId ? `?teacherId=${teacherId}`: '' }` });
         console.log('lll', res);
         if (res != null) {
             return res.data;
@@ -92,6 +91,7 @@ class ClassStu extends React.Component {
     // 获取当前班级列表
     async getCurClass(){
         const {selPici, nowPag} = this.state;
+        console.log('getCurClass', selPici)
         let res = await this.getClass(selPici, 'sc', nowPag, 7);
         this.setState({
             nowClass: res
@@ -248,7 +248,7 @@ class ClassStu extends React.Component {
                 batchName: newPiciVal,
             },
         });
-        let list = await this.getPici();
+        let list = await this.getPici(Number(localStorage.getItem("classTeacherId")));
         this.setState({
             newPici: list,
             pici: list,

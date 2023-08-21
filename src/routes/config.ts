@@ -29,7 +29,7 @@ const menus: {
         { key: '/app/queBankCreate', title: '题库建设', icon: 'mobile', component: 'QueBankCreate' },
         {
             key: '/app/test',
-            title: '试卷管理',
+            title: '考试中心',
             icon: 'mobile',
             subs: [
                 { key: '/app/test/testPaper', title: '试卷管理', icon: 'mobile', component: 'TestPaper' },

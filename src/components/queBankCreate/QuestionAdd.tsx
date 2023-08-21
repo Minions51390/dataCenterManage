@@ -102,11 +102,13 @@ class QuestionAdd extends React.Component {
 
     /** 保存试题 */
     async saveQuestion() {
-        await this.saveQuestionInterface();
-        message.success('保存成功');
-        setTimeout(() => {
-            window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
-        }, 200);
+        const res = await this.saveQuestionInterface();
+        if(res.state === 0){
+            message.success('保存成功');
+            setTimeout(() => {
+                window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
+            }, 200);
+        }
     }
 
     /** 保存接口 */
