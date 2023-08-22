@@ -160,7 +160,7 @@ const getyAxisBetween = (key: any) => {
         case 'score':
             label = '分';
             break;
-        case 'pass_rate':
+        case 'test_pass_rate':
             label = '%';
             break;
         case 'study_time':
@@ -169,7 +169,7 @@ const getyAxisBetween = (key: any) => {
         case 'recite_count':
             label = '个';
             break;
-        case 'spt_pass_rate':
+        case 'stage_test_pass_rate':
             label = '%';
             break;
         default:

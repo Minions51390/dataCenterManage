@@ -89,7 +89,7 @@ class MainSet extends React.Component {
         diyTime: moment().format(dateFormat),
         jieduan: [],
         selJieduan: '',
-        isCurJieduan: false,
+        curJieduan: '',
         canSet: false,
         addJieduanModule: false,
         addCikuModule: false,
@@ -135,7 +135,7 @@ class MainSet extends React.Component {
             {
                 jieduan: jieduanRes || [],
                 selJieduan,
-                isCurJieduan: selJieduan ? true : false,
+                curJieduan: selJieduan,
                 canSet: res?.data?.canSet,
                 firState: selJieduan ? 1 : 0,
                 startType: res?.data?.choiceWordsMethod || 'arbitrarily',
@@ -149,7 +149,7 @@ class MainSet extends React.Component {
                 bigCount: res?.data?.stageTestReciteVersion || 0,
             },
             () => {
-                this.getTestData();
+                // this.getTestData();
             }
         );
 
@@ -368,12 +368,12 @@ class MainSet extends React.Component {
                 startType: res?.data?.choiceWordsMethod || 'noChoice',
                 wordVal: res?.data?.reciteVersion ? +res?.data?.reciteVersion : 0,
                 dbVal: res?.data?.dictionaryId || 0,
-                paperId: res?.data?.specialTestID || '',
                 diyTime: res?.data?.specialTestDate || new Date(),
                 bigCount: res?.data?.stageTestReciteVersion || 0,
+                canSet: res?.data?.canSet,
             },
             () => {
-                this.getTestData();
+                // this.getTestData();
             }
         );
         this.getKu();
@@ -389,6 +389,7 @@ class MainSet extends React.Component {
         let res = await this.getSetInfo(classId, selJieduan);
         this.setState({
             secState: 1,
+            canSet: res?.data?.canSet,
             littleType: res.data.wordTestType,
             bigType: res.data.stageWordsTest,
             specialTestDate: res.data.specialTestDate,
@@ -408,6 +409,7 @@ class MainSet extends React.Component {
         this.setState({
             thrState: 1,
             paperId: res?.data?.specialTestID,
+            canSet: res?.data?.canSet,
         });
     }
 
@@ -470,16 +472,29 @@ class MainSet extends React.Component {
     }
 
     async handleJieduan(val: any) {
-        const { classId, jieduan } = this.state;
+        const { classId, curJieduan, wordDb } = this.state;
         const res = await this.getSetInfo(classId, val);
-        const selectJieduan = jieduan.find((item: any) => item.semesterId === val)
-        const isCurJieduan = selectJieduan ? selectJieduan['isCurrent'] : false;
+        let dbName = '';
+        wordDb.forEach((val: any) => {
+            if (val?.dictionaryId === res?.data?.dictionaryId) {
+                dbName = val?.dictionaryName;
+                // console.log('ssss', dbName)
+            }
+        });
         this.setState({
             selJieduan: val,
-            isCurJieduan,
-            firState: isCurJieduan ? 1 : 0,
-            secState: isCurJieduan ? 1 : 0,
-            thrState: isCurJieduan ? 1 : 0,
+            firState: val === curJieduan ? 1 : 0,
+            secState: val === curJieduan ? 1 : 0,
+            canSet: res?.data?.canSet,
+            startType: res?.data?.choiceWordsMethod || 'arbitrarily',
+            wordVal: res?.data?.reciteVersion ? +res?.data?.reciteVersion : 0,
+            dbVal: res?.data?.dictionaryId || 0,
+            dbName: dbName || '',
+            littleType: res?.data?.wordTestType || '',
+            bigType: res?.data?.stageWordsTest || '',
+            bigCount: res?.data?.stageTestReciteVersion || 0,
+            // TODO: 当前未返回paperId 导致js报错阻塞
+            // thrState: val === curJieduan ? 1 : 0,
         });
     }
 
@@ -548,7 +563,7 @@ class MainSet extends React.Component {
             addJieduanModule,
             addCikuModule,
             jieduanText,
-            isCurJieduan,
+            curJieduan,
             canSet,
         } = this.state;
         return (
@@ -625,7 +640,7 @@ class MainSet extends React.Component {
                             <div className="sec">
                                 <span style={{ marginRight: '12px' }}>教师设置</span>
                                 <Input
-                                    disabled={!isCurJieduan}
+                                    disabled={curJieduan !== selJieduan}
                                     style={{ width: 240 }}
                                     value={wordVal}
                                     onBlur={this.onTeacherWordBlur.bind(this)}
@@ -663,7 +678,7 @@ class MainSet extends React.Component {
                                     onChange={this.onStartTypeChange.bind(this)}
                                     value={startType}
                                     defaultValue="arbitrarily"
-                                    disabled={!selJieduan}
+                                    disabled={!selJieduan || !canSet}
                                 >
                                     <Radio value={'arbitrarily'}>是</Radio>
                                     <Radio value={'noChoice'}>否</Radio>
@@ -697,7 +712,7 @@ class MainSet extends React.Component {
                             <div className="sec">
                                 <Select
                                     defaultValue={dbVal}
-                                    disabled={!selJieduan}
+                                    disabled={!selJieduan || !canSet}
                                     value={dbVal || '请选择'}
                                     style={{ width: 240 }}
                                     onChange={this.handleWordDb.bind(this)}
@@ -737,7 +752,7 @@ class MainSet extends React.Component {
                         <div className="div1">
                             <Button
                                 block
-                                disabled={!isCurJieduan}
+                                disabled={curJieduan !== selJieduan}
                                 onClick={this.resetFir.bind(this)}
                             >
                                 复原
@@ -745,7 +760,7 @@ class MainSet extends React.Component {
                         </div>
                         <Button
                             type="primary"
-                            disabled={!isCurJieduan}
+                            disabled={curJieduan !== selJieduan}
                             onClick={this.saveFir.bind(this)}
                         >
                             保存设置
@@ -858,13 +873,13 @@ class MainSet extends React.Component {
                     </div>
                     <div className="last-line">
                         <div className="div1">
-                            <Button block disabled={!isCurJieduan} onClick={this.resetSec.bind(this)}>
+                            <Button block disabled={curJieduan !== selJieduan} onClick={this.resetSec.bind(this)}>
                                 复原
                             </Button>
                         </div>
                         <Button
                             type="primary"
-                            disabled={!isCurJieduan}
+                            disabled={curJieduan !== selJieduan}
                             onClick={this.saveSec.bind(this)}
                         >
                             保存设置
@@ -934,7 +949,7 @@ class MainSet extends React.Component {
                             <div className="div1">
                                 <Button
                                     block
-                                    disabled={!isCurJieduan}
+                                    disabled={curJieduan !== selJieduan}
                                     onClick={this.resetThr.bind(this)}
                                 >
                                     复原
@@ -942,7 +957,7 @@ class MainSet extends React.Component {
                             </div>
                             <Button
                                 type="primary"
-                                disabled={!isCurJieduan}
+                                disabled={curJieduan !== selJieduan}
                                 onClick={this.saveThr.bind(this)}
                             >
                                 发布考试
