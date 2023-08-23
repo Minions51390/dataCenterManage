@@ -520,12 +520,24 @@ class Dashboard extends React.Component {
     }
     async getPici() {
         let res = await get({url: baseUrl + '/api/v1/structure/batch/list'});
-        return res.data.detail || [];
+        const pici = res.data || [];
+        pici.unshift({
+            describe: '全部',
+            batchId: 0,
+        });
+        return pici;
     }
     async getClass(pici: any) {
-        let res = await get({url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc`});
-        console.log(res);
-        return res.data.detail || [];
+        let res = await get({url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc&pageNo=1&pageSize=100`});
+        const banji = res?.data?.classList ?? [];
+        banji.unshift({
+            classCode: '',
+            classId: 0,
+            createDate: '',
+            describe: '全部',
+            studentCount: 0,
+        });
+        return banji;
     }
     async getStu(banji: any) {
         const {selPici} = this.state;

@@ -79,7 +79,8 @@ module.exports = function(proxy, allowedHost) {
     https: true,
     proxy: {
       '/apiV1': {
-		  target: 'http://101.43.227.70:8022',
+          //target: 'http://101.43.227.70:8022',
+          target: 'http://101.43.227.70:8050',
 		  // target: 'http://www.qingcheng-eng.com',
 		  // target: 'http://www.qingchengeng.com',
 		  // target: 'http://81.70.229.127',

@@ -137,7 +137,12 @@ class Ranks extends React.Component {
     /** 获取教师列表 */
     async getTeacher() {
         let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
-        return res?.data??[];
+        const teacher = res?.data || [];
+        teacher.unshift({
+            realName: '全部',
+            teacherId: 0,
+        });
+        return teacher;
     }
 
     async getPici(teacherId:any) {
@@ -145,18 +150,28 @@ class Ranks extends React.Component {
         return res?.data || [];
     }
     async getClass(pici: any) {
-        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc` });
-        // let rankList = await this.getRank(
-        //     pici || 0,
-        //     res?.data[0] ? res?.data[0].classId : 0
-        // );
-        return res?.data || [];
+        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc&pageNo=1&pageSize=100` });
+        const banji = res?.data?.classList ?? [];
+        banji.unshift({
+            classCode: '',
+            classId: 0,
+            createDate: '',
+            describe: '全部',
+            studentCount: 0,
+        });
+        return banji;
     }
     async getSemester(classId: any){
         let res = await get({
             url: baseUrl + `/api/v1/structure/semester/list?classId=${classId}`
         })
-        return res?.data || [];
+        const semester = res?.data || [];
+        semester.unshift({
+            isCurrent: false,
+            semesterId: 0,
+            semesterName: '全部',
+        });
+        return semester;
     }
     async getRank() {
         const { evaluation, wordsCount, studyTime, passRate, pageNo, sptPassRate, selSemester } = this.state;
@@ -306,7 +321,7 @@ class Ranks extends React.Component {
                         >
                             {semester.map((item: any) => (
                                 <Option key={item.semesterId} value={item.semesterId}>
-                                    {item.semesterName}
+                                    {item.semesterName || item.semesterId}
                                 </Option>
                             ))}
                         </Select>

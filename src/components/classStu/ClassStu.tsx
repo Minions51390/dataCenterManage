@@ -11,21 +11,26 @@ class ClassStu extends React.Component {
         piciW: [],
         selPiciW: '',
         waitClass: [],
+        waitPag: 1,
+        waitClassTotal: 0,
         //当前执教班级
         pici: [],
         selPici: '',
         nowClass: [],
         nowPag: 1,
+        nowClassTotal: 0,
         // 以结课班级
         piciF: [],
         selPiciF: '',
         finClass: [],
         finPag: 1,
+        finClassTotal: 0,
         // 他人执教班级
         piciO: [],
         selPiciO: '',
         othClass: [],
         othPag: 1,
+        othClassTotal: 0,
         // 新增班级
         newPici: [],
         selNewPi: '',
@@ -59,11 +64,12 @@ class ClassStu extends React.Component {
     async getPici(teacherId = 0) {
         let res = await get({ url: `${baseUrl}/api/v1/structure/batch/list${teacherId ? `?teacherId=${teacherId}`: '' }` });
         console.log('lll', res);
-        if (res != null) {
-            return res.data;
-        } else {
-            return [];
-        }
+        const pici = res.data || [];
+        pici.unshift({
+            describe: '全部',
+            batchId: 0,
+        });
+        return pici;
     }
     async getClass(pici: any, cate: any, pageNo: any, pageSize = 8) {
         let res = await get({
@@ -71,7 +77,7 @@ class ClassStu extends React.Component {
         });
         console.log(res);
         if (res != null) {
-            res.data.forEach((item:any) => {
+            res.data.classList.forEach((item:any) => {
                 item.category = cate
             })
             return res.data;
@@ -85,7 +91,8 @@ class ClassStu extends React.Component {
         let res1 = await this.getClass(selPiciW, 'tc1', 1, 100);
         let res2 = await this.getClass(selPiciW, 'tc2', 1, 100);
         this.setState({
-            waitClass: [...res1, ...res2]
+            waitClass: [...res1?.classList, ...res2?.classList],
+            waitClassTotal: res1?.totalCount + res2?.totalCount,
         });
     }
     // 获取当前班级列表
@@ -94,15 +101,18 @@ class ClassStu extends React.Component {
         console.log('getCurClass', selPici)
         let res = await this.getClass(selPici, 'sc', nowPag, 7);
         this.setState({
-            nowClass: res
+            nowClass: res?.classList,
+            nowClassTotal: res?.totalCount,
         });
+        console.log('res?.data?.totalCount', res)
     }
     // 获取已结课班级列表
     async getFinClass(){
         const {selPiciF, finPag} = this.state;
         let res = await this.getClass(selPiciF, 'rt', finPag);
         this.setState({
-            finClass: res
+            finClass: res?.classList,
+            finClassTotal: res?.totalCount,
         });
     }
     // 获取他人班级列表
@@ -110,7 +120,8 @@ class ClassStu extends React.Component {
         const {selPiciO, othPag} = this.state;
         let res = await this.getClass(selPiciO, 'oc', othPag);
         this.setState({
-            othClass: res
+            othClass: res?.classList,
+            othClassTotal: res?.totalCount,
         });
     }
     // 当前执教班级翻页
@@ -308,6 +319,7 @@ class ClassStu extends React.Component {
             nowClass,
             nowPag,
             waitClass,
+            waitPag,
             finClass,
             finPag,
             piciF,
@@ -321,6 +333,10 @@ class ClassStu extends React.Component {
             newPiciVal,
             newBanji,
             selNewPi,
+            waitClassTotal,
+            nowClassTotal,
+            othClassTotal,
+            finClassTotal,
         } = this.state;
         return (
             <div className="class-main-wrapper">
@@ -358,6 +374,15 @@ class ClassStu extends React.Component {
                     ) : (
                         <div className="fins-area">暂无数据</div>
                     )}
+                    <div className={waitClassTotal ? 'pag' : 'display-none'}>
+                        <Pagination
+                            defaultCurrent={1}
+                            defaultPageSize={8}
+                            current={waitPag}
+                            total={waitClassTotal}
+                            onChange={this.waitPagChange.bind(this)}
+                        />
+                    </div>
                 </div>
                 {/* 当前职教班级 */}
                 <div className="select-area">
@@ -380,7 +405,7 @@ class ClassStu extends React.Component {
                 </div>
                 <div className="now-area">
                     <div className="item-area">
-                        {nowClass.slice((nowPag - 1) * 7, nowPag * 7).map((item: any, index) => (
+                        {nowClass.map((item: any, index) => (
                             <Link
                                 onMouseDown={this.setClassName.bind(this, item)}
                                 to={`/app/class/main/class?classId=${item.classId}&piciId=${selPici}`}
@@ -473,12 +498,12 @@ class ClassStu extends React.Component {
                             </div>
                         </Modal>
                     </div>
-                    <div className={nowClass.length ? 'pag' : 'display-none'}>
+                    <div className={nowClassTotal ? 'pag' : 'display-none'}>
                         <Pagination
                             defaultCurrent={1}
                             defaultPageSize={7}
                             current={nowPag}
-                            total={nowClass.length}
+                            total={nowClassTotal}
                             onChange={this.nowPagChange.bind(this)}
                         />
                     </div>
@@ -528,12 +553,12 @@ class ClassStu extends React.Component {
                     ) : (
                         <div className="fins-area">暂无数据</div>
                     )}
-                    <div className={finClass.length ? 'pag' : 'display-none'}>
+                    <div className={finClassTotal ? 'pag' : 'display-none'}>
                         <Pagination
                             defaultCurrent={1}
                             defaultPageSize={8}
                             current={finPag}
-                            total={finClass.length}
+                            total={finClassTotal}
                             onChange={this.finPagChange.bind(this)}
                         />
                     </div>
@@ -583,12 +608,12 @@ class ClassStu extends React.Component {
                     ) : (
                         <div className="fins-area">暂无数据</div>
                     )}
-                    <div className={othClass.length ? 'pag' : 'display-none'}>
+                    <div className={othClassTotal ? 'pag' : 'display-none'}>
                         <Pagination
                             defaultCurrent={1}
                             defaultPageSize={8}
                             current={othPag}
-                            total={othClass.length}
+                            total={othClassTotal}
                             onChange={this.othPagChange.bind(this)}
                         />
                     </div>

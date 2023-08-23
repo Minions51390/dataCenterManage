@@ -322,11 +322,24 @@ class Dashboard extends React.Component {
         const stu = await this.getStu(banji[0]?.classId, pici[0].batchId);
         const semester = await this.getSemester(banji[0].classId || 0);
         const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
+        this.setState({
+            teacher,
+            pici,
+            banji,
+            stu,
+            semester,
+            selTeacher,
+            selPici: pici[0].batchId,
+            selBanji: banji[0].classId,
+            selSemester,
+            options,
+        });
+        if(stu.length === 0) return 
         const baseInfo = await this.baseInfo(stu[0] ? stu[0].studentId : 0, selSemester);
         const wrongInfo = await this.wrongBook({
             batchId: pici[0].batchId,
             classId: banji[0].classId,
-            studentId: stu[0]?.studentId ?? 0,
+            studentId: stu[0].studentId,
             selSemester,
             pageVal: 1,
         });
@@ -591,19 +604,36 @@ class Dashboard extends React.Component {
     }
     async getTeacher() {
         let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
-        return res?.data??[];
+        const teacher = res?.data || [];
+        teacher.unshift({
+            realName: '全部',
+            teacherId: 0,
+        });
+        return teacher;
     }
     async getPici(teacherId: any) {
         let res = await get({ url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}` });
         console.log('批次', res);
-        return res?.data || [];
+        const pici = res.data || [];
+        pici.unshift({
+            describe: '全部',
+            batchId: 0,
+        });
+        return pici;
     }
     async getClass(pici: any) {
         let res = await get({
-            url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc`,
+            url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc&pageNo=1&pageSize=100`,
         });
-        console.log('班级', res);
-        return res?.data || [];
+        const banji = res?.data?.classList ?? [];
+        banji.unshift({
+            classCode: '',
+            classId: 0,
+            createDate: '',
+            describe: '全部',
+            studentCount: 0,
+        });
+        return banji;
     }
     async getStu(banji: any, pici?: any) {
         const { selPici } = this.state;
@@ -618,8 +648,13 @@ class Dashboard extends React.Component {
         let res = await get({
             url: baseUrl + `/api/v1/structure/semester/list?classId=${classId}`
         })
-        console.log(res);
-        return res?.data || [];
+        const semester = res?.data || [];
+        semester.unshift({
+            isCurrent: false,
+            semesterId: 0,
+            semesterName: '全部',
+        });
+        return semester;
     }
     async handleTeacher (val:any){
         console.log('handleTeacher', val)
@@ -983,7 +1018,7 @@ class Dashboard extends React.Component {
                         >
                             {semester.map((item: any) => (
                                 <Option key={item.semesterId} value={item.semesterId}>
-                                    {item.semesterName}
+                                    {item.semesterName || item.semesterId}
                                 </Option>
                             ))}
                         </Select>

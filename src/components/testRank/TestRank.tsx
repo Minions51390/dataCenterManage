@@ -191,7 +191,7 @@ class TestRank extends React.Component {
         const banji = await this.getClass(pici[0].batchId);
         const semester = await this.getSemester(banji[0].classId || 0);
         const selSemester =
-            semester.length > 0 ? [semester.find((item: any) => item.isCurrent)?.semesterId] : [];
+            semester.length > 1 ? [semester.find((item: any) => item.isCurrent)?.semesterId] : [];
         this.setState(
             {
                 teacher,
@@ -227,7 +227,7 @@ class TestRank extends React.Component {
         let res = await this.getClass(val);
         const semester = await this.getSemester(res[0]?.classId);
         const selSemester =
-            semester.length > 0 ? [semester.find((item: any) => item.isCurrent)?.semesterId] : [];
+            semester.length > 1 ? [semester.find((item: any) => item.isCurrent)?.semesterId] : [];
         this.setState({
             selPici: val,
             banji: res,
@@ -242,7 +242,7 @@ class TestRank extends React.Component {
     async handleBanji(val: any) {
         const semester = await this.getSemester(val);
         const selSemester =
-            semester.length > 0 ? [semester.find((item: any) => item.isCurrent)?.semesterId] : [];
+            semester.length > 1 ? [semester.find((item: any) => item.isCurrent)?.semesterId] : [];
         this.setState({
             selBanji: val,
             semester,
@@ -256,10 +256,9 @@ class TestRank extends React.Component {
         console.log('val', val);
         this.setState({
             selSemester: val,
+        }, () => {
+            this.getTest();
         });
-        setTimeout(async () => {
-            await this.getTest();
-        }, 0);
     }
 
     /** 更换考试状态 */
@@ -359,10 +358,10 @@ class TestRank extends React.Component {
     async getTeacher() {
         let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list` });
         const teacher = res?.data || [];
-        // teacher.unshift({
-        //     realName: '全部',
-        //     teacherId: 0,
-        // });
+        teacher.unshift({
+            realName: '全部',
+            teacherId: 0,
+        });
         return teacher;
     }
 
@@ -372,26 +371,26 @@ class TestRank extends React.Component {
             url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}`,
         });
         const pici = res.data || [];
-        // pici.unshift({
-        //     describe: '全部',
-        //     batchId: 0,
-        // });
+        pici.unshift({
+            describe: '全部',
+            batchId: 0,
+        });
         return pici;
     }
 
     /** 获取班级列表 */
     async getClass(pici: any) {
         let res = await get({
-            url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc`,
+            url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc&pageNo=1&pageSize=100`,
         });
-        const banji = res.data || [];
-        // banji.unshift({
-        //     classCode: '',
-        //     classId: 0,
-        //     createDate: '',
-        //     describe: '全部',
-        //     studentCount: 0,
-        // });
+        const banji = res?.data?.classList ?? [];
+        banji.unshift({
+            classCode: '',
+            classId: 0,
+            createDate: '',
+            describe: '全部',
+            studentCount: 0,
+        });
         return banji;
     }
 
@@ -401,11 +400,11 @@ class TestRank extends React.Component {
             url: baseUrl + `/api/v1/structure/semester/list?classId=${classId}`,
         });
         const semester = res?.data || [];
-        // semester.unshift({
-        //     isCurrent: false,
-        //     semesterId: 0,
-        //     semesterName: '全部',
-        // });
+        semester.unshift({
+            isCurrent: false,
+            semesterId: 0,
+            semesterName: '全部',
+        });
         return semester;
     }
 

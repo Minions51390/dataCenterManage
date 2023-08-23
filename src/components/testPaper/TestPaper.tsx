@@ -103,7 +103,12 @@ class TestPaper extends React.Component {
     /** 获取教师列表 */
     async getTeacher() {
         let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list` });
-        return res?.data ?? [];
+        const teacher = res?.data || [];
+        teacher.unshift({
+            realName: '全部',
+            teacherId: 0,
+        });
+        return teacher
     }
 
     handleTeacher(val: any) {

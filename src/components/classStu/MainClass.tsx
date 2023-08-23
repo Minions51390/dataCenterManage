@@ -174,7 +174,12 @@ class MainClass extends React.Component {
 
     async getTeacher() {
         let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
-        return res?.data??[];
+        const teacher = res?.data || [];
+        teacher.unshift({
+            realName: '全部',
+            teacherId: 0,
+        });
+        return teacher;
     }
 
     rejectStu(studentId: any) {
