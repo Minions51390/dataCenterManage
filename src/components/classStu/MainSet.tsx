@@ -13,6 +13,7 @@ import {
     Alert,
 } from 'antd';
 import { Link } from 'react-router-dom';
+import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/MainSet.less';
 import { get, post, patch, baseUrl } from '../../service/tools';
 import moment from 'moment';
@@ -117,7 +118,7 @@ class MainSet extends React.Component {
         await this.getKu();
         const jieduanRes = await this.getJieDuanList(classId);
         const selJieduan = jieduanRes[0]
-            ? jieduanRes.find((item: any) => item.isCurrent)?.semesterId
+            ? jieduanRes.find((item: any) => item.isCurrent)?.semesterId ?? 0
             : 0;
         console.log('use jieduan', jieduanRes);
         let res = await this.getSetInfo(classId, selJieduan);
@@ -507,9 +508,10 @@ class MainSet extends React.Component {
             this.setState({
                 addJieduanModule: false,
                 jieduan: jieduanRes || [],
-                selJieduan,
+                curJieduan: selJieduan,
                 jieduanText: '',
             });
+            this.handleJieduan(selJieduan)
             Modal.confirm({
                 title: '新增学习阶段',
                 content: '学习阶段添加成功！请同步设置班级新的学习任务。',
@@ -646,7 +648,7 @@ class MainSet extends React.Component {
                                     onBlur={this.onTeacherWordBlur.bind(this)}
                                     onChange={this.onTeacherWordChange.bind(this)}
                                 />
-                                <div className="div">(推荐每日背词数为10-20个，最多40个)</div>
+                                <div className="div">(推荐每日最低背词数：10~20 个)</div>
                             </div>
                         ) : (
                             <div className="sec sec-save">
@@ -735,7 +737,7 @@ class MainSet extends React.Component {
                                             disabled={!selJieduan}
                                             onClick={this.addCiku.bind(this)}
                                         >
-                                            添加词库
+                                            <PlusOutlined />添加词库
                                         </Button>
                                     </Tooltip>
                                 </div>
@@ -752,7 +754,7 @@ class MainSet extends React.Component {
                         <div className="div1">
                             <Button
                                 block
-                                disabled={curJieduan !== selJieduan}
+                                disabled={!selJieduan || curJieduan !== selJieduan}
                                 onClick={this.resetFir.bind(this)}
                             >
                                 复原
@@ -760,7 +762,7 @@ class MainSet extends React.Component {
                         </div>
                         <Button
                             type="primary"
-                            disabled={curJieduan !== selJieduan}
+                            disabled={!selJieduan || curJieduan !== selJieduan}
                             onClick={this.saveFir.bind(this)}
                         >
                             保存设置
@@ -873,13 +875,13 @@ class MainSet extends React.Component {
                     </div>
                     <div className="last-line">
                         <div className="div1">
-                            <Button block disabled={curJieduan !== selJieduan} onClick={this.resetSec.bind(this)}>
+                            <Button block disabled={!selJieduan || curJieduan !== selJieduan} onClick={this.resetSec.bind(this)}>
                                 复原
                             </Button>
                         </div>
                         <Button
                             type="primary"
-                            disabled={curJieduan !== selJieduan}
+                            disabled={!selJieduan || curJieduan !== selJieduan}
                             onClick={this.saveSec.bind(this)}
                         >
                             保存设置
@@ -949,7 +951,7 @@ class MainSet extends React.Component {
                             <div className="div1">
                                 <Button
                                     block
-                                    disabled={curJieduan !== selJieduan}
+                                    disabled={!selJieduan || curJieduan !== selJieduan}
                                     onClick={this.resetThr.bind(this)}
                                 >
                                     复原
@@ -957,7 +959,7 @@ class MainSet extends React.Component {
                             </div>
                             <Button
                                 type="primary"
-                                disabled={curJieduan !== selJieduan}
+                                disabled={!selJieduan || curJieduan !== selJieduan}
                                 onClick={this.saveThr.bind(this)}
                             >
                                 发布考试

@@ -852,7 +852,7 @@ class Dashboard extends React.Component {
                     <Col span={8}>
                         <div className="distance-fir">
                             <div>
-                                {baseInfo.endDescribe}
+                                打卡天数：{baseInfo.endDescribe}
                             </div>
                         </div>
                         <div className="calendar-area">
@@ -939,7 +939,7 @@ class Dashboard extends React.Component {
                                 </div>
                                 <div className="right">
                                     <div className="main">
-                                    <span className="big">{(testInfo.passRate*100).toFixed(2)}</span>
+                                    <span className="big">{(testInfo.passRate*100).toFixed(0)}</span>
                                         <span className="small">%</span>
                                     </div>
                                     <div className="sub">当日测试通过率</div>

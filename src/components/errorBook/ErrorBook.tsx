@@ -72,7 +72,7 @@ class ErrorBook extends React.Component {
                 const pici = await this.getPici(selTeacher.teacherId);
                 const banji = await this.getClass(pici[0].batchId || 0);
                 const semester = await this.getSemester(banji[0].classId || 0);
-                const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
+                const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
                 console.log('inited', selSemester)
                 this.setState({
                     teacher,
@@ -178,7 +178,7 @@ class ErrorBook extends React.Component {
     async handlePiCi(val: any) {
         const res = await this.getClass(val);
         const semester = await this.getSemester(res[0]?.classId);
-        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
+        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
         console.log('handlePiCi', selSemester);
         this.setState({
             selPici: val,
@@ -192,7 +192,7 @@ class ErrorBook extends React.Component {
     }
     async handleBanji(val: any) {
         const semester = await this.getSemester(val);
-        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : []
+        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : []
         this.setState({
             selBanji: val,
             semester,

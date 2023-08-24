@@ -183,6 +183,8 @@ class ClassStu extends React.Component {
             selPiciO: val,
             othPag: 1,
         }, async () => {
+            const {piciO, selPiciO} = this.state;
+            console.log(piciO, selPiciO)
             this.getOthClass();
         });
         console.log(val);
@@ -207,7 +209,9 @@ class ClassStu extends React.Component {
             selPici: selNewPi,
             newBanji: '',
         });
-        let list = await this.getClass(batchId, 'sc', 1, 7);
+        
+        const res1 = await this.getClass(batchId, 'sc', 1, 7);
+        let list = res1?.classList
         let nowPag = 1;
         if (list.length <= 7) {
             nowPag = 1;
@@ -259,7 +263,7 @@ class ClassStu extends React.Component {
                 batchName: newPiciVal,
             },
         });
-        let list = await this.getPici(Number(localStorage.getItem("classTeacherId")));
+        let list = await this.getPici();
         this.setState({
             newPici: list,
             pici: list,
@@ -392,7 +396,7 @@ class ClassStu extends React.Component {
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}
-                            value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
+                            value={selPici || (pici[0] && (pici[0] as any).describe)}
                             onChange={this.handlePiCi.bind(this)}
                         >
                             {pici.map((item: any) => (
@@ -516,7 +520,7 @@ class ClassStu extends React.Component {
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}
-                            value={selPiciF || (piciF[0] && (piciF[0] as any).batchId) || '请选择'}
+                            value={selPiciF || (piciF[0] && (piciF[0] as any).batchId)}
                             onChange={this.handlePiCiF.bind(this)}
                         >
                             {piciF.map((item: any) => (
@@ -571,7 +575,7 @@ class ClassStu extends React.Component {
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}
-                            value={selPiciO || (piciO[0] && (piciO[0] as any).batchId) || '请选择'}
+                            value={selPiciO || (piciO[0] && (piciO[0] as any).batchId)}
                             onChange={this.handlePiCiO.bind(this)}
                         >
                             {piciO.map((item: any) => (

@@ -90,7 +90,7 @@ class TestPaper extends React.Component {
     async getTest() {
         const { testQuery, pageNo, selTeacher } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/question-paper/list?creatorId=${selTeacher.teacherId}&query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
+            url: `${baseUrl}/api/v1/question-paper/list?teacherId=${selTeacher.teacherId}&query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
         });
         const questionBankList = res?.data?.questionPaperList || [];
         const totalCount = (res?.data?.totalCount || 0) / 20;

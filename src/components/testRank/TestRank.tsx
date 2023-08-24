@@ -191,7 +191,7 @@ class TestRank extends React.Component {
         const banji = await this.getClass(pici[0].batchId);
         const semester = await this.getSemester(banji[0].classId || 0);
         const selSemester =
-            semester.length > 1 ? [semester.find((item: any) => item.isCurrent)?.semesterId] : [];
+            semester.length > 0 ? [semester.find((item: any) => item.isCurrent)?.semesterId ?? 0] : [];
         this.setState(
             {
                 teacher,
@@ -227,7 +227,7 @@ class TestRank extends React.Component {
         let res = await this.getClass(val);
         const semester = await this.getSemester(res[0]?.classId);
         const selSemester =
-            semester.length > 1 ? [semester.find((item: any) => item.isCurrent)?.semesterId] : [];
+            semester.length > 0 ? [semester.find((item: any) => item.isCurrent)?.semesterId ?? 0] : [];
         this.setState({
             selPici: val,
             banji: res,
@@ -242,7 +242,7 @@ class TestRank extends React.Component {
     async handleBanji(val: any) {
         const semester = await this.getSemester(val);
         const selSemester =
-            semester.length > 1 ? [semester.find((item: any) => item.isCurrent)?.semesterId] : [];
+            semester.length > 0 ? [semester.find((item: any) => item.isCurrent)?.semesterId ?? 0] : [];
         this.setState({
             selBanji: val,
             semester,

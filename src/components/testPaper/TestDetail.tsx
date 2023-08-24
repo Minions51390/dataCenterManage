@@ -155,7 +155,7 @@ class TestDetail extends React.Component {
     async getQuestionBankList() {
         const { bankPeople } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/question-set/list?query=&creatorID=${bankPeople}&sortKey=createTime&sortOrder=asc&pageSize=20&pageNo=1&all=on`,
+            url: `${baseUrl}/api/v1/question-set/list?query=&teacherId=${bankPeople}&sortKey=createTime&sortOrder=asc&pageSize=20&pageNo=1&all=on`,
         });
         console.log('------------->', res);
         const questionBankList = res?.data?.questionSetList || [];

@@ -321,7 +321,7 @@ class Dashboard extends React.Component {
         const banji = await this.getClass(pici[0].batchId);
         const stu = await this.getStu(banji[0]?.classId, pici[0].batchId);
         const semester = await this.getSemester(banji[0].classId || 0);
-        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
+        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
         this.setState({
             teacher,
             pici,
@@ -684,7 +684,7 @@ class Dashboard extends React.Component {
         let res = await this.getStu(val);
         let selStu = res[0] ? res[0].studentId : 0;
         const semester = await this.getSemester(val);
-        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId] : [];
+        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
         this.setState({
             selBanji: val,
             stu: res,
@@ -1112,7 +1112,10 @@ class Dashboard extends React.Component {
                     </Col>
                     <Col span={8}>
                         <div className="distance-fir">
-                            <div>{baseInfo.endDescribe}</div>
+                            <div>
+                                <span className="distance-fir-text">打卡天数：</span>
+                                {baseInfo.endDescribe}
+                            </div>
                         </div>
                         <div className="calendar-area">
                             <div>
@@ -1238,7 +1241,7 @@ class Dashboard extends React.Component {
                                 <div className="right">
                                     <div className="main">
                                         <span className="big">
-                                            {(testInfo.passRate * 100).toFixed(2)}
+                                            {(testInfo.passRate * 100).toFixed(0)}
                                         </span>
                                         <span className="small">%</span>
                                     </div>
