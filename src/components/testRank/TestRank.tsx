@@ -187,27 +187,30 @@ class TestRank extends React.Component {
         const selTeacher = teacher.find((item: any) => {
             return item.teacherId === Number(localStorage.getItem('classTeacherId'));
         });
-        const pici = await this.getPici(selTeacher.teacherId);
-        const banji = await this.getClass(pici[0].batchId);
-        const semester = await this.getSemester(banji[0].classId || 0);
-        const selSemester =
-            semester.length > 0 ? [semester.find((item: any) => item.isCurrent)?.semesterId ?? 0] : [];
-        this.setState(
-            {
-                teacher,
+        this.setState({
+            teacher,
+            selTeacher,
+            query: decodeURI(getQueryString().examName || ''),
+        }, async () => {
+            const pici = await this.getPici(selTeacher.teacherId);
+            const banji = await this.getClass(pici[0].batchId);
+            this.setState({
                 pici,
                 banji,
-                semester,
-                selTeacher,
                 selPici: pici[0].batchId,
                 selBanji: banji[0].classId,
-                selSemester,
-                query: decodeURI(getQueryString().examName || ''),
-            },
-            () => {
-                this.getTest();
-            }
-        );
+            }, async () => {
+                const semester = await this.getSemester(banji[0].classId || 0);
+                const selSemester =
+                    semester.length > 0 ? [semester.find((item: any) => item.isCurrent)?.semesterId ?? 0] : [];
+                this.setState({
+                    semester,
+                    selSemester,
+                }, () => {
+                    this.getTest();
+                });
+            })
+        })
     }
     async handleTeacher(val: any) {
         const { teacher } = this.state;
@@ -380,8 +383,9 @@ class TestRank extends React.Component {
 
     /** 获取班级列表 */
     async getClass(pici: any) {
+        const { selTeacher } = this.state;
         let res = await get({
-            url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc&pageNo=1&pageSize=100`,
+            url: baseUrl + `/api/v1/structure/class/list?teacherId=${selTeacher.teacherId}&batchId=${pici}&category=sc&pageNo=1&pageSize=100`,
         });
         const banji = res?.data?.classList ?? [];
         banji.unshift({
@@ -396,8 +400,9 @@ class TestRank extends React.Component {
 
     /** 获取阶段列表 */
     async getSemester(classId: any) {
+        const {selPici, selTeacher} = this.state
         let res = await get({
-            url: baseUrl + `/api/v1/structure/semester/list?classId=${classId}`,
+            url: baseUrl + `/api/v1/structure/semester/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${classId}`,
         });
         const semester = res?.data || [];
         semester.unshift({
@@ -418,7 +423,7 @@ class TestRank extends React.Component {
         });
         console.log('------------->', res);
         const examList = res?.data?.examList || mockExamList;
-        const totalCount = (res?.data?.totalCount || 0) / 20;
+        const totalCount = res?.data?.totalCount;
         this.setState({
             data1: examList,
             totalCount,
@@ -547,7 +552,7 @@ class TestRank extends React.Component {
                         <span className="span">执教教师:</span>
                         <Select
                             defaultValue="请选择"
-                            style={{ width: 180 }}
+                            style={{ width: 140 }}
                             value={
                                 selTeacher?.realName ||
                                 (teacher[0] && (teacher[0] as any).realName) ||
@@ -591,7 +596,7 @@ class TestRank extends React.Component {
                         <Select
                             mode="multiple"
                             allowClear
-                            style={{ width: 140 }}
+                            style={{ width: 200 }}
                             value={selSemester}
                             onChange={this.handleSemester.bind(this)}
                         >
@@ -612,12 +617,12 @@ class TestRank extends React.Component {
                             onChange={this.tableChange.bind(this)}
                         />
                     </div>
-                    <div className={data1.length ? 'pag' : 'display-none'}>
+                    <div className={ totalCount / 20 < 1 ? 'pag' : 'display-none'}>
                         <Pagination
                             defaultCurrent={1}
                             pageSize={20}
                             current={pageNo}
-                            total={totalCount * 20}
+                            total={totalCount}
                             onChange={this.nowPagChange.bind(this)}
                         />
                     </div>

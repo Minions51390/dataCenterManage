@@ -146,7 +146,7 @@ class MainSet extends React.Component {
                 littleType: res?.data?.wordTestType || '',
                 bigType: res?.data?.stageWordsTest || '',
                 specialTestDate: res?.data?.specialTestDate || new Date(),
-                paperId: res?.data?.specialTestID || 1,
+                paperId: res?.data?.specialTestID || "",
                 bigCount: res?.data?.stageTestReciteVersion || 0,
             },
             () => {
@@ -752,13 +752,21 @@ class MainSet extends React.Component {
                     </div>
                     <div className="last-line">
                         <div className="div1">
-                            <Button
-                                block
-                                disabled={!selJieduan || curJieduan !== selJieduan}
-                                onClick={this.resetFir.bind(this)}
+                            <Tooltip
+                                title={"如需调整教学进度，可对每日单词数进行更改。"}
+                                trigger="hover"
+                                placement="top"
+                                color="rgba(0, 0, 0, 0.7)"
+                                overlayStyle={{ minWidth: '214px' }}
                             >
-                                复原
-                            </Button>
+                                <Button
+                                    block
+                                    disabled={!selJieduan || curJieduan !== selJieduan}
+                                    onClick={this.resetFir.bind(this)}
+                                >
+                                    复原
+                                </Button>
+                            </Tooltip>
                         </div>
                         <Button
                             type="primary"

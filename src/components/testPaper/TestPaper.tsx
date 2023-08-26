@@ -93,7 +93,7 @@ class TestPaper extends React.Component {
             url: `${baseUrl}/api/v1/question-paper/list?teacherId=${selTeacher.teacherId}&query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
         });
         const questionBankList = res?.data?.questionPaperList || [];
-        const totalCount = (res?.data?.totalCount || 0) / 20;
+        const totalCount = res?.data?.totalCount;
         this.setState({
             data1: questionBankList,
             totalCount,
@@ -294,12 +294,12 @@ class TestPaper extends React.Component {
                             bordered={false}
                         />
                     </div>
-                    <div className={data1.length ? 'pag' : 'display-none'}>
+                    <div className={totalCount / 20 > 1 ? 'pag' : 'display-none'}>
                         <Pagination
                             defaultCurrent={1}
                             pageSize={20}
                             current={pageNo}
-                            total={totalCount * 20}
+                            total={totalCount}
                             onChange={this.nowPagChange.bind(this)}
                         />
                     </div>

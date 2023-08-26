@@ -31,6 +31,11 @@ class ClassStu extends React.Component {
         othClass: [],
         othPag: 1,
         othClassTotal: 0,
+        teacher: [],
+        selTeacher: {
+            teacherId: 0,
+            realName: '',
+        },
         // 新增班级
         newPici: [],
         selNewPi: '',
@@ -42,10 +47,12 @@ class ClassStu extends React.Component {
         this.initData();
     }
     async initData() {
+        const teacher = await this.getTeacher();
         const pici = await this.getPici();
         const selfPici = await this.getPici(Number(localStorage.getItem("classTeacherId")));
         let selPici = parseInt(sessionStorage.getItem('piciId') as any) || selfPici[0].batchId;
         this.setState({
+            teacher,
             pici: selfPici,
             piciW: pici,
             piciF: selfPici,
@@ -71,9 +78,9 @@ class ClassStu extends React.Component {
         });
         return pici;
     }
-    async getClass(pici: any, cate: any, pageNo: any, pageSize = 8) {
+    async getClass(teacherId = 0, pici: any, cate: any, pageNo: any, pageSize = 8) {
         let res = await get({
-            url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=${cate}&pageNo=${pageNo}&pageSize=${pageSize}`,
+            url: baseUrl + `/api/v1/structure/class/list?teacherId=${teacherId}&batchId=${pici}&category=${cate}&pageNo=${pageNo}&pageSize=${pageSize}`,
         });
         console.log(res);
         if (res != null) {
@@ -85,11 +92,20 @@ class ClassStu extends React.Component {
             return [];
         }
     }
+    async getTeacher() {
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
+        const teacher = res?.data || [];
+        teacher.unshift({
+            realName: '全部',
+            teacherId: 0,
+        });
+        return teacher;
+    }
     // 获取待接收班级列表
     async getWaitClass(){
         const {selPiciW} = this.state;
-        let res1 = await this.getClass(selPiciW, 'tc1', 1, 100);
-        let res2 = await this.getClass(selPiciW, 'tc2', 1, 100);
+        let res1 = await this.getClass(0, selPiciW, 'tc1', 1, 100);
+        let res2 = await this.getClass(0, selPiciW, 'tc2', 1, 100);
         this.setState({
             waitClass: [...res1?.classList, ...res2?.classList],
             waitClassTotal: res1?.totalCount + res2?.totalCount,
@@ -98,8 +114,9 @@ class ClassStu extends React.Component {
     // 获取当前班级列表
     async getCurClass(){
         const {selPici, nowPag} = this.state;
+        const teacherId = Number(localStorage.getItem("classTeacherId"));
         console.log('getCurClass', selPici)
-        let res = await this.getClass(selPici, 'sc', nowPag, 7);
+        let res = await this.getClass(teacherId, selPici, 'sc', nowPag, 7);
         this.setState({
             nowClass: res?.classList,
             nowClassTotal: res?.totalCount,
@@ -109,7 +126,8 @@ class ClassStu extends React.Component {
     // 获取已结课班级列表
     async getFinClass(){
         const {selPiciF, finPag} = this.state;
-        let res = await this.getClass(selPiciF, 'rt', finPag);
+        const teacherId = Number(localStorage.getItem("classTeacherId"));
+        let res = await this.getClass(teacherId, selPiciF, 'rt', finPag);
         this.setState({
             finClass: res?.classList,
             finClassTotal: res?.totalCount,
@@ -117,8 +135,8 @@ class ClassStu extends React.Component {
     }
     // 获取他人班级列表
     async getOthClass(){
-        const {selPiciO, othPag} = this.state;
-        let res = await this.getClass(selPiciO, 'oc', othPag);
+        const {selPiciO, othPag, selTeacher} = this.state;
+        let res = await this.getClass(selTeacher.teacherId, selPiciO, 'oc', othPag);
         this.setState({
             othClass: res?.classList,
             othClassTotal: res?.totalCount,
@@ -189,6 +207,17 @@ class ClassStu extends React.Component {
         });
         console.log(val);
     }
+    handleTeacher(val: any){
+        const { teacher } = this.state;
+        const selTeacher = teacher.find((item: any) => {
+            return item.teacherId === val;
+        });
+        this.setState({
+            selTeacher,
+        }, ()=>{
+            this.getOthClass();
+        });
+    }
     async handleOk(val: any) {
         console.log(val);
         const { selNewPi, newBanji, selPici } = this.state;
@@ -198,6 +227,10 @@ class ClassStu extends React.Component {
         });
 
         let batchId = selNewPi || selPici;
+        if(!batchId){
+            message.warn('请选择/新建批次');
+            return
+        }
         let res = await post({
             url: baseUrl + '/api/v1/structure/class',
             data: {
@@ -209,8 +242,8 @@ class ClassStu extends React.Component {
             selPici: selNewPi,
             newBanji: '',
         });
-        
-        const res1 = await this.getClass(batchId, 'sc', 1, 7);
+        const teacherId = Number(localStorage.getItem("classTeacherId"));
+        const res1 = await this.getClass(teacherId, batchId, 'sc', 1, 7);
         let list = res1?.classList
         let nowPag = 1;
         if (list.length <= 7) {
@@ -257,6 +290,10 @@ class ClassStu extends React.Component {
     async addItem() {
         console.log('addItem');
         const { newPiciVal } = this.state;
+        if(!newPiciVal){
+            message.warn('请输入批次');
+            return
+        }
         let res = await post({
             url: baseUrl + '/api/v1/structure/batch',
             data: {
@@ -341,6 +378,8 @@ class ClassStu extends React.Component {
             nowClassTotal,
             othClassTotal,
             finClassTotal,
+            teacher,
+            selTeacher,
         } = this.state;
         return (
             <div className="class-main-wrapper">
@@ -571,7 +610,24 @@ class ClassStu extends React.Component {
                 <div className="select-area">
                     <div className="fir">他人执教班级</div>
                     <div className="sec">
-                        <span className="span">学员批次:</span>
+                        <span className="span">执教教师:</span>
+                        <Select
+                            defaultValue="请选择"
+                            style={{ width: 180 }}
+                            value={
+                                selTeacher?.realName ||
+                                (teacher[0] && (teacher[0] as any).realName) ||
+                                '请选择'
+                            }
+                            onChange={this.handleTeacher.bind(this)}
+                        >
+                            {teacher.map((item: any) => (
+                                <Option key={item.teacherId} value={item.teacherId}>
+                                    {item.realName}
+                                </Option>
+                            ))}
+                        </Select>
+                        <span className="span span1">学员批次:</span>
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}

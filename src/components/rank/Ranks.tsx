@@ -7,11 +7,11 @@ class Ranks extends React.Component {
     state = {
         teacher: [],
         selTeacher: {
-            teacherId: '',
+            teacherId: 0,
             realName: '',
         },
         pici: [],
-        selPici: '',
+        selPici: 0,
         banji: [],
         selBanji: '',
         semester: [],
@@ -117,21 +117,25 @@ class Ranks extends React.Component {
         const selTeacher = teacher.find((item:any) => {
             return item.teacherId === Number(localStorage.getItem("classTeacherId"))
         });
-        const pici = await this.getPici(selTeacher.teacherId);
-        const banji = await this.getClass(pici[0].batchId || 0);
-        const semester = await this.getSemester(banji[0].classId || 0);
-        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
         this.setState({
-            teacher,
-            pici,
-            banji,
-            semester,
-            selPici: pici[0].batchId,
-            selBanji: banji[0].classId,
-            selSemester,
+            selTeacher
         }, async () => {
-            this.getRank();
-        });
+            const pici = await this.getPici(selTeacher.teacherId);
+            const banji = await this.getClass(pici[0].batchId || 0);
+            const semester = await this.getSemester(banji[0].classId || 0);
+            const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
+            this.setState({
+                teacher,
+                pici,
+                banji,
+                semester,
+                selPici: pici[0].batchId,
+                selBanji: banji[0].classId,
+                selSemester,
+            }, async () => {
+                this.getRank();
+            });
+        })
     }
 
     /** 获取教师列表 */
@@ -155,7 +159,8 @@ class Ranks extends React.Component {
         return pici;
     }
     async getClass(pici: any) {
-        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc&pageNo=1&pageSize=100` });
+        const {selTeacher} = this.state
+        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?teacherId=${selTeacher.teacherId}&batchId=${pici}&category=sc&pageNo=1&pageSize=100`});
         const banji = res?.data?.classList ?? [];
         banji.unshift({
             classCode: '',
@@ -167,8 +172,9 @@ class Ranks extends React.Component {
         return banji;
     }
     async getSemester(classId: any){
+        const {selPici, selTeacher} = this.state
         let res = await get({
-            url: baseUrl + `/api/v1/structure/semester/list?classId=${classId}`
+            url: baseUrl + `/api/v1/structure/semester/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${classId}`
         })
         const semester = res?.data || [];
         semester.unshift({

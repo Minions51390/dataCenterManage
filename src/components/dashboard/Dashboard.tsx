@@ -183,11 +183,11 @@ class Dashboard extends React.Component {
     state = {
         teacher: [],
         selTeacher: {
-            teacherId: '',
+            teacherId: 0,
             realName: '',
         },
         pici: [],
-        selPici: '',
+        selPici: 0,
         banji: [],
         selBanji: '',
         semester: [],
@@ -645,8 +645,9 @@ class Dashboard extends React.Component {
         return res?.data?.detail || [];
     }
     async getSemester(classId: any){
+        const {selPici, selTeacher} = this.state
         let res = await get({
-            url: baseUrl + `/api/v1/structure/semester/list?classId=${classId}`
+            url: baseUrl + `/api/v1/structure/semester/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${classId}`
         })
         const semester = res?.data || [];
         semester.unshift({
@@ -995,6 +996,20 @@ class Dashboard extends React.Component {
                                 </Option>
                             ))}
                         </Select>
+                        <span className="span">阶段:</span>
+                        <Select
+                            mode="multiple"
+                            allowClear
+                            style={{ width: 180 }}
+                            value={selSemester}
+                            onChange={this.handleSemester.bind(this)}
+                        >
+                            {semester.map((item: any) => (
+                                <Option key={item.semesterId} value={item.semesterId}>
+                                    {item.semesterName || item.semesterId}
+                                </Option>
+                            ))}
+                        </Select>
                         <span className="span">学员:</span>
                         <Select
                             defaultValue="请选择"
@@ -1005,20 +1020,6 @@ class Dashboard extends React.Component {
                             {stu.map((item: any) => (
                                 <Option key={item.studentId} value={item.studentId}>
                                     {item.describe}
-                                </Option>
-                            ))}
-                        </Select>
-                        <span className="span">阶段:</span>
-                        <Select
-                            mode="multiple"
-                            allowClear
-                            style={{ width: 360 }}
-                            value={selSemester}
-                            onChange={this.handleSemester.bind(this)}
-                        >
-                            {semester.map((item: any) => (
-                                <Option key={item.semesterId} value={item.semesterId}>
-                                    {item.semesterName || item.semesterId}
                                 </Option>
                             ))}
                         </Select>
