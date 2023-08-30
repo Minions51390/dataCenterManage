@@ -48,13 +48,13 @@ class QueBank extends React.Component {
                 title: '创建时间',
                 key: 'createTime',
                 sorter: true,
-                render: (text: any) => <div>{text.createTime.split(' ')[0]}</div>,
+                render: (text: any) => <div>{text.createTime}</div>,
             },
             {
                 title: '更新时间',
                 key: 'updateTime',
                 sorter: true,
-                render: (text: any) => <div>{text.updateTime.split(' ')[0]}</div>,
+                render: (text: any) => <div>{text.updateTime}</div>,
             },
             {
                 title: '操作',
@@ -291,7 +291,7 @@ class QueBank extends React.Component {
                         </div>
                     </div>
                     <div className="sec">
-                        <span className="span">执教教师:</span>
+                        <span className="span">创建人:</span>
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}

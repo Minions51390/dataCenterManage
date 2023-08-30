@@ -67,10 +67,10 @@ class TestRank extends React.Component {
                 type: 'questionPaperName',
                 name: '试卷名称',
             },
-            {
-                type: 'creator',
-                name: '创建人',
-            },
+            // {
+            //     type: 'creator',
+            //     name: '创建人',
+            // },
             {
                 type: 'questionPaperId',
                 name: '考试ID',
@@ -201,8 +201,10 @@ class TestRank extends React.Component {
                 selBanji: banji[0].classId,
             }, async () => {
                 const semester = await this.getSemester(banji[0].classId || 0);
-                const selSemester =
-                    semester.length > 0 ? [semester.find((item: any) => item.isCurrent)?.semesterId ?? 0] : [];
+                // const selSemester = getQueryString().selSemester ? [Number(getQueryString().selSemester)] : 
+                //     semester.length > 0 ? [semester.find((item: any) => item.isCurrent)?.semesterId ?? 0] : [];
+                const selSemester = getQueryString().selSemester ? [Number(getQueryString().selSemester)] : [0];
+                console.log('selSemester', selSemester)
                 this.setState({
                     semester,
                     selSemester,
@@ -228,30 +230,34 @@ class TestRank extends React.Component {
     /** 更换批次列表 */
     async handlePiCi(val: any) {
         let res = await this.getClass(val);
-        const semester = await this.getSemester(res[0]?.classId);
-        const selSemester =
-            semester.length > 0 ? [semester.find((item: any) => item.isCurrent)?.semesterId ?? 0] : [];
+        let selBanji = res[1] ? res[1].classId : 0;
+        if(!val){
+            selBanji = 0
+        }
         this.setState({
             selPici: val,
             banji: res,
-            selBanji: res[0] ? res[0].classId : 0,
-            semester,
-            selSemester,
+            selBanji,
+        }, async () => {
+            this.handleBanji(selBanji);
         });
-        await this.getTest();
     }
 
     /** 更换班级列表 */
     async handleBanji(val: any) {
         const semester = await this.getSemester(val);
-        const selSemester =
+        let selSemester =
             semester.length > 0 ? [semester.find((item: any) => item.isCurrent)?.semesterId ?? 0] : [];
+        if(!val){
+            selSemester = [0]
+        }
         this.setState({
             selBanji: val,
             semester,
             selSemester,
+        }, async () => {
+            this.handleSemester(selSemester);
         });
-        await this.getTest();
     }
 
     /** 更换阶段列表 */
@@ -385,7 +391,7 @@ class TestRank extends React.Component {
     async getClass(pici: any) {
         const { selTeacher } = this.state;
         let res = await get({
-            url: baseUrl + `/api/v1/structure/class/list?teacherId=${selTeacher.teacherId}&batchId=${pici}&category=sc&pageNo=1&pageSize=100`,
+            url: baseUrl + `/api/v1/structure/class/list?teacherId=${selTeacher.teacherId}&batchId=${pici}&pageNo=1&pageSize=99999`,
         });
         const banji = res?.data?.classList ?? [];
         banji.unshift({
@@ -415,9 +421,9 @@ class TestRank extends React.Component {
 
     /** 获取成绩列表 */
     async getTest() {
-        const { pageNo, selSemester, queryType, query, sortKey, sort, status } = this.state;
+        const { pageNo, selTeacher, selPici, selBanji ,selSemester, queryType, query, sortKey, sort, status } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/exam/list?pageSize=20&pageNo=${pageNo}&semesters=${JSON.stringify(
+            url: `${baseUrl}/api/v1/exam/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${selBanji}&pageSize=20&pageNo=${pageNo}&semesters=${JSON.stringify(
                 selSemester
             )}&queryType=${queryType}&query=${query}&sortKey=${sortKey}&sort=${sort}&status=${status}`,
         });

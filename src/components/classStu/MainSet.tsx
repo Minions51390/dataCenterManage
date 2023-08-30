@@ -399,9 +399,6 @@ class MainSet extends React.Component {
         });
     }
     saveThr() {
-        this.setState({
-            thrState: 0,
-        });
         this.diyExam();
     }
     async resetThr() {
@@ -456,6 +453,9 @@ class MainSet extends React.Component {
             },
         });
         if (res.state === 0 && res.msg === 'success') {
+            this.setState({
+                thrState: 0,
+            });
             message.success('考试发布成功!');
         }
     }
@@ -764,17 +764,19 @@ class MainSet extends React.Component {
                                     disabled={!selJieduan || curJieduan !== selJieduan}
                                     onClick={this.resetFir.bind(this)}
                                 >
-                                    复原
+                                    {firState?'复原':'修改'}
                                 </Button>
                             </Tooltip>
                         </div>
-                        <Button
-                            type="primary"
-                            disabled={!selJieduan || curJieduan !== selJieduan}
-                            onClick={this.saveFir.bind(this)}
-                        >
-                            保存设置
-                        </Button>
+                        {firState?(
+                            <Button
+                                type="primary"
+                                disabled={!selJieduan || curJieduan !== selJieduan}
+                                onClick={this.saveFir.bind(this)}
+                            >
+                                保存设置
+                            </Button>
+                        ):""}
                     </div>
                 </div>
                 <div className="sec-de-area">
@@ -884,16 +886,18 @@ class MainSet extends React.Component {
                     <div className="last-line">
                         <div className="div1">
                             <Button block disabled={!selJieduan || curJieduan !== selJieduan} onClick={this.resetSec.bind(this)}>
-                                复原
+                                {secState?'复原':'修改'}
                             </Button>
                         </div>
-                        <Button
-                            type="primary"
-                            disabled={!selJieduan || curJieduan !== selJieduan}
-                            onClick={this.saveSec.bind(this)}
-                        >
-                            保存设置
-                        </Button>
+                        {secState?(
+                            <Button
+                                type="primary"
+                                disabled={!selJieduan || curJieduan !== selJieduan}
+                                onClick={this.saveSec.bind(this)}
+                            >
+                                保存设置
+                            </Button>
+                        ):""}
                     </div>
                 </div>
                 <div className="thr-de-area">
@@ -962,19 +966,21 @@ class MainSet extends React.Component {
                                     disabled={!selJieduan || curJieduan !== selJieduan}
                                     onClick={this.resetThr.bind(this)}
                                 >
-                                    复原
+                                    {thrState?'复原':'修改'}
                                 </Button>
                             </div>
-                            <Button
-                                type="primary"
-                                disabled={!selJieduan || curJieduan !== selJieduan}
-                                onClick={this.saveThr.bind(this)}
-                            >
-                                发布考试
-                            </Button>
+                            {thrState?(
+                                <Button
+                                    type="primary"
+                                    disabled={!selJieduan || curJieduan !== selJieduan}
+                                    onClick={this.saveThr.bind(this)}
+                                >
+                                    保存设置
+                                </Button>
+                            ):""}
                         </div>
-                        <Button type="primary">
-                            <Link to={`/app/test/testRank?examName=${encodeURI(paperName)}`}>
+                        <Button disabled={!selJieduan} type="primary">
+                            <Link to={`/app/test/testRank?examName=${encodeURI(paperName)}&selSemester=${selJieduan}`}>
                                 查看已发布的考试
                             </Link>
                         </Button>
@@ -989,11 +995,22 @@ class MainSet extends React.Component {
                     onCancel={this.handleJieduanCancel.bind(this)}
                 >
                     <div>
-                        <Alert
-                            message="教师可以根据实际教学场景设置教学阶段名称；阶段名称，设置后无法进行修改，请谨慎操作！设置新阶段后，需重新设置新阶段学习任务。"
-                            type="info"
-                            showIcon
-                        />
+                        {
+                           !selJieduan ?
+                            (
+                            <Alert
+                                message="新增阶段 适用于开展新一学期学习任务；开启新阶段后，当前阶段所有学习任务将终无法回退，请谨慎操作！"
+                                type="info"
+                                showIcon
+                            />
+                            ) : (
+                            <Alert
+                                message="教师可以根据实际教学场景设置教学阶段名称；阶段名称，设置后无法进行修改，请谨慎操作！设置新阶段后，需重新设置新阶段学习任务。"
+                                type="info"
+                                showIcon
+                            />
+                            )
+                        }
                         <div className="xueqi-line" style={{ marginTop: '24px' }}>
                             <div className="line" style={{ display: 'block' }}>
                                 <div className="sec">

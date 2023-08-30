@@ -67,6 +67,17 @@ class TestPaper extends React.Component {
             teacherId: '',
             realName: '',
         },
+        queryType: 'questionPaperName',
+        queryTypeList: [
+            {
+                type: 'questionPaperName',
+                name: '试卷名称',
+            },
+            {
+                type: 'questionPaperId',
+                name: '试卷ID',
+            },
+        ],
     };
     componentWillMount() {
         this.inited();
@@ -88,9 +99,9 @@ class TestPaper extends React.Component {
     }
 
     async getTest() {
-        const { testQuery, pageNo, selTeacher } = this.state;
+        const { testQuery, pageNo, selTeacher, queryType } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/question-paper/list?teacherId=${selTeacher.teacherId}&query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
+            url: `${baseUrl}/api/v1/question-paper/list?teacherId=${selTeacher.teacherId}&query=${testQuery}&queryType=${queryType}&pageSize=20&pageNo=${pageNo}`,
         });
         const questionBankList = res?.data?.questionPaperList || [];
         const totalCount = res?.data?.totalCount;
@@ -137,6 +148,13 @@ class TestPaper extends React.Component {
     showCreateModal() {
         this.setState({
             isVisible: true,
+        });
+    }
+
+    /** query的种类 */
+    handleQueryType(val: any) {
+        this.setState({
+            queryType: val,
         });
     }
 
@@ -234,6 +252,8 @@ class TestPaper extends React.Component {
             isVisible,
             teacher,
             selTeacher,
+            queryType,
+            queryTypeList,
         } = this.state;
         return (
             <div className="paper-wrapper">
@@ -244,16 +264,27 @@ class TestPaper extends React.Component {
                 <div className="body">
                     <div className="fir">
                         <div>
-                            搜索试卷:
-                            <Input
-                                className="gap-12"
-                                style={{ width: 272 }}
-                                placeholder="请输入关键词"
-                                value={testQuery}
-                                onChange={this.onTestQueryChange.bind(this)}
-                            />
+                            <Input.Group compact>
+                                <Select
+                                    defaultValue={queryType}
+                                    value={queryType || '请选择'}
+                                    onChange={this.handleQueryType.bind(this)}
+                                >
+                                    {queryTypeList.map((item: any) => (
+                                        <Option value={item.type} key={item.classId}>
+                                            {item.name}
+                                        </Option>
+                                    ))}
+                                </Select>
+                                <Input
+                                    style={{ width: 272 }}
+                                    placeholder="请输入关键词"
+                                    value={testQuery}
+                                    onChange={this.onTestQueryChange.bind(this)}
+                                />
+                            </Input.Group>
                             <Button
-                                className="gap-48"
+                                className="gap-30"
                                 type="primary"
                                 onClick={this.clickSearch.bind(this)}
                             >
@@ -261,13 +292,13 @@ class TestPaper extends React.Component {
                             </Button>
                         </div>
                         <div onClick={this.showCreateModal.bind(this)}>
-                            <Button type="primary" icon={<PlusOutlined />}>
+                            <Button className="gap-30" type="primary" icon={<PlusOutlined />}>
                                 新建
                             </Button>
                         </div>
                     </div>
                     <div className="sec">
-                        <span className="span">执教教师:</span>
+                        <span className="span">创建人:</span>
                         <Select
                             defaultValue="请选择"
                             style={{ width: 180 }}

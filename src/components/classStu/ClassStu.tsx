@@ -42,6 +42,12 @@ class ClassStu extends React.Component {
         newPiciVal: '',
         newBanji: '',
         isVisible: false,
+        jiaojieModalVisible: false,
+        jiaojieClass: {
+            describe: '',
+            classCode: '',
+            classId: '',
+        },
     };
     componentWillMount() {
         this.initData();
@@ -104,8 +110,8 @@ class ClassStu extends React.Component {
     // 获取待接收班级列表
     async getWaitClass(){
         const {selPiciW} = this.state;
-        let res1 = await this.getClass(0, selPiciW, 'tc1', 1, 100);
-        let res2 = await this.getClass(0, selPiciW, 'tc2', 1, 100);
+        let res1 = await this.getClass(0, selPiciW, 'tc1', 1, 99999);
+        let res2 = await this.getClass(0, selPiciW, 'tc2', 1, 99999);
         this.setState({
             waitClass: [...res1?.classList, ...res2?.classList],
             waitClassTotal: res1?.totalCount + res2?.totalCount,
@@ -214,8 +220,14 @@ class ClassStu extends React.Component {
         });
         this.setState({
             selTeacher,
-        }, ()=>{
-            this.getOthClass();
+        }, async()=>{
+            const pici = await this.getPici(val)
+            this.setState({
+                piciO: pici,
+                selPiciO: pici[0].batchId,
+            }, async () => {
+                this.getOthClass();
+            })
         });
     }
     async handleOk(val: any) {
@@ -264,6 +276,7 @@ class ClassStu extends React.Component {
         console.log(val);
         this.setState({
             isVisible: false,
+            jiaojieModalVisible: false,
             newBanji: '',
         });
     }
@@ -322,34 +335,33 @@ class ClassStu extends React.Component {
         sessionStorage.setItem('piciId', selPici);
     }
 
-	jiaojieOk() {
-        // 调用交接接口
-	}
-
+    async HandleJiaojieOk(){
+        const { selPici, jiaojieClass } = this.state;
+        let res = await post({
+            url: baseUrl + '/api/v1/structure/class/transfer/finish',
+            data: {
+                classId: jiaojieClass.classId,
+                batchId : selPici,
+            },
+        });
+        this.setState({
+            jiaojieModalVisible: false
+        })
+        if(res.state === 0){
+            message.success('接收成功')
+            this.initData()
+        }else{
+            message.error(`${res.msg}`)
+        }
+    }
 	jiaojieModal(item: any) {
         if(item.category === 'tc1'){
             message.warn('您不可以接收该班级');
         }else{
-            Modal.confirm({
-                title: '接收班级',
-                content: `是否接收${item.describe}（班级码${item.classCode}）`,
-                cancelText: '取消',
-                okText: '确定',
-                onOk: async ()=>{
-                    let res = await post({
-                        url: baseUrl + '/api/v1/structure/class/transfer/finish',
-                        data: {
-                            classId: item.classId,
-                        },
-                    });
-                    if(res.state === 0){
-                        message.success('接收成功')
-                        this.initData()
-                    }else{
-                        message.error(`${res.msg}`)
-                    }
-                },
-            });
+            this.setState({
+                jiaojieClass: item,
+                jiaojieModalVisible: true
+            })
         }
 	}
 
@@ -380,6 +392,8 @@ class ClassStu extends React.Component {
             finClassTotal,
             teacher,
             selTeacher,
+            jiaojieClass,
+            jiaojieModalVisible,
         } = this.state;
         return (
             <div className="class-main-wrapper">
@@ -417,15 +431,29 @@ class ClassStu extends React.Component {
                     ) : (
                         <div className="fins-area">暂无数据</div>
                     )}
-                    <div className={waitClassTotal ? 'pag' : 'display-none'}>
-                        <Pagination
-                            defaultCurrent={1}
-                            defaultPageSize={8}
-                            current={waitPag}
-                            total={waitClassTotal}
-                            onChange={this.waitPagChange.bind(this)}
-                        />
-                    </div>
+                    <Modal
+                        title="接收班级"
+                        visible={jiaojieModalVisible}
+                        onOk={this.HandleJiaojieOk.bind(this)}
+                        onCancel={this.handleCancel.bind(this)}
+                    >
+                        <div className="jiaojie-text">是否接收{jiaojieClass.describe}（班级码{jiaojieClass.classCode})</div>
+                        <div className="jiaojie-select">
+                            <span>学员批次:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={selPici || (pici[0] && (pici[0] as any).describe)}
+                                onChange={this.handlePiCi.bind(this)}
+                            >
+                                {pici.map((item: any) => (
+                                    <Option key={item.batchId} value={item.batchId}>
+                                        {item.describe}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                    </Modal>
                 </div>
                 {/* 当前职教班级 */}
                 <div className="select-area">

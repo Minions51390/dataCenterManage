@@ -318,110 +318,109 @@ class Dashboard extends React.Component {
             return item.teacherId === Number(localStorage.getItem("classTeacherId"))
         });
         const pici = await this.getPici(selTeacher.teacherId);
-        const banji = await this.getClass(pici[0].batchId);
-        const stu = await this.getStu(banji[0]?.classId, pici[0].batchId);
-        const semester = await this.getSemester(banji[0].classId || 0);
-        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
         this.setState({
             teacher,
-            pici,
-            banji,
-            stu,
-            semester,
             selTeacher,
-            selPici: pici[0].batchId,
-            selBanji: banji[0].classId,
-            selSemester,
-            options,
-        });
-        if(stu.length === 0) return 
-        const baseInfo = await this.baseInfo(stu[0] ? stu[0].studentId : 0, selSemester);
-        const wrongInfo = await this.wrongBook({
-            batchId: pici[0].batchId,
-            classId: banji[0].classId,
-            studentId: stu[0].studentId,
-            selSemester,
-            pageVal: 1,
-        });
-        let data1 = [];
-        let data2 = [];
-        let allCount;
-        if (wrongInfo != null && wrongInfo.detail !== null) {
-            data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
-                return {
-                    key: index + 1,
-                    word: val.word,
-                    count: val.count,
-                };
-            });
-            data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
-                return {
-                    key: index + 11,
-                    word: val.word,
-                    count: val.count,
-                };
-            });
-            allCount = wrongInfo.totalPage;
-        }
-        const centerData = await this.getChart({
-            batchId: pici[0].batchId,
-            classId: banji[0].classId,
-            studentId: stu[0].studentId,
-            selSemester,
-            startDate: mydate1,
-            endDate: mydate2,
-        });
-        options.series[0].data = centerData.personal;
-        options.series[1].data = centerData.best;
-        options.series[2].data = centerData.worst;
-        options.series[3].data = centerData.average;
-        options.xAxis.data = getDateBetween(mydate1, mydate2);
-        let testInfo = await this.getTest({
-            batchId: pici[0].batchId,
-            classId: banji[0].classId,
-            studentId: stu[0].studentId,
-            selSemester,
-            testDate: (new Date() as any).format('yyyy-MM-dd'),
-        });
-        testInfo.detail = testInfo.detail
-            ? testInfo.detail
-            : [
-                  {
-                      word: '暂无数据',
-                      result: '1',
-                  },
-              ];
-        this.handleSketch(
-            pici[0].batchId,
-            banji[0].classId,
-            stu[0].studentId,
-            selSemester,
-            calendarSelectedMouth,
-            calendarSelectedYear
-        );
-        this.setState({
-            teacher,
             pici,
-            banji,
-            stu,
-            semester,
-            selTeacher,
             selPici: pici[0].batchId,
-            selBanji: banji[0].classId,
-            selStu: stu[0].studentId,
-            selSemester,
-            baseInfo,
-            data1,
-            data2,
-            allCount,
-            options,
-            testInfo,
-        });
-        if (this.echartsReact != null) {
-            instance = (this.echartsReact as any).getEchartsInstance();
-            instance.clear();
-            instance.setOption(options, true);
-        }
+        }, async () => {
+            const banji = await this.getClass(pici[0].batchId);
+            const stu = await this.getStu(banji[0]?.classId, pici[0].batchId);
+            const semester = await this.getSemester(banji[0].classId || 0);
+            // const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
+            const selSemester = [0];
+            this.setState({
+                banji,
+                stu,
+                semester,
+                selBanji: banji[0].classId,
+                selSemester,
+                options,
+            });
+            if(stu.length === 0) return 
+            const baseInfo = await this.baseInfo(stu[0] ? stu[0].studentId : 0, selSemester);
+            const wrongInfo = await this.wrongBook({
+                batchId: pici[0].batchId,
+                classId: banji[0].classId,
+                studentId: stu[0].studentId,
+                selSemester,
+                pageVal: 1,
+            });
+            let data1 = [];
+            let data2 = [];
+            let allCount;
+            if (wrongInfo != null && wrongInfo.detail !== null) {
+                data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
+                    return {
+                        key: index + 1,
+                        word: val.word,
+                        count: val.count,
+                    };
+                });
+                data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
+                    return {
+                        key: index + 11,
+                        word: val.word,
+                        count: val.count,
+                    };
+                });
+                allCount = wrongInfo.totalPage;
+            }
+            const centerData = await this.getChart({
+                batchId: pici[0].batchId,
+                classId: banji[0].classId,
+                studentId: stu[0].studentId,
+                selSemester,
+                startDate: mydate1,
+                endDate: mydate2,
+            });
+            options.series[0].data = centerData.personal;
+            options.series[1].data = centerData.best;
+            options.series[2].data = centerData.worst;
+            options.series[3].data = centerData.average;
+            options.xAxis.data = getDateBetween(mydate1, mydate2);
+            let testInfo = await this.getTest({
+                batchId: pici[0].batchId,
+                classId: banji[0].classId,
+                studentId: stu[0].studentId,
+                selSemester,
+                testDate: (new Date() as any).format('yyyy-MM-dd'),
+            });
+            testInfo.detail = testInfo.detail
+                ? testInfo.detail
+                : [
+                    {
+                        word: '暂无数据',
+                        result: '1',
+                    },
+                ];
+            this.handleSketch(
+                pici[0].batchId,
+                banji[0].classId,
+                stu[0].studentId,
+                selSemester,
+                calendarSelectedMouth,
+                calendarSelectedYear
+            );
+            this.setState({
+                banji,
+                stu,
+                semester,
+                selBanji: banji[0].classId,
+                selStu: stu[0].studentId,
+                baseInfo,
+                data1,
+                data2,
+                allCount,
+                options,
+                testInfo,
+            });
+            if (this.echartsReact != null) {
+                instance = (this.echartsReact as any).getEchartsInstance();
+                instance.clear();
+                instance.setOption(options, true);
+            }
+        })
     }
     async onDateChange(value: any) {
         const { selPici, selBanji, selStu, selSemester} = this.state;
@@ -623,7 +622,7 @@ class Dashboard extends React.Component {
     }
     async getClass(pici: any) {
         let res = await get({
-            url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc&pageNo=1&pageSize=100`,
+            url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&pageNo=1&pageSize=99999`,
         });
         const banji = res?.data?.classList ?? [];
         banji.unshift({
@@ -636,10 +635,10 @@ class Dashboard extends React.Component {
         return banji;
     }
     async getStu(banji: any, pici?: any) {
-        const { selPici } = this.state;
+        const { selTeacher, selPici } = this.state;
 		const realPici = pici || selPici;
         let res = await get({
-            url: baseUrl + `/api/v1/structure/user/list?batchId=${realPici}&classId=${banji}`,
+            url: baseUrl + `/api/v1/structure/user/list?teacherId=${selTeacher.teacherId}&batchId=${realPici}&classId=${banji}`,
         });
         console.log('学生', res);
         return res?.data?.detail || [];
@@ -673,7 +672,10 @@ class Dashboard extends React.Component {
     }
     async handlePiCi(val: any) {
         const res = await this.getClass(val);
-        const selBanji = res[0] ? res[0].classId : 0;
+        let selBanji = res[1] ? res[1].classId : 0;
+        if(!val){
+            selBanji = 0
+        }
         this.setState({
             selPici: val,
             banji: res,
@@ -685,7 +687,10 @@ class Dashboard extends React.Component {
         let res = await this.getStu(val);
         let selStu = res[0] ? res[0].studentId : 0;
         const semester = await this.getSemester(val);
-        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
+        let selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
+        if(!val){
+            selSemester = [0]
+        }
         this.setState({
             selBanji: val,
             stu: res,
@@ -1100,12 +1105,12 @@ class Dashboard extends React.Component {
                                     />
                                 </div>
                             </div>
-                            <div className={data1.length ? 'pag' : 'display-none'}>
+                            <div className={allCount > 20 ? 'pag' : 'display-none'}>
                                 <Pagination
                                     defaultCurrent={1}
                                     defaultPageSize={20}
                                     current={nowPag}
-                                    total={allCount * 20}
+                                    total={allCount}
                                     onChange={this.nowPagChange.bind(this)}
                                 />
                             </div>

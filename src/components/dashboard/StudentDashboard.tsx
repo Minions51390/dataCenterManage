@@ -528,7 +528,7 @@ class Dashboard extends React.Component {
         return pici;
     }
     async getClass(pici: any) {
-        let res = await get({url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc&pageNo=1&pageSize=100`});
+        let res = await get({url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&pageNo=1&pageSize=99999`});
         const banji = res?.data?.classList ?? [];
         banji.unshift({
             classCode: '',
@@ -548,12 +548,16 @@ class Dashboard extends React.Component {
 
     async handlePiCi(val: any) {
         let res = await this.getClass(val);
-        let res1 = await this.getStu(res[0] ? res[0].classId : 0);
+        let res1 = await this.getStu(res[1] ? res[1].classId : 0);
+        let selBanji = res[1] ? res[1].classId : 0;
         let selStu = res1[0] ? res1[0].studentId : 0
+        if(!val){
+            selBanji = 0
+        }
         this.setState({
             selPici: val,
             banji: res,
-            selBanji: res[0] ? res[0].classId : 0,
+            selBanji,
             stu: res1,
             selStu: res1[0] ? res1[0].classId : 0,
         });

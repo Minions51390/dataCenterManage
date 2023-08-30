@@ -80,8 +80,8 @@ class ErrorBook extends React.Component {
                     selBanji: banji[0].classId,
                 }, async () => {
                     const semester = await this.getSemester(banji[0].classId || 0);
-                    const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
-                    console.log('inited', selSemester)
+                    // const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
+                    const selSemester = [0]
                     this.setState({
                         semester,
                         selSemester,
@@ -115,7 +115,7 @@ class ErrorBook extends React.Component {
     }
     async getClass(pici: any) {
         const { selTeacher } = this.state;
-        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?teacherId=${selTeacher.teacherId}&batchId=${pici}&category=sc&pageNo=1&pageSize=100` });
+        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?teacherId=${selTeacher.teacherId}&batchId=${pici}&pageNo=1&pageSize=99999` });
         const banji = res?.data?.classList ?? [];
         banji.unshift({
             classCode: '',
@@ -140,11 +140,12 @@ class ErrorBook extends React.Component {
         return semester;
     }
     async getRank(semesters: any) {
+        const {selPici, selTeacher, selBanji} = this.state
         const { pageNo } = this.state;
         let res = await get({
             url:
                 baseUrl +
-                `/api/v1/wrong-book/?semesters=${semesters}&pageNo=${pageNo}&pageSize=20`,
+                `/api/v1/wrong-book/?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${selBanji}&semesters=${semesters}&pageNo=${pageNo}&pageSize=20`,
             
         });
         console.log(res);
@@ -182,32 +183,33 @@ class ErrorBook extends React.Component {
     }
     async handlePiCi(val: any) {
         const res = await this.getClass(val);
-        const semester = await this.getSemester(res[0]?.classId);
-        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
-        console.log('handlePiCi', selSemester);
+        let selBanji = res[1] ? res[1].classId : 0;
+        if(!val){
+            selBanji = 0
+        }
         this.setState({
             selPici: val,
             banji: res,
-            selBanji: res[0] ? res[0].classId : 0,
-            semester,
-            selSemester,
+            selBanji,
+        }, async () => {
+            this.handleBanji(selBanji)
         });
-        console.log(val);
-        await this.getRank(JSON.stringify(selSemester));
     }
     async handleBanji(val: any) {
         const semester = await this.getSemester(val);
-        const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : []
+        let selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : []
+        if(!val){
+            selSemester = [0]
+        }
         this.setState({
             selBanji: val,
             semester,
             selSemester,
+        }, async () => {
+            this.handleSemester(selSemester);
         });
-        await this.getRank(JSON.stringify(selSemester));
-        console.log(val);
     }
     async handleSemester(val: any) {
-        console.log('val', val)
         this.setState({
             selSemester: val,
         });
