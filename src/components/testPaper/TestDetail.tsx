@@ -78,10 +78,10 @@ class TestDetail extends React.Component {
             },
         ],
         bank: '',
-        bankName: '全部',
+        setName: '全部',
         bankList: [
             {
-                bankName: '全部',
+                setName: '全部',
                 bankID: 0,
             },
         ],
@@ -351,7 +351,7 @@ class TestDetail extends React.Component {
         this.setState(
             {
                 bank: val,
-                bankName: option.children,
+                setName: option.children,
             },
             () => {
                 this.getQuestionList();
@@ -415,7 +415,7 @@ class TestDetail extends React.Component {
             bankPeopleList,
             bank,
             bankList,
-            bankName,
+            setName,
             moduleType,
             pageNom,
             allCountm,
@@ -565,7 +565,7 @@ class TestDetail extends React.Component {
                     ) : (
                         <div className="details-m">
                             <div className="fir">
-                                <div>{bankName}</div>
+                                <div>{setName}</div>
                                 <div className="right">
                                     <Input
                                         className="gap-12"

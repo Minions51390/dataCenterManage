@@ -49,7 +49,7 @@ const defaultOptions = {
     },
     xAxis: {
         type: 'category',
-        data: ['2020/01', '2020/02', '2020/03', '2020/04', '2020/05', '2020/06'],
+        data: ['2020/01', '2020/02', '2020/03', '2020/04', '2020/05', '2020/06', '2020/07'],
     },
     yAxis: {
         type: 'value',
@@ -62,19 +62,19 @@ const defaultOptions = {
             name: '当前学员',
             type: 'line',
             smooth: true,
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
         {
             name: '同期综合评分最优学员',
             type: 'line',
             smooth: true,
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
         {
             name: '同期综合评分最差学员',
             type: 'line',
             smooth: true,
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
         {
             name: '该指标同期平均值',
@@ -83,7 +83,7 @@ const defaultOptions = {
             lineStyle: {
                 type: 'dashed',
             },
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
     ],
     color: ['#0089FF', '#00CF2C', '#FF1010', '#91949A'],
@@ -203,7 +203,7 @@ class Dashboard extends React.Component {
         },
         type: 'score',
         centerData: {},
-        mydate1: (new Date(FunGetDateStr(-5, new Date()) + ' 00:00:00') as any).format(
+        mydate1: (new Date(FunGetDateStr(-6, new Date()) + ' 00:00:00') as any).format(
             'yyyy-MM-dd'
         ),
         mydate2: (new Date() as any).format('yyyy-MM-dd'),
@@ -337,8 +337,26 @@ class Dashboard extends React.Component {
                 selSemester,
                 options,
             });
-            if(stu.length === 0) return 
             const baseInfo = await this.baseInfo(stu[0] ? stu[0].studentId : 0, selSemester);
+            const centerData = await this.getChart({
+                batchId: pici[0].batchId,
+                classId: banji[0].classId,
+                studentId: stu[0]?.studentId ?? 0,
+                selSemester,
+                startDate: mydate1,
+                endDate: mydate2,
+            });
+            options.series[0].data = centerData.personal;
+            options.series[1].data = centerData.best;
+            options.series[2].data = centerData.worst;
+            options.series[3].data = centerData.average;
+            options.xAxis.data = getDateBetween(mydate1, mydate2);
+            if (this.echartsReact != null) {
+                instance = (this.echartsReact as any).getEchartsInstance();
+                instance.clear();
+                instance.setOption(options, true);
+            }
+            if(stu.length === 0) return 
             const wrongInfo = await this.wrongBook({
                 batchId: pici[0].batchId,
                 classId: banji[0].classId,
@@ -366,19 +384,6 @@ class Dashboard extends React.Component {
                 });
                 allCount = wrongInfo.totalPage;
             }
-            const centerData = await this.getChart({
-                batchId: pici[0].batchId,
-                classId: banji[0].classId,
-                studentId: stu[0].studentId,
-                selSemester,
-                startDate: mydate1,
-                endDate: mydate2,
-            });
-            options.series[0].data = centerData.personal;
-            options.series[1].data = centerData.best;
-            options.series[2].data = centerData.worst;
-            options.series[3].data = centerData.average;
-            options.xAxis.data = getDateBetween(mydate1, mydate2);
             let testInfo = await this.getTest({
                 batchId: pici[0].batchId,
                 classId: banji[0].classId,
@@ -717,7 +722,7 @@ class Dashboard extends React.Component {
             let newDefaultOption = getDefaultOption();
             if (this.echartsReact != null) {
                 instance.clear();
-                let date1 = (new Date(FunGetDateStr(-5, new Date()) + ' 00:00:00') as any).format(
+                let date1 = (new Date(FunGetDateStr(-6, new Date()) + ' 00:00:00') as any).format(
                     'yyyy-MM-dd'
                 );
                 let date2 = (new Date() as any).format('yyyy-MM-dd');
@@ -1035,26 +1040,26 @@ class Dashboard extends React.Component {
                         <div className="score-word">
                             <div className="left">
                                 <span className="label">当前学生：</span>
-                                <span className="num">{baseInfo.studentName}</span>
+                                <span className="num">{baseInfo.studentName || '请选择学员'}</span>
                             </div>
                             <div className="right">
                                 <span className="label">综合评分：</span>
-                                <span className="num">{(+baseInfo.baseScore).toFixed(2)}</span>
+                                <span className="num">{(+baseInfo.baseScore).toFixed(2) || 0}</span>
                                 <span className="word">分</span>
                             </div>
                             <div className="right">
                                 <span className="label">累计背词：</span>
-                                <span className="num">{baseInfo.reciteCount}</span>
+                                <span className="num">{baseInfo.reciteCount || 0}</span>
                                 <span className="word">词</span>
                             </div>
                         </div>
                         <div className="line-chart">
                             <Tabs defaultActiveKey="score" onChange={this.tabCallback.bind(this)}>
                                 <TabPane tab="综合评分趋势" key="score" />
-                                <TabPane tab="测试通过率" key="pass_rate" />
+                                <TabPane tab="测试通过率" key="test_pass_rate" />
                                 <TabPane tab="每日学习时长" key="study_time" />
                                 <TabPane tab="每日背词数" key="recite_count" />
-                                <TabPane tab="单词阶段考通过率" key="spt_pass_rate" />
+                                <TabPane tab="单词阶段考通过率" key="stage_test_pass_rate" />
                             </Tabs>
                             <div className="tab-content">
                                 <div className="content">
@@ -1063,7 +1068,7 @@ class Dashboard extends React.Component {
                                         defaultValue={[
                                             moment(
                                                 new Date(
-                                                    FunGetDateStr(-5, new Date()) + ' 00:00:00'
+                                                    FunGetDateStr(-6, new Date()) + ' 00:00:00'
                                                 ),
                                                 dateFormat
                                             ),
@@ -1120,7 +1125,7 @@ class Dashboard extends React.Component {
                         <div className="distance-fir">
                             <div>
                                 <span className="distance-fir-text">打卡天数：</span>
-                                {baseInfo.endDescribe}
+                                {baseInfo.endDescribe || 0}
                             </div>
                         </div>
                         <div className="calendar-area">

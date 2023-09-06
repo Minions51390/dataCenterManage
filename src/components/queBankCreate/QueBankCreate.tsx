@@ -14,9 +14,9 @@ class QueBank extends React.Component {
     state = {
         bankQuery: '',
         isVisible: false,
-        bankName: '',
-        bankType: 'choice',
-        bankTypeList: ['choice', 'pack'],
+        setName: '',
+        setType: 'choice',
+        setTypeList: ['choice'], //['pack']
         pageNo: 1,
         totalCount: 1,
         sortKey: 'creator',
@@ -30,7 +30,7 @@ class QueBank extends React.Component {
             {
                 title: '题库名称',
                 dataIndex: 'setName',
-                key: 'bankName',
+                key: 'setName',
             },
             {
                 title: '创建人',
@@ -135,23 +135,23 @@ class QueBank extends React.Component {
     }
 
     /** 题库名称 */
-    onBankNameChange(event: any) {
+    onsetNameChange(event: any) {
         this.setState({
-            bankName: event.target.value,
+            setName: event.target.value,
         });
     }
 
     /** 确认新建 */
     async handleCreateOk(val: any) {
         console.log('handleCreateOk', val);
-        const { bankName } = this.state;
+        const { setName } = this.state;
         this.setState({
             isVisible: false,
         });
         const bankID = await this.confimeNew();
         console.log('bankID', bankID);
         sessionStorage.setItem('bankDetailId', bankID);
-        sessionStorage.setItem('bankDetailName', bankName);
+        sessionStorage.setItem('bankDetailName', setName);
         window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
     }
 
@@ -159,20 +159,20 @@ class QueBank extends React.Component {
     clickEditButton(text: any) {
         console.log('clickEditButton', text);
         const bankID = text.setId;
-        const bankName = text.setName;
+        const setName = text.setName;
         sessionStorage.setItem('bankDetailId', bankID);
-        sessionStorage.setItem('bankDetailName', bankName);
+        sessionStorage.setItem('bankDetailName', setName);
         window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
     }
 
     /** 确认新建接口 */
     async confimeNew() {
-        const { bankName, bankType } = this.state;
+        const { setName, setType } = this.state;
         const response: any = await post({
             url: baseUrl + '/api/v1/question-set/',
             data: {
-                setName: bankName,
-                setType: bankType,
+                setName: setName,
+                setType: setType,
             },
         });
         console.log('confimeNew', response);
@@ -222,9 +222,9 @@ class QueBank extends React.Component {
     }
 
     /** 题库题型 */
-    handleBankType(val: any) {
+    handlesetType(val: any) {
         this.setState({
-            bankType: val,
+            setType: val,
         });
     }
 
@@ -253,9 +253,9 @@ class QueBank extends React.Component {
             totalCount,
             bankQuery,
             isVisible,
-            bankName,
-            bankTypeList,
-            bankType,
+            setName,
+            setTypeList,
+            setType,
             teacher,
             selTeacher,
         } = this.state;
@@ -343,22 +343,22 @@ class QueBank extends React.Component {
                             className="gap-8"
                             style={{ width: 294 }}
                             placeholder="请输入题库名称"
-                            value={bankName}
-                            onChange={this.onBankNameChange.bind(this)}
+                            value={setName}
+                            onChange={this.onsetNameChange.bind(this)}
                             maxLength={20}
                         />
                     </div>
                     <div className="module-area">
                         题库题型:
                         <Select
-                            defaultValue={bankType}
+                            defaultValue={setType}
                             className="gap-8"
                             style={{ width: 294 }}
                             placeholder="请选择学员批次"
-                            onChange={this.handleBankType.bind(this)}
-                            value={bankType}
+                            onChange={this.handlesetType.bind(this)}
+                            value={setType}
                         >
-                            {bankTypeList.map((item: any, index: number) => (
+                            {setTypeList.map((item: any, index: number) => (
                                 <Option key={index} value={item}>
                                     {BANK_TYPE_MAP[item] || '未知'}
                                 </Option>

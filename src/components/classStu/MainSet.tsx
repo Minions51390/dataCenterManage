@@ -975,7 +975,7 @@ class MainSet extends React.Component {
                                     disabled={!selJieduan || curJieduan !== selJieduan}
                                     onClick={this.saveThr.bind(this)}
                                 >
-                                    保存设置
+                                    发布考试
                                 </Button>
                             ):""}
                         </div>
@@ -999,13 +999,13 @@ class MainSet extends React.Component {
                            !selJieduan ?
                             (
                             <Alert
-                                message="新增阶段 适用于开展新一学期学习任务；开启新阶段后，当前阶段所有学习任务将终无法回退，请谨慎操作！"
+                                message="教师可以根据实际教学场景设置教学阶段名称；阶段名称设置后无法进行修改，请谨慎操作！设置新阶段后，需设置新阶段学习任务。"
                                 type="info"
                                 showIcon
                             />
                             ) : (
                             <Alert
-                                message="教师可以根据实际教学场景设置教学阶段名称；阶段名称，设置后无法进行修改，请谨慎操作！设置新阶段后，需重新设置新阶段学习任务。"
+                                message="新增阶段 适用于开展新一学期学习任务；开启新阶段后，当前阶段所有学习任务将终无法回退，请谨慎操作！"
                                 type="info"
                                 showIcon
                             />

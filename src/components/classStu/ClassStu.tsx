@@ -313,7 +313,7 @@ class ClassStu extends React.Component {
                 batchName: newPiciVal,
             },
         });
-        let list = await this.getPici();
+        let list = await this.getPici(Number(localStorage.getItem("classTeacherId")));
         this.setState({
             newPici: list,
             pici: list,

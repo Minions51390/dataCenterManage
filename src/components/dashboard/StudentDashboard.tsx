@@ -799,10 +799,10 @@ class Dashboard extends React.Component {
                         <div className="line-chart">
                             <Tabs defaultActiveKey="score" onChange={this.tabCallback.bind(this)}>
                                 <TabPane tab="综合评分趋势" key="score" />
-                                <TabPane tab="测试通过率" key="pass_rate" />
+                                <TabPane tab="测试通过率" key="test_pass_rate" />
                                 <TabPane tab="每日学习时长" key="study_time" />
                                 <TabPane tab="每日背词数" key="recite_count" />
-                                <TabPane tab="单词阶段考通过率" key="spt_pass_rate" />
+                                <TabPane tab="单词阶段考通过率" key="stage_test_pass_rate" />
                             </Tabs>
                             <div className="tab-content">
                                 <div className="content">
@@ -856,7 +856,7 @@ class Dashboard extends React.Component {
                     <Col span={8}>
                         <div className="distance-fir">
                             <div>
-                                打卡天数：{baseInfo.endDescribe}
+                                打卡天数：{baseInfo.endDescribe || 0}
                             </div>
                         </div>
                         <div className="calendar-area">
