@@ -155,7 +155,7 @@ const getyAxisBetween = (key: any) => {
             label = '%'
            break;
         case 'study_time':
-           label = '小时'
+           label = '分钟'
           break;
         case 'recite_count':
             label = '个'

@@ -62,7 +62,8 @@ const MistakeRank = ({}: Props) => {
         {
             key: 'options',
             dataIndex: 'options',
-            title: '选项',
+            title: '答案内容',
+            width: 240,
             render: (text: any[]) => {
                 const arr: any[] = [];
                 text.forEach(item => {
@@ -76,7 +77,8 @@ const MistakeRank = ({}: Props) => {
         {
             key: 'rightKey',
             dataIndex: 'rightKey',
-            title: '答案',
+            title: '正确选项',
+            width: 100,
             render: (text: string) => `正确答案：${text}`
         },
         {

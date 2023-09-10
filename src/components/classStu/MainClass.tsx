@@ -174,11 +174,12 @@ class MainClass extends React.Component {
 
     async getTeacher() {
         let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
-        const teacher = res?.data || [];
+        let teacher = res?.data || [];
         teacher.unshift({
             realName: '全部',
             teacherId: 0,
         });
+        teacher = teacher.filter((item:any)=>item.teacherId !== Number(localStorage.getItem("classTeacherId")))
         return teacher;
     }
 
@@ -335,13 +336,13 @@ class MainClass extends React.Component {
 
 	handleJiaojieOk() {
         const { selTeacher, classId, teacher } = this.state;
-        const curTeacher = teacher.find((item:any) => item.teacherId === selTeacher);
+        const selTeacherObj = teacher.find((item:any) => item.teacherId === selTeacher);
         this.setState({
             jiaojieModal: false,
         });
         Modal.confirm({
             title: '交接班级',
-            content: `是否确认将该班级交接给${curTeacher?.['realName']}（账号：${curTeacher?.['realName']}）？交接成功后，您将不再拥有对该班级的管理权限，但您仍可以查看该班级的各项信息。`,
+            content: `是否确认将该班级交接给${selTeacherObj?.['realName']}（账号：${selTeacherObj?.['realName']}）？交接成功后，您将不再拥有对该班级的管理权限，但您仍可以查看该班级的各项信息。`,
             cancelText: '取消',
             okText: '确定',
             onOk: () => {

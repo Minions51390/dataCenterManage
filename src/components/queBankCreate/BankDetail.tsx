@@ -139,7 +139,7 @@ class BankDetail extends React.Component {
         this.setState({
             data1: questionBankList,
             totalCount,
-            questionCount: questionBankList.length
+            questionCount: res?.data?.totalCount
         });
     }
 
@@ -270,24 +270,6 @@ class BankDetail extends React.Component {
         URL.revokeObjectURL(href);
     }
 
-    /** 上传题库 */
-    async uploadBank(info:any) {
-        const { bankID } = this.state;
-        const formData = new FormData();
-        formData.append('file', info.file); 
-        console.log('formData', formData);
-        const res = await post({
-            url: `${baseUrl}/api/v1/question-set/question/file`,
-            data: {
-                setId: bankID,
-                file: formData,
-            },
-            config: {
-                'Content-Type': 'multipart/form-data'
-            }
-        })
-    }
-
     /** 取消编辑 */
     handleCreateCancel(val: any) {
         this.setState({
@@ -357,9 +339,34 @@ class BankDetail extends React.Component {
             uploadVisible: true
         })
     }
-    //
+    /** 确定上传 */
     async handleUploadOk(){
-        
+        const { bankID, fileList } = this.state;
+        const formData = new FormData();
+        fileList.forEach((file:any) => {
+            formData.append('setId', bankID);
+            formData.append('file', file as RcFile);
+        });
+        const res = await post({
+            url: `${baseUrl}/api/v1/question-set/question/file`,
+            data: formData,
+            config: {
+                headers:{
+                    'Accept': '*/*',
+                    'Content-Type': 'multipart/form-data;'
+                }
+            }
+        })
+        if(res.state === 0){
+            this.setState({
+                fileList: []
+            })
+            message.success('上传成功');
+            this.inited();
+            this.handleUploadCancel();
+        }else{
+            message.error('上传失败');
+        }
     }
     /** 取消上传 **/
     handleUploadCancel(){
@@ -395,39 +402,36 @@ class BankDetail extends React.Component {
             fileList,
         } = this.state;
         const uploadProps = {
-            // name: 'file',
-            // multiple: false,
-            // action: `${baseUrl}/api/v1/question-set/question/file`,
-            // maxCount: 1,
-            // data:{
-            //     'setId': bankID
-            // },
-            // onChange: (info:any) => {
-            //     console.log(info)
-            //     if (info.file.status === 'done') {
-            //         // console.log(info,'done');
-            //         let res = info.file.response;
-            //         // console.log(res.data)
-            //         if (res.state === 0) {
-            //             // 初始化
-            //             this.inited()
-            //             console.log('初始化')
-            //         }
-            //         message.success(`${info.file.name} 上传成功`);
-            //     } else if (info.file.status === 'error') {
-            //         message.error(`${info.file.name} file upload failed.`);
-            //     }
-            // },
-            // onDrop(e:any) {
-            //   console.log('Dropped files', e.dataTransfer.files);
-            // },
+            name: 'file',
+            multiple: false,
+            action: `${baseUrl}/api/v1/question-set/question/file`,
+            maxCount: 1,
+            data:{
+                'setId': bankID
+            },
+            onChange: (info:any) => {
+                console.log(info)
+                if (info.file.status === 'done') {
+                    // console.log(info,'done');
+                    let res = info.file.response;
+                    // console.log(res.data)
+                    if (res.state === 0) {
+                        // 初始化
+                        this.inited()
+                        console.log('初始化')
+                    }
+                    message.success(`${info.file.name} 上传成功`);
+                } else if (info.file.status === 'error') {
+                    message.error(`${info.file.name} file upload failed.`);
+                }
+            },
+            onDrop(e:any) {
+              console.log('Dropped files', e.dataTransfer.files);
+            },
             onRemove: (file:any) => {
-                // const index = fileList.indexOf(file);
-                // const newFileList = fileList.slice();
-                // newFileList.splice(index, 1);
-                // this.setState({
-                //     fileList: newFileList
-                // })
+                this.setState({
+                    fileList: []
+                })
             },
             beforeUpload: (file:any) => {
                 this.setState({
@@ -596,34 +600,7 @@ class BankDetail extends React.Component {
                     title="模版导入"
                     visible={uploadVisible}
                     // onOk={this.handleUploadOk.bind(this)}
-                    onOk={async ()=>{
-                        const formData = new FormData();
-                        console.log('fileList', fileList)
-                        fileList.forEach((file:any) => {
-                            formData.append('files[]', file as RcFile);
-                        });
-                        const { bankID } = this.state;
-                        console.log('formData', formData);
-                        await post({
-                            url: `${baseUrl}/api/v1/question-set/question/file`,
-                            data: {
-                                setId: bankID,
-                                file: formData,
-                            },
-                            config: {
-                                'Content-Type': 'multipart/form-data'
-                            }
-                        }).then((res) => res.json())
-                        .then(() => {
-                            this.setState({
-                                fileList: []
-                            })
-                            message.success('上传成功');
-                        })
-                        .catch(() => {
-                            message.error('上传失败');
-                        })
-                    }}
+                    onOk={this.handleUploadOk.bind(this)}
                     onCancel={this.handleUploadCancel.bind(this)}
                 >
                     <div className="modal-top">

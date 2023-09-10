@@ -164,7 +164,7 @@ const getyAxisBetween = (key: any) => {
             label = '%';
             break;
         case 'study_time':
-            label = '小时';
+            label = '分钟';
             break;
         case 'recite_count':
             label = '个';
@@ -967,72 +967,82 @@ class Dashboard extends React.Component {
                 <div className="mains">
                     <div className="fir">数据中心</div>
                     <div className="sec">
-                        <span className="span">执教教师:</span>
-                        <Select
-                            defaultValue="请选择"
-                            style={{ width: 180 }}
-                            value={selTeacher?.realName || (teacher[0] && (teacher[0] as any).realName) || '请选择'}
-                            onChange={this.handleTeacher.bind(this)}
-                        >
-                            {teacher.map((item: any) => (
-                                <Option key={item.teacherId} value={item.teacherId}>
-                                    {item.realName}
-                                </Option>
-                            ))}
-                        </Select>
-                        <span className="span">学员批次:</span>
-                        <Select
-                            defaultValue="请选择"
-                            style={{ width: 180 }}
-                            value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
-                            onChange={this.handlePiCi.bind(this)}
-                        >
-                            {pici.map((item: any) => (
-                                <Option key={item.batchId} value={item.batchId}>
-                                    {item.describe}
-                                </Option>
-                            ))}
-                        </Select>
-                        <span className="span">班级:</span>
-                        <Select
-                            defaultValue="请选择"
-                            style={{ width: 180 }}
-                            value={selBanji || (banji[0] && (banji[0] as any).describe) || '请选择'}
-                            onChange={this.handleBanji.bind(this)}
-                        >
-                            {banji.map((item: any) => (
-                                <Option key={item.classId} value={item.classId}>
-                                    {item.describe}
-                                </Option>
-                            ))}
-                        </Select>
-                        <span className="span">阶段:</span>
-                        <Select
-                            mode="multiple"
-                            allowClear
-                            style={{ width: 180 }}
-                            value={selSemester}
-                            onChange={this.handleSemester.bind(this)}
-                        >
-                            {semester.map((item: any) => (
-                                <Option key={item.semesterId} value={item.semesterId}>
-                                    {item.semesterName || item.semesterId}
-                                </Option>
-                            ))}
-                        </Select>
-                        <span className="span">学员:</span>
-                        <Select
-                            defaultValue="请选择"
-                            style={{ width: 180 }}
-                            value={selStu || (stu[0] && (stu[0] as any).describe) || '请选择'}
-                            onChange={this.handleStu.bind(this)}
-                        >
-                            {stu.map((item: any) => (
-                                <Option key={item.studentId} value={item.studentId}>
-                                    {item.describe}
-                                </Option>
-                            ))}
-                        </Select>
+                        <div className="select-box">
+                            <span className="span">执教教师:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={selTeacher?.realName || (teacher[0] && (teacher[0] as any).realName) || '请选择'}
+                                onChange={this.handleTeacher.bind(this)}
+                            >
+                                {teacher.map((item: any) => (
+                                    <Option key={item.teacherId} value={item.teacherId}>
+                                        {item.realName}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="select-box">
+                            <span className="span">学员批次:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
+                                onChange={this.handlePiCi.bind(this)}
+                            >
+                                {pici.map((item: any) => (
+                                    <Option key={item.batchId} value={item.batchId}>
+                                        {item.describe}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="select-box">
+                            <span className="span">班级:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={selBanji || (banji[0] && (banji[0] as any).describe) || '请选择'}
+                                onChange={this.handleBanji.bind(this)}
+                            >
+                                {banji.map((item: any) => (
+                                    <Option key={item.classId} value={item.classId}>
+                                        {item.describe}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="select-box">
+                            <span className="span">阶段:</span>
+                            <Select
+                                mode="multiple"
+                                allowClear
+                                style={{ width: 180 }}
+                                value={selSemester}
+                                onChange={this.handleSemester.bind(this)}
+                            >
+                                {semester.map((item: any) => (
+                                    <Option key={item.semesterId} value={item.semesterId}>
+                                        {item.semesterName || item.semesterId}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="select-box">
+                            <span className="span">学员名称:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={selStu || (stu[0] && (stu[0] as any).describe) || '请选择'}
+                                onChange={this.handleStu.bind(this)}
+                            >
+                                {stu.map((item: any) => (
+                                    <Option key={item.studentId} value={item.studentId}>
+                                        {item.describe}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
                     </div>
                 </div>
                 <Row gutter={[30, 0]}>

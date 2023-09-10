@@ -81,8 +81,8 @@ class MainSet extends React.Component {
         bigTime: moment().format(dateFormat),
         bigCount: 0,
         specialTestDate: '',
-        firState: 1,
-        secState: 1,
+        firState: 0,
+        secState: 0,
         thrState: 1,
         reciteSetting: false,
         paperId: '',
@@ -123,12 +123,12 @@ class MainSet extends React.Component {
         console.log('use jieduan', jieduanRes);
         let res = await this.getSetInfo(classId, selJieduan);
         let dbName = '';
-
+        const dbVal = res?.data?.dictionaryId || 0
+        const firState = dbVal ? 0 : selJieduan;
         const { wordDb } = this.state;
         wordDb.forEach((val: any) => {
             if (val?.dictionaryId === res?.data?.dictionaryId) {
                 dbName = val?.dictionaryName;
-                // console.log('ssss', dbName)
             }
         });
 
@@ -138,10 +138,10 @@ class MainSet extends React.Component {
                 selJieduan,
                 curJieduan: selJieduan,
                 canSet: res?.data?.canSet,
-                firState: selJieduan ? 1 : 0,
+                firState,
                 startType: res?.data?.choiceWordsMethod || 'arbitrarily',
                 wordVal: res?.data?.reciteVersion ? +res?.data?.reciteVersion : 0,
-                dbVal: res?.data?.dictionaryId || 0,
+                dbVal,
                 dbName: dbName || '',
                 littleType: res?.data?.wordTestType || '',
                 bigType: res?.data?.stageWordsTest || '',
@@ -311,12 +311,6 @@ class MainSet extends React.Component {
         });
     }
 
-    wordValChange() {
-        this.setState({
-            firState: 1,
-        });
-    }
-
     handleWordDb(value: any) {
         console.log(value);
         const { wordDb } = this.state;
@@ -443,6 +437,14 @@ class MainSet extends React.Component {
 
     async diyExam() {
         const { paperId, paperName, classId, diyTime } = this.state;
+        if(!paperId){
+            message.warning('请填写试卷ID')
+            return
+        }
+        if(!paperName){
+            message.warning('请填写试卷名称')
+            return
+        }
         let res = await post({
             url: baseUrl + '/api/v1/exam/',
             data: {
@@ -484,8 +486,7 @@ class MainSet extends React.Component {
         });
         this.setState({
             selJieduan: val,
-            firState: val === curJieduan ? 1 : 0,
-            secState: val === curJieduan ? 1 : 0,
+            firState: res?.data?.dictionaryId ? 0 : 1,
             canSet: res?.data?.canSet,
             startType: res?.data?.choiceWordsMethod || 'arbitrarily',
             wordVal: res?.data?.reciteVersion ? +res?.data?.reciteVersion : 0,
@@ -510,6 +511,7 @@ class MainSet extends React.Component {
                 jieduan: jieduanRes || [],
                 curJieduan: selJieduan,
                 jieduanText: '',
+                secState: 1,
             });
             this.handleJieduan(selJieduan)
             Modal.confirm({
@@ -751,23 +753,6 @@ class MainSet extends React.Component {
                         )}
                     </div>
                     <div className="last-line">
-                        <div className="div1">
-                            <Tooltip
-                                title={"如需调整教学进度，可对每日单词数进行更改。"}
-                                trigger="hover"
-                                placement="top"
-                                color="rgba(0, 0, 0, 0.7)"
-                                overlayStyle={{ minWidth: '214px' }}
-                            >
-                                <Button
-                                    block
-                                    disabled={!selJieduan || curJieduan !== selJieduan}
-                                    onClick={this.resetFir.bind(this)}
-                                >
-                                    {firState?'复原':'修改'}
-                                </Button>
-                            </Tooltip>
-                        </div>
                         {firState?(
                             <Button
                                 type="primary"
@@ -776,7 +761,25 @@ class MainSet extends React.Component {
                             >
                                 保存设置
                             </Button>
-                        ):""}
+                        ):(
+                            <div className="div1">
+                                <Tooltip
+                                    title={"如需调整教学进度，可对每日单词数进行更改。"}
+                                    trigger="hover"
+                                    placement="top"
+                                    color="rgba(0, 0, 0, 0.7)"
+                                    overlayStyle={{ minWidth: '214px' }}
+                                >
+                                    <Button
+                                        block
+                                        disabled={!selJieduan || curJieduan !== selJieduan}
+                                        onClick={this.resetFir.bind(this)}
+                                    >
+                                        修改
+                                    </Button>
+                                </Tooltip>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="sec-de-area">
@@ -884,11 +887,6 @@ class MainSet extends React.Component {
                         )}
                     </div>
                     <div className="last-line">
-                        <div className="div1">
-                            <Button block disabled={!selJieduan || curJieduan !== selJieduan} onClick={this.resetSec.bind(this)}>
-                                {secState?'复原':'修改'}
-                            </Button>
-                        </div>
                         {secState?(
                             <Button
                                 type="primary"
@@ -897,7 +895,13 @@ class MainSet extends React.Component {
                             >
                                 保存设置
                             </Button>
-                        ):""}
+                        ):(
+                            <div className="div1">
+                                <Button block disabled={!selJieduan || curJieduan !== selJieduan} onClick={this.resetSec.bind(this)}>
+                                    修改
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="thr-de-area">
@@ -960,7 +964,7 @@ class MainSet extends React.Component {
                     </div>
                     <div className="last-line">
                         <div className="right">
-                            <div className="div1">
+                            {/* <div className="div1">
                                 <Button
                                     block
                                     disabled={!selJieduan || curJieduan !== selJieduan}
@@ -968,16 +972,14 @@ class MainSet extends React.Component {
                                 >
                                     {thrState?'复原':'修改'}
                                 </Button>
-                            </div>
-                            {thrState?(
-                                <Button
-                                    type="primary"
-                                    disabled={!selJieduan || curJieduan !== selJieduan}
-                                    onClick={this.saveThr.bind(this)}
-                                >
-                                    发布考试
-                                </Button>
-                            ):""}
+                            </div> */}
+                            <Button
+                                type="primary"
+                                disabled={!selJieduan || curJieduan !== selJieduan}
+                                onClick={this.saveThr.bind(this)}
+                            >
+                                发布考试
+                            </Button>
                         </div>
                         <Button disabled={!selJieduan} type="primary">
                             <Link to={`/app/test/testRank?examName=${encodeURI(paperName)}&selSemester=${selJieduan}`}>

@@ -63,7 +63,7 @@ class ClassStu extends React.Component {
             piciW: pici,
             piciF: selfPici,
             piciO: pici,
-            newPici: pici,
+            newPici: selfPici,
             selPici,
             selPiciF: selfPici[0].batchId,
             selPiciO: pici[0].batchId,

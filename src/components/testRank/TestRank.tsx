@@ -456,6 +456,7 @@ class TestRank extends React.Component {
             },
             async () => {
                 /** 更新数据 */
+                this.getTest();
             }
         );
     }
@@ -555,63 +556,71 @@ class TestRank extends React.Component {
                         </div>
                     </div>
                     <div className="fir">
-                        <span className="span">执教教师:</span>
-                        <Select
-                            defaultValue="请选择"
-                            style={{ width: 140 }}
-                            value={
-                                selTeacher?.realName ||
-                                (teacher[0] && (teacher[0] as any).realName) ||
-                                '请选择'
-                            }
-                            onChange={this.handleTeacher.bind(this)}
-                        >
-                            {teacher.map((item: any) => (
-                                <Option key={item.teacherId} value={item.teacherId}>
-                                    {item.realName}
-                                </Option>
-                            ))}
-                        </Select>
-                        <span className="span3">学员批次:</span>
-                        <Select
-                            defaultValue="请选择"
-                            style={{ width: 140 }}
-                            value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
-                            onChange={this.handlePiCi.bind(this)}
-                        >
-                            {pici.map((item: any) => (
-                                <Option key={item.batchId} value={item.batchId}>
-                                    {item.describe}
-                                </Option>
-                            ))}
-                        </Select>
-                        <span className="span2">班级:</span>
-                        <Select
-                            defaultValue="请选择"
-                            style={{ width: 140 }}
-                            value={selBanji || (banji[0] && (banji[0] as any).describe) || '请选择'}
-                            onChange={this.handleBanji.bind(this)}
-                        >
-                            {banji.map((item: any) => (
-                                <Option key={item.classId} value={item.classId}>
-                                    {item.describe}
-                                </Option>
-                            ))}
-                        </Select>
-                        <span className="span2">阶段:</span>
-                        <Select
-                            mode="multiple"
-                            allowClear
-                            style={{ width: 200 }}
-                            value={selSemester}
-                            onChange={this.handleSemester.bind(this)}
-                        >
-                            {semester.map((item: any) => (
-                                <Option key={item.semesterId} value={item.semesterId}>
-                                    {item.semesterName || item.semesterId}
-                                </Option>
-                            ))}
-                        </Select>
+                        <div className="select-box">
+                            <span className="span">执教教师:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={
+                                    selTeacher?.realName ||
+                                    (teacher[0] && (teacher[0] as any).realName) ||
+                                    '请选择'
+                                }
+                                onChange={this.handleTeacher.bind(this)}
+                            >
+                                {teacher.map((item: any) => (
+                                    <Option key={item.teacherId} value={item.teacherId}>
+                                        {item.realName}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="select-box">
+                            <span className="span">学员批次:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
+                                onChange={this.handlePiCi.bind(this)}
+                            >
+                                {pici.map((item: any) => (
+                                    <Option key={item.batchId} value={item.batchId}>
+                                        {item.describe}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="select-box">
+                            <span className="span">班级:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={selBanji || (banji[0] && (banji[0] as any).describe) || '请选择'}
+                                onChange={this.handleBanji.bind(this)}
+                            >
+                                {banji.map((item: any) => (
+                                    <Option key={item.classId} value={item.classId}>
+                                        {item.describe}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="select-box">
+                            <span className="span">阶段:</span>
+                            <Select
+                                mode="multiple"
+                                allowClear
+                                style={{ width: 240 }}
+                                value={selSemester}
+                                onChange={this.handleSemester.bind(this)}
+                            >
+                                {semester.map((item: any) => (
+                                    <Option key={item.semesterId} value={item.semesterId}>
+                                        {item.semesterName || item.semesterId}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
                     </div>
                     <div className="thr">
                         <Table
@@ -623,7 +632,7 @@ class TestRank extends React.Component {
                             onChange={this.tableChange.bind(this)}
                         />
                     </div>
-                    <div className={ totalCount / 20 < 1 ? 'pag' : 'display-none'}>
+                    <div className={ totalCount > 20 ? 'pag' : 'display-none'}>
                         <Pagination
                             defaultCurrent={1}
                             pageSize={20}

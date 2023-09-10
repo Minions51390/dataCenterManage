@@ -106,7 +106,7 @@ const StuPaperDetail = ({ query }: Props) => {
 
     useEffect(() => {
         getData();
-    }, [queryType, pageNo, pageSize, getData]);
+    }, [queryType, pageNo, pageSize]);
     return (
         <div className="stu-paper-detail">
             <div className="header">
