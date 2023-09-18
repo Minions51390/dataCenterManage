@@ -53,20 +53,22 @@ class ClassStu extends React.Component {
         this.initData();
     }
     async initData() {
+        const curTeacherId = Number(localStorage.getItem("classTeacherId"));
         const teacher = await this.getTeacher();
         const pici = await this.getPici();
-        const selfPici = await this.getPici(Number(localStorage.getItem("classTeacherId")));
+        const piciO = pici.filter((item:any) => item.teacherId !== curTeacherId)
+        const selfPici = await this.getPici(curTeacherId);
         let selPici = parseInt(sessionStorage.getItem('piciId') as any) || selfPici[0].batchId;
         this.setState({
             teacher,
             pici: selfPici,
             piciW: pici,
             piciF: selfPici,
-            piciO: pici,
+            piciO: piciO,
             newPici: selfPici,
             selPici,
             selPiciF: selfPici[0].batchId,
-            selPiciO: pici[0].batchId,
+            selPiciO: piciO[0].batchId,
             selPiciW: pici[0].batchId,
         });
         this.getWaitClass();
@@ -221,10 +223,12 @@ class ClassStu extends React.Component {
         this.setState({
             selTeacher,
         }, async()=>{
-            const pici = await this.getPici(val)
+            const curTeacherId = Number(localStorage.getItem("classTeacherId"));
+            const pici = await this.getPici(val);
+            const piciO = pici.filter((item:any) => item.teacherId !== curTeacherId)
             this.setState({
-                piciO: pici,
-                selPiciO: pici[0].batchId,
+                piciO: piciO,
+                selPiciO: piciO[0].batchId,
             }, async () => {
                 this.getOthClass();
             })
@@ -443,13 +447,14 @@ class ClassStu extends React.Component {
                             <Select
                                 defaultValue="请选择"
                                 style={{ width: 180 }}
-                                value={selPici || (pici[0] && (pici[0] as any).describe)}
+                                value={selPici || '请选择'}
                                 onChange={this.handlePiCi.bind(this)}
                             >
                                 {pici.map((item: any) => (
+                                    item.describe === '全部' ? '' : 
                                     <Option key={item.batchId} value={item.batchId}>
                                         {item.describe}
-                                    </Option>
+                                    </Option> 
                                 ))}
                             </Select>
                         </div>
@@ -650,6 +655,7 @@ class ClassStu extends React.Component {
                             onChange={this.handleTeacher.bind(this)}
                         >
                             {teacher.map((item: any) => (
+                                item.teacherId === Number(localStorage.getItem("classTeacherId")) ? '' :
                                 <Option key={item.teacherId} value={item.teacherId}>
                                     {item.realName}
                                 </Option>

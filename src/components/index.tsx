@@ -41,6 +41,8 @@ import Sub2 from './smenu/Sub2';
 import Env from './env';
 import MistakeRank from './testRank/MistakeRank';
 import StuPaperDetail from './testPaper/StuPaperDetail';
+import WritingPaper from './writing/WritingPaper';
+import WritingExam from './writing/WritingExam';
 
 const WysiwygBundle = Loadable({
     // 按需加载富文本配置
@@ -91,4 +93,6 @@ export default {
     Env,
     MistakeRank,
     StuPaperDetail,
+    WritingPaper,
+    WritingExam,
 } as any;

@@ -2,7 +2,7 @@ import React from 'react';
 import { Table, Pagination, Input, Button, message, Select, Popconfirm } from 'antd';
 import '../../style/pageStyle/TestRank.less';
 import copy from 'clipboard-copy';
-import { get, del, baseUrl } from '../../service/tools';
+import { get, post, baseUrl } from '../../service/tools';
 import { getQueryString } from '../../utils';
 const { Option } = Select;
 
@@ -97,7 +97,7 @@ class TestRank extends React.Component {
             {
                 title: '序号',
                 key: 'key',
-                render: (text: any, record: any, index: number) => <div>{index + 1}</div>,
+                render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
             },
             {
                 title: '考试名称',
@@ -157,7 +157,7 @@ class TestRank extends React.Component {
                                 title="是否确认删除？删除后无法恢复!"
                                 okText="确认"
                                 cancelText="取消"
-                                onConfirm={this.delExam.bind(this, text.questionPaperId)}
+                                onConfirm={this.delExam.bind(this, text.examId)}
                             >
                                 <div className="copy">
                                     <div>删除</div>
@@ -425,7 +425,7 @@ class TestRank extends React.Component {
         let res = await get({
             url: `${baseUrl}/api/v1/exam/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${selBanji}&pageSize=20&pageNo=${pageNo}&semesters=${JSON.stringify(
                 selSemester
-            )}&queryType=${queryType}&query=${query}&sortKey=${sortKey}&sort=${sort}&status=${status}`,
+            )}&queryType=${queryType}&query=${query}&status=${status}`,
         });
         console.log('------------->', res);
         const examList = res?.data?.examList || mockExamList;
@@ -474,7 +474,12 @@ class TestRank extends React.Component {
 
     /** 删除考试 */
     async delExam(id: any) {
-        let res = await del({ url: baseUrl + `/api/exam?examId=${id}` });
+        let res = await post({ 
+            url: baseUrl + '/api/v1/exam/delete',
+            data: {
+                examId:id
+            },
+        });
         console.log(res);
         this.getTest();
     }

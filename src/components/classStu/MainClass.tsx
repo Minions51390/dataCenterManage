@@ -175,10 +175,10 @@ class MainClass extends React.Component {
     async getTeacher() {
         let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
         let teacher = res?.data || [];
-        teacher.unshift({
-            realName: '全部',
-            teacherId: 0,
-        });
+        // teacher.unshift({
+        //     realName: '全部',
+        //     teacherId: 0,
+        // });
         teacher = teacher.filter((item:any)=>item.teacherId !== Number(localStorage.getItem("classTeacherId")))
         return teacher;
     }
@@ -337,6 +337,10 @@ class MainClass extends React.Component {
 	handleJiaojieOk() {
         const { selTeacher, classId, teacher } = this.state;
         const selTeacherObj = teacher.find((item:any) => item.teacherId === selTeacher);
+        if(!selTeacherObj){
+            message.warning('请选择交接教师!');
+            return
+        }
         this.setState({
             jiaojieModal: false,
         });
@@ -514,9 +518,7 @@ class MainClass extends React.Component {
                                     <Select
                                         defaultValue="请选择"
                                         value={
-                                            selTeacher ||
-                                            (teacher[0] && (teacher[0] as any)?.realName) ||
-                                            '请选择'
+                                            selTeacher || '请选择'
                                         }
                                         style={{ width: 240 }}
                                         onChange={this.handleTeacher.bind(this)}

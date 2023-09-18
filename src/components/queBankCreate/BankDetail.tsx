@@ -41,7 +41,7 @@ class BankDetail extends React.Component {
             {
                 title: '序号',
                 key: 'key',
-                render: (text: any, record: any, index: number) => <div>{index + 1}</div>,
+                render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
             },
             {
                 title: '试题内容',
@@ -341,6 +341,8 @@ class BankDetail extends React.Component {
     }
     /** 确定上传 */
     async handleUploadOk(){
+        this.handleUploadCancel();
+        message.success('上传中...');
         const { bankID, fileList } = this.state;
         const formData = new FormData();
         fileList.forEach((file:any) => {
@@ -363,7 +365,6 @@ class BankDetail extends React.Component {
             })
             message.success('上传成功');
             this.inited();
-            this.handleUploadCancel();
         }else{
             message.error('上传失败');
         }
@@ -599,7 +600,6 @@ class BankDetail extends React.Component {
                     width={800}
                     title="模版导入"
                     visible={uploadVisible}
-                    // onOk={this.handleUploadOk.bind(this)}
                     onOk={this.handleUploadOk.bind(this)}
                     onCancel={this.handleUploadCancel.bind(this)}
                 >
@@ -630,7 +630,6 @@ class BankDetail extends React.Component {
                             </p>
                         </Dragger>
                     </div>
-                    
                 </Modal>
             </div>
         );

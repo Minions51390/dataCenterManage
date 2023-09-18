@@ -353,7 +353,7 @@ class Ranks extends React.Component {
                             bordered={false}
                         />
                     </div>
-                    <div className={data1.length ? 'pag' : 'display-none'}>
+                    <div className={allCount > 10 ? 'pag' : 'display-none'}>
                         <Pagination
                             defaultCurrent={1}
                             defaultPageSize={10}

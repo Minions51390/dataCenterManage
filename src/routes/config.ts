@@ -37,6 +37,15 @@ const menus: {
             ]
         },
         // {
+        //     key: '/app/writing',
+        //     title: '作文中心',
+        //     icon: 'mobile',
+        //     subs: [
+        //         { key: '/app/writing/writingPaper', title: '作文管理', icon: 'mobile', component: 'WritingPaper' },
+        //         { key: '/app/writing/writingExam', title: '已发布作文/作文成绩', icon: 'mobile', component: 'WritingExam' },
+        //     ]
+        // },
+        // {
         //     key: '/app/ui',
         //     title: 'UI',
         //     icon: 'scan',

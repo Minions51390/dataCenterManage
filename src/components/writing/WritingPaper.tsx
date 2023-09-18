@@ -1,10 +1,29 @@
 import React from 'react';
-import { Row, Col, Tabs, DatePicker, Table, Select, Pagination } from 'antd';
-import '../../style/pageStyle/ErrorBook.less';
+import { Input, Button, Table, Select, Pagination, Modal } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import '../../style/pageStyle/WritingPaper.less';
 import { get, post, baseUrl } from '../../service/tools';
 const { Option } = Select;
-class ErrorBook extends React.Component {
+class writingPaper extends React.Component {
     state = {
+        query: '',
+        queryType: 'writingName',
+        queryTypeList: [
+            {
+                type: 'writingName',
+                name: '作文名称',
+            },
+            {
+                type: 'writingId',
+                name: '作文ID',
+            },
+            {
+                type: 'creator',
+                name: '创建人',
+            },
+        ],
+        writingName: '',
+        isVisible: false,
         teacher: [],
         selTeacher: {
             teacherId: 0,
@@ -27,24 +46,39 @@ class ErrorBook extends React.Component {
                 render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
             },
             {
-                title: '单词',
+                title: '作文名称',
                 dataIndex: 'en',
                 key: 'en',
             },
             {
-                title: '中文',
-                dataIndex: 'ch',
-                key: 'ch',
+                title: '创建人',
+                dataIndex: 'creator',
+                key: 'creator',
             },
             {
-                title: '音标',
-                dataIndex: 'phoneticSymbols',
-                key: 'phoneticSymbols',
+                title: '创建时间',
+                dataIndex: 'createTime',
+                key: 'createTime',
             },
             {
-                title: '出错人次',
+                title: '等级',
                 dataIndex: 'wrongCount',
                 key: 'wrongCount',
+            },
+            {
+                title: '作文ID',
+                dataIndex: 'wrongCount',
+                key: 'wrongCount',
+            },
+            {
+                title: '操作',
+                dataIndex: 'wrongCount',
+                key: 'wrongCount',
+                render: (text: any) => (
+                    <div className="edit">
+                        <div className="detail" onClick={this.handleDetailClick.bind(this, text)}>查看详情</div>
+                    </div>
+                ),
             },
         ],
         data1: [],
@@ -90,6 +124,33 @@ class ErrorBook extends React.Component {
                 })
             }
         );
+    }
+    handleDetailClick(val:any){
+        console.log('handleDetailClick', val)
+    }
+    handleQueryType(val:any){
+        console.log('handleQueryType', val)
+    }
+    onTestQueryChange(val:any){
+        console.log('onTestQueryChange', val)
+    }
+    clickSearch(val:any){
+        console.log('onTestQueryChange', val)
+    }
+    showCreateModal(val:any){
+        this.setState({
+            isVisible: true
+        })
+        console.log('onTestQueryChange', val)
+    }
+    handleCreateOk(val:any){
+        console.log('handleCreateOk', val)
+    }
+    handleCreateCancel(val:any){
+        console.log('handleCreateCancel', val)
+    }
+    onWritingNameChange(val:any){
+        console.log('onWritingNameChange', val)
     }
     async getKu() {
         let res = await get({ url: baseUrl + '/api/v1/material/dictionary/list' });
@@ -240,7 +301,12 @@ class ErrorBook extends React.Component {
 
     render() {
         const {
+            query,
+            queryType,
+            queryTypeList,
             teacher,
+            isVisible,
+            writingName,
             selTeacher,
             pici,
             selPici,
@@ -258,81 +324,74 @@ class ErrorBook extends React.Component {
             
         } = this.state;
         return (
-            <div className="rank-wrapper">
+            <div className="writing-wrapper">
                 <div className="header">
-                    <div className="fir">错词本</div>
-                    <div className="sec">错词本</div>
+                    <div className="fir">作文管理</div>
+                    <div className="sec">作文列表</div>
                 </div>
                 <div className="body">
-                    <div className="sec">
-                        {/* <span className="span">词库设置:</span>
-                        <Select
-                            defaultValue={dbVal}
-                            value={dbVal || (wordDb[0] && (wordDb[0] as any).dictionaryId) || "请选择"}
-                            style={{ width: 240 }}
-                            onChange={this.handleWordDb.bind(this)}
-                        >
-                            {wordDb.map((item: any) => (
-                                <Option key={item.dictionaryId} value={item.dictionaryId}>
-                                    {item.dictionaryName}
-                                </Option>
-                            ))}
-                        </Select> */}
-                        <span className="span">执教教师:</span>
-                        <Select
-                            defaultValue="请选择"
-                            style={{ width: 180 }}
-                            value={selTeacher?.realName || (teacher[0] && (teacher[0] as any).realName) || '请选择'}
-                            onChange={this.handleTeacher.bind(this)}
-                        >
-                            {teacher.map((item: any) => (
-                                <Option key={item.teacherId} value={item.teacherId}>
-                                    {item.realName}
-                                </Option>
-                            ))}
-                        </Select>
-                        <span className="span2">学员批次:</span>
-                        <Select
-                            defaultValue="请选择"
-                            style={{ width: 180 }}
-                            value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
-                            onChange={this.handlePiCi.bind(this)}
-                        >
-                            {pici.map((item: any) => (
-                                <Option key={item.batchId} value={item.batchId}>
-                                    {item.describe}
-                                </Option>
-                            ))}
-                        </Select>
-                        <span className="span1">班级:</span>
-                        <Select
-                            defaultValue="请选择"
-                            style={{ width: 180 }}
-                            value={selBanji || (banji[0] && (banji[0] as any).describe) || '请选择'}
-                            onChange={this.handleBanji.bind(this)}
-                        >
-                            {banji.map((item: any) => (
-                                <Option key={item.classId} value={item.classId}>
-                                    {item.describe}
-                                </Option>
-                            ))}
-                        </Select>
-                        <span className="span1">阶段:</span>
-                        <Select
-                            mode="multiple"
-                            allowClear
-                            style={{ width: 240 }}
-                            value={selSemester}
-                            onChange={this.handleSemester.bind(this)}
-                        >
-                            {semester.map((item: any) => (
-                                <Option key={item.semesterId} value={item.semesterId}>
-                                    {item.semesterName || item.semesterId}
-                                </Option>
-                            ))}
-                        </Select>
-                        <span className="span1 span3">{dictionary}</span>
+                    <div className="fir">
+                        <div>
+                            <Input.Group compact>
+                                <Select
+                                    defaultValue={queryType}
+                                    value={queryType || '请选择'}
+                                    onChange={this.handleQueryType.bind(this)}
+                                >
+                                    {queryTypeList.map((item: any) => (
+                                        <Option value={item.type} key={item.classId}>
+                                            {item.name}
+                                        </Option>
+                                    ))}
+                                </Select>
+                                <Input
+                                    style={{ width: '240px' }}
+                                    placeholder="待输入"
+                                    value={query}
+                                    onChange={this.onTestQueryChange.bind(this)}
+                                />
+                            </Input.Group>
+                            <Button
+                                className="gap-30"
+                                type="primary"
+                                onClick={this.clickSearch.bind(this)}
+                            >
+                                搜索
+                            </Button>
+                            <span className="span">创建人:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={selTeacher?.realName || (teacher[0] && (teacher[0] as any).realName) || '请选择'}
+                                onChange={this.handleTeacher.bind(this)}
+                            >
+                                {teacher.map((item: any) => (
+                                    <Option key={item.teacherId} value={item.teacherId}>
+                                        {item.realName}
+                                    </Option>
+                                ))}
+                            </Select>
+                            <span className="span">等级:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
+                                onChange={this.handlePiCi.bind(this)}
+                            >
+                                {pici.map((item: any) => (
+                                    <Option key={item.batchId} value={item.batchId}>
+                                        {item.describe}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div onClick={this.showCreateModal.bind(this)}>
+                            <Button className="gap-30" type="primary" icon={<PlusOutlined />}>
+                                新建
+                            </Button>
+                        </div>
                     </div>
+                    <div className="sec" />
                     <div className="thr">
                         <Table
                             columns={columns1}
@@ -352,9 +411,62 @@ class ErrorBook extends React.Component {
                         />
                     </div>
                 </div>
+                <Modal
+                    title="新建作文"
+                    visible={isVisible}
+                    cancelText="取消"
+                    okText="确定"
+                    onOk={this.handleCreateOk.bind(this)}
+                    onCancel={this.handleCreateCancel.bind(this)}
+                >
+                    <div className="module-area">
+                        <span className="span">作文任务名称:</span>
+                        <Input
+                            className="gap-8"
+                            style={{ width: 294 }}
+                            placeholder="请标题名称"
+                            value={writingName}
+                            onChange={this.onWritingNameChange.bind(this)}
+                            maxLength={20}
+                        />
+                    </div>
+                    <div className="module-area">
+                        <span className="span">作文标题:</span>
+                        <Input
+                            className="gap-8"
+                            style={{ width: 294 }}
+                            placeholder="请标题名称"
+                            value={writingName}
+                            onChange={this.onWritingNameChange.bind(this)}
+                            maxLength={20}
+                        />
+                    </div>
+                    <div className="module-area">
+                        <span className="span">写作要求:</span>
+                        <Input
+                            className="gap-8"
+                            style={{ width: 294 }}
+                            placeholder="请标题名称"
+                            value={writingName}
+                            onChange={this.onWritingNameChange.bind(this)}
+                            maxLength={20}
+                        />
+                    </div>
+                    <div className="module-area">
+                        <span className="span">等级:</span>
+                        <Input
+                            className="gap-8"
+                            style={{ width: 294 }}
+                            placeholder="请标题名称"
+                            value={writingName}
+                            onChange={this.onWritingNameChange.bind(this)}
+                            maxLength={20}
+                        />
+                    </div>
+                </Modal>
             </div>
         );
     }
 }
 
-export default ErrorBook;
+export default writingPaper;

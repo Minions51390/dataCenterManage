@@ -21,15 +21,15 @@ const defaultOptions = {
             icon: 'rect', // 用矩形替换
         },
             {
-            name: '同期综合评分最优学员',
+            name: '综合评分最优学员',
             icon: 'rect',
         },
         {
-            name: '同期综合评分最差学员',
+            name: '综合评分最差学员',
             icon: 'rect', // 用矩形替换
         },
         {
-            name: '该指标同期平均值',
+            name: '该指标平均值',
             icon: 'rect',
         }
         ],
@@ -61,28 +61,28 @@ const defaultOptions = {
             name: '当前学员',
             type: 'line',
             smooth: true,
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
         {
-            name: '同期综合评分最优学员',
+            name: '综合评分最优学员',
             type: 'line',
             smooth: true,
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
         {
-            name: '同期综合评分最差学员',
+            name: '综合评分最差学员',
             type: 'line',
             smooth: true,
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
         {
-            name: '该指标同期平均值',
+            name: '该指标平均值',
             type: 'line',
             smooth: true,
             lineStyle: {
                 type: 'dashed',
             },
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
     ],
     color: ['#0089FF', '#00CF2C', '#FF1010', '#91949A']
@@ -189,7 +189,7 @@ class Dashboard extends React.Component {
         centerData: {
 
         },
-        mydate1: (new Date(FunGetDateStr(-5, new Date()) + " 00:00:00") as any).format('yyyy-MM-dd'),
+        mydate1: (new Date(FunGetDateStr(-6, new Date()) + " 00:00:00") as any).format('yyyy-MM-dd'),
         mydate2: (new Date() as any).format('yyyy-MM-dd'),
         columns1: [
             {
@@ -583,7 +583,7 @@ class Dashboard extends React.Component {
             let newDefaultOption = getDefaultOption()
             if (this.echartsReact != null) {
                 instance.clear(); 
-                let date1 = (new Date(FunGetDateStr(-5, new Date()) + " 00:00:00") as any).format('yyyy-MM-dd')
+                let date1 = (new Date(FunGetDateStr(-6, new Date()) + " 00:00:00") as any).format('yyyy-MM-dd')
                 let date2 = (new Date() as any).format('yyyy-MM-dd')
                 newDefaultOption.xAxis.data = getDateBetween(date1, date2);
                 instance.setOption(newDefaultOption, true);
@@ -809,7 +809,7 @@ class Dashboard extends React.Component {
                                     <span>时间：</span>
                                     <RangePicker
                                         defaultValue={[
-                                            moment(new Date(FunGetDateStr(-5, new Date()) + " 00:00:00"), dateFormat),
+                                            moment(new Date(FunGetDateStr(-6, new Date()) + " 00:00:00"), dateFormat),
                                             moment(new Date(), dateFormat),
                                         ]}
                                         onChange={this.dataChange.bind(this)}
@@ -848,8 +848,8 @@ class Dashboard extends React.Component {
                                     />
                                 </div>
                             </div>
-                            <div className={data1.length ? "pag" : "display-none"}>
-                                <Pagination defaultCurrent={1} defaultPageSize={20} current={nowPag} total={allCount * 20} onChange={this.nowPagChange.bind(this)} />
+                            <div className={allCount > 20 ? "pag" : "display-none"}>
+                                <Pagination defaultCurrent={1} defaultPageSize={20} current={nowPag} total={allCount} onChange={this.nowPagChange.bind(this)} />
                             </div>
                         </div>
                     </Col>

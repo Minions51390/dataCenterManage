@@ -46,8 +46,8 @@ class StuRank extends React.Component {
         pageNo: 1,
         totalCount: 1,
         query: '',
-        sortKey: 'username',
-        sort: 'asc',
+        sortKey: 'score',
+        sort: 'desc',
         examId: sessionStorage.getItem('examId'),
         testPaperName: sessionStorage.getItem('testPaperName'),
         pici: sessionStorage.getItem('pici'),
@@ -56,7 +56,7 @@ class StuRank extends React.Component {
             {
                 title: '序号',
                 key: 'key',
-                render: (text: any, record: any, index: number) => <div>{index + 1}</div>,
+                render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
             },
             {
                 title: '学员姓名',

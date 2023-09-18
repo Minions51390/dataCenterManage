@@ -3,7 +3,7 @@ import { Row, Col, Tabs, DatePicker, Table, Select, Pagination } from 'antd';
 import '../../style/pageStyle/ErrorBook.less';
 import { get, post, baseUrl } from '../../service/tools';
 const { Option } = Select;
-class ErrorBook extends React.Component {
+class writingPaper extends React.Component {
     state = {
         teacher: [],
         selTeacher: {
@@ -357,4 +357,4 @@ class ErrorBook extends React.Component {
     }
 }
 
-export default ErrorBook;
+export default writingPaper;
