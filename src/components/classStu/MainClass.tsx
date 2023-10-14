@@ -129,14 +129,8 @@ class MainClass extends React.Component {
         this.initList();
     }
     async initList() {
-        const classId = GetRequest()['classId'] || sessionStorage.getItem('classId');
-        const piciId = GetRequest()['piciId'] || sessionStorage.getItem('piciId');
-        if (classId) {
-            sessionStorage.setItem('classId', classId as any);
-        }
-        if (piciId) {
-            sessionStorage.setItem('piciId', piciId as any);
-        }
+        console.log('manclass-initList')
+        const classId = GetRequest()['classId'];
         let res = await this.getClassInfo(classId);
         let resTeacher = await this.getTeacher();
         let data1 = res.data.apply.detail.map((item: any, index: any) => {
@@ -247,14 +241,22 @@ class MainClass extends React.Component {
         this.resolveStu(stu);
     }
     async delStu(stu: any) {
-        let res = await post({ url: baseUrl + `/api/v1/structure/user/delete?studentId=${stu}` });
+        let res = await post({ 
+            url: baseUrl + `/api/v1/structure/user/delete`,
+            data: {
+                studentId: stu,
+            },
+        });
         return res;
     }
     async confirmDel(val: any) {
-        console.log('删除', val);
         let res = await this.delStu(val.studentId);
-        console.log(res);
-        this.initList();
+        if(res.state === 0){
+            message.success('删除成功')
+            this.initList();
+        }else{
+            message.error(`删除失败：${res.msg}`)
+        }
     }
 
     setShowModal() {

@@ -58,7 +58,7 @@ class ClassStu extends React.Component {
         const pici = await this.getPici();
         const piciO = pici.filter((item:any) => item.teacherId !== curTeacherId)
         const selfPici = await this.getPici(curTeacherId);
-        let selPici = parseInt(sessionStorage.getItem('piciId') as any) || selfPici[0].batchId;
+        let selPici = selfPici[0].batchId;
         this.setState({
             teacher,
             pici: selfPici,
@@ -332,12 +332,6 @@ class ClassStu extends React.Component {
         //     }]
         // });
     }
-    setClassName(val: any) {
-        const { selPici } = this.state;
-        sessionStorage.setItem('className', val.describe);
-        sessionStorage.setItem('classId', val.classId);
-        sessionStorage.setItem('piciId', selPici);
-    }
 
     async HandleJiaojieOk(){
         const { selPici, jiaojieClass } = this.state;
@@ -483,7 +477,6 @@ class ClassStu extends React.Component {
                     <div className="item-area">
                         {nowClass.map((item: any, index) => (
                             <Link
-                                onMouseDown={this.setClassName.bind(this, item)}
                                 to={`/app/class/main/class?classId=${item.classId}&piciId=${selPici}`}
                                 key={index}
                             >

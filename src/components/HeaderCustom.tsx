@@ -29,10 +29,6 @@ type HeaderCustomProps = {
 
 const HeaderCustom = (props: HeaderCustomProps) => {
     const [responsive] = useAlita('responsive', { light: true });
-    // const [phone] = useAlita('phone');
-    // const [realName] = useAlita('realName');
-    // const [userName] = useAlita('userName');
-    console.log("yangqi1", props, props.realName)
     const [visible, turn] = useSwitch();
 
     return (
@@ -62,7 +58,7 @@ const HeaderCustom = (props: HeaderCustomProps) => {
                 </div>
             }
             <div style={{ lineHeight: '64px', float: 'right' }}>
-                <HeaderMenuComp userName={props.userName} realName={props.realName} phone={props.phone}></HeaderMenuComp>
+                <HeaderMenuComp userName={props.userName} realName={props.realName} phone={props.phone} />
             </div>
             
             

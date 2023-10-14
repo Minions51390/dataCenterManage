@@ -1,11 +1,14 @@
 import React from 'react';
-import { Input, Button, Table, Select, Pagination, Modal } from 'antd';
+import { Input, Space, Button, Table, Select, Pagination, Modal, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/WritingPaper.less';
+import copy from 'clipboard-copy';
 import { get, post, baseUrl } from '../../service/tools';
 const { Option } = Select;
+const { TextArea } = Input;
 class writingPaper extends React.Component {
     state = {
+        // 筛选
         query: '',
         queryType: 'writingName',
         queryTypeList: [
@@ -22,23 +25,22 @@ class writingPaper extends React.Component {
                 name: '创建人',
             },
         ],
-        writingName: '',
+        creator: 0,
+        creatorList: [],
+        level: 'all',
+        levelList: [],
+        // 新增作文任务
         isVisible: false,
-        teacher: [],
-        selTeacher: {
-            teacherId: 0,
-            realName: '',
+        createWritingName: '',
+        createWritingTitle: '',
+        createWritingDesc: '',
+        createWritingLevel: {
+            levelName: '',
+            levelKey: '',
         },
-        pici: [],
-        selPici: '',
-        banji: [],
-        selBanji: '',
-        semester: [],
-        selSemester: [],
-        pageNo: 1,
-        allCount: 1,
-        wordDb: [],
-        dbVal: '',
+        createWritingMinimum: 120,
+        createWritingMaximum: 160,
+        // 表格
         columns1: [
             {
                 title: '序号',
@@ -47,8 +49,16 @@ class writingPaper extends React.Component {
             },
             {
                 title: '作文名称',
-                dataIndex: 'en',
-                key: 'en',
+                key: 'name',
+                width: 360,
+                textWrap: 'ellipsis',
+                ellipsis: true,
+                render: (text: any, record: any, index: number) => (
+                    <div className="writing-name-box">
+                        <div className="box-name">{text.title}</div>
+                        <div className="box-title">{text.desc}</div>
+                    </div>
+                ),
             },
             {
                 title: '创建人',
@@ -62,266 +72,229 @@ class writingPaper extends React.Component {
             },
             {
                 title: '等级',
-                dataIndex: 'wrongCount',
-                key: 'wrongCount',
+                dataIndex: 'level',
+                key: 'level',
             },
             {
                 title: '作文ID',
-                dataIndex: 'wrongCount',
-                key: 'wrongCount',
+                key: 'writingCode',
+                render: (text: any) => (
+                    <div className="copy" onClick={this.handleWritingCodeClick.bind(this, text.writingCode)}>{text.writingCode}</div>
+                )
             },
             {
                 title: '操作',
-                dataIndex: 'wrongCount',
-                key: 'wrongCount',
                 render: (text: any) => (
                     <div className="edit">
-                        <div className="detail" onClick={this.handleDetailClick.bind(this, text)}>查看详情</div>
+                        <div className="detail" onClick={this.handleDetailClick.bind(this, text.writingId)}>查看详情</div>
                     </div>
                 ),
             },
         ],
-        data1: [],
-        dictionary: '',
+        data1:[],
+        pageNo: 1,
+        pageSize: 20,
+        allCount: 0,
     };
     componentWillMount() {
         this.inited();
     }
     async inited() {
-        // let userid = await this.login();
-        let res = await this.getKu();
-        if (!res[0]) {
-            return;
-        }
-        const teacher = await this.getTeacher();
-        const selTeacher = teacher.find((item:any) => {
-            return item.teacherId === Number(localStorage.getItem("classTeacherId"))
+        const creatorList = await this.fetchCreatorList();
+        const levelList = await this.fetchLevelList();
+        this.setState({
+            creatorList,
+            levelList,
+        }, async () => {
+            this.getWritingList()
         });
-        this.setState(
-            {
-                wordDb: res,
-                dbVal: res[0].dictionaryId,
-                teacher,
-                selTeacher,
-            },
-            async () => {
-                const pici = await this.getPici(selTeacher.teacherId);
-                const banji = await this.getClass(pici[0].batchId || 0);
-                this.setState({
-                    pici,
-                    banji,
-                    selPici: pici[0].batchId,
-                    selBanji: banji[0].classId,
-                }, async () => {
-                    const semester = await this.getSemester(banji[0].classId || 0);
-                    // const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
-                    const selSemester = [0]
-                    this.setState({
-                        semester,
-                        selSemester,
-                    });
-                    await this.getRank(JSON.stringify(selSemester));
-                })
-            }
-        );
     }
-    handleDetailClick(val:any){
-        console.log('handleDetailClick', val)
+    // 获取创建人列表
+    async fetchCreatorList(){
+        let res = await get({ url: `${baseUrl}/api/v1/structure/teacher/list` });
+        return res?.data || [];
     }
+
+    // 获取等级列表
+    async fetchLevelList(){
+        let res = await get({ url: `${baseUrl}/api/v1/writing/level/list` });
+        return res?.data || [];
+    }
+
+    // 搜索类型切换
     handleQueryType(val:any){
-        console.log('handleQueryType', val)
+        this.setState({
+            queryType: val
+        })
     }
-    onTestQueryChange(val:any){
-        console.log('onTestQueryChange', val)
+    // 搜索关键字修改
+    searchQueryChange(event:any){
+        this.setState({
+            query: event.target.value
+        })
     }
+    // 搜索
     clickSearch(val:any){
-        console.log('onTestQueryChange', val)
+        console.log('clickSearch', val)
+        this.getWritingList()
     }
+    // 筛选创建人更改
+    handleCreatorChange(val:any){
+        this.setState({
+            creator: val,
+        }, ()=>{
+            this.getWritingList()
+        })
+    }
+    // 筛选等级更改
+    handleLevelChange(val:any){
+        this.setState({
+            level: val,
+        }, ()=>{
+            this.getWritingList()
+        })
+    }
+    // 获取作文物料列表
+    async getWritingList(){
+        const {creator, level, pageNo, pageSize, query, queryType} = this.state;
+        let res = await get({ url: `${baseUrl}/api/v1/writing/list?query=${query}&queryType=${queryType}&level=${level}&teacherId=${creator}&pageNo=${pageNo}&pageSize=${pageSize}` });
+        this.setState({
+            data1: res?.data?.data || []
+        })
+    }
+    // 新建弹窗点击
     showCreateModal(val:any){
         this.setState({
             isVisible: true
         })
-        console.log('onTestQueryChange', val)
+        console.log('showCreateModal', val)
     }
-    handleCreateOk(val:any){
-        console.log('handleCreateOk', val)
+    // 作文物料名称修改
+    onWritingNameChange(event:any){
+        console.log('onWritingNameChange', event)
+        this.setState({
+            createWritingName: event.target.value,
+        })
     }
+    // 作文物料标题修改
+    onWritingTitleChange(event:any){
+        console.log('onWritingTitleChange', event)
+        this.setState({
+            createWritingTitle: event.target.value,
+        })
+    }
+    // 作文物料描述修改
+    onWritingDescChange(event:any){
+        console.log('onWritingDescChange', event)
+        this.setState({
+            createWritingDesc: event.target.value,
+        })
+    }
+    // 作文物料等级修改
+    onWritingLevelChange(event:any){
+        console.log('onWritingLevelChange', event)
+        this.setState({
+            createWritingLevel: event,
+        })
+    }
+    // 作文物料最小字数修改
+    onWritingMinChange(event:any){
+        console.log('onWritingMinChange', event)
+        this.setState({
+            createWritingMinimum: event.target.value,
+        })
+    }
+    // 作文物料最大字数修改
+    onWritingMaxChange(event:any){
+        console.log('onWritingMinChange', event)
+        this.setState({
+            createWritingMaximum: event.target.value,
+        })
+    }
+    // 新建确定
+    async handleCreateOk(val:any){
+        const {
+            createWritingName,
+            createWritingTitle,
+            createWritingDesc,
+            createWritingLevel,
+            createWritingMinimum,
+            createWritingMaximum
+        } = this.state;
+        if(!createWritingName || !createWritingDesc || !createWritingLevel || !createWritingMinimum || !createWritingMaximum){
+            message.error('请填写新建作文任务的必要信息');
+            return
+        }
+        let res = await post({
+            url: `${baseUrl}/api/v1/writing/`,
+            data: {
+                name: createWritingName,
+                title: createWritingTitle,
+                desc: createWritingDesc,
+                level: createWritingLevel,
+                minimun: createWritingMinimum,
+                maximum: createWritingMaximum,
+            },
+        });
+        if(res.state === 0){
+            message.success('新建作文物料成功');
+            this.setState({
+                isVisible: false
+            })
+            this.getWritingList()
+        }else{
+            message.error(`新建作文物料失败:${res.msg}`);
+        }
+    }
+    // 新建取消
     handleCreateCancel(val:any){
+        this.setState({
+            isVisible: false
+        })
         console.log('handleCreateCancel', val)
     }
-    onWritingNameChange(val:any){
-        console.log('onWritingNameChange', val)
+    //作文ID点击
+    handleWritingCodeClick(val:any){
+        copy(val)
+            .then(() => {
+                message.success('复制成功');
+            })
+            .catch(() => {
+                message.error('复制失败');
+            });
     }
-    async getKu() {
-        let res = await get({ url: baseUrl + '/api/v1/material/dictionary/list' });
-        return res.data || [];
+    //作文物料详情
+    handleDetailClick(val:any){
+        console.log('handleDetailClick', val)
+        window.location.href = `${window.location.pathname}#/app/writing/writingDetail?writingId=${val}`
     }
-    async getTeacher() {
-        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
-        const teacher = res?.data || [];
-        teacher.unshift({
-            realName: '全部',
-            teacherId: 0,
-        });
-        return teacher;
-    }
-    async getPici(teacherId: any) {
-        const res = await get({ url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}`});
-        const pici = res.data || [];
-        pici.unshift({
-            describe: '全部',
-            batchId: 0,
-        });
-        return pici;
-    }
-    async getClass(pici: any) {
-        const { selTeacher } = this.state;
-        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?teacherId=${selTeacher.teacherId}&batchId=${pici}&pageNo=1&pageSize=99999` });
-        const banji = res?.data?.classList ?? [];
-        banji.unshift({
-            classCode: '',
-            classId: 0,
-            createDate: '',
-            describe: '全部',
-            studentCount: 0,
-        });
-        return banji;
-    }
-    async getSemester(classId: any){
-        const {selPici, selTeacher} = this.state
-        let res = await get({
-            url: baseUrl + `/api/v1/structure/semester/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${classId}`
-        })
-        const semester = res?.data || [];
-        semester.unshift({
-            isCurrent: false,
-            semesterId: 0,
-            semesterName: '全部',
-        });
-        return semester;
-    }
-    async getRank(semesters: any) {
-        const {selPici, selTeacher, selBanji} = this.state
-        const { pageNo } = this.state;
-        let res = await get({
-            url:
-                baseUrl +
-                `/api/v1/wrong-book/?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${selBanji}&semesters=${semesters}&pageNo=${pageNo}&pageSize=20`,
-            
-        });
-        console.log(res);
-        let data1 = res.data.detail
-            ? res.data.detail.map((val: any, index: number) => {
-                  return {
-                      key: index + 1,
-                      en: val.en,
-                      ch: val.ch,
-                      phoneticSymbols: val.phoneticSymbols,
-                      wrongCount: val.wrongCount,
-                  };
-              })
-            : [];
-        let dictionary = res.data.dictionary;
+    // 当前执教班级翻页
+    pageNoChange(val: any) {
         this.setState({
-            data1,
-            allCount: res.data.totalPage,
-            dictionary: dictionary,
-        });
-        return res.data || [];
-    }
-    async handleTeacher (val:any){
-        const { teacher } = this.state;
-        const selTeacher = teacher.find((item:any) => {
-            return item.teacherId === val
-        });
-        const res = await this.getPici(val);
-        const pici = res[0] ? res[0]?.batchId : '';
-        this.setState({
-            selTeacher,
-            pici: res,
-        });
-        this.handlePiCi(pici);
-    }
-    async handlePiCi(val: any) {
-        const res = await this.getClass(val);
-        let selBanji = res[1] ? res[1].classId : 0;
-        if(!val){
-            selBanji = 0
-        }
-        this.setState({
-            selPici: val,
-            banji: res,
-            selBanji,
+            pageNo: val,
         }, async () => {
-            this.handleBanji(selBanji)
+            this.getWritingList()
         });
     }
-    async handleBanji(val: any) {
-        const semester = await this.getSemester(val);
-        let selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : []
-        if(!val){
-            selSemester = [0]
-        }
-        this.setState({
-            selBanji: val,
-            semester,
-            selSemester,
-        }, async () => {
-            this.handleSemester(selSemester);
-        });
-    }
-    async handleSemester(val: any) {
-        this.setState({
-            selSemester: val,
-        });
-        await this.getRank(JSON.stringify(val));
-    }
-    async handleWordDb(value: any) {
-        const { selSemester } = this.state;
-        this.setState(
-            {
-                dbVal: value,
-            },
-            async () => {
-                const ranklist = await this.getRank(JSON.stringify(selSemester));
-            }
-        );
-    }
-    nowPagChange(val: any) {
-        const { selSemester } = this.state;
-        this.setState(
-            {
-                pageNo: val,
-            },
-            async () => {
-                const ranklist = await this.getRank(JSON.stringify(selSemester));
-            }
-        );
-    }
-
     render() {
         const {
             query,
             queryType,
             queryTypeList,
-            teacher,
             isVisible,
-            writingName,
-            selTeacher,
-            pici,
-            selPici,
-            banji,
-            selBanji,
-            semester,
-            selSemester,
+            creator,
+            creatorList,
+            level,
+            levelList,
+            createWritingName,
+            createWritingTitle,
+            createWritingDesc,
+            createWritingMinimum,
+            createWritingMaximum,
             columns1,
-            data1,
             pageNo,
             allCount,
-            wordDb,
-            dbVal,
-            dictionary,
-            
+            data1,
         } = this.state;
         return (
             <div className="writing-wrapper">
@@ -348,7 +321,7 @@ class writingPaper extends React.Component {
                                     style={{ width: '240px' }}
                                     placeholder="待输入"
                                     value={query}
-                                    onChange={this.onTestQueryChange.bind(this)}
+                                    onChange={this.searchQueryChange.bind(this)}
                                 />
                             </Input.Group>
                             <Button
@@ -362,10 +335,10 @@ class writingPaper extends React.Component {
                             <Select
                                 defaultValue="请选择"
                                 style={{ width: 180 }}
-                                value={selTeacher?.realName || (teacher[0] && (teacher[0] as any).realName) || '请选择'}
-                                onChange={this.handleTeacher.bind(this)}
+                                value={ creator || '请选择' }
+                                onChange={this.handleCreatorChange.bind(this)}
                             >
-                                {teacher.map((item: any) => (
+                                {creatorList.map((item: any) => (
                                     <Option key={item.teacherId} value={item.teacherId}>
                                         {item.realName}
                                     </Option>
@@ -375,12 +348,12 @@ class writingPaper extends React.Component {
                             <Select
                                 defaultValue="请选择"
                                 style={{ width: 180 }}
-                                value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
-                                onChange={this.handlePiCi.bind(this)}
+                                value={ level || '请选择'}
+                                onChange={this.handleLevelChange.bind(this)}
                             >
-                                {pici.map((item: any) => (
-                                    <Option key={item.batchId} value={item.batchId}>
-                                        {item.describe}
+                                {levelList.map((item: any) => (
+                                    <Option key={item.levelKey} value={item.levelKey}>
+                                        {item.levelName}
                                     </Option>
                                 ))}
                             </Select>
@@ -406,12 +379,13 @@ class writingPaper extends React.Component {
                             defaultCurrent={1}
                             pageSize={20}
                             current={pageNo}
-                            total={allCount * 20}
-                            onChange={this.nowPagChange.bind(this)}
+                            total={allCount}
+                            onChange={this.pageNoChange.bind(this)}
                         />
                     </div>
                 </div>
                 <Modal
+                    width={'644px'}
                     title="新建作文"
                     visible={isVisible}
                     cancelText="取消"
@@ -420,48 +394,89 @@ class writingPaper extends React.Component {
                     onCancel={this.handleCreateCancel.bind(this)}
                 >
                     <div className="module-area">
-                        <span className="span">作文任务名称:</span>
+                        <span className="span">
+                            <span style={{ color: 'red', marginRight: '6px' }}>*</span>
+                                作文任务名称:
+                            </span>
                         <Input
                             className="gap-8"
-                            style={{ width: 294 }}
-                            placeholder="请标题名称"
-                            value={writingName}
+                            style={{ width: 400 }}
+                            placeholder="请输入作文任务名称"
+                            value={createWritingName}
                             onChange={this.onWritingNameChange.bind(this)}
-                            maxLength={20}
+                            maxLength={200}
                         />
                     </div>
                     <div className="module-area">
                         <span className="span">作文标题:</span>
                         <Input
                             className="gap-8"
-                            style={{ width: 294 }}
-                            placeholder="请标题名称"
-                            value={writingName}
-                            onChange={this.onWritingNameChange.bind(this)}
-                            maxLength={20}
+                            style={{ width: 400 }}
+                            placeholder="请输入标题名称"
+                            value={createWritingTitle}
+                            onChange={this.onWritingTitleChange.bind(this)}
+                            maxLength={200}
+                        />
+                    </div>
+                    <div className="module-area module-area-start">
+                        <span className="span">
+                            <span style={{ color: 'red', marginRight: '6px' }}>*</span>
+                            写作要求:
+                        </span>
+                        <TextArea
+                            className="gap-8"
+                            style={{ width: 400}}
+                            placeholder="请输入写作要求"
+                            value={createWritingDesc}
+                            onChange={this.onWritingDescChange.bind(this)}
+                            maxLength={2000}
                         />
                     </div>
                     <div className="module-area">
-                        <span className="span">写作要求:</span>
-                        <Input
+                        <span className="span">
+                            <span style={{ color: 'red', marginRight: '6px' }}>*</span>
+                            等级:
+                        </span>
+                        <Select
                             className="gap-8"
-                            style={{ width: 294 }}
-                            placeholder="请标题名称"
-                            value={writingName}
-                            onChange={this.onWritingNameChange.bind(this)}
-                            maxLength={20}
-                        />
+                            defaultValue="请选择"
+                            style={{ width: 400 }}
+                            onChange={this.onWritingLevelChange.bind(this)}
+                        >
+                            {levelList.map((item: any) => (
+                                <Option key={item.levelKey} value={item.levelKey}>
+                                    {item.levelName}
+                                </Option>
+                            ))}
+                        </Select>
                     </div>
                     <div className="module-area">
-                        <span className="span">等级:</span>
-                        <Input
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            placeholder="请标题名称"
-                            value={writingName}
-                            onChange={this.onWritingNameChange.bind(this)}
-                            maxLength={20}
-                        />
+                        <span className="span">
+                            <span style={{ color: 'red', marginRight: '6px' }}>*</span>
+                            词书限制:
+                        </span>
+                        <Space direction="vertical">
+                            <Input 
+                                className="gap-8"
+                                style={{ width: 196 }}
+                                addonBefore="不少于"
+                                defaultValue="请输入"
+                                value={createWritingMinimum}
+                                onChange={this.onWritingMinChange.bind(this)}
+                                maxLength={10}
+                            />
+                        </Space>
+                        <Space direction="vertical">
+                            <Input 
+                                className="gap-8"
+                                style={{ width: 196 }}
+                                addonBefore="不高于"
+                                defaultValue="请输入"
+                                value={createWritingMaximum}
+                                onChange={this.onWritingMaxChange.bind(this)}
+                                maxLength={10}
+                            />
+                        </Space>
                     </div>
                 </Modal>
             </div>

@@ -1,7 +1,7 @@
-.writing-wrapper {
+.writing-detail-wrapper {
     overflow-y: auto;
     .header {
-        height: 98px;
+        height: auto;
         background: #FFFFFF;
         overflow: hidden;
         .fir {
@@ -15,14 +15,42 @@
             margin-top: 16px;
         }
         .sec {
-            margin-left: 32px;
-            height: 28px;
-            font-size: 20px;
-            font-family: PingFangSC-Medium, PingFang SC;
-            font-weight: 500;
-            color: rgba(0, 0, 0, 0.85);
             line-height: 28px;
             margin-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            margin: 0 32px;
+            height: 30px;
+            line-height: 30px;
+            .text {
+                font-size: 20px;
+                font-family: PingFangSC-Medium, PingFang SC;
+                font-weight: 500;
+                color: rgba(0, 0, 0, 0.85);
+            }
+            span {
+                color: rgba(0, 0, 0, 0.65);
+            }
+        }
+        .thr {
+            margin: 0 32px;
+            margin-top: 24px;
+            .tr {
+                display: flex;
+                margin-bottom: 8px;
+                .sp {
+                    color: rgba(0, 0, 0, 0.45);
+                }
+                .hard {
+                    font-size: 20px;
+                }
+                div {
+                    span {
+                        color: rgba(0, 0, 0, 0.65);
+                    }
+                    width: 300px;
+                }
+            }
         }
     }
     .body {
@@ -31,17 +59,14 @@
         margin-bottom: 0;
         background: #FFFFFF;
         padding: 32px;
+        font-family: PingFangSC-Regular, PingFang SC;
         .fir {
-            display: flex;
-            justify-content: space-between;
-            .gap-12 {
-                margin-left: 12px;
-            }
-            .gap-30{
-                margin-left: 30px;   
-            }
-            .gap-48 {
-                margin-left: 48px;
+            .writing-title{
+                font-size: 14px;
+                font-weight: 400;
+                color: rgba(0,0,0,0.85);
+                line-height: 22px;
+                margin: 12px 0;
             }
             .ant-input-group-compact {
                 display: inline-block;
@@ -63,6 +88,13 @@
         }
         .sec {
             margin-top: 16px;
+            .writing-desc{
+                font-size: 14px;
+                font-weight: 400;
+                color: rgba(0,0,0,0.65);
+                line-height: 22px;
+                margin-top: 12px;
+            }
         }
         .thr {
             margin-top: 24px;
@@ -74,10 +106,6 @@
                 text-align: center;
                 color: #032352 !important;
             }
-            .copy{
-                color: #1890FF;
-                cursor: pointer;
-            }
             .edit {
                 display: flex;
                 justify-content: center;
@@ -86,6 +114,12 @@
                     cursor: pointer;
                 }
             }
+        }
+        .title{
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(0,0,0,0.85);
+            line-height: 24px;     
         }
         .pag {
             display: flex;
@@ -115,13 +149,4 @@
 }
 .ant-input-group-addon{
     background-color: #fafafa!important;
-}
-.writing-name-box{
-    text-align: left;
-    
-    .box-title{
-        color: rgba(0, 0, 0, 0.45);
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
 }

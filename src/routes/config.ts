@@ -36,15 +36,15 @@ const menus: {
                 { key: '/app/test/testRank', title: '已发布考试/考试成绩', icon: 'mobile', component: 'TestRank' },
             ]
         },
-        // {
-        //     key: '/app/writing',
-        //     title: '作文中心',
-        //     icon: 'mobile',
-        //     subs: [
-        //         { key: '/app/writing/writingPaper', title: '作文管理', icon: 'mobile', component: 'WritingPaper' },
-        //         { key: '/app/writing/writingExam', title: '已发布作文/作文成绩', icon: 'mobile', component: 'WritingExam' },
-        //     ]
-        // },
+        {
+            key: '/app/writing',
+            title: '作文中心',
+            icon: 'mobile',
+            subs: [
+                { key: '/app/writing/writingPaper', title: '作文管理', icon: 'mobile', component: 'WritingPaper' },
+                { key: '/app/writing/writingExam', title: '已发布作文/作文成绩', icon: 'mobile', component: 'WritingExam' },
+            ]
+        },
         // {
         //     key: '/app/ui',
         //     title: 'UI',
@@ -183,6 +183,7 @@ const menus: {
         { key: '/app/test/testPaper/stuDetail', title: '', icon: 'mobile', component: 'StuPaperDetail' },
         { key: '/app/test/testRank/stuRank', title: '', icon: 'mobile', component: 'StuRank' },
         { key: '/app/test/testRank/mistakeRank', title: '', icon: 'mobile', component: 'MistakeRank' },
+        { key: '/app/writing/writingDetail', title: '', icon: 'mobile', component: 'WritingDetail' },
     ], // 非菜单相关路由
 };
 

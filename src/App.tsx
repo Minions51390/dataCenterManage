@@ -93,12 +93,11 @@ const App = (props: AppProps) => {
     
     useEffect(() => {
         getMes().then((res) => {
-            console.log('yangqi phone', res.data.phone);
+            console.log('登陆', res.data);
             setPhone(res.data.phone)
             setRealName(res.data.realName)
             setUserName(res.data.userName)
         });
-        
     }, [])
 
     useEffect(() => {
@@ -124,7 +123,7 @@ const App = (props: AppProps) => {
             <Layout
                 className={classNames('app_layout', { 'app_layout-mobile': responsive.isMobile })}
             >
-                <HeaderCustom toggle={toggle} collapsed={collapsed} user={auth || {}} collapsible={false} realName={realName} userName={userName} phone={phone}/>
+                <HeaderCustom toggle={toggle} collapsed={collapsed} user={auth || {}} collapsible={false} realName={realName} userName={userName} phone={phone} />
                 <Content className="app_layout_content">
                     <Routes auth={auth} />
                 </Content>

@@ -102,7 +102,7 @@ class MainSet extends React.Component {
             },
             {
                 path: `/class?classId=${
-                    GetRequest()['classId'] || sessionStorage.getItem('classId')
+                    GetRequest()['classId']
                 }`,
                 breadcrumbName: `${sessionStorage.getItem('className') || '新建班级'}`,
             },
@@ -114,7 +114,7 @@ class MainSet extends React.Component {
     };
     async componentWillMount() {
         console.log(this.state.bigTime);
-        const classId = window.location.href.split('=')[1] || sessionStorage.getItem('classId');
+        const classId = window.location.href.split('=')[1];
         await this.getKu();
         const jieduanRes = await this.getJieDuanList(classId);
         const selJieduan = jieduanRes[0]
