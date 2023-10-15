@@ -89,10 +89,12 @@ const App = (props: AppProps) => {
     const [phone, setPhone] = useState('');
     const [realName, setRealName] = useState('');
     const [userName, setUserName] = useState('');
+    const [email, setEmail] = useState('');
 
     useEffect(() => {
         getMes().then((res) => {
             console.log('登陆', res.data);
+            setEmail(res.data.email);
             setPhone(res.data.phone);
             setRealName(res.data.realName);
             setUserName(res.data.userName);
@@ -128,6 +130,7 @@ const App = (props: AppProps) => {
                     realName={realName}
                     userName={userName}
                     phone={phone}
+                    email={email}
                 />
                 <Content className="app_layout_content">
                     {!!realName && <Routes auth={auth} />}
