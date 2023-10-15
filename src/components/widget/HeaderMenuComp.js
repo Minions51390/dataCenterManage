@@ -151,9 +151,6 @@ class HeaderMenuComp extends React.Component {
                     onClick={this.menuClick}
                     onOpenChange={this.onMenuOpenChange}
                 >
-                    <Menu.Item key="pwa">
-                        <PwaInstaller />
-                    </Menu.Item>
                     <Menu.Item key="full">
                         <ArrowsAltOutlined onClick={this.screenFull} />
                     </Menu.Item>
