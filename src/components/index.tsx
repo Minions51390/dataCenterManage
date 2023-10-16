@@ -44,6 +44,7 @@ import StuPaperDetail from './testPaper/StuPaperDetail';
 import WritingPaper from './writing/WritingPaper';
 import WritingExam from './writing/WritingExam';
 import WritingDetail from './writing/WritingDetail';
+import ExamRank from './writing/ExamRank';
 
 const WysiwygBundle = Loadable({
     // 按需加载富文本配置
@@ -97,4 +98,5 @@ export default {
     WritingPaper,
     WritingExam,
     WritingDetail,
+    ExamRank,
 } as any;

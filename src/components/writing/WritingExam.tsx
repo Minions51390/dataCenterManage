@@ -14,7 +14,7 @@ const FunGetDateStr = (p_count: any, nowDate: any) => {
     let d = dd.getDate();
     return y + "-" + m + "-" + d;
 };
-class writingPaper extends React.Component {
+class writingExam extends React.Component {
     state = {
         // 筛选
         query: '',
@@ -75,6 +75,18 @@ class writingPaper extends React.Component {
                 title: '序号',
                 dataIndex: 'key',
                 render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
+            },
+            {
+                title: '作文名称',
+                key: 'name',
+                textWrap: 'ellipsis',
+                ellipsis: true,
+                render: (text: any, record: any, index: number) => (
+                    <div className="writing-exam-box">
+                        <div className="box-name">{text.name}</div>
+                        <div className="box-title">{text.title}</div>
+                    </div>
+                ),
             },
             {
                 title: '创建人',
@@ -238,6 +250,7 @@ class writingPaper extends React.Component {
         })
         this.setState({
             data1: res?.data?.data ?? [],
+            allCount: res?.data?.totalCount,
         }) 
     }
     async handleTeacher (val:any){
@@ -638,7 +651,7 @@ class writingPaper extends React.Component {
                             defaultCurrent={1}
                             pageSize={20}
                             current={pageNo}
-                            total={allCount * 20}
+                            total={allCount}
                             onChange={this.nowPagChange.bind(this)}
                         />
                     </div>
@@ -754,4 +767,4 @@ class writingPaper extends React.Component {
     }
 }
 
-export default writingPaper;
+export default writingExam;
