@@ -463,7 +463,7 @@ class writingExam extends React.Component {
     }
     async getModalClass() {
         const { selTeacher, modalPageNo, modalPageSize, modalSelPici } = this.state;
-        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?teacherId=${selTeacher.teacherId}&batchId=${modalSelPici}&pageNo=${modalPageNo}&pageSize=${modalPageSize}` });
+        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?teacherId=${selTeacher.teacherId}&batchId=${modalSelPici}&category=sc&pageNo=${modalPageNo}&pageSize=${modalPageSize}` });
         const list = res?.data?.classList ?? [];
         list.map((item:any) => item.key = item.classId)
         console.log('list', list)
