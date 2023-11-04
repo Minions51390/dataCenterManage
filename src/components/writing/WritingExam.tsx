@@ -1,6 +1,6 @@
 import React from 'react';
-import { Row, Col, Tabs, Popconfirm, message, Space, DatePicker, Radio, Modal, Input, Button, Table, Select, Pagination } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Row, Col, Tabs, Popconfirm, message, Space, DatePicker, Radio, Modal, Input, Button, Table, Select, Pagination, Tooltip } from 'antd';
+import { PlusOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/WritingExam.less';
 import { get, post, baseUrl } from '../../service/tools';
 import moment from 'moment';
@@ -14,6 +14,12 @@ const FunGetDateStr = (p_count: any, nowDate: any) => {
     let d = dd.getDate();
     return y + "-" + m + "-" + d;
 };
+const content1 = (
+    <div className="popColor">
+        <div>测试：学生提交作文后，需老师逐一审阅并发布成绩。</div>
+        <div>练习：学生未提交作文前，有三次机会修改作文并使用 AI 智能批改功能对作文内容完善。</div>
+    </div>
+);
 class writingExam extends React.Component {
     state = {
         // 筛选
@@ -25,7 +31,11 @@ class writingExam extends React.Component {
                 name: '任务名称',
             },
             {
-                type: 'writingId',
+                type: 'writingName',
+                name: '作文名称',
+            },
+            {
+                type: 'writingCode',
                 name: '作文ID',
             },
             {
@@ -119,6 +129,11 @@ class writingExam extends React.Component {
                 key: 'startTime',
             },
             {
+                title: '作文状态',
+                key: 'status',
+                render: (text: any, record: any, index: number) => <div>{text.status === 2 ? '已结束' : '进行中'}</div>,
+            },
+            {
                 title: '操作',
                 render: (text: any) => (
                     <div className="edit">
@@ -159,6 +174,10 @@ class writingExam extends React.Component {
             title: '班级名称',
             key: 'describe',
             dataIndex: 'describe',
+        },{
+            title: '批次',
+            key: 'batchName',
+            dataIndex: 'batchName',
         }],
         modalPageNo: 1,
         modalPageSize: 5,
@@ -349,7 +368,7 @@ class writingExam extends React.Component {
         }
     }
     handleRankClick(val:any){
-        console.log(val)
+        window.location.href = `${window.location.pathname}#/app/writing/examRank?examId=${val}`
     }
     // 新建弹窗点击
     showCreateModal(val:any){
@@ -384,7 +403,15 @@ class writingExam extends React.Component {
         if(res.state === 0){
             message.success('发布作文任务成功');
             this.setState({
-                isVisible: false
+                isVisible: false,
+                createExamName: '',
+                createWritingId: '',
+                createExamType: 'practice',
+                createStartTime: moment().format(dateFormat),
+                createEndTime: (new Date(FunGetDateStr(7, new Date()) + " 00:00:00") as any).format('yyyy-MM-dd'),
+                modalSelPici: 0,
+                modalSelClass: [],
+                modalClassList: [],
             })
             this.getExamList()
         }else{
@@ -508,7 +535,7 @@ class writingExam extends React.Component {
                         已发布作文列表
                         <div onClick={this.showCreateModal.bind(this)}>
                             <Button className="gap-30" type="primary" icon={<PlusOutlined />}>
-                                新建
+                                发布任务
                             </Button>  
                         </div>
                     </div>
@@ -529,7 +556,7 @@ class writingExam extends React.Component {
                             </Select>
                             <Input
                                 style={{ width: '240px' }}
-                                placeholder="待输入"
+                                placeholder="请输入搜索内容"
                                 value={query}
                                 onChange={this.searchQueryChange.bind(this)}
                             />
@@ -657,8 +684,8 @@ class writingExam extends React.Component {
                     </div>
                 </div>
                 <Modal
-                    width={'644px'}
-                    title="新建作文"
+                    width={'680px'}
+                    title="发布作文任务"
                     visible={isVisible}
                     cancelText="取消"
                     okText="确定"
@@ -688,7 +715,20 @@ class writingExam extends React.Component {
                             />
                         </div>
                         <div className="right">
-                            <span className="span span2">任务类型:</span>
+                            <span className="span span2">任务类型
+                                <span className="span-tips">
+                                    <Tooltip
+                                        title={content1}
+                                        trigger="hover"
+                                        placement="top"
+                                        color="rgba(0, 0, 0, 0.7)"
+                                        overlayStyle={{ minWidth: '300px' }}
+                                    >
+                                        <InfoCircleOutlined />
+                                    </Tooltip>
+                                </span>
+                                :
+                            </span>
                             <Radio.Group
                                 onChange={this.onCreateExamTypeChange.bind(this)}
                                 value={createExamType}

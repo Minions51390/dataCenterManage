@@ -20,10 +20,6 @@ class writingPaper extends React.Component {
                 type: 'writingId',
                 name: '作文ID',
             },
-            {
-                type: 'creator',
-                name: '创建人',
-            },
         ],
         creator: 0,
         creatorList: [],
@@ -34,10 +30,7 @@ class writingPaper extends React.Component {
         createWritingName: '',
         createWritingTitle: '',
         createWritingDesc: '',
-        createWritingLevel: {
-            levelName: '',
-            levelKey: '',
-        },
+        createWritingLevel: '',
         createWritingMinimum: 120,
         createWritingMaximum: 160,
         // 表格
@@ -55,8 +48,8 @@ class writingPaper extends React.Component {
                 ellipsis: true,
                 render: (text: any, record: any, index: number) => (
                     <div className="writing-name-box">
-                        <div className="box-name">{text.title}</div>
-                        <div className="box-title">{text.desc}</div>
+                        <div className="box-name">{text.name}</div>
+                        <div className="box-title">{text.title}</div>
                     </div>
                 ),
             },
@@ -100,11 +93,17 @@ class writingPaper extends React.Component {
         this.inited();
     }
     async inited() {
+        const curTeacherId = Number(localStorage.getItem("classTeacherId"));
         const creatorList = await this.fetchCreatorList();
         const levelList = await this.fetchLevelList();
+        levelList.unshift({
+            levelName: '全部',
+            levelKey: 'all',
+        })
         this.setState({
             creatorList,
             levelList,
+            creator:curTeacherId
         }, async () => {
             this.getWritingList()
         });
@@ -159,10 +158,11 @@ class writingPaper extends React.Component {
         const {creator, level, pageNo, pageSize, query, queryType} = this.state;
         let res = await get({ url: `${baseUrl}/api/v1/writing/list?query=${query}&queryType=${queryType}&level=${level}&teacherId=${creator}&pageNo=${pageNo}&pageSize=${pageSize}` });
         this.setState({
-            data1: res?.data?.data || []
+            data1: res?.data?.data || [],
+            allCount: res?.data?.totalCount,
         })
     }
-    // 新建弹窗点击
+    // 新建弹窗点击totalCount
     showCreateModal(val:any){
         this.setState({
             isVisible: true
@@ -232,14 +232,20 @@ class writingPaper extends React.Component {
                 title: createWritingTitle,
                 desc: createWritingDesc,
                 level: createWritingLevel,
-                minimun: createWritingMinimum,
+                minimum: createWritingMinimum,
                 maximum: createWritingMaximum,
             },
         });
         if(res.state === 0){
             message.success('新建作文物料成功');
             this.setState({
-                isVisible: false
+                isVisible: false,
+                createWritingName: '',
+                createWritingTitle: '',
+                createWritingDesc: '',
+                createWritingLevel: '',
+                createWritingMinimum: 120,
+                createWritingMaximum: 160,
             })
             this.getWritingList()
         }else{
@@ -288,6 +294,7 @@ class writingPaper extends React.Component {
             levelList,
             createWritingName,
             createWritingTitle,
+            createWritingLevel,
             createWritingDesc,
             createWritingMinimum,
             createWritingMaximum,
@@ -319,13 +326,13 @@ class writingPaper extends React.Component {
                                 </Select>
                                 <Input
                                     style={{ width: '240px' }}
-                                    placeholder="待输入"
+                                    placeholder="请输入搜索内容"
                                     value={query}
                                     onChange={this.searchQueryChange.bind(this)}
                                 />
                             </Input.Group>
                             <Button
-                                className="gap-30"
+                                className="gap-16"
                                 type="primary"
                                 onClick={this.clickSearch.bind(this)}
                             >
@@ -346,7 +353,7 @@ class writingPaper extends React.Component {
                             </Select>
                             <span className="span">等级:</span>
                             <Select
-                                defaultValue="请选择"
+                                defaultValue="全部"
                                 style={{ width: 180 }}
                                 value={ level || '请选择'}
                                 onChange={this.handleLevelChange.bind(this)}
@@ -440,6 +447,7 @@ class writingPaper extends React.Component {
                         <Select
                             className="gap-8"
                             defaultValue="请选择"
+                            value={ createWritingLevel || '请选择'}
                             style={{ width: 400 }}
                             onChange={this.onWritingLevelChange.bind(this)}
                         >
@@ -453,7 +461,7 @@ class writingPaper extends React.Component {
                     <div className="module-area">
                         <span className="span">
                             <span style={{ color: 'red', marginRight: '6px' }}>*</span>
-                            词书限制:
+                            词数限制:
                         </span>
                         <Space direction="vertical">
                             <Input 

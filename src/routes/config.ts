@@ -57,6 +57,7 @@ const menus: {
         { key: '/app/test/testRank/mistakeRank', title: '', icon: 'mobile', component: 'MistakeRank' },
         { key: '/app/writing/writingDetail', title: '作文物料详情', icon: 'mobile', component: 'WritingDetail' },
         { key: '/app/writing/examRank', title: '作文成绩排行', icon: 'mobile', component: 'ExamRank' },
+        { key: '/app/writing/examDetail', title: '作文成绩详情', icon: 'mobile', component: 'ExamDetail' },
     ], // 非菜单相关路由
 };
 

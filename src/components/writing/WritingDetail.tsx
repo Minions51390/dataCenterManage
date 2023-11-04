@@ -26,7 +26,7 @@ class writingDetail extends React.Component {
         createTime: '',
         level: '',
         maximum: '',
-        minimun: '',
+        minimum: '',
     };
     componentWillMount() {
         this.inited();
@@ -54,7 +54,17 @@ class writingDetail extends React.Component {
                 createTime: res?.data?.createTime,
                 level: res?.data?.level,
                 maximum: res?.data?.maximum,
-                minimun: res?.data?.minimun,
+                minimum: res?.data?.minimum,
+                routes: [
+                    {
+                        path: '/app/writing/writingPaper',
+                        breadcrumbName: '作文管理',
+                    },
+                    {
+                        path: '/writingDetail',
+                        breadcrumbName: res?.data?.name,
+                    },
+                ],
             });
         }else{
             message.error(`获取物料详情失败:${res.msg}`)
@@ -83,7 +93,7 @@ class writingDetail extends React.Component {
             createTime,
             level,
             maximum,
-            minimun,
+            minimum,
         } = this.state;
         return (
             <div className="writing-detail-wrapper">
@@ -91,7 +101,7 @@ class writingDetail extends React.Component {
                     <PageHeader title="" breadcrumb={{ routes }} />
                     <div className="sec">
                         <div className="text">{name}</div>
-                        <Button onClick={this.copyIdFn.bind(this, writingCode)}>复制试卷ID</Button>
+                        <Button onClick={this.copyIdFn.bind(this, writingCode)}>复制作文ID</Button>
                     </div>
                     <div className="thr">
                         <div className="tr">
@@ -110,7 +120,7 @@ class writingDetail extends React.Component {
                                 作文ID：<span>{writingCode}</span>
                             </div>
                             <div>
-                                词数限制：<span>{`${minimun}词-${maximum}词`}</span>
+                                词数限制：<span>{`${minimum}词-${maximum}词`}</span>
                             </div>
                             <div />
                         </div>

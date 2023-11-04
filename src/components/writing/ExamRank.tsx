@@ -1,11 +1,21 @@
 import React from 'react';
-import { Input, Button, Table, Select, Pagination } from 'antd';
-import '../../style/pageStyle/WritingExam.less';
+import { PageHeader, Input, Button, Table, Select, Pagination } from 'antd';
+import '../../style/pageStyle/ExamRank.less';
 import { get, post, baseUrl } from '../../service/tools';
 import { getQueryString } from '../../utils';
 const { Option } = Select;
 class examRank extends React.Component {
     state = {
+        routes: [
+            {
+                path: '/app/writing/writingExam',
+                breadcrumbName: '已发布作文',
+            },
+            {
+                path: '/app/writing/examRank',
+                breadcrumbName: `成绩排行`,
+            },
+        ],
         examId: '',
         // 筛选
         query: '',
@@ -46,8 +56,8 @@ class examRank extends React.Component {
             },
             {
                 title: '成绩',
-                dataIndex: 'score',
                 key: 'score',
+                render: (text: any, record: any, index: number) => <div>{text.score === -1 ? '未考试' : text.score}</div>,
             },
             {
                 title: '班级',
@@ -63,7 +73,7 @@ class examRank extends React.Component {
                 title: '操作',
                 render: (text: any) => (
                     <div className="edit">
-                        <div className="rank" onClick={this.handlePaperClick.bind(this, text.paperId)}>查看卷面</div>
+                        <div className={text.score > 0 ? "rank" : "rank-disable rank"} onClick={this.handlePaperClick.bind(this, text)}>查看卷面</div>
                     </div>
                 ),
             },
@@ -151,7 +161,7 @@ class examRank extends React.Component {
     async getRankList(){
         const {query, examId, teacherId, selPici, selBanji, pageNo, pageSize} = this.state;
         const res = await get({
-            url: baseUrl + `/api/v1/writing-exam/result/list?examId=${examId}teacherId=${teacherId}&batchId=${selPici}&classId=${selBanji}&pageNo=${pageNo}&pageSize=${pageSize}&query=${query}}`
+            url: baseUrl + `/api/v1/writing-exam/result/list?examId=${examId}&teacherId=${teacherId}&batchId=${selPici}&classId=${selBanji}&pageNo=${pageNo}&pageSize=${pageSize}&query=${query}`
         })
         this.setState({
             data1: res?.data?.data ?? [],
@@ -173,23 +183,9 @@ class examRank extends React.Component {
         });
     }
     async handleBanji(val: any) {
-        const semester = await this.getSemester(val);
-        let selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : []
-        if(!val){
-            selSemester = [0]
-        }
         this.setState({
             selBanji: val,
-            semester,
-            selSemester,
         }, async () => {
-            this.handleSemester(selSemester);
-        });
-    }
-    async handleSemester(val: any) {
-        this.setState({
-            selSemester: val,
-        }, ()=>{
             this.getRankList()
         });
     }
@@ -210,7 +206,9 @@ class examRank extends React.Component {
         this.getRankList()
     }
     handlePaperClick(val:any){
-        console.log(val)
+        if(val.score >= 0){
+            window.location.href = `${window.location.pathname}#/app/writing/examDetail?paperId=${val.paperId}`;
+        }
     }
     //页码操作
     nowPagChange(val: any) {
@@ -225,6 +223,7 @@ class examRank extends React.Component {
     }
     render() {
         const {
+            routes,
             pici,
             selPici,
             banji,
@@ -236,35 +235,17 @@ class examRank extends React.Component {
             query,
         } = this.state;
         return (
-            <div className="writing-exam-wrapper">
+            <div className="exam-rank-wrapper">
                 <div className="header">
-                    <div className="fir">已发布作文</div>
+                    <PageHeader title="" breadcrumb={{ routes }} />
                     <div className="sec">
-                        已发布作文列表
-                    </div>
+                    <div className="text">成绩排行</div>
+                </div>
                 </div>
                 <div className="body">
-                    <div className="fir">
-                        <Input.Group compact>
-                            <Input
-                                style={{ width: '240px' }}
-                                placeholder="待输入"
-                                value={query}
-                                onChange={this.searchQueryChange.bind(this)}
-                            />
-                        </Input.Group>
-                        <Button
-                            className="gap-30"
-                            type="primary"
-                            onClick={this.clickSearch.bind(this)}
-                        >
-                            搜索
-                        </Button>
-                    </div>
                     <div className="sec">
-                        <div>
-                            <span className="span">学员批次</span>
-                            <span className="semicolon">:</span>
+                        <div className="sec-box">
+                            <span className="span">学员批次:</span>
                             <Select
                                 defaultValue="请选择"
                                 style={{ width: 180 }}
@@ -278,9 +259,8 @@ class examRank extends React.Component {
                                 ))}
                             </Select>
                         </div>
-                        <div>
-                            <span className="span">班级</span>
-                            <span className="semicolon">:</span>
+                        <div className="sec-box">
+                            <span className="span">班级:</span>
                             <Select
                                 defaultValue="请选择"
                                 style={{ width: 180 }}
@@ -293,6 +273,23 @@ class examRank extends React.Component {
                                     </Option>
                                 ))}
                             </Select>
+                        </div>
+                        <div className="sec-search">
+                            <Input.Group compact>
+                                <Input
+                                    style={{ width: '240px' }}
+                                    placeholder="待输入"
+                                    value={query}
+                                    onChange={this.searchQueryChange.bind(this)}
+                                />
+                            </Input.Group>
+                            <Button
+                                className="gap-30"
+                                type="primary"
+                                onClick={this.clickSearch.bind(this)}
+                            >
+                                搜索
+                            </Button>
                         </div>
                     </div>
                     <div className="thr">
