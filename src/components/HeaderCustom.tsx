@@ -25,6 +25,7 @@ type HeaderCustomProps = {
     phone?: any;
     realName?: any;
     userName?: any;
+	email?: any;
 };
 
 const HeaderCustom = (props: HeaderCustomProps) => {
@@ -58,10 +59,8 @@ const HeaderCustom = (props: HeaderCustomProps) => {
                 </div>
             }
             <div style={{ lineHeight: '64px', float: 'right' }}>
-                <HeaderMenuComp userName={props.userName} realName={props.realName} phone={props.phone} />
+                <HeaderMenuComp userName={props.userName} realName={props.realName} phone={props.phone} email={props.email} />
             </div>
-            
-            
         </Header>
     );
 };

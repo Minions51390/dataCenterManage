@@ -51,10 +51,6 @@ const Login = (props: LoginProps) => {
     return (
         <div className="login">
             <div className="login-form">
-                <div className="login-logo">
-                    <span>React Admin</span>
-                    <PwaInstaller />
-                </div>
                 <Form onFinish={handleSubmit} style={{ maxWidth: '300px' }}>
                     <FormItem
                         name="userName"

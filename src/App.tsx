@@ -54,7 +54,6 @@ function handleResize(handler: (isMobile: boolean) => void) {
 //     });
 // }
 
-
 // 获取用户信息
 async function getMes() {
     let res = await get({
@@ -63,21 +62,21 @@ async function getMes() {
 
     console.log('yangqi liu2', res);
     if (!res && !res.state == null) {
-        message.error('服务器开小差了')
-        return
+        message.error('服务器开小差了');
+        return;
     }
     if (res.state == 401) {
-        message.error('请登录后使用')
+        message.error('请登录后使用');
         window.location.href = `${baseUrl}/#/home`;
-        return
+        return;
     } else if (res.state == 403) {
-        message.error('当前身份无法访问该页面，请登录教师账号')
+        message.error('当前身份无法访问该页面，请登录教师账号');
         window.location.href = `${baseUrl}/#/home`;
-        return
+        return;
     }
-    localStorage.setItem("classTeacherAccount", res.data.userName);
-    localStorage.setItem("classTeacherId", res.data.teacherId);
-    return res
+    localStorage.setItem('classTeacherAccount', res.data.userName);
+    localStorage.setItem('classTeacherId', res.data.teacherId);
+    return res;
 }
 
 const App = (props: AppProps) => {
@@ -90,15 +89,17 @@ const App = (props: AppProps) => {
     const [phone, setPhone] = useState('');
     const [realName, setRealName] = useState('');
     const [userName, setUserName] = useState('');
-    
+    const [email, setEmail] = useState('');
+
     useEffect(() => {
         getMes().then((res) => {
             console.log('登陆', res.data);
-            setPhone(res.data.phone)
-            setRealName(res.data.realName)
-            setUserName(res.data.userName)
+            setEmail(res.data.email);
+            setPhone(res.data.phone);
+            setRealName(res.data.realName);
+            setUserName(res.data.userName);
         });
-    }, [])
+    }, []);
 
     useEffect(() => {
         let user = umbrella.getLocalStorage('user');
@@ -113,19 +114,26 @@ const App = (props: AppProps) => {
     function toggle() {
         setCollapsed(!collapsed);
     }
-    
+
     return (
         <Layout>
-            {!responsive.isMobile && (
-                <SiderCustom collapsed={collapsed} />
-            )}
+            {!responsive.isMobile && <SiderCustom collapsed={collapsed} />}
             <ThemePicker />
             <Layout
                 className={classNames('app_layout', { 'app_layout-mobile': responsive.isMobile })}
             >
-                <HeaderCustom toggle={toggle} collapsed={collapsed} user={auth || {}} collapsible={false} realName={realName} userName={userName} phone={phone} />
+                <HeaderCustom
+                    toggle={toggle}
+                    collapsed={collapsed}
+                    user={auth || {}}
+                    collapsible={false}
+                    realName={realName}
+                    userName={userName}
+                    phone={phone}
+                    email={email}
+                />
                 <Content className="app_layout_content">
-                    <Routes auth={auth} />
+                    {!!realName && <Routes auth={auth} />}
                 </Content>
                 <Footer className="app_layout_foot">
                     <Copyright />

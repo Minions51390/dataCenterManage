@@ -6,12 +6,15 @@ import avater from '../../style/imgs/b1.png';
 import useri from '../../style/imgs/useri.png';
 import phonepng from '../../style/imgs/phone.png';
 import { get, post, baseUrl } from '../../service/tools';
-import { ArrowsAltOutlined } from '@ant-design/icons';
+import { ArrowsAltOutlined, CommentOutlined } from '@ant-design/icons';
 import PwaInstaller from './PwaInstaller';
 import '../../style/pageStyle/HeaderMenuComp.less';
 
 const { SubMenu } = Menu;
 const phoneReg = /^[1][1,2,3,4,5,7,8,9][0-9]{9}$/;
+const emailReg = new RegExp(
+    '^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$'
+);
 class HeaderMenuComp extends React.Component {
     constructor(props) {
         super(props);
@@ -20,6 +23,7 @@ class HeaderMenuComp extends React.Component {
             realName: this.props.realName,
             userName: this.props.userName,
             phone: this.props.phone,
+            email: this.props.email,
         };
     }
     screenFull = () => {
@@ -56,6 +60,12 @@ class HeaderMenuComp extends React.Component {
         });
     }
 
+    onInputEmail(event) {
+        this.setState({
+            email: event.target.value,
+        });
+    }
+
     handleModeChange(showOver, e) {
         console.log('showOver,', showOver);
         e.stopPropagation();
@@ -72,7 +82,7 @@ class HeaderMenuComp extends React.Component {
     }
 
     componentDidMount() {
-        // this.getMes();
+        console.log(80808080, this.props.email, this.props.phone);
     }
     componentDidUpdate(prevProps) {
         if (prevProps.realName !== this.props.realName) {
@@ -80,37 +90,13 @@ class HeaderMenuComp extends React.Component {
                 realName: this.props.realName,
                 userName: this.props.userName,
                 phone: this.props.phone,
+                email: this.props.email,
             });
         }
     }
-    // 获取用户信息
-    async getMes() {
-        let res = await get({
-            url: baseUrl + '/api/v1/profile/teacher',
-        });
-        if (!res && !res.state == null) {
-            message.error('服务器开小差了');
-            return;
-        }
-        if (res.state == 401) {
-            message.error('请登录后使用');
-            window.location.href = `${baseUrl}/#/home`;
-            return;
-        } else if (res.state == 403) {
-            message.error('当前身份无法访问该页面，请登录教师账号');
-            window.location.href = `${baseUrl}/#/home`;
-            return;
-        }
-        localStorage.setItem('classTeacherId', res.data.teacherId);
-        this.setState({
-            phone: res.data.phone,
-            realName: res.data.realName,
-            userName: res.data.userName,
-        });
-    }
     // 提交信息
     async saveMes() {
-        const { realName, phone } = this.state;
+        const { realName, phone, email } = this.state;
         // 真名检验
         if (!realName || this.rowLength(realName)) {
             message.error('真实姓名不能为空！');
@@ -121,11 +107,17 @@ class HeaderMenuComp extends React.Component {
             message.error('手机号格式错误！');
             return;
         }
+        // 邮箱检验
+        if (!emailReg.test(email)) {
+            message.error('邮箱格式不正确！');
+            return;
+        }
         let res = await post({
             url: baseUrl + '/api/v1/profile/teacher',
             data: {
                 realName: realName,
                 phone: phone,
+                email: email,
             },
         });
         if (res.state == 101) {
@@ -142,7 +134,7 @@ class HeaderMenuComp extends React.Component {
         });
     }
     render() {
-        const { showOver, phone, realName, userName } = this.state;
+        const { showOver, phone, realName, userName, email } = this.state;
         return (
             <div>
                 <Menu
@@ -151,9 +143,6 @@ class HeaderMenuComp extends React.Component {
                     onClick={this.menuClick}
                     onOpenChange={this.onMenuOpenChange}
                 >
-                    <Menu.Item key="pwa">
-                        <PwaInstaller />
-                    </Menu.Item>
                     <Menu.Item key="full">
                         <ArrowsAltOutlined onClick={this.screenFull} />
                     </Menu.Item>
@@ -205,6 +194,18 @@ class HeaderMenuComp extends React.Component {
                                         }
                                         onChange={this.onInputTele.bind(this)}
                                         value={phone}
+                                    />
+                                    <Input
+                                        className="pass-mar  phone-icon"
+                                        size="large"
+                                        placeholder="请输入邮箱"
+                                        prefix={
+                                            <div className="my-icon">
+                                                <CommentOutlined />
+                                            </div>
+                                        }
+                                        onChange={this.onInputEmail.bind(this)}
+                                        value={email}
                                     />
                                 </div>
                             </div>
