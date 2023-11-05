@@ -12,7 +12,7 @@ class examRank extends React.Component {
                 breadcrumbName: '已发布作文',
             },
             {
-                path: '/app/writing/examRank',
+                path: '/examRank',
                 breadcrumbName: `成绩排行`,
             },
         ],
@@ -73,7 +73,7 @@ class examRank extends React.Component {
                 title: '操作',
                 render: (text: any) => (
                     <div className="edit">
-                        <div className={text.score > 0 ? "rank" : "rank-disable rank"} onClick={this.handlePaperClick.bind(this, text)}>查看卷面</div>
+                        <div className="rank" onClick={this.handlePaperClick.bind(this, text)}>查看卷面</div>
                     </div>
                 ),
             },
@@ -207,7 +207,7 @@ class examRank extends React.Component {
     }
     handlePaperClick(val:any){
         if(val.score >= 0){
-            window.location.href = `${window.location.pathname}#/app/writing/examDetail?paperId=${val.paperId}`;
+            window.location.href = `${window.location.pathname}#/app/writing/examDetail?paperId=${val.paperId}&examId=${this.state.examId}`;
         }
     }
     //页码操作

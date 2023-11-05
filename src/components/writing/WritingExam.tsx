@@ -32,7 +32,7 @@ class writingExam extends React.Component {
             },
             {
                 type: 'writingName',
-                name: '作文名称',
+                name: '作文标题',
             },
             {
                 type: 'writingCode',
@@ -87,7 +87,7 @@ class writingExam extends React.Component {
                 render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
             },
             {
-                title: '作文名称',
+                title: '名称',
                 key: 'name',
                 textWrap: 'ellipsis',
                 ellipsis: true,
@@ -368,7 +368,7 @@ class writingExam extends React.Component {
         }
     }
     handleRankClick(val:any){
-        window.location.href = `${window.location.pathname}#/app/writing/examRank?examId=${val}`
+        window.location.href = `${window.location.pathname}#/app/writing/writingExam/examRank?examId=${val}`
     }
     // 新建弹窗点击
     showCreateModal(val:any){
