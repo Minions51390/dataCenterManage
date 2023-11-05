@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageHeader, Input, Button, Table, Select, Pagination } from 'antd';
 import '../../style/pageStyle/ExamRank.less';
-import { get, post, baseUrl } from '../../service/tools';
+import { get, baseUrl } from '../../service/tools';
 import { getQueryString } from '../../utils';
 const { Option } = Select;
 class examRank extends React.Component {
@@ -19,7 +19,7 @@ class examRank extends React.Component {
         examId: '',
         // 筛选
         query: '',
-        teacherId: Number(localStorage.getItem("classTeacherId")),
+        teacherId: Number(localStorage.getItem('classTeacherId')),
         pici: [],
         selPici: '',
         banji: [],
@@ -32,7 +32,9 @@ class examRank extends React.Component {
             {
                 title: '序号',
                 dataIndex: 'key',
-                render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
+                render: (text: any, record: any, index: number) => (
+                    <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>
+                ),
             },
             {
                 title: '批次',
@@ -57,7 +59,9 @@ class examRank extends React.Component {
             {
                 title: '成绩',
                 key: 'score',
-                render: (text: any, record: any, index: number) => <div>{text.score === -1 ? '未考试' : text.score}</div>,
+                render: (text: any, record: any, index: number) => (
+                    <div>{!text.isSubmit ? '未考试' : text.score}</div>
+                ),
             },
             {
                 title: '班级',
@@ -73,7 +77,12 @@ class examRank extends React.Component {
                 title: '操作',
                 render: (text: any) => (
                     <div className="edit">
-                        <div className="rank" onClick={this.handlePaperClick.bind(this, text)}>查看卷面</div>
+                        <div
+                            className={text.isSubmit ? 'rank' : 'rank-disable rank'}
+                            onClick={this.handlePaperClick.bind(this, text)}
+                        >
+                            查看卷面
+                        </div>
                     </div>
                 ),
             },
@@ -87,7 +96,7 @@ class examRank extends React.Component {
     }
     async inited() {
         const examId = decodeURI(getQueryString().examId || '');
-        const {teacherId} = this.state;
+        const { teacherId } = this.state;
         this.setState(
             {
                 examId,
@@ -95,26 +104,32 @@ class examRank extends React.Component {
             async () => {
                 const pici = await this.getPici(teacherId);
                 const banji = await this.getClass(pici[0].batchId || 0);
-                this.setState({
-                    pici,
-                    banji,
-                    selPici: pici[0].batchId,
-                    selBanji: banji[0].classId,
-                }, async () => {
-                    const semester = await this.getSemester(banji[0].classId || 0);
-                    const selSemester = [0]
-                    this.setState({
-                        semester,
-                        selSemester,
-                    }, () => {
-                        this.getRankList()
-                    });
-                })
+                this.setState(
+                    {
+                        pici,
+                        banji,
+                        selPici: pici[0].batchId,
+                        selBanji: banji[0].classId,
+                    },
+                    async () => {
+                        const semester = await this.getSemester(banji[0].classId || 0);
+                        const selSemester = [0];
+                        this.setState(
+                            {
+                                semester,
+                                selSemester,
+                            },
+                            () => {
+                                this.getRankList();
+                            }
+                        );
+                    }
+                );
             }
         );
     }
     async getTeacher() {
-        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list` });
         const teacher = res?.data || [];
         teacher.unshift({
             realName: '全部',
@@ -123,7 +138,9 @@ class examRank extends React.Component {
         return teacher;
     }
     async getPici(teacherId: any) {
-        const res = await get({ url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}`});
+        const res = await get({
+            url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}`,
+        });
         const pici = res.data || [];
         pici.unshift({
             describe: '全部',
@@ -133,8 +150,12 @@ class examRank extends React.Component {
     }
     async getClass(pici: any) {
         const { teacherId } = this.state;
-        console.log('teacherId', teacherId)
-        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?teacherId=${teacherId}&batchId=${pici}&pageNo=1&pageSize=99999` });
+        console.log('teacherId', teacherId);
+        let res = await get({
+            url:
+                baseUrl +
+                `/api/v1/structure/class/list?teacherId=${teacherId}&batchId=${pici}&pageNo=1&pageSize=99999`,
+        });
         const banji = res?.data?.classList ?? [];
         banji.unshift({
             classCode: '',
@@ -145,11 +166,13 @@ class examRank extends React.Component {
         });
         return banji;
     }
-    async getSemester(classId: any){
-        const {selPici, teacherId} = this.state
+    async getSemester(classId: any) {
+        const { selPici, teacherId } = this.state;
         let res = await get({
-            url: baseUrl + `/api/v1/structure/semester/list?teacherId=${teacherId}&batchId=${selPici}&classId=${classId}`
-        })
+            url:
+                baseUrl +
+                `/api/v1/structure/semester/list?teacherId=${teacherId}&batchId=${selPici}&classId=${classId}`,
+        });
         const semester = res?.data || [];
         semester.unshift({
             isCurrent: false,
@@ -158,55 +181,63 @@ class examRank extends React.Component {
         });
         return semester;
     }
-    async getRankList(){
-        const {query, examId, teacherId, selPici, selBanji, pageNo, pageSize} = this.state;
+    async getRankList() {
+        const { query, examId, teacherId, selPici, selBanji, pageNo, pageSize } = this.state;
         const res = await get({
-            url: baseUrl + `/api/v1/writing-exam/result/list?examId=${examId}&teacherId=${teacherId}&batchId=${selPici}&classId=${selBanji}&pageNo=${pageNo}&pageSize=${pageSize}&query=${query}`
-        })
+            url:
+                baseUrl +
+                `/api/v1/writing-exam/result/list?examId=${examId}&teacherId=${teacherId}&batchId=${selPici}&classId=${selBanji}&pageNo=${pageNo}&pageSize=${pageSize}&query=${query}`,
+        });
         this.setState({
             data1: res?.data?.data ?? [],
             allCount: res?.data?.totalCount,
-        }) 
+        });
     }
     async handlePiCi(val: any) {
         const res = await this.getClass(val);
         let selBanji = res[1] ? res[1].classId : 0;
-        if(!val){
-            selBanji = 0
+        if (!val) {
+            selBanji = 0;
         }
-        this.setState({
-            selPici: val,
-            banji: res,
-            selBanji,
-        }, async () => {
-            this.handleBanji(selBanji)
-        });
+        this.setState(
+            {
+                selPici: val,
+                banji: res,
+                selBanji,
+            },
+            async () => {
+                this.handleBanji(selBanji);
+            }
+        );
     }
     async handleBanji(val: any) {
-        this.setState({
-            selBanji: val,
-        }, async () => {
-            this.getRankList()
-        });
+        this.setState(
+            {
+                selBanji: val,
+            },
+            async () => {
+                this.getRankList();
+            }
+        );
     }
     // 搜索类型切换
-    handleQueryType(val:any){
+    handleQueryType(val: any) {
         this.setState({
-            queryType: val
-        })
+            queryType: val,
+        });
     }
     // 搜索关键字修改
-    searchQueryChange(event:any){
+    searchQueryChange(event: any) {
         this.setState({
-            query: event.target.value
-        })
+            query: event.target.value,
+        });
     }
     // 搜索
-    clickSearch(val:any){
-        this.getRankList()
+    clickSearch(val: any) {
+        this.getRankList();
     }
-    handlePaperClick(val:any){
-        if(val.score >= 0){
+    handlePaperClick(val: any) {
+        if (val.isSubmit) {
             window.location.href = `${window.location.pathname}#/app/writing/examDetail?paperId=${val.paperId}&examId=${this.state.examId}`;
         }
     }
@@ -222,25 +253,15 @@ class examRank extends React.Component {
         );
     }
     render() {
-        const {
-            routes,
-            pici,
-            selPici,
-            banji,
-            selBanji,
-            columns1,
-            data1,
-            pageNo,
-            allCount,
-            query,
-        } = this.state;
+        const { routes, pici, selPici, banji, selBanji, columns1, data1, pageNo, allCount, query } =
+            this.state;
         return (
             <div className="exam-rank-wrapper">
                 <div className="header">
                     <PageHeader title="" breadcrumb={{ routes }} />
                     <div className="sec">
-                    <div className="text">成绩排行</div>
-                </div>
+                        <div className="text">成绩排行</div>
+                    </div>
                 </div>
                 <div className="body">
                     <div className="sec">
@@ -249,7 +270,9 @@ class examRank extends React.Component {
                             <Select
                                 defaultValue="请选择"
                                 style={{ width: 180 }}
-                                value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
+                                value={
+                                    selPici || (pici[0] && (pici[0] as any).describe) || '请选择'
+                                }
                                 onChange={this.handlePiCi.bind(this)}
                             >
                                 {pici.map((item: any) => (
@@ -264,7 +287,9 @@ class examRank extends React.Component {
                             <Select
                                 defaultValue="请选择"
                                 style={{ width: 180 }}
-                                value={selBanji || (banji[0] && (banji[0] as any).describe) || '请选择'}
+                                value={
+                                    selBanji || (banji[0] && (banji[0] as any).describe) || '请选择'
+                                }
                                 onChange={this.handleBanji.bind(this)}
                             >
                                 {banji.map((item: any) => (
