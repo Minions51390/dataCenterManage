@@ -60,18 +60,11 @@ class examRank extends React.Component {
                 title: '成绩',
                 key: 'score',
                 render: (text: any, record: any, index: number) => (
-                    <div>{!text.isSubmit ? '未考试' : text.score}</div>
+                    <div style={{
+                        color: text.isSubmit && !text.reviewed ? "#FF2525" : '',
+                      }}
+                    >{!text.isSubmit ? '未考试' : (text.reviewed ? text.score : '待审阅')}</div>
                 ),
-            },
-            {
-                title: '班级',
-                dataIndex: 'className',
-                key: 'className',
-            },
-            {
-                title: '阶段',
-                dataIndex: 'semesterName',
-                key: 'semesterName',
             },
             {
                 title: '操作',
@@ -88,6 +81,7 @@ class examRank extends React.Component {
             },
         ],
         data1: [],
+        hasNoReview: false,
         sort: '',
         sortKey: '',
     };
@@ -191,6 +185,7 @@ class examRank extends React.Component {
         this.setState({
             data1: res?.data?.data ?? [],
             allCount: res?.data?.totalCount,
+            hasNoReview: res?.data?.hasNoReview,
         });
     }
     async handlePiCi(val: any) {
@@ -253,7 +248,7 @@ class examRank extends React.Component {
         );
     }
     render() {
-        const { routes, pici, selPici, banji, selBanji, columns1, data1, pageNo, allCount, query } =
+        const { routes, pici, selPici, banji, selBanji, columns1, data1, pageNo, allCount, query, hasNoReview } =
             this.state;
         return (
             <div className="exam-rank-wrapper">
@@ -261,6 +256,15 @@ class examRank extends React.Component {
                     <PageHeader title="" breadcrumb={{ routes }} />
                     <div className="sec">
                         <div className="text">成绩排行</div>
+                        {
+                            hasNoReview ? 
+                            <div className="review-box">
+                                <div className="review-tips">（当前有未审阅的学生）</div>
+                                <div className="review-status no-review">待审阅</div>
+                            </div>
+                             :
+                            <div className="review-status has-review">已全部审阅</div>
+                        }
                     </div>
                 </div>
                 <div className="body">

@@ -68,6 +68,13 @@ const content5 = (
     </div>
 );
 
+const content6 = (
+    <div className="popColor">
+        <div>测试：学生提交作文后，需老师逐一审阅并发布成绩。</div>
+        <div>练习：学生未提交作文前，有三次机会修改作文并使用 AI 智能批改功能对作文内容完善。</div>
+    </div>
+);
+
 const FunGetDateStr = (p_count: any, nowDate: any) => {
     let dd = nowDate;
     dd.setDate(dd.getDate() + p_count); //获取p_count天后的日期
@@ -128,31 +135,6 @@ class MainSet extends React.Component {
         createEndTime: (new Date(FunGetDateStr(7, new Date()) + ' 00:00:00') as any).format(
             'yyyy-MM-dd'
         ),
-        modalSelPici: 0,
-        modalSelClass: [],
-        modalClassList: [],
-        modalColumns: [
-            {
-                title: '序号',
-                dataIndex: 'key',
-                render: (text: any, record: any, index: number) => (
-                    <div>{index + 1 + (this.state.modalPageNo - 1) * this.state.modalPageSize}</div>
-                ),
-            },
-            {
-                title: '班级名称',
-                key: 'describe',
-                dataIndex: 'describe',
-            },
-            {
-                title: '批次',
-                key: 'batchName',
-                dataIndex: 'batchName',
-            },
-        ],
-        modalPageNo: 1,
-        modalPageSize: 5,
-        modalAllCount: 0,
     };
 
     async componentWillMount() {
@@ -195,10 +177,6 @@ class MainSet extends React.Component {
                 bigCount: res?.data?.stageTestReciteVersion || 0,
                 pici,
             },
-            () => {
-                // this.getTestData();
-                this.getModalClass();
-            }
         );
 
         this.setState({
@@ -629,68 +607,21 @@ class MainSet extends React.Component {
         });
     }
 
-    handleModalPiCiChange(val: any) {
-        this.setState(
-            {
-                modalSelPici: val,
-            },
-            () => {
-                this.getModalClass();
-            }
-        );
-    }
-
-    async getModalClass() {
-        const { modalPageNo, modalPageSize, modalSelPici } = this.state;
-        const teacherId = Number(localStorage.getItem('classTeacherId'));
-        let res = await get({
-            url:
-                baseUrl +
-                `/api/v1/structure/class/list?teacherId=${teacherId}&batchId=${modalSelPici}&pageNo=${modalPageNo}&pageSize=${modalPageSize}`,
-        });
-        const list = res?.data?.classList ?? [];
-        list.map((item: any) => (item.key = item.classId));
-        console.log('list', list);
-        this.setState({
-            modalClassList: res?.data?.classList ?? [],
-            modalAllCount: res?.data?.totalCount,
-        });
-    }
-
-    handleModalSelClassChange(selectedRowKeys: any, selectedRows: any) {
-        console.log('handleModalSelClassChange', selectedRowKeys, selectedRows);
-        this.setState({
-            modalSelClass: selectedRowKeys,
-        });
-    }
-
-    modalNowPagChange(val: any) {
-        this.setState(
-            {
-                modalPageNo: val,
-            },
-            () => {
-                this.getModalClass();
-            }
-        );
-    }
-
     async handleCreateOk(val: any) {
         const {
+            classId,
             createExamName,
             createWritingId,
             createExamType,
             createStartTime,
             createEndTime,
-            modalSelClass,
         } = this.state;
         if (
             !createExamName ||
             !createWritingId ||
             !createExamType ||
             !createStartTime ||
-            !createEndTime ||
-            modalSelClass.length === 0
+            !createEndTime
         ) {
             message.error('请填写新建作文任务的必要信息');
             return;
@@ -702,8 +633,8 @@ class MainSet extends React.Component {
                 writingId: createWritingId,
                 startTime: createStartTime,
                 endTime: createEndTime,
-                classList: modalSelClass,
                 examType: createExamType,
+                classList: [+classId],
             },
         });
         if (res.state === 0) {
@@ -717,11 +648,7 @@ class MainSet extends React.Component {
                 createEndTime: (new Date(FunGetDateStr(7, new Date()) + ' 00:00:00') as any).format(
                     'yyyy-MM-dd'
                 ),
-                modalSelPici: 0,
-                modalSelClass: [],
-                modalClassList: [],
             });
-            this.getModalClass();
         } else {
             message.error(`发布作文任务失败:${res.msg}`);
         }
@@ -760,13 +687,6 @@ class MainSet extends React.Component {
             createExamType,
             createStartTime,
             createEndTime,
-            modalSelPici,
-            modalSelClass,
-            modalClassList,
-            modalColumns,
-            modalPageNo,
-            modalPageSize,
-            modalAllCount,
         } = this.state;
         return (
             <div className="main-set">
@@ -1211,6 +1131,7 @@ class MainSet extends React.Component {
                         <div className="exam-module-area">
                             <span className="span">任务名称:</span>
                             <Input
+                                disabled={!selJieduan}
                                 className="gap-8"
                                 placeholder="请输入作文任务名称"
                                 value={createExamName}
@@ -1222,6 +1143,7 @@ class MainSet extends React.Component {
                             <div className="left">
                                 <span className="span span1">作文ID:</span>
                                 <Input
+                                    disabled={!selJieduan}
                                     className="gap-8"
                                     style={{ width: 150 }}
                                     placeholder="请输入作文ID"
@@ -1235,7 +1157,7 @@ class MainSet extends React.Component {
                                     任务类型
                                     <span className="span-tips">
                                         <Tooltip
-                                            title={content1}
+                                            title={content6}
                                             trigger="hover"
                                             placement="top"
                                             color="rgba(0, 0, 0, 0.7)"
@@ -1250,6 +1172,7 @@ class MainSet extends React.Component {
                                     onChange={this.onCreateExamTypeChange.bind(this)}
                                     value={createExamType}
                                     defaultValue="practice"
+                                    disabled={!selJieduan}
                                 >
                                     <Radio value={'test'}>测试</Radio>
                                     <Radio value={'practice'}>练习</Radio>
@@ -1261,6 +1184,7 @@ class MainSet extends React.Component {
                                 <span className="span span2">开始时间:</span>
                                 <Space direction="vertical" size={12}>
                                     <DatePicker
+                                        disabled={!selJieduan}
                                         defaultValue={moment(createStartTime, dateFormat)}
                                         format={dateFormat}
                                         onChange={this.onCreateStartTimeChange.bind(this)}
@@ -1271,56 +1195,13 @@ class MainSet extends React.Component {
                                 <span className="span span2">截止时间:</span>
                                 <Space direction="vertical" size={12}>
                                     <DatePicker
+                                        disabled={!selJieduan}
                                         defaultValue={moment(createEndTime, dateFormat)}
                                         format={dateFormat}
                                         onChange={this.onCreateEndTimeChange.bind(this)}
                                     />
                                 </Space>
                             </div>
-                        </div>
-                        <div className="exam-divider" />
-                        <div className="exam-module-area">
-                            <span className="span">学员批次:</span>
-                            <Select
-                                defaultValue="请选择"
-                                style={{ width: 180 }}
-                                value={
-                                    modalSelPici ||
-                                    (pici[0] && (pici[0] as any).describe) ||
-                                    '请选择'
-                                }
-                                onChange={this.handleModalPiCiChange.bind(this)}
-                            >
-                                {pici.map((item: any) => (
-                                    <Option key={item.batchId} value={item.batchId}>
-                                        {item.describe}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </div>
-                        <div className="exam-module-table">
-                            <Table
-                                columns={modalColumns}
-                                dataSource={modalClassList}
-                                pagination={false}
-                                size={'middle'}
-                                bordered={false}
-                                rowSelection={{
-                                    type: 'checkbox',
-                                    selectedRowKeys: modalSelClass,
-                                    preserveSelectedRowKeys: true,
-                                    onChange: this.handleModalSelClassChange.bind(this),
-                                }}
-                            />
-                        </div>
-                        <div className="exam-module-pag">
-                            <Pagination
-                                defaultCurrent={1}
-                                pageSize={modalPageSize}
-                                current={modalPageNo}
-                                total={modalAllCount}
-                                onChange={this.modalNowPagChange.bind(this)}
-                            />
                         </div>
                     </div>
                     <div className="last-line" style={{ paddingBottom: '32px' }}>
