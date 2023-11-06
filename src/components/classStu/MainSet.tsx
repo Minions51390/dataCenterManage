@@ -11,9 +11,11 @@ import {
     message,
     Modal,
     Alert,
+    Table,
+    Pagination,
 } from 'antd';
 import { Link } from 'react-router-dom';
-import { PlusOutlined } from '@ant-design/icons';
+import { InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/MainSet.less';
 import { get, post, patch, baseUrl } from '../../service/tools';
 import moment from 'moment';
@@ -66,6 +68,15 @@ const content5 = (
     </div>
 );
 
+const FunGetDateStr = (p_count: any, nowDate: any) => {
+    let dd = nowDate;
+    dd.setDate(dd.getDate() + p_count); //获取p_count天后的日期
+    let y = dd.getFullYear();
+    let m = dd.getMonth() + 1; //获取当前月份的日期
+    let d = dd.getDate();
+    return y + '-' + m + '-' + d;
+};
+
 class MainSet extends React.Component {
     state = {
         classId: '',
@@ -101,9 +112,7 @@ class MainSet extends React.Component {
                 breadcrumbName: '班级和学员管理',
             },
             {
-                path: `/class?classId=${
-                    GetRequest()['classId']
-                }`,
+                path: `/class?classId=${GetRequest()['classId']}`,
                 breadcrumbName: `${sessionStorage.getItem('className') || '新建班级'}`,
             },
             {
@@ -111,19 +120,55 @@ class MainSet extends React.Component {
                 breadcrumbName: '设置学习任务',
             },
         ],
+        pici: [],
+        createExamName: '',
+        createWritingId: '',
+        createExamType: 'practice',
+        createStartTime: moment().format(dateFormat),
+        createEndTime: (new Date(FunGetDateStr(7, new Date()) + ' 00:00:00') as any).format(
+            'yyyy-MM-dd'
+        ),
+        modalSelPici: 0,
+        modalSelClass: [],
+        modalClassList: [],
+        modalColumns: [
+            {
+                title: '序号',
+                dataIndex: 'key',
+                render: (text: any, record: any, index: number) => (
+                    <div>{index + 1 + (this.state.modalPageNo - 1) * this.state.modalPageSize}</div>
+                ),
+            },
+            {
+                title: '班级名称',
+                key: 'describe',
+                dataIndex: 'describe',
+            },
+            {
+                title: '批次',
+                key: 'batchName',
+                dataIndex: 'batchName',
+            },
+        ],
+        modalPageNo: 1,
+        modalPageSize: 5,
+        modalAllCount: 0,
     };
+
     async componentWillMount() {
         console.log(this.state.bigTime);
         const classId = window.location.href.split('=')[1];
         await this.getKu();
         const jieduanRes = await this.getJieDuanList(classId);
+        const teacherId = Number(localStorage.getItem('classTeacherId'));
+        const pici = await this.getPici(teacherId);
         const selJieduan = jieduanRes[0]
             ? jieduanRes.find((item: any) => item.isCurrent)?.semesterId ?? 0
             : 0;
         console.log('use jieduan', jieduanRes);
         let res = await this.getSetInfo(classId, selJieduan);
         let dbName = '';
-        const dbVal = res?.data?.dictionaryId || 0
+        const dbVal = res?.data?.dictionaryId || 0;
         const firState = dbVal ? 0 : selJieduan;
         const { wordDb } = this.state;
         wordDb.forEach((val: any) => {
@@ -146,11 +191,13 @@ class MainSet extends React.Component {
                 littleType: res?.data?.wordTestType || '',
                 bigType: res?.data?.stageWordsTest || '',
                 specialTestDate: res?.data?.specialTestDate || new Date(),
-                paperId: res?.data?.specialTestID || "",
+                paperId: res?.data?.specialTestID || '',
                 bigCount: res?.data?.stageTestReciteVersion || 0,
+                pici,
             },
             () => {
                 // this.getTestData();
+                this.getModalClass();
             }
         );
 
@@ -158,6 +205,19 @@ class MainSet extends React.Component {
             classId,
         });
     }
+
+    async getPici(teacherId: any) {
+        const res = await get({
+            url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}`,
+        });
+        const pici = res.data || [];
+        pici.unshift({
+            describe: '全部',
+            batchId: 0,
+        });
+        return pici;
+    }
+
     async getJieDuanList(id: any) {
         let res = await get({
             url: baseUrl + `/api/v1/structure/semester/list?classId=${id}`,
@@ -437,13 +497,13 @@ class MainSet extends React.Component {
 
     async diyExam() {
         const { paperId, paperName, classId, diyTime } = this.state;
-        if(!paperId){
-            message.warning('请填写试卷ID')
-            return
+        if (!paperId) {
+            message.warning('请填写试卷ID');
+            return;
         }
-        if(!paperName){
-            message.warning('请填写试卷名称')
-            return
+        if (!paperName) {
+            message.warning('请填写试卷名称');
+            return;
         }
         let res = await post({
             url: baseUrl + '/api/v1/exam/',
@@ -513,7 +573,7 @@ class MainSet extends React.Component {
                 jieduanText: '',
                 secState: 1,
             });
-            this.handleJieduan(selJieduan)
+            this.handleJieduan(selJieduan);
             Modal.confirm({
                 title: '新增学习阶段',
                 content: '学习阶段添加成功！请同步设置班级新的学习任务。',
@@ -540,6 +600,131 @@ class MainSet extends React.Component {
         this.setState({
             addCikuModule: false,
         });
+    }
+
+    onCreateExamNameChange(event: any) {
+        this.setState({
+            createExamName: event.target.value,
+        });
+    }
+
+    onCreateWritingIdChange(event: any) {
+        this.setState({
+            createWritingId: event.target.value,
+        });
+    }
+    onCreateExamTypeChange(event: any) {
+        this.setState({
+            createExamType: event.target.value,
+        });
+    }
+    onCreateStartTimeChange(date: any, dateString: any) {
+        this.setState({
+            createStartTime: dateString,
+        });
+    }
+    onCreateEndTimeChange(date: any, dateString: any) {
+        this.setState({
+            createEndTime: dateString,
+        });
+    }
+
+    handleModalPiCiChange(val: any) {
+        this.setState(
+            {
+                modalSelPici: val,
+            },
+            () => {
+                this.getModalClass();
+            }
+        );
+    }
+
+    async getModalClass() {
+        const { modalPageNo, modalPageSize, modalSelPici } = this.state;
+        const teacherId = Number(localStorage.getItem('classTeacherId'));
+        let res = await get({
+            url:
+                baseUrl +
+                `/api/v1/structure/class/list?teacherId=${teacherId}&batchId=${modalSelPici}&pageNo=${modalPageNo}&pageSize=${modalPageSize}`,
+        });
+        const list = res?.data?.classList ?? [];
+        list.map((item: any) => (item.key = item.classId));
+        console.log('list', list);
+        this.setState({
+            modalClassList: res?.data?.classList ?? [],
+            modalAllCount: res?.data?.totalCount,
+        });
+    }
+
+    handleModalSelClassChange(selectedRowKeys: any, selectedRows: any) {
+        console.log('handleModalSelClassChange', selectedRowKeys, selectedRows);
+        this.setState({
+            modalSelClass: selectedRowKeys,
+        });
+    }
+
+    modalNowPagChange(val: any) {
+        this.setState(
+            {
+                modalPageNo: val,
+            },
+            () => {
+                this.getModalClass();
+            }
+        );
+    }
+
+    async handleCreateOk(val: any) {
+        const {
+            createExamName,
+            createWritingId,
+            createExamType,
+            createStartTime,
+            createEndTime,
+            modalSelClass,
+        } = this.state;
+        if (
+            !createExamName ||
+            !createWritingId ||
+            !createExamType ||
+            !createStartTime ||
+            !createEndTime ||
+            modalSelClass.length === 0
+        ) {
+            message.error('请填写新建作文任务的必要信息');
+            return;
+        }
+        let res = await post({
+            url: `${baseUrl}/api/v1/writing-exam/`,
+            data: {
+                name: createExamName,
+                writingId: createWritingId,
+                startTime: createStartTime,
+                endTime: createEndTime,
+                classList: modalSelClass,
+                examType: createExamType,
+            },
+        });
+        if (res.state === 0) {
+            message.success('发布作文任务成功');
+            this.setState({
+                isVisible: false,
+                createExamName: '',
+                createWritingId: '',
+                createExamType: 'practice',
+                createStartTime: moment().format(dateFormat),
+                createEndTime: (new Date(FunGetDateStr(7, new Date()) + ' 00:00:00') as any).format(
+                    'yyyy-MM-dd'
+                ),
+                modalSelPici: 0,
+                modalSelClass: [],
+                modalClassList: [],
+            });
+            this.getModalClass();
+        } else {
+            message.error(`发布作文任务失败:${res.msg}`);
+        }
     }
 
     render() {
@@ -569,6 +754,19 @@ class MainSet extends React.Component {
             jieduanText,
             curJieduan,
             canSet,
+            pici,
+            createExamName,
+            createWritingId,
+            createExamType,
+            createStartTime,
+            createEndTime,
+            modalSelPici,
+            modalSelClass,
+            modalClassList,
+            modalColumns,
+            modalPageNo,
+            modalPageSize,
+            modalAllCount,
         } = this.state;
         return (
             <div className="main-set">
@@ -739,7 +937,8 @@ class MainSet extends React.Component {
                                             disabled={!selJieduan}
                                             onClick={this.addCiku.bind(this)}
                                         >
-                                            <PlusOutlined />添加词库
+                                            <PlusOutlined />
+                                            添加词库
                                         </Button>
                                     </Tooltip>
                                 </div>
@@ -753,7 +952,7 @@ class MainSet extends React.Component {
                         )}
                     </div>
                     <div className="last-line">
-                        {firState?(
+                        {firState ? (
                             <Button
                                 type="primary"
                                 disabled={!selJieduan || curJieduan !== selJieduan}
@@ -761,10 +960,10 @@ class MainSet extends React.Component {
                             >
                                 保存设置
                             </Button>
-                        ):(
+                        ) : (
                             <div className="div1">
                                 <Tooltip
-                                    title={"如需调整教学进度，可对每日单词数进行更改。"}
+                                    title={'如需调整教学进度，可对每日单词数进行更改。'}
                                     trigger="hover"
                                     placement="top"
                                     color="rgba(0, 0, 0, 0.7)"
@@ -887,7 +1086,7 @@ class MainSet extends React.Component {
                         )}
                     </div>
                     <div className="last-line">
-                        {secState?(
+                        {secState ? (
                             <Button
                                 type="primary"
                                 disabled={!selJieduan || curJieduan !== selJieduan}
@@ -895,9 +1094,13 @@ class MainSet extends React.Component {
                             >
                                 保存设置
                             </Button>
-                        ):(
+                        ) : (
                             <div className="div1">
-                                <Button block disabled={!selJieduan || curJieduan !== selJieduan} onClick={this.resetSec.bind(this)}>
+                                <Button
+                                    block
+                                    disabled={!selJieduan || curJieduan !== selJieduan}
+                                    onClick={this.resetSec.bind(this)}
+                                >
                                     修改
                                 </Button>
                             </div>
@@ -982,9 +1185,156 @@ class MainSet extends React.Component {
                             </Button>
                         </div>
                         <Button disabled={!selJieduan} type="primary">
-                            <Link to={`/app/test/testRank?examName=${encodeURI(paperName)}&selSemester=${selJieduan}`}>
+                            <Link
+                                to={`/app/test/testRank?examName=${encodeURI(
+                                    paperName
+                                )}&selSemester=${selJieduan}`}
+                            >
                                 查看已发布的考试
                             </Link>
+                        </Button>
+                    </div>
+                </div>
+                <div className="thr-de-area" style={{ height: 'auto' }}>
+                    <div className="fir-line">
+                        <div className="left">作文发布设置</div>
+                    </div>
+                    <div className="four-line" style={{ height: 'auto' }}>
+                        <div className="fir">
+                            <div className="title" style={{ width: 90 }}>
+                                发布作文任务
+                            </div>
+                            <span className="tips">
+                                （作文ID请前往作文管理模块进行复制,然后粘贴在下方输入框内）
+                            </span>
+                        </div>
+                        <div className="exam-module-area">
+                            <span className="span">任务名称:</span>
+                            <Input
+                                className="gap-8"
+                                placeholder="请输入作文任务名称"
+                                value={createExamName}
+                                onChange={this.onCreateExamNameChange.bind(this)}
+                                maxLength={200}
+                            />
+                        </div>
+                        <div className="exam-module-area exam-module-area2">
+                            <div className="left">
+                                <span className="span span1">作文ID:</span>
+                                <Input
+                                    className="gap-8"
+                                    style={{ width: 150 }}
+                                    placeholder="请输入作文ID"
+                                    value={createWritingId}
+                                    onChange={this.onCreateWritingIdChange.bind(this)}
+                                    maxLength={200}
+                                />
+                            </div>
+                            <div className="right">
+                                <span className="span span2">
+                                    任务类型
+                                    <span className="span-tips">
+                                        <Tooltip
+                                            title={content1}
+                                            trigger="hover"
+                                            placement="top"
+                                            color="rgba(0, 0, 0, 0.7)"
+                                            overlayStyle={{ minWidth: '300px' }}
+                                        >
+                                            <InfoCircleOutlined />
+                                        </Tooltip>
+                                    </span>
+                                    :
+                                </span>
+                                <Radio.Group
+                                    onChange={this.onCreateExamTypeChange.bind(this)}
+                                    value={createExamType}
+                                    defaultValue="practice"
+                                >
+                                    <Radio value={'test'}>测试</Radio>
+                                    <Radio value={'practice'}>练习</Radio>
+                                </Radio.Group>
+                            </div>
+                        </div>
+                        <div className="exam-module-area exam-module-area2">
+                            <div className="left">
+                                <span className="span span2">开始时间:</span>
+                                <Space direction="vertical" size={12}>
+                                    <DatePicker
+                                        defaultValue={moment(createStartTime, dateFormat)}
+                                        format={dateFormat}
+                                        onChange={this.onCreateStartTimeChange.bind(this)}
+                                    />
+                                </Space>
+                            </div>
+                            <div className="right">
+                                <span className="span span2">截止时间:</span>
+                                <Space direction="vertical" size={12}>
+                                    <DatePicker
+                                        defaultValue={moment(createEndTime, dateFormat)}
+                                        format={dateFormat}
+                                        onChange={this.onCreateEndTimeChange.bind(this)}
+                                    />
+                                </Space>
+                            </div>
+                        </div>
+                        <div className="exam-divider" />
+                        <div className="exam-module-area">
+                            <span className="span">学员批次:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={
+                                    modalSelPici ||
+                                    (pici[0] && (pici[0] as any).describe) ||
+                                    '请选择'
+                                }
+                                onChange={this.handleModalPiCiChange.bind(this)}
+                            >
+                                {pici.map((item: any) => (
+                                    <Option key={item.batchId} value={item.batchId}>
+                                        {item.describe}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="exam-module-table">
+                            <Table
+                                columns={modalColumns}
+                                dataSource={modalClassList}
+                                pagination={false}
+                                size={'middle'}
+                                bordered={false}
+                                rowSelection={{
+                                    type: 'checkbox',
+                                    selectedRowKeys: modalSelClass,
+                                    preserveSelectedRowKeys: true,
+                                    onChange: this.handleModalSelClassChange.bind(this),
+                                }}
+                            />
+                        </div>
+                        <div className="exam-module-pag">
+                            <Pagination
+                                defaultCurrent={1}
+                                pageSize={modalPageSize}
+                                current={modalPageNo}
+                                total={modalAllCount}
+                                onChange={this.modalNowPagChange.bind(this)}
+                            />
+                        </div>
+                    </div>
+                    <div className="last-line" style={{ paddingBottom: '32px' }}>
+                        <div className="right">
+                            <Button
+                                type="primary"
+                                disabled={!selJieduan || curJieduan !== selJieduan}
+                                onClick={this.handleCreateOk.bind(this)}
+                            >
+                                发布作文
+                            </Button>
+                        </div>
+                        <Button disabled={!selJieduan} type="primary">
+                            <Link to={`/app/writing/writingExam`}>查看已发布作文</Link>
                         </Button>
                     </div>
                 </div>
@@ -997,22 +1347,19 @@ class MainSet extends React.Component {
                     onCancel={this.handleJieduanCancel.bind(this)}
                 >
                     <div>
-                        {
-                           !selJieduan ?
-                            (
+                        {!selJieduan ? (
                             <Alert
                                 message="教师可以根据实际教学场景设置教学阶段名称；阶段名称设置后无法进行修改，请谨慎操作！设置新阶段后，需设置新阶段学习任务。"
                                 type="info"
                                 showIcon
                             />
-                            ) : (
+                        ) : (
                             <Alert
                                 message="新增阶段 适用于开展新一学期学习任务；开启新阶段后，当前阶段所有学习任务将终无法回退，请谨慎操作！"
                                 type="info"
                                 showIcon
                             />
-                            )
-                        }
+                        )}
                         <div className="xueqi-line" style={{ marginTop: '24px' }}>
                             <div className="line" style={{ display: 'block' }}>
                                 <div className="sec">

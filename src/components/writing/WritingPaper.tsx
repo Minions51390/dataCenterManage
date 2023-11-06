@@ -14,7 +14,7 @@ class writingPaper extends React.Component {
         queryTypeList: [
             {
                 type: 'writingName',
-                name: '作文名称',
+                name: '任务名称',
             },
             {
                 type: 'writingId',
@@ -41,7 +41,7 @@ class writingPaper extends React.Component {
                 render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
             },
             {
-                title: '作文名称',
+                title: '任务名称',
                 key: 'name',
                 width: 360,
                 textWrap: 'ellipsis',
