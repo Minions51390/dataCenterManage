@@ -282,20 +282,26 @@
         }
     }
 }
-  
-.ant-progress-circle {
-    .ant-progress-text {
-        color: #1890ff;
-        font-size: 42px;
-        &::after {
-            content: "总评";
-            position: absolute;
-            font-size: 18px;
-            left: 43px;
-            bottom: -35px;
+
+.ant-progress-circle{
+    .ant-progress-inner{
+        .ant-progress-text {
+            color: #1890ff;
+            font-size: 36px;
+            font-weight: 900;
+            &::after {
+                content: "总评";
+                position: absolute;
+                font-weight: 500;
+                color: rgba(0,0,0,0.65);
+                font-size: 18px;
+                left: 43px;
+                bottom: -35px;
+            }
         }
     }
 }
+
 .ant-tabs-nav-wrap{
       margin-left: 16px;
 }

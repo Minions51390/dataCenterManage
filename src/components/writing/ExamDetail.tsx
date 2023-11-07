@@ -62,7 +62,7 @@ class examDetail extends React.Component {
             minimum: 120,
         },
         isSubmit: false, // 是否已提交
-        teacherComment: "",
+        comment: "",
         aiReview: {
                 "aiComment": "作者词汇量稍有不足，请注意高级词汇积累；复杂句使用不错，句法规范；文章衔接不够流畅内容逻辑顺畅；作文内容点跟作文要求相去甚远，请注意内容覆盖作文要求。请注意方法，勤加练习。",
                 "aiContentScore": 74.85,
@@ -120,19 +120,19 @@ class examDetail extends React.Component {
     // 作文正文修改
     handleCommentChange(event:any) {
         this.setState({
-            teacherComment: event.target.value,
+            comment: event.target.value,
         });
     }
 
     //成绩发布
     async handlePublishGrades(val:any){
-        const { paperId, teacherComment, score } = this.state
+        const { paperId, comment, score } = this.state
         let res = await post({
             url: `${baseUrl}/api/v1/writing-exam/result/teacher-review`,
             data: {
                 paperId,
                 score,
-                comment: teacherComment, 
+                comment: comment, 
             }
         });
         if(res){
@@ -156,7 +156,7 @@ class examDetail extends React.Component {
                 title: res?.data?.writingAnswer?.title,
                 content: res?.data?.writingAnswer?.content,
                 aiReview: res?.data?.aiReview,
-                teacherComment: res?.data?.teacherComment || res?.data?.aiReview?.aiComment,
+                comment: res?.data?.comment || res?.data?.aiReview?.aiComment,
                 examType: res?.data?.examType,
                 isSubmit: res?.data?.isSubmit, // 是否已提交
                 stuName: res?.data?.stuName,
@@ -208,7 +208,7 @@ class examDetail extends React.Component {
         );
     }
     render() {
-        const { paperId, routes, title, content, writing, teacherComment, aiReview, className, stuName } = this.state;
+        const { paperId, routes, title, content, writing, comment, aiReview, className, stuName } = this.state;
         return (
             <div className="writing-detail-container">
             <div className="header">
@@ -241,7 +241,7 @@ class examDetail extends React.Component {
                             <div className="commit-left">
                                 <TextArea
                                     size="middle"
-                                    value={teacherComment}
+                                    value={comment}
                                     bordered={false}
                                     onChange={this.handleCommentChange.bind(this)}
                                 />

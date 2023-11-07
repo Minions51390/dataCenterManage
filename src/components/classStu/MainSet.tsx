@@ -22,6 +22,7 @@ import moment from 'moment';
 import img from '../../style/imgs/qiyewechat.png';
 const { Option } = Select;
 const dateFormat = 'YYYY-MM-DD';
+const dateFormat1 = 'YYYY-MM-DD HH:mm:ss';
 
 function GetRequest() {
     const url = `?${window.location.href.split('?')[1]}`; //获取url中"?"符后的字串
@@ -131,10 +132,8 @@ class MainSet extends React.Component {
         createExamName: '',
         createWritingId: '',
         createExamType: 'practice',
-        createStartTime: moment().format(dateFormat),
-        createEndTime: (new Date(FunGetDateStr(7, new Date()) + ' 00:00:00') as any).format(
-            'yyyy-MM-dd'
-        ),
+        createStartTime: moment().format(dateFormat1),
+        createEndTime: moment((new Date(FunGetDateStr(7, new Date()) + ' 00:00:00') as any)).format(dateFormat1),
     };
 
     async componentWillMount() {
@@ -644,10 +643,8 @@ class MainSet extends React.Component {
                 createExamName: '',
                 createWritingId: '',
                 createExamType: 'practice',
-                createStartTime: moment().format(dateFormat),
-                createEndTime: (new Date(FunGetDateStr(7, new Date()) + ' 00:00:00') as any).format(
-                    'yyyy-MM-dd'
-                ),
+                createStartTime: moment().format(dateFormat1),
+                createEndTime: (new Date(FunGetDateStr(7, new Date()) + ' 00:00:00') as any).format(dateFormat1),
             });
         } else {
             message.error(`发布作文任务失败:${res.msg}`);
@@ -1185,8 +1182,8 @@ class MainSet extends React.Component {
                                 <Space direction="vertical" size={12}>
                                     <DatePicker
                                         disabled={!selJieduan}
-                                        defaultValue={moment(createStartTime, dateFormat)}
-                                        format={dateFormat}
+                                        defaultValue={moment(createStartTime, dateFormat1)}
+                                        format={dateFormat1}
                                         onChange={this.onCreateStartTimeChange.bind(this)}
                                     />
                                 </Space>
@@ -1196,8 +1193,8 @@ class MainSet extends React.Component {
                                 <Space direction="vertical" size={12}>
                                     <DatePicker
                                         disabled={!selJieduan}
-                                        defaultValue={moment(createEndTime, dateFormat)}
-                                        format={dateFormat}
+                                        defaultValue={moment(createEndTime, dateFormat1)}
+                                        format={dateFormat1}
                                         onChange={this.onCreateEndTimeChange.bind(this)}
                                     />
                                 </Space>
