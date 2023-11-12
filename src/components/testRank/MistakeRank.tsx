@@ -150,7 +150,7 @@ const MistakeRank = ({}: Props) => {
                         <span>{banji}</span>
                     </div>
                     <div className={cn('select-item', 'group-select')}>
-                        <Tooltip placement="top" title="请选择“试题内容”、“正确选项”或“答案答案”进行模糊搜索">
+                        <Tooltip placement="top" title="请选择“试题内容”、“正确选项”或“答案内容”进行模糊搜索">
                             <InfoCircleOutlined style={{ marginRight: 9 }} />
                         </Tooltip>
                         <Input.Group compact>

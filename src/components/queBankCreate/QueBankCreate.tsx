@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Pagination, Input, Button, Modal, Select } from 'antd';
+import { Table, Pagination, Input, Button, Modal, Select, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { createBrowserHistory } from 'history';
 import '../../style/pageStyle/QueBankCreate.less';
@@ -150,9 +150,11 @@ class QueBank extends React.Component {
         });
         const bankID = await this.confimeNew();
         console.log('bankID', bankID);
-        sessionStorage.setItem('bankDetailId', bankID);
-        sessionStorage.setItem('bankDetailName', setName);
-        window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
+        if(bankID){
+            sessionStorage.setItem('bankDetailId', bankID);
+            sessionStorage.setItem('bankDetailName', setName);
+            window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
+        }
     }
 
     /** 编辑按钮 */
@@ -175,7 +177,9 @@ class QueBank extends React.Component {
                 setType: setType,
             },
         });
-        console.log('confimeNew', response);
+        if(response.state !== 0){
+            return
+        }
         return response?.data?.setId || '';
     }
 

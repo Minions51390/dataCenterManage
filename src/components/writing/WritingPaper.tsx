@@ -17,7 +17,7 @@ class writingPaper extends React.Component {
                 name: '任务名称',
             },
             {
-                type: 'writingId',
+                type: 'writingCode',
                 name: '作文ID',
             },
         ],
@@ -248,8 +248,6 @@ class writingPaper extends React.Component {
                 createWritingMaximum: 160,
             })
             this.getWritingList()
-        }else{
-            message.error(`新建作文物料失败:${res.msg}`);
         }
     }
     // 新建取消

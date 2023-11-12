@@ -191,9 +191,11 @@ class TestPaper extends React.Component {
             isVisible: false,
         });
         const testID = await this.confimeNew();
-        sessionStorage.setItem('testDetailId', testID);
-        sessionStorage.setItem('testDetailName', testName);
-        window.location.href = `${window.location.pathname}#/app/test/testPaper/testDetail`;
+        if(testID){
+            sessionStorage.setItem('testDetailId', testID);
+            sessionStorage.setItem('testDetailName', testName);
+            window.location.href = `${window.location.pathname}#/app/test/testPaper/testDetail`;
+        }
     }
 
     /** 编辑按钮 */
@@ -213,7 +215,9 @@ class TestPaper extends React.Component {
                 questionPaperName: testName,
             },
         });
-        console.log(response);
+        if(response.state !== 0){
+            return
+        }
         return response?.data?.questionPaperId || '1';
     }
 

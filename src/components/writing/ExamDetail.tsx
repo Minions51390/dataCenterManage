@@ -6,9 +6,11 @@ import {
     Tabs,
     Button,
     Input,
+    InputNumber,
     message,
     Progress,
 } from "antd";
+import { EditOutlined } from '@ant-design/icons'
 import { getQueryString } from '../../utils';
 
 const { TextArea } = Input;
@@ -98,9 +100,10 @@ class examDetail extends React.Component {
                     }
                 ]
             },
-        score:12, // -1 为未考试
+        score: 0, // -1 为未考试
         examType: "", // practice
         submitTimes: 1, // 提交次数
+        editStatus: false,
     };
     componentWillMount() {
         this.inited();
@@ -117,10 +120,25 @@ class examDetail extends React.Component {
             title: event.target.value,
         });
     }
+
     // 作文正文修改
     handleCommentChange(event:any) {
         this.setState({
             comment: event.target.value,
+        });
+    }
+
+    // 评语/成绩 编辑点击
+    handleEditClick(){
+        const { editStatus } = this.state ;
+        this.setState({
+            editStatus: !editStatus,
+        });
+    }
+    // 作文成绩修改
+    handleScoreChange(val:any) {
+        this.setState({
+            score: val,
         });
     }
 
@@ -161,6 +179,7 @@ class examDetail extends React.Component {
                 isSubmit: res?.data?.isSubmit, // 是否已提交
                 stuName: res?.data?.stuName,
                 className: res?.data?.className,
+                score: res?.data?.score,
                 
             },);
         }else{
@@ -208,7 +227,7 @@ class examDetail extends React.Component {
         );
     }
     render() {
-        const { paperId, routes, title, content, writing, comment, aiReview, className, stuName } = this.state;
+        const { paperId, routes, title, content, writing, comment, aiReview, className, stuName, score, editStatus } = this.state;
         return (
             <div className="writing-detail-container">
             <div className="header">
@@ -239,17 +258,39 @@ class examDetail extends React.Component {
                         <Tabs.TabPane tab="评语" key="1">
                             <div className="content-demand-commit">
                             <div className="commit-left">
-                                <TextArea
-                                    size="middle"
-                                    value={comment}
-                                    bordered={false}
-                                    onChange={this.handleCommentChange.bind(this)}
-                                />
+                                <div className="left-box1">
+                                    <div className="box1">
+                                        <div className="box-text1">分数：</div>
+                                        {
+                                            editStatus ? (
+                                                <InputNumber min={0} max={100} value={score} onChange={this.handleScoreChange.bind(this)} />
+                                            ) : (
+                                                <div>{score}</div>
+                                            )
+                                        }
+                                    </div>
+                                    <Button icon={<EditOutlined />} onClick={this.handleEditClick.bind(this)}>{editStatus?'保存':'编辑'}</Button>
+                                </div>
+                                <div className="left-box2">
+                                    <div className="box-text2">评语：</div>
+                                    {
+                                        editStatus ? (
+                                            <TextArea
+                                                size="middle"
+                                                value={comment}
+                                                bordered={false}
+                                                onChange={this.handleCommentChange.bind(this)}
+                                            />
+                                        ) : (
+                                            <div>{comment}</div>
+                                        )
+                                    }
+                                </div>
                             </div>
                             <div className="pp">
                                 <Progress
                                     type="dashboard"
-                                    percent={aiReview.aiScore}
+                                    percent={score || 0}
                                     format={(percent) => `${percent}`}
                                 />
                             </div>
@@ -273,7 +314,7 @@ class examDetail extends React.Component {
                             </div>
                             <div className="demand-desc">
                             <span className="demand-sec">写作要求：</span>
-                            {writing.desc}
+                                {writing.desc}
                             </div>
                         </div>
                         </Tabs.TabPane>
@@ -281,7 +322,7 @@ class examDetail extends React.Component {
                     </div>
                     <div className="commit-error">
                     <div className="fir-line">
-                    <div className="title">纠错</div>
+                    <div className="title">AI纠错</div>
                     <div className="count">{aiReview.sentenceComments.length}</div>
                     </div>
                     <div className="error-content">{this.errorItem()}</div>

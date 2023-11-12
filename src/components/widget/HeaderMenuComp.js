@@ -197,6 +197,7 @@ class HeaderMenuComp extends React.Component {
                                     />
                                     <Input
                                         className="pass-mar  phone-icon"
+                                        disabled
                                         size="large"
                                         placeholder="请输入邮箱"
                                         prefix={

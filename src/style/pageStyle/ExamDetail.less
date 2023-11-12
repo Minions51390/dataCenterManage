@@ -161,6 +161,8 @@
                 padding: 0 16px;
                 background: #f8f9fb;
                 color: rgba(0,0,0,0.65);
+                display: flex;
+                flex-direction: column;
                 .demand-fir {
                     display: flex;
                     .demand-level {
@@ -175,8 +177,6 @@
                 }
                 .demand-desc {
                     margin-top: 8px;
-                    overflow: scroll;
-                    height: 90px;
                 }
                 .demand-sec{
                     font-weight: 400;
@@ -192,9 +192,36 @@
                     flex: 1;
                     height: 145px;
                     overflow: scroll;
-                    padding: 16px;
                     background-color: #fff;
                     border-radius: 8px;
+                    display: flex;
+                    flex-direction: column;
+                    padding: 12px;
+                    padding-bottom: 0;
+                    .box-text1{
+                        white-space: nowrap;
+                    }
+                    .box-text2{
+                        white-space: nowrap;
+                    }
+                    .left-box1{
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        .box1{
+                            display: flex;
+                            align-items: center;
+                        }
+                        .ant-input-number{
+                            width:100%;
+                        }
+                    }
+                    .left-box2{
+                        display: flex;
+                        flex: 1;
+                        align-items: flex-start;
+                        margin: 12px 0 2px;
+                    }
                     textarea{
                         height: 100%;
                     }
@@ -231,7 +258,7 @@
                     }
                 }
                 .error-content {
-                    margin: 12px 16px;
+                    margin: 12px 0px;
                     height: 370px;
                     overflow: scroll;
                     .errorItem {

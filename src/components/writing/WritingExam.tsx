@@ -84,17 +84,19 @@ class writingExam extends React.Component {
             {
                 title: '序号',
                 dataIndex: 'key',
+                width: '80px',
                 render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
             },
             {
                 title: '名称',
                 key: 'name',
+                width: '180px',
                 textWrap: 'ellipsis',
                 ellipsis: true,
                 render: (text: any, record: any, index: number) => (
                     <div className="writing-exam-box">
-                        <div className="box-name">{text.name}</div>
-                        <div className="box-title">{text.title}</div>
+                        <div className="box-name" title={text.name}>{text.name}</div>
+                        <div className="box-title" title={text.title}>{text.title}</div>
                     </div>
                 ),
             },
@@ -106,7 +108,11 @@ class writingExam extends React.Component {
             {
                 title: '任务类型',
                 key: 'examType',
-                render: (text: any, record: any, index: number) => <div>{text.examType === 'practice' ? '练习' : '测验'}</div>,
+                render: (text: any, record: any, index: number) => 
+                    <div style={{
+                        color: text.examType === 'test' ? (text.hasNoReview ? "#FF0000" : "#02CA00") : '',
+                      }}
+                    >{text.examType === 'test' ? '测验' : '练习'}</div>,
             },
             {
                 title: '作文ID',
@@ -141,7 +147,7 @@ class writingExam extends React.Component {
                             key={text.key}
                             placement="top"
                             title="您确定删除该任务么？"
-                            onConfirm={this.handleDeleteClick.bind(this, text.examId)}
+                            onConfirm={this.handleDeleteClick.bind(this, text.examId, text.status)}
                             okText="确认"
                             cancelText="取消"
                         >
@@ -353,12 +359,16 @@ class writingExam extends React.Component {
         })
     }
     // 删除任务
-    async handleDeleteClick(val:any){
-        console.log('handleDeleteClick', val)
+    async handleDeleteClick(examId:any, status:any){
+        console.log('status', status)
+        if(status === 2){
+            message.error('已结束的任务无法删除');
+            return
+        }
         let res = await post({
             url: `${baseUrl}/api/v1/writing-exam/delete`,
             data: {
-                examId: val
+                examId: examId
             }
         });
         if(res){

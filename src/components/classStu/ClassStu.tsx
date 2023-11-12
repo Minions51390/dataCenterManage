@@ -254,6 +254,9 @@ class ClassStu extends React.Component {
                 className: newBanji,
             },
         });
+        if(res.state !== 0){
+            return
+        }
         this.setState({
             selPici: selNewPi,
             newBanji: '',

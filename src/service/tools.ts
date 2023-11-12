@@ -15,7 +15,7 @@ const service = axios.create({
 service.interceptors.response.use(
     (response) => {
         const res = response.data;
-        if (res.state === 1) {
+        if (res.state === 1 || res.state === 101) {
             // 后台返回码，根据自己的业务进行修改
             // 权限问题
             message.error((res && res.msg) || '错误');
@@ -89,6 +89,6 @@ export const del = ({ url, msg = '接口异常', config }: IFRequestParam) =>
         });
 
 // 上线前修改
-export const baseUrl = '/apiV1'; //本地调试使用
-// export const baseUrl = '';
+// export const baseUrl = '/apiV1'; //本地调试使用
+export const baseUrl = '';
 

@@ -61,7 +61,7 @@ class examRank extends React.Component {
                 key: 'score',
                 render: (text: any, record: any, index: number) => (
                     <div style={{
-                        color: text.isSubmit && !text.reviewed ? "#FF2525" : '',
+                        color: text.isSubmit ? (!text.reviewed ? "#FF2525" : '') : '#FF0000',
                       }}
                     >{!text.isSubmit ? '未考试' : (text.reviewed ? text.score : '待审阅')}</div>
                 ),
