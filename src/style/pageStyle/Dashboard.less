@@ -5,11 +5,11 @@ body {
     width: auto;
     margin: 65px 24px;
     .mains {
-        height: 126px;
         background: #ffffff;
         border-radius: 4px;
         margin-bottom: 20px;
         overflow: hidden;
+        padding-bottom: 16px;
         .fir {
             margin-top: 16px;
             font-size: 20px;
@@ -20,17 +20,25 @@ body {
             margin-left: 30px;
         }
         .sec {
-            margin-top: 30px;
-            .span {
-                margin-left: 30px;
-                display: inline-block;
-                width: 70px;
-                height: 22px;
-                font-size: 14px;
-                font-family: PingFangSC-Regular, PingFang SC;
-                font-weight: 400;
-                color: rgba(0, 0, 0, 0.85);
-                line-height: 22px;
+            margin-top: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            .select-box{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-top: 12px;
+                .span {
+                    margin-left: 30px;
+                    display: inline-block;
+                    height: 22px;
+                    font-size: 14px;
+                    font-family: PingFangSC-Regular, PingFang SC;
+                    font-weight: 400;
+                    color: rgba(0, 0, 0, 0.85);
+                    line-height: 22px;
+                    margin-right: 12px;
+                }
             }
         }
     }
@@ -216,6 +224,15 @@ body {
                 margin-left: 16px;
                 margin-right: 16px;
             }
+            .distance-fir-text{
+                margin: 0;
+                height: 14px;
+                font-size: 14px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #102f5c;
+                line-height: 16px;
+            }
         }
     }
     .calendar-area {
@@ -394,9 +411,10 @@ body {
                         font-family: PingFangSC-Regular, PingFang SC;
                         font-weight: 400;
                         color: #ff2525;
+                        // color: yellow;
                         line-height: 24px;
                         margin-bottom: 8px;
-                        // text-align: left;
+                        text-align: left;
                         // &::after {
                         //     content: '';
                         //     position: absolute;
@@ -470,18 +488,18 @@ body {
                         color: #ff2525;
                         line-height: 24px;
                         margin-bottom: 8px;
-                        &::after {
-                            content: '';
-                            position: absolute;
-                            top: 6px;
-                            right: -24px;
-                            width: 16px;
-                            height: 16px;
-                            background-image: url('../imgs/xx.png');
-                            background-position: center;
-                            background-size: contain;
-                            background-repeat: no-repeat;
-                        }
+                        // &::after {
+                        //     content: '';
+                        //     position: absolute;
+                        //     top: 6px;
+                        //     right: -24px;
+                        //     width: 16px;
+                        //     height: 16px;
+                        //     background-image: url('../imgs/xx.png');
+                        //     background-position: center;
+                        //     background-size: contain;
+                        //     background-repeat: no-repeat;
+                        // }
                     }
                 }
             }
@@ -518,7 +536,7 @@ body {
                         color: #ff2525;
                         line-height: 24px;
                         margin-bottom: 8px;
-                        // text-align: left;
+                        text-align: left;
                         // &::after {
                         //     content: '';
                         //     position: absolute;
@@ -560,18 +578,18 @@ body {
                         color: #ff2525;
                         line-height: 24px;
                         margin-bottom: 8px;
-                        &::after {
-                            content: '';
-                            position: absolute;
-                            top: 6px;
-                            right: -24px;
-                            width: 16px;
-                            height: 16px;
-                            background-image: url('../imgs/xx.png');
-                            background-position: center;
-                            background-size: contain;
-                            background-repeat: no-repeat;
-                        }
+                        // &::after {
+                        //     content: '';
+                        //     position: absolute;
+                        //     top: 6px;
+                        //     right: -24px;
+                        //     width: 16px;
+                        //     height: 16px;
+                        //     background-image: url('../imgs/xx.png');
+                        //     background-position: center;
+                        //     background-size: contain;
+                        //     background-repeat: no-repeat;
+                        // }
                     }
                 }
             }

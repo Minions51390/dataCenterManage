@@ -1,9 +1,10 @@
 import React from 'react';
-import { Table, Pagination, Input, Button, Modal, message } from 'antd';
+import { Table, Pagination, Input, Button, Select, Modal, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/TestPaper.less';
 import copy from 'clipboard-copy';
 import { get, post, baseUrl } from '../../service/tools';
+const { Option } = Select;
 class TestPaper extends React.Component {
     state = {
         pageNo: 1,
@@ -15,12 +16,12 @@ class TestPaper extends React.Component {
             {
                 title: '序号',
                 key: 'key',
-                render: (text: any, record: any, index: number) => <div>{index + 1}</div>,
+                render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
             },
             {
                 title: '试卷名称',
-                dataIndex: 'testPaperName',
-                key: 'testPaperName',
+                dataIndex: 'questionPaperName',
+                key: 'questionPaperName',
             },
             {
                 title: '创建人',
@@ -29,8 +30,8 @@ class TestPaper extends React.Component {
             },
             {
                 title: '试卷ID',
-                dataIndex: 'testPaperID',
-                key: 'testPaperID',
+                dataIndex: 'questionPaperId',
+                key: 'questionPaperId',
             },
             {
                 title: '创建时间',
@@ -50,7 +51,10 @@ class TestPaper extends React.Component {
                         <div className="entry" onClick={this.handleEdit.bind(this, text)}>
                             编辑
                         </div>
-                        <div className="copy" onClick={this.copyIdFn.bind(this, text.testPaperID)}>
+                        <div
+                            className="copy"
+                            onClick={this.copyIdFn.bind(this, text.questionPaperId)}
+                        >
                             <div>复制ID</div>
                         </div>
                     </div>
@@ -58,25 +62,79 @@ class TestPaper extends React.Component {
             },
         ],
         data1: [],
+        teacher: [],
+        selTeacher: {
+            teacherId: '',
+            realName: '',
+        },
+        queryType: 'questionPaperName',
+        queryTypeList: [
+            {
+                type: 'questionPaperName',
+                name: '试卷名称',
+            },
+            {
+                type: 'questionPaperId',
+                name: '试卷ID',
+            },
+        ],
     };
     componentWillMount() {
         this.inited();
     }
     async inited() {
-        this.getTest();
-    }
-    async getTest() {
-        const { testQuery, pageNo } = this.state;
-        let res = await get({
-            url: `${baseUrl}/api/testPaper/list?query=${testQuery}&pageSize=20&pageNo=${pageNo}`,
+        const teacher = await this.getTeacher();
+        const selTeacher = teacher.find((item: any) => {
+            return item.teacherId === Number(localStorage.getItem('classTeacherId'));
         });
-        console.log('------------->', res);
-        const questionBankList = res?.data?.testPaperList || [];
-        const totalCount = (res?.data?.totalCount || 0) / 20;
+        this.setState(
+            {
+                teacher,
+                selTeacher,
+            },
+            async () => {
+                this.getTest();
+            }
+        );
+    }
+
+    async getTest() {
+        const { testQuery, pageNo, selTeacher, queryType } = this.state;
+        let res = await get({
+            url: `${baseUrl}/api/v1/question-paper/list?teacherId=${selTeacher.teacherId}&query=${testQuery}&queryType=${queryType}&pageSize=20&pageNo=${pageNo}`,
+        });
+        const questionBankList = res?.data?.questionPaperList || [];
+        const totalCount = res?.data?.totalCount;
         this.setState({
             data1: questionBankList,
             totalCount,
         });
+    }
+
+    /** 获取教师列表 */
+    async getTeacher() {
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list` });
+        const teacher = res?.data || [];
+        teacher.unshift({
+            realName: '全部',
+            teacherId: 0,
+        });
+        return teacher
+    }
+
+    handleTeacher(val: any) {
+        const { teacher } = this.state;
+        const selTeacher = teacher.find((item: any) => {
+            return item.teacherId === val;
+        });
+        this.setState(
+            {
+                selTeacher,
+            },
+            async () => {
+                this.getTest();
+            }
+        );
     }
 
     /** 取消新建 */
@@ -90,6 +148,13 @@ class TestPaper extends React.Component {
     showCreateModal() {
         this.setState({
             isVisible: true,
+        });
+    }
+
+    /** query的种类 */
+    handleQueryType(val: any) {
+        this.setState({
+            queryType: val,
         });
     }
 
@@ -126,16 +191,18 @@ class TestPaper extends React.Component {
             isVisible: false,
         });
         const testID = await this.confimeNew();
-        sessionStorage.setItem('testDetailId', testID);
-        sessionStorage.setItem('testDetailName', testName);
-        window.location.href = `${window.location.pathname}#/app/test/testPaper/testDetail`;
+        if(testID){
+            sessionStorage.setItem('testDetailId', testID);
+            sessionStorage.setItem('testDetailName', testName);
+            window.location.href = `${window.location.pathname}#/app/test/testPaper/testDetail`;
+        }
     }
 
     /** 编辑按钮 */
     async handleEdit(val: any) {
         console.log(val);
-        sessionStorage.setItem('testDetailId', val.testPaperID);
-        sessionStorage.setItem('testDetailName', val.testPaperName);
+        sessionStorage.setItem('testDetailId', val.questionPaperId);
+        sessionStorage.setItem('testDetailName', val.questionPaperName);
         window.location.href = `${window.location.pathname}#/app/test/testPaper/testDetail`;
     }
 
@@ -143,13 +210,15 @@ class TestPaper extends React.Component {
     async confimeNew() {
         const { testName } = this.state;
         const response: any = await post({
-            url: baseUrl + '/api/testPaper',
+            url: baseUrl + '/api/v1/question-paper/',
             data: {
-                testPaperName: testName,
+                questionPaperName: testName,
             },
         });
-        console.log(response);
-        return response?.data?.testPaperID || '1';
+        if(response.state !== 0){
+            return
+        }
+        return response?.data?.questionPaperId || '1';
     }
 
     /** 更换页面 */
@@ -160,6 +229,7 @@ class TestPaper extends React.Component {
             },
             async () => {
                 /** 更新数据 */
+                this.getTest();
             }
         );
     }
@@ -176,7 +246,19 @@ class TestPaper extends React.Component {
     }
 
     render() {
-        const { columns1, data1, pageNo, totalCount, testQuery, testName, isVisible } = this.state;
+        const {
+            columns1,
+            data1,
+            pageNo,
+            totalCount,
+            testQuery,
+            testName,
+            isVisible,
+            teacher,
+            selTeacher,
+            queryType,
+            queryTypeList,
+        } = this.state;
         return (
             <div className="paper-wrapper">
                 <div className="header">
@@ -186,16 +268,27 @@ class TestPaper extends React.Component {
                 <div className="body">
                     <div className="fir">
                         <div>
-                            搜索试卷:
-                            <Input
-                                className="gap-12"
-                                style={{ width: 272 }}
-                                placeholder="请输入关键词"
-                                value={testQuery}
-                                onChange={this.onTestQueryChange.bind(this)}
-                            />
+                            <Input.Group compact>
+                                <Select
+                                    defaultValue={queryType}
+                                    value={queryType || '请选择'}
+                                    onChange={this.handleQueryType.bind(this)}
+                                >
+                                    {queryTypeList.map((item: any) => (
+                                        <Option value={item.type} key={item.classId}>
+                                            {item.name}
+                                        </Option>
+                                    ))}
+                                </Select>
+                                <Input
+                                    style={{ width: 272 }}
+                                    placeholder="请输入关键词"
+                                    value={testQuery}
+                                    onChange={this.onTestQueryChange.bind(this)}
+                                />
+                            </Input.Group>
                             <Button
-                                className="gap-48"
+                                className="gap-30"
                                 type="primary"
                                 onClick={this.clickSearch.bind(this)}
                             >
@@ -203,10 +296,29 @@ class TestPaper extends React.Component {
                             </Button>
                         </div>
                         <div onClick={this.showCreateModal.bind(this)}>
-                            <Button type="primary" icon={<PlusOutlined />}>
+                            <Button className="gap-30" type="primary" icon={<PlusOutlined />}>
                                 新建
                             </Button>
                         </div>
+                    </div>
+                    <div className="sec">
+                        <span className="span">创建人:</span>
+                        <Select
+                            defaultValue="请选择"
+                            style={{ width: 180 }}
+                            value={
+                                selTeacher?.realName ||
+                                (teacher[0] && (teacher[0] as any).realName) ||
+                                '请选择'
+                            }
+                            onChange={this.handleTeacher.bind(this)}
+                        >
+                            {teacher.map((item: any) => (
+                                <Option key={item.teacherId} value={item.teacherId}>
+                                    {item.realName}
+                                </Option>
+                            ))}
+                        </Select>
                     </div>
                     <div className="thr">
                         <Table
@@ -217,12 +329,12 @@ class TestPaper extends React.Component {
                             bordered={false}
                         />
                     </div>
-                    <div className={data1.length ? 'pag' : 'display-none'}>
+                    <div className={totalCount / 20 > 1 ? 'pag' : 'display-none'}>
                         <Pagination
                             defaultCurrent={1}
                             pageSize={20}
                             current={pageNo}
-                            total={totalCount * 20}
+                            total={totalCount}
                             onChange={this.nowPagChange.bind(this)}
                         />
                     </div>

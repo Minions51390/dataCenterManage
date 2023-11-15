@@ -101,11 +101,12 @@
         "webpack": "4.41.0",
         "webpack-dev-server": "3.2.1",
         "webpack-manifest-plugin": "2.1.1",
-        "workbox-webpack-plugin": "4.3.1"
+        "workbox-webpack-plugin": "4.3.1",
+        "xlsx": "^0.18.5"
     },
     "scripts": {
-        "start": "node scripts/start.js dev",
-        "build": "node scripts/build.js production",
+        "start": "NODE_OPTIONS=--openssl-legacy-provider node scripts/start.js dev",
+        "build": "NODE_OPTIONS=--openssl-legacy-provider node scripts/build.js production",
         "starandsea": "node scripts/build.js starandsea",
         "test": "node scripts/test.js",
         "release": "standard-version"

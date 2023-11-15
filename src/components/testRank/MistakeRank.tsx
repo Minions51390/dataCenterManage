@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Pagination, Input, Button, PageHeader, Select, Tooltip } from 'antd';
 import { get, baseUrl } from '../../service/tools';
 import { InfoCircleOutlined } from '@ant-design/icons';
@@ -25,15 +25,15 @@ const MistakeRank = ({}: Props) => {
     const queryTypeList = [
         {
             type: 'stem',
-            name: '题干',
+            name: '试题内容',
         },
         {
             type: 'choice',
-            name: '选项',
+            name: '正确选项',
         },
         {
             type: 'solution',
-            name: '答案',
+            name: '答案内容',
         }
     ];
     
@@ -62,21 +62,23 @@ const MistakeRank = ({}: Props) => {
         {
             key: 'options',
             dataIndex: 'options',
-            title: '选项',
+            title: '答案内容',
+            width: 240,
             render: (text: any[]) => {
                 const arr: any[] = [];
                 text.forEach(item => {
-                    arr.push(<div className='option-item'>{item.key}: {item.value}</div>);
+                    arr.push(<div className="option-item">{item.key}: {item.value}</div>);
                 })
                 return new Array(Math.round(arr.length / 2)).fill('').map((item, index) => {
-                    return <div className='option-line'>{arr.slice(index * 2, index * 2 + 2)}</div>;
+                    return <div className="option-line">{arr.slice(index * 2, index * 2 + 2)}</div>;
                 });
             }
         },
         {
-            key: 'rightAnswer',
-            dataIndex: 'rightAnswer',
-            title: '答案',
+            key: 'rightKey',
+            dataIndex: 'rightKey',
+            title: '正确选项',
+            width: 100,
             render: (text: string) => `正确答案：${text}`
         },
         {
@@ -86,28 +88,28 @@ const MistakeRank = ({}: Props) => {
         },
     ];
 
-    const getData = async () => {
+    const getData = useCallback(async () => {
         const params = {
-            examID: sessionStorage.getItem('examID'),
+            examId: sessionStorage.getItem('examId'),
             queryType,
             pageSize,
             pageNo: pageNum,
             query,
         };
         let res = await get({
-            url: `${baseUrl}/api/exam/statistics`,
+            url: `${baseUrl}/api/v1/exam/statistics`,
             config: {
                 params
             }
         });
         console.log('------------->', res);
-        const result = res?.data?.answerList?.map((item: any, index: number) => ({
+        const result = res?.data?.questionList?.map((item: any, index: number) => ({
             ...item,
             key: index + 1
         }));
         setList(result);
         setTotal(res?.data?.totalCount);
-    }
+    }, [pageNum, pageSize, query, queryType])
 
     const handleQueryTypeChange = (v: string) => {
         setQueryType(v);
@@ -128,7 +130,7 @@ const MistakeRank = ({}: Props) => {
 
     useEffect(() => {
         getData();
-    }, [pageNum, pageSize]);
+    }, [getData, pageNum, pageSize]);
 
 
     return (
@@ -139,16 +141,16 @@ const MistakeRank = ({}: Props) => {
             </div>
             <div className="body">
                 <div className="select">
-                    <div className='select-item'>
-                        <span>学院批次：</span>
+                    <div className="select-item">
+                        <span>学员批次：</span>
                         <span>{bici}</span>
                     </div>
-                    <div className='select-item'>
+                    <div className="select-item">
                         <span className="span2">班级:</span>
                         <span>{banji}</span>
                     </div>
                     <div className={cn('select-item', 'group-select')}>
-                        <Tooltip placement='top' title="请选择“题干”、“选项”或“答案”进行模糊搜索">
+                        <Tooltip placement="top" title="请选择“试题内容”、“正确选项”或“答案内容”进行模糊搜索">
                             <InfoCircleOutlined style={{ marginRight: 9 }} />
                         </Tooltip>
                         <Input.Group compact>

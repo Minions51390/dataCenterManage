@@ -49,7 +49,7 @@ const defaultOptions = {
     },
     xAxis: {
         type: 'category',
-        data: ['2020/01', '2020/02', '2020/03', '2020/04', '2020/05', '2020/06'],
+        data: ['2020/01', '2020/02', '2020/03', '2020/04', '2020/05', '2020/06', '2020/07'],
     },
     yAxis: {
         type: 'value',
@@ -62,19 +62,19 @@ const defaultOptions = {
             name: '当前学员',
             type: 'line',
             smooth: true,
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
         {
             name: '同期综合评分最优学员',
             type: 'line',
             smooth: true,
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
         {
             name: '同期综合评分最差学员',
             type: 'line',
             smooth: true,
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
         {
             name: '该指标同期平均值',
@@ -83,7 +83,7 @@ const defaultOptions = {
             lineStyle: {
                 type: 'dashed',
             },
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
     ],
     color: ['#0089FF', '#00CF2C', '#FF1010', '#91949A'],
@@ -160,16 +160,16 @@ const getyAxisBetween = (key: any) => {
         case 'score':
             label = '分';
             break;
-        case 'pass_rate':
+        case 'test_pass_rate':
             label = '%';
             break;
         case 'study_time':
-            label = '小时';
+            label = '分钟';
             break;
         case 'recite_count':
             label = '个';
             break;
-        case 'spt_pass_rate':
+        case 'stage_test_pass_rate':
             label = '%';
             break;
         default:
@@ -181,10 +181,17 @@ const getyAxisBetween = (key: any) => {
 let instance: any;
 class Dashboard extends React.Component {
     state = {
+        teacher: [],
+        selTeacher: {
+            teacherId: 0,
+            realName: '',
+        },
         pici: [],
-        selPici: '',
+        selPici: 0,
         banji: [],
         selBanji: '',
+        semester: [],
+        selSemester: [],
         stu: [],
         selStu: '',
         pageNo: 1,
@@ -196,7 +203,7 @@ class Dashboard extends React.Component {
         },
         type: 'score',
         centerData: {},
-        mydate1: (new Date(FunGetDateStr(-5, new Date()) + ' 00:00:00') as any).format(
+        mydate1: (new Date(FunGetDateStr(-6, new Date()) + ' 00:00:00') as any).format(
             'yyyy-MM-dd'
         ),
         mydate2: (new Date() as any).format('yyyy-MM-dd'),
@@ -306,95 +313,127 @@ class Dashboard extends React.Component {
     async inited() {
         // let userid = await this.login();
         let { options, mydate1, mydate2, calendarSelectedMouth, calendarSelectedYear } = this.state;
-        const pici = await this.getPici();
-        const banji = await this.getClass(pici[0].batchId);
-        const stu = await this.getStu(banji[0]?.classId, pici[0].batchId);
-        const baseInfo = await this.baseInfo(stu[0] ? stu[0].studentId : 0);
-        const wrongInfo = await this.wrongBook({
-            batchId: pici[0].batchId,
-            classId: banji[0].classId,
-            studentId: stu[0].studentId,
-            pageVal: 1,
+        const teacher = await this.getTeacher();
+        const selTeacher = teacher.find((item:any) => {
+            return item.teacherId === Number(localStorage.getItem("classTeacherId"))
         });
-        let data1 = [];
-        let data2 = [];
-        let allCount;
-        if (wrongInfo != null && wrongInfo.detail !== null) {
-            data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
-                return {
-                    key: index + 1,
-                    word: val.word,
-                    count: val.count,
-                };
-            });
-            data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
-                return {
-                    key: index + 11,
-                    word: val.word,
-                    count: val.count,
-                };
-            });
-            allCount = wrongInfo.totalPage;
-        }
-        const centerData = await this.getChart({
-            batchId: pici[0].batchId,
-            classId: banji[0].classId,
-            studentId: stu[0].studentId,
-            startDate: mydate1,
-            endDate: mydate2,
-        });
-        options.series[0].data = centerData.personal;
-        options.series[1].data = centerData.best;
-        options.series[2].data = centerData.worst;
-        options.series[3].data = centerData.average;
-        options.xAxis.data = getDateBetween(mydate1, mydate2);
-        let testInfo = await this.getTest({
-            batchId: pici[0].batchId,
-            classId: banji[0].classId,
-            studentId: stu[0].studentId,
-            testDate: (new Date() as any).format('yyyy-MM-dd'),
-        });
-        testInfo.detail = testInfo.detail
-            ? testInfo.detail
-            : [
-                  {
-                      word: '暂无数据',
-                      result: '1',
-                  },
-              ];
-        this.handleSketch(
-            pici[0].batchId,
-            banji[0].classId,
-            stu[0].studentId,
-            calendarSelectedMouth,
-            calendarSelectedYear
-        );
+        const pici = await this.getPici(selTeacher.teacherId);
         this.setState({
+            teacher,
+            selTeacher,
             pici,
-            banji,
-            stu,
             selPici: pici[0].batchId,
-            selBanji: banji[0].classId,
-            selStu: stu[0].studentId,
-            baseInfo,
-            data1,
-            data2,
-            allCount,
-            options,
-            testInfo,
-        });
-        if (this.echartsReact != null) {
-            instance = (this.echartsReact as any).getEchartsInstance();
-            instance.clear();
-            instance.setOption(options, true);
-        }
+        }, async () => {
+            const banji = await this.getClass(pici[0].batchId);
+            const stu = await this.getStu(banji[0]?.classId, pici[0].batchId);
+            const semester = await this.getSemester(banji[0].classId || 0);
+            // const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
+            const selSemester = [0];
+            this.setState({
+                banji,
+                stu,
+                semester,
+                selBanji: banji[0].classId,
+                selSemester,
+                options,
+            });
+            const baseInfo = await this.baseInfo(stu[0] ? stu[0].studentId : 0, selSemester);
+            const centerData = await this.getChart({
+                batchId: pici[0].batchId,
+                classId: banji[0].classId,
+                studentId: stu[0]?.studentId ?? 0,
+                selSemester,
+                startDate: mydate1,
+                endDate: mydate2,
+            });
+            options.series[0].data = centerData.personal;
+            options.series[1].data = centerData.best;
+            options.series[2].data = centerData.worst;
+            options.series[3].data = centerData.average;
+            options.xAxis.data = getDateBetween(mydate1, mydate2);
+            if (this.echartsReact != null) {
+                instance = (this.echartsReact as any).getEchartsInstance();
+                instance.clear();
+                instance.setOption(options, true);
+            }
+            if(stu.length === 0) return 
+            const wrongInfo = await this.wrongBook({
+                batchId: pici[0].batchId,
+                classId: banji[0].classId,
+                studentId: stu[0].studentId,
+                selSemester,
+                pageVal: 1,
+            });
+            let data1 = [];
+            let data2 = [];
+            let allCount;
+            if (wrongInfo != null && wrongInfo.detail !== null) {
+                data1 = wrongInfo.detail.slice(0, 10).map((val: any, index: number) => {
+                    return {
+                        key: index + 1,
+                        word: val.word,
+                        count: val.count,
+                    };
+                });
+                data2 = wrongInfo.detail.slice(10, 20).map((val: any, index: number) => {
+                    return {
+                        key: index + 11,
+                        word: val.word,
+                        count: val.count,
+                    };
+                });
+                allCount = wrongInfo.totalPage;
+            }
+            let testInfo = await this.getTest({
+                batchId: pici[0].batchId,
+                classId: banji[0].classId,
+                studentId: stu[0].studentId,
+                selSemester,
+                testDate: (new Date() as any).format('yyyy-MM-dd'),
+            });
+            testInfo.detail = testInfo.detail
+                ? testInfo.detail
+                : [
+                    {
+                        word: '暂无数据',
+                        result: '1',
+                    },
+                ];
+            this.handleSketch(
+                pici[0].batchId,
+                banji[0].classId,
+                stu[0].studentId,
+                selSemester,
+                calendarSelectedMouth,
+                calendarSelectedYear
+            );
+            this.setState({
+                banji,
+                stu,
+                semester,
+                selBanji: banji[0].classId,
+                selStu: stu[0].studentId,
+                baseInfo,
+                data1,
+                data2,
+                allCount,
+                options,
+                testInfo,
+            });
+            if (this.echartsReact != null) {
+                instance = (this.echartsReact as any).getEchartsInstance();
+                instance.clear();
+                instance.setOption(options, true);
+            }
+        })
     }
     async onDateChange(value: any) {
-        const { selPici, selBanji, selStu } = this.state;
+        const { selPici, selBanji, selStu, selSemester} = this.state;
         console.log('onPanelChange');
         let testInfo = await this.getTest({
             batchId: selPici,
             classId: selBanji,
+            selSemester,
             studentId: selStu,
             testDate: moment(value).format('YYYY-MM-DD'),
         });
@@ -417,11 +456,12 @@ class Dashboard extends React.Component {
                 type: key,
             },
             async () => {
-                let { selPici, selBanji, selStu, options, mydate2, mydate1 } = this.state;
+                let { selPici, selBanji, selStu, selSemester, options, mydate2, mydate1 } = this.state;
                 const centerData = await this.getChart({
                     batchId: selPici,
                     classId: selBanji,
                     studentId: selStu,
+                    selSemester,
                     startDate: mydate1,
                     endDate: mydate2,
                 });
@@ -443,7 +483,7 @@ class Dashboard extends React.Component {
         console.log(key);
     }
     async nowPagChange(val: any) {
-        let { selPici, selBanji, selStu, pageNo } = this.state;
+        let { selPici, selBanji, selStu, selSemester, pageNo } = this.state;
         let pageVal = val;
         this.setState({
             pageNo: val,
@@ -452,6 +492,7 @@ class Dashboard extends React.Component {
             batchId: selPici,
             classId: selBanji,
             studentId: selStu,
+            selSemester,
             pageVal,
         });
 
@@ -483,7 +524,7 @@ class Dashboard extends React.Component {
         });
     }
     async dataChange(data: any) {
-        let { selPici, selBanji, selStu, options, mydate2, mydate1 } = this.state;
+        let { selPici, selBanji, selStu, selSemester, options, mydate2, mydate1 } = this.state;
         if (!data) {
             return;
         }
@@ -497,6 +538,7 @@ class Dashboard extends React.Component {
             batchId: selPici,
             classId: selBanji,
             studentId: selStu,
+            selSemester,
             startDate: mydate1,
             endDate: mydate2,
         });
@@ -516,7 +558,7 @@ class Dashboard extends React.Component {
         let res = await get({
             url:
                 baseUrl +
-                `/api/v1/data-center/test-paper-result?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&date=${params.testDate}`,
+                `/api/v1/data-center/test-paper-result?batchId=${params.batchId}&classId=${params.classId}&semesters=${JSON.stringify(params.selSemester)}&studentId=${params.studentId}&date=${params.testDate}`,
         });
         return res ? res.data : null;
     }
@@ -526,7 +568,7 @@ class Dashboard extends React.Component {
                 baseUrl +
                 `/api/v1/data-center/recite-statistics?batchId=${params.batchId}&classId=${
                     params.classId
-                }&studentId=${params.studentId}&year=${params.calendarSelectedYear}&month=${
+                }&semesters=${JSON.stringify(params.selSemester)}&studentId=${params.studentId}&year=${params.calendarSelectedYear}&month=${
                     params.calendarSelectedMouth + 1
                 }`,
         });
@@ -538,7 +580,7 @@ class Dashboard extends React.Component {
         let res = await get({
             url:
                 baseUrl +
-                `/api/v1/data-center/score-statistics?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&type=${type}&startDate=${params.startDate}&endDate=${params.endDate}`,
+                `/api/v1/data-center/score-statistics?batchId=${params.batchId}&semesters=${JSON.stringify(params.selSemester)}&classId=${params.classId}&studentId=${params.studentId}&type=${type}&startDate=${params.startDate}&endDate=${params.endDate}`,
         });
         return res ? res.data : null;
     }
@@ -546,12 +588,12 @@ class Dashboard extends React.Component {
         let res = await get({
             url:
                 baseUrl +
-                `/api/v1/data-center/wrong-book?batchId=${params.batchId}&classId=${params.classId}&studentId=${params.studentId}&pageSize=20&pageNo=${params.pageVal}`,
+                `/api/v1/data-center/wrong-book?batchId=${params.batchId}&classId=${params.classId}&semesters=${JSON.stringify(params.selSemester)}&studentId=${params.studentId}&pageSize=20&pageNo=${params.pageVal}`,
         });
         return res ? res.data : null;
     }
-    async baseInfo(stuid: string) {
-        let res = await get({ url: baseUrl + `/api/v1/data-center/base-info?studentId=${stuid}` });
+    async baseInfo(stuid: string, selSemester: any) {
+        let res = await get({ url: baseUrl + `/api/v1/data-center/base-info?studentId=${stuid}&semesters=${JSON.stringify(selSemester)}` });
         return res ? res.data : null;
     }
     async login() {
@@ -564,53 +606,104 @@ class Dashboard extends React.Component {
         });
         return res;
     }
-    async getPici() {
-        let res = await get({ url: baseUrl + '/api/v1/structure/batch/list' });
+    async getTeacher() {
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
+        const teacher = res?.data || [];
+        teacher.unshift({
+            realName: '全部',
+            teacherId: 0,
+        });
+        return teacher;
+    }
+    async getPici(teacherId: any) {
+        let res = await get({ url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}` });
         console.log('批次', res);
-        return res?.data || [];
+        const pici = res.data || [];
+        pici.unshift({
+            describe: '全部',
+            batchId: 0,
+        });
+        return pici;
     }
     async getClass(pici: any) {
         let res = await get({
-            url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc`,
+            url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&pageNo=1&pageSize=99999`,
         });
-        console.log('班级', res);
-        return res?.data || [];
+        const banji = res?.data?.classList ?? [];
+        banji.unshift({
+            classCode: '',
+            classId: 0,
+            createDate: '',
+            describe: '全部',
+            studentCount: 0,
+        });
+        return banji;
     }
     async getStu(banji: any, pici?: any) {
-        const { selPici } = this.state;
+        const { selTeacher, selPici } = this.state;
 		const realPici = pici || selPici;
         let res = await get({
-            url: baseUrl + `/api/v1/structure/user/list?batchId=${realPici}&classId=${banji}`,
+            url: baseUrl + `/api/v1/structure/user/list?teacherId=${selTeacher.teacherId}&batchId=${realPici}&classId=${banji}`,
         });
         console.log('学生', res);
         return res?.data?.detail || [];
     }
-
+    async getSemester(classId: any){
+        const {selPici, selTeacher} = this.state
+        let res = await get({
+            url: baseUrl + `/api/v1/structure/semester/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${classId}`
+        })
+        const semester = res?.data || [];
+        semester.unshift({
+            isCurrent: false,
+            semesterId: 0,
+            semesterName: '全部',
+        });
+        return semester;
+    }
+    async handleTeacher (val:any){
+        console.log('handleTeacher', val)
+        const { teacher } = this.state;
+        const selTeacher = teacher.find((item:any) => {
+            return item.teacherId === val
+        });
+        const res = await this.getPici(val);
+        const pici = res[0] ? res[0]?.batchId : '';
+        this.setState({
+            selTeacher,
+            pici: res,
+        });
+        this.handlePiCi(pici);
+    }
     async handlePiCi(val: any) {
-        let res = await this.getClass(val);
-        let res1 = await this.getStu(res[0] ? res[0].classId : 0);
-        let selStu = res1[0] ? res1[0].studentId : 0;
+        const res = await this.getClass(val);
+        let selBanji = res[1] ? res[1].classId : 0;
+        if(!val){
+            selBanji = 0
+        }
         this.setState({
             selPici: val,
             banji: res,
-            selBanji: res[0] ? res[0].classId : 0,
-            stu: res1,
-            selStu: res1[0] ? res1[0].classId : 0,
         });
-        console.log(val);
-        this.handleStu(selStu);
+        this.handleBanji(selBanji);
     }
 
     async handleBanji(val: any) {
         let res = await this.getStu(val);
         let selStu = res[0] ? res[0].studentId : 0;
+        const semester = await this.getSemester(val);
+        let selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
+        if(!val){
+            selSemester = [0]
+        }
         this.setState({
             selBanji: val,
             stu: res,
             selStu,
+            semester,
+            selSemester
         });
-        console.log(val);
-        this.handleStu(selStu);
+        this.handleSemester(selSemester);
     }
 
     async handleStu(val: any) {
@@ -618,6 +711,7 @@ class Dashboard extends React.Component {
             selPici,
             selBanji,
             selStu,
+            selSemester,
             options,
             mydate2,
             mydate1,
@@ -628,7 +722,7 @@ class Dashboard extends React.Component {
             let newDefaultOption = getDefaultOption();
             if (this.echartsReact != null) {
                 instance.clear();
-                let date1 = (new Date(FunGetDateStr(-5, new Date()) + ' 00:00:00') as any).format(
+                let date1 = (new Date(FunGetDateStr(-6, new Date()) + ' 00:00:00') as any).format(
                     'yyyy-MM-dd'
                 );
                 let date2 = (new Date() as any).format('yyyy-MM-dd');
@@ -654,11 +748,12 @@ class Dashboard extends React.Component {
             return;
         }
 
-        const baseInfo = await this.baseInfo(val);
+        const baseInfo = await this.baseInfo(val, selSemester);
         const wrongInfo = await this.wrongBook({
             batchId: selPici,
             classId: selBanji,
             studentId: val,
+            selSemester,
             pageVal: 1,
         });
         let data1 = [];
@@ -683,6 +778,7 @@ class Dashboard extends React.Component {
             batchId: selPici,
             classId: selBanji,
             studentId: val,
+            selSemester,
             startDate: mydate1,
             endDate: mydate2,
         });
@@ -694,6 +790,7 @@ class Dashboard extends React.Component {
         let testInfo = await this.getTest({
             batchId: selPici,
             classId: selBanji,
+            selSemester,
             studentId: val,
             testDate: (new Date() as any).format('yyyy-MM-dd'),
         });
@@ -705,7 +802,7 @@ class Dashboard extends React.Component {
                       result: '1',
                   },
               ];
-        this.handleSketch(selPici, selBanji, val, moment().month(), moment().year());
+        this.handleSketch(selPici, selBanji, val, selSemester, moment().month(), moment().year());
         this.setState({
             selStu: val,
             baseInfo,
@@ -721,11 +818,21 @@ class Dashboard extends React.Component {
         instance.setOption(options, true);
         console.log(val);
     }
+    async handleSemester(val: any){
+        const { selStu } = this.state;
+        this.setState({
+            selSemester: val,
+        });
+        setTimeout(()=>{
+            this.handleStu(selStu);
+        }, 0)
+    }
 
     async handleSketch(
         batchId: any,
         classId: any,
         studentId: any,
+        selSemester: any,
         calendarSelectedMouth: any,
         calendarSelectedYear: any
     ) {
@@ -745,6 +852,7 @@ class Dashboard extends React.Component {
             batchId,
             classId,
             studentId,
+            selSemester,
             calendarSelectedMouth: prevCalendarSelectedMouth,
             calendarSelectedYear: prevCalendarSelectedYear,
         });
@@ -752,6 +860,7 @@ class Dashboard extends React.Component {
             batchId,
             classId,
             studentId,
+            selSemester,
             calendarSelectedMouth,
             calendarSelectedYear,
         });
@@ -759,6 +868,7 @@ class Dashboard extends React.Component {
             batchId,
             classId,
             studentId,
+            selSemester,
             calendarSelectedMouth: nextCalendarSelectedMouth,
             calendarSelectedYear: nextCalendarSelectedYear,
         });
@@ -774,7 +884,7 @@ class Dashboard extends React.Component {
     }
 
     onCalendarGoPrev(value: any, onChange: any) {
-        const { selPici, selBanji, selStu, sketchInfo } = this.state;
+        const { selPici, selBanji, selStu, selSemester, sketchInfo } = this.state;
         const month = value.month();
         const year = value.year();
         const newValue = value.clone();
@@ -794,13 +904,13 @@ class Dashboard extends React.Component {
             calendarSelectedYear: newValue.year(),
             sketchInfo: prevSketchInfo,
         });
-        this.handleSketch(selPici, selBanji, selStu, newValue.month(), newValue.year());
+        this.handleSketch(selPici, selBanji, selStu, selSemester, newValue.month(), newValue.year());
         console.log('newValue', newValue.format('YYYY-MM-DD'));
         onChange(newValue);
     }
 
     onCalendarGoNext(value: any, onChange: any) {
-        const { selPici, selBanji, selStu, sketchInfo } = this.state;
+        const { selPici, selBanji, selSemester, selStu, sketchInfo } = this.state;
         const month = value.month();
         const year = value.year();
         const newValue = value.clone();
@@ -820,17 +930,21 @@ class Dashboard extends React.Component {
             calendarSelectedYear: newValue.year(),
             sketchInfo: nextSketchInfo,
         });
-        this.handleSketch(selPici, selBanji, selStu, newValue.month(), newValue.year());
+        this.handleSketch(selPici, selBanji, selStu, selSemester, newValue.month(), newValue.year());
         console.log('newValue', newValue.format('YYYY-MM-DD'));
         onChange(newValue);
     }
 
     render() {
         const {
+            teacher,
+            selTeacher,
             pici,
             selPici,
             banji,
             selBanji,
+            semester,
+            selSemester,
             stu,
             selStu,
             baseInfo,
@@ -853,45 +967,82 @@ class Dashboard extends React.Component {
                 <div className="mains">
                     <div className="fir">数据中心</div>
                     <div className="sec">
-                        <span className="span">学员批次:</span>
-                        <Select
-                            defaultValue="请选择"
-                            style={{ width: 180 }}
-                            value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
-                            onChange={this.handlePiCi.bind(this)}
-                        >
-                            {pici.map((item: any) => (
-                                <Option key={item.batchId} value={item.batchId}>
-                                    {item.describe}
-                                </Option>
-                            ))}
-                        </Select>
-                        <span className="span">班级:</span>
-                        <Select
-                            defaultValue="请选择"
-                            style={{ width: 180 }}
-                            value={selBanji || (banji[0] && (banji[0] as any).describe) || '请选择'}
-                            onChange={this.handleBanji.bind(this)}
-                        >
-                            {banji.map((item: any) => (
-                                <Option key={item.classId} value={item.classId}>
-                                    {item.describe}
-                                </Option>
-                            ))}
-                        </Select>
-                        <span className="span">学员:</span>
-                        <Select
-                            defaultValue="请选择"
-                            style={{ width: 180 }}
-                            value={selStu || (stu[0] && (stu[0] as any).describe) || '请选择'}
-                            onChange={this.handleStu.bind(this)}
-                        >
-                            {stu.map((item: any) => (
-                                <Option key={item.studentId} value={item.studentId}>
-                                    {item.describe}
-                                </Option>
-                            ))}
-                        </Select>
+                        <div className="select-box">
+                            <span className="span">执教教师:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={selTeacher?.realName || (teacher[0] && (teacher[0] as any).realName) || '请选择'}
+                                onChange={this.handleTeacher.bind(this)}
+                            >
+                                {teacher.map((item: any) => (
+                                    <Option key={item.teacherId} value={item.teacherId}>
+                                        {item.realName}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="select-box">
+                            <span className="span">学员批次:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
+                                onChange={this.handlePiCi.bind(this)}
+                            >
+                                {pici.map((item: any) => (
+                                    <Option key={item.batchId} value={item.batchId}>
+                                        {item.describe}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="select-box">
+                            <span className="span">班级:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={selBanji || (banji[0] && (banji[0] as any).describe) || '请选择'}
+                                onChange={this.handleBanji.bind(this)}
+                            >
+                                {banji.map((item: any) => (
+                                    <Option key={item.classId} value={item.classId}>
+                                        {item.describe}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="select-box">
+                            <span className="span">阶段:</span>
+                            <Select
+                                mode="multiple"
+                                allowClear
+                                style={{ width: 180 }}
+                                value={selSemester}
+                                onChange={this.handleSemester.bind(this)}
+                            >
+                                {semester.map((item: any) => (
+                                    <Option key={item.semesterId} value={item.semesterId}>
+                                        {item.semesterName || item.semesterId}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="select-box">
+                            <span className="span">学员名称:</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={selStu || (stu[0] && (stu[0] as any).describe) || '请选择'}
+                                onChange={this.handleStu.bind(this)}
+                            >
+                                {stu.map((item: any) => (
+                                    <Option key={item.studentId} value={item.studentId}>
+                                        {item.describe}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
                     </div>
                 </div>
                 <Row gutter={[30, 0]}>
@@ -899,26 +1050,26 @@ class Dashboard extends React.Component {
                         <div className="score-word">
                             <div className="left">
                                 <span className="label">当前学生：</span>
-                                <span className="num">{baseInfo.studentName}</span>
+                                <span className="num">{baseInfo.studentName || '请选择学员'}</span>
                             </div>
                             <div className="right">
                                 <span className="label">综合评分：</span>
-                                <span className="num">{(+baseInfo.baseScore).toFixed(2)}</span>
+                                <span className="num">{(+baseInfo.baseScore).toFixed(2) || 0}</span>
                                 <span className="word">分</span>
                             </div>
                             <div className="right">
                                 <span className="label">累计背词：</span>
-                                <span className="num">{baseInfo.reciteCount}</span>
+                                <span className="num">{baseInfo.reciteCount || 0}</span>
                                 <span className="word">词</span>
                             </div>
                         </div>
                         <div className="line-chart">
                             <Tabs defaultActiveKey="score" onChange={this.tabCallback.bind(this)}>
                                 <TabPane tab="综合评分趋势" key="score" />
-                                <TabPane tab="测试通过率" key="pass_rate" />
+                                <TabPane tab="测试通过率" key="test_pass_rate" />
                                 <TabPane tab="每日学习时长" key="study_time" />
                                 <TabPane tab="每日背词数" key="recite_count" />
-                                <TabPane tab="大考通过率" key="spt_pass_rate" />
+                                <TabPane tab="单词阶段考通过率" key="stage_test_pass_rate" />
                             </Tabs>
                             <div className="tab-content">
                                 <div className="content">
@@ -927,7 +1078,7 @@ class Dashboard extends React.Component {
                                         defaultValue={[
                                             moment(
                                                 new Date(
-                                                    FunGetDateStr(-5, new Date()) + ' 00:00:00'
+                                                    FunGetDateStr(-6, new Date()) + ' 00:00:00'
                                                 ),
                                                 dateFormat
                                             ),
@@ -969,12 +1120,12 @@ class Dashboard extends React.Component {
                                     />
                                 </div>
                             </div>
-                            <div className={data1.length ? 'pag' : 'display-none'}>
+                            <div className={allCount > 20 ? 'pag' : 'display-none'}>
                                 <Pagination
                                     defaultCurrent={1}
                                     defaultPageSize={20}
                                     current={nowPag}
-                                    total={allCount * 20}
+                                    total={allCount}
                                     onChange={this.nowPagChange.bind(this)}
                                 />
                             </div>
@@ -982,7 +1133,10 @@ class Dashboard extends React.Component {
                     </Col>
                     <Col span={8}>
                         <div className="distance-fir">
-                            <div>{baseInfo.endDescribe}</div>
+                            <div>
+                                <span className="distance-fir-text">打卡天数：</span>
+                                {baseInfo.endDescribe || 0}
+                            </div>
                         </div>
                         <div className="calendar-area">
                             <div>
@@ -1108,7 +1262,7 @@ class Dashboard extends React.Component {
                                 <div className="right">
                                     <div className="main">
                                         <span className="big">
-                                            {(testInfo.passRate * 100).toFixed(2)}
+                                            {(testInfo.passRate * 100).toFixed(0)}
                                         </span>
                                         <span className="small">%</span>
                                     </div>

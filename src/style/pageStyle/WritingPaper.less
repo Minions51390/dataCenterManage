@@ -1,4 +1,4 @@
-.rank-wrapper {
+.writing-wrapper {
     overflow-y: auto;
     .header {
         height: 98px;
@@ -31,13 +31,31 @@
         margin-bottom: 0;
         background: #FFFFFF;
         padding: 32px;
-        .sec {
-            .semester-wrapper{
-                margin-top: 12px;
+        .fir {
+            display: flex;
+            justify-content: space-between;
+            .gap-12 {
+                margin-left: 12px;
+            }
+            .gap-16 {
+                margin-left: 16px;
+            }
+            .gap-30{
+                margin-left: 30px;   
+            }
+            .gap-48 {
+                margin-left: 48px;
+            }
+            .ant-input-group-compact {
+                display: inline-block;
+                width: auto;
+                position: relative;
+                top: -5px;
             }
             .span {
                 display: inline-block;
-                width: 70px;
+                margin-right: 12px;
+                margin-left: 48px;
                 height: 22px;
                 font-size: 14px;
                 font-family: PingFangSC-Regular, PingFang SC;
@@ -45,31 +63,9 @@
                 color: rgba(0, 0, 0, 0.85);
                 line-height: 22px;
             }
-            .span2 {
-                margin-left: 30px;
-                display: inline-block;
-                width: 70px;
-                height: 22px;
-                font-size: 14px;
-                font-family: PingFangSC-Regular, PingFang SC;
-                font-weight: 400;
-                color: rgba(0, 0, 0, 0.85);
-                line-height: 22px;
-            }
-            .span1 {
-                margin-left: 30px;
-                display: inline-block;
-                width: 40px;
-                height: 22px;
-                font-size: 14px;
-                font-family: PingFangSC-Regular, PingFang SC;
-                font-weight: 400;
-                color: rgba(0, 0, 0, 0.85);
-                line-height: 22px;
-            }
-            .span3 {
-                width: 200px;
-            }
+        }
+        .sec {
+            margin-top: 16px;
         }
         .thr {
             margin-top: 24px;
@@ -81,6 +77,18 @@
                 text-align: center;
                 color: #032352 !important;
             }
+            .copy{
+                color: #1890FF;
+                cursor: pointer;
+            }
+            .edit {
+                display: flex;
+                justify-content: center;
+                .detail {
+                    color: #1890FF;
+                    cursor: pointer;
+                }
+            }
         }
         .pag {
             display: flex;
@@ -90,5 +98,32 @@
         .display-none {
             display: none;
         }
+    }
+}
+.module-area {
+    .span{
+        margin-right: 8px;
+        width: 110px;
+        text-align: right;
+    }
+}
+.module-area:last-child{
+    margin-bottom: 16px;
+}
+.module-area-start{
+    align-items: start;
+    .span{
+        margin-top: 4px;
+    }
+}
+.ant-input-group-addon{
+    background-color: #fafafa!important;
+}
+.writing-name-box{
+    text-align: left;
+    .box-title{
+        color: rgba(0, 0, 0, 0.45);
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }

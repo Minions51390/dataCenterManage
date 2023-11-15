@@ -5,10 +5,17 @@ import { get, post, baseUrl } from '../../service/tools';
 const { Option } = Select;
 class ErrorBook extends React.Component {
     state = {
+        teacher: [],
+        selTeacher: {
+            teacherId: 0,
+            realName: '',
+        },
         pici: [],
         selPici: '',
         banji: [],
         selBanji: '',
+        semester: [],
+        selSemester: [],
         pageNo: 1,
         allCount: 1,
         wordDb: [],
@@ -17,7 +24,7 @@ class ErrorBook extends React.Component {
             {
                 title: '序号',
                 dataIndex: 'key',
-                key: 'key',
+                render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
             },
             {
                 title: '单词',
@@ -52,21 +59,35 @@ class ErrorBook extends React.Component {
         if (!res[0]) {
             return;
         }
+        const teacher = await this.getTeacher();
+        const selTeacher = teacher.find((item:any) => {
+            return item.teacherId === Number(localStorage.getItem("classTeacherId"))
+        });
         this.setState(
             {
                 wordDb: res,
                 dbVal: res[0].dictionaryId,
+                teacher,
+                selTeacher,
             },
             async () => {
-                const pici = await this.getPici();
+                const pici = await this.getPici(selTeacher.teacherId);
                 const banji = await this.getClass(pici[0].batchId || 0);
                 this.setState({
                     pici,
                     banji,
                     selPici: pici[0].batchId,
                     selBanji: banji[0].classId,
-                });
-				await this.getRank(pici[0].batchId, banji[0].classId);
+                }, async () => {
+                    const semester = await this.getSemester(banji[0].classId || 0);
+                    // const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
+                    const selSemester = [0]
+                    this.setState({
+                        semester,
+                        selSemester,
+                    });
+                    await this.getRank(JSON.stringify(selSemester));
+                })
             }
         );
     }
@@ -74,21 +95,58 @@ class ErrorBook extends React.Component {
         let res = await get({ url: baseUrl + '/api/v1/material/dictionary/list' });
         return res.data || [];
     }
-    async getPici() {
-        let res = await get({ url: baseUrl + '/api/v1/structure/batch/list' });
-        return res?.data || [];
+    async getTeacher() {
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list`});
+        const teacher = res?.data || [];
+        teacher.unshift({
+            realName: '全部',
+            teacherId: 0,
+        });
+        return teacher;
+    }
+    async getPici(teacherId: any) {
+        const res = await get({ url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}`});
+        const pici = res.data || [];
+        pici.unshift({
+            describe: '全部',
+            batchId: 0,
+        });
+        return pici;
     }
     async getClass(pici: any) {
-        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc` });
-        console.log(res);
-        return res?.data || [];
+        const { selTeacher } = this.state;
+        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?teacherId=${selTeacher.teacherId}&batchId=${pici}&pageNo=1&pageSize=99999` });
+        const banji = res?.data?.classList ?? [];
+        banji.unshift({
+            classCode: '',
+            classId: 0,
+            createDate: '',
+            describe: '全部',
+            studentCount: 0,
+        });
+        return banji;
     }
-    async getRank(pici: any, classid: any) {
+    async getSemester(classId: any){
+        const {selPici, selTeacher} = this.state
+        let res = await get({
+            url: baseUrl + `/api/v1/structure/semester/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${classId}`
+        })
+        const semester = res?.data || [];
+        semester.unshift({
+            isCurrent: false,
+            semesterId: 0,
+            semesterName: '全部',
+        });
+        return semester;
+    }
+    async getRank(semesters: any) {
+        const {selPici, selTeacher, selBanji} = this.state
         const { pageNo } = this.state;
         let res = await get({
             url:
                 baseUrl +
-                `/api/v1/wrong-book?batchId=${pici}&classId=${classid}&pageNo=${pageNo}&pageSize=20`,
+                `/api/v1/wrong-book/?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${selBanji}&semesters=${semesters}&pageNo=${pageNo}&pageSize=20`,
+            
         });
         console.log(res);
         let data1 = res.data.detail
@@ -110,53 +168,86 @@ class ErrorBook extends React.Component {
         });
         return res.data || [];
     }
-
+    async handleTeacher (val:any){
+        const { teacher } = this.state;
+        const selTeacher = teacher.find((item:any) => {
+            return item.teacherId === val
+        });
+        const res = await this.getPici(val);
+        const pici = res[0] ? res[0]?.batchId : '';
+        this.setState({
+            selTeacher,
+            pici: res,
+        });
+        this.handlePiCi(pici);
+    }
     async handlePiCi(val: any) {
-        let res = await this.getClass(val);
+        const res = await this.getClass(val);
+        let selBanji = res[1] ? res[1].classId : 0;
+        if(!val){
+            selBanji = 0
+        }
         this.setState({
             selPici: val,
             banji: res,
-            selBanji: res[0] ? res[0].classId : 0,
+            selBanji,
+        }, async () => {
+            this.handleBanji(selBanji)
         });
-        console.log(val);
     }
     async handleBanji(val: any) {
-        const { selPici } = this.state;
+        const semester = await this.getSemester(val);
+        let selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : []
+        if(!val){
+            selSemester = [0]
+        }
         this.setState({
             selBanji: val,
+            semester,
+            selSemester,
+        }, async () => {
+            this.handleSemester(selSemester);
         });
-        let rankList = await this.getRank(selPici, val);
-        console.log(val);
+    }
+    async handleSemester(val: any) {
+        this.setState({
+            selSemester: val,
+        });
+        await this.getRank(JSON.stringify(val));
     }
     async handleWordDb(value: any) {
-        let { selPici, selBanji } = this.state;
+        const { selSemester } = this.state;
         this.setState(
             {
                 dbVal: value,
             },
             async () => {
-                const ranklist = await this.getRank(selPici, selBanji);
+                const ranklist = await this.getRank(JSON.stringify(selSemester));
             }
         );
     }
     nowPagChange(val: any) {
-        let { selPici, selBanji } = this.state;
+        const { selSemester } = this.state;
         this.setState(
             {
                 pageNo: val,
             },
             async () => {
-                const ranklist = await this.getRank(selPici, selBanji);
+                const ranklist = await this.getRank(JSON.stringify(selSemester));
             }
         );
     }
 
     render() {
         const {
+            teacher,
+            selTeacher,
             pici,
             selPici,
             banji,
             selBanji,
+            semester,
+            selSemester,
             columns1,
             data1,
             pageNo,
@@ -164,6 +255,7 @@ class ErrorBook extends React.Component {
             wordDb,
             dbVal,
             dictionary,
+            
         } = this.state;
         return (
             <div className="rank-wrapper">
@@ -186,6 +278,19 @@ class ErrorBook extends React.Component {
                                 </Option>
                             ))}
                         </Select> */}
+                        <span className="span">执教教师:</span>
+                        <Select
+                            defaultValue="请选择"
+                            style={{ width: 180 }}
+                            value={selTeacher?.realName || (teacher[0] && (teacher[0] as any).realName) || '请选择'}
+                            onChange={this.handleTeacher.bind(this)}
+                        >
+                            {teacher.map((item: any) => (
+                                <Option key={item.teacherId} value={item.teacherId}>
+                                    {item.realName}
+                                </Option>
+                            ))}
+                        </Select>
                         <span className="span2">学员批次:</span>
                         <Select
                             defaultValue="请选择"
@@ -209,6 +314,20 @@ class ErrorBook extends React.Component {
                             {banji.map((item: any) => (
                                 <Option key={item.classId} value={item.classId}>
                                     {item.describe}
+                                </Option>
+                            ))}
+                        </Select>
+                        <span className="span1">阶段:</span>
+                        <Select
+                            mode="multiple"
+                            allowClear
+                            style={{ width: 240 }}
+                            value={selSemester}
+                            onChange={this.handleSemester.bind(this)}
+                        >
+                            {semester.map((item: any) => (
+                                <Option key={item.semesterId} value={item.semesterId}>
+                                    {item.semesterName || item.semesterId}
                                 </Option>
                             ))}
                         </Select>

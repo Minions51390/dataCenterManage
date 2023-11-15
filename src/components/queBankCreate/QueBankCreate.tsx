@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Pagination, Input, Button, Modal, Select } from 'antd';
+import { Table, Pagination, Input, Button, Modal, Select, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { createBrowserHistory } from 'history';
 import '../../style/pageStyle/QueBankCreate.less';
@@ -14,9 +14,9 @@ class QueBank extends React.Component {
     state = {
         bankQuery: '',
         isVisible: false,
-        bankName: '',
-        bankType: 'choice',
-        bankTypeList: ['choice', 'pack'],
+        setName: '',
+        setType: 'choice',
+        setTypeList: ['choice'], //['pack']
         pageNo: 1,
         totalCount: 1,
         sortKey: 'creator',
@@ -25,12 +25,12 @@ class QueBank extends React.Component {
             {
                 title: '序号',
                 key: 'key',
-                render: (text: any, record: any, index: number) => <div>{index + 1}</div>,
+                render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
             },
             {
                 title: '题库名称',
-                dataIndex: 'bankName',
-                key: 'bankName',
+                dataIndex: 'setName',
+                key: 'setName',
             },
             {
                 title: '创建人',
@@ -39,22 +39,22 @@ class QueBank extends React.Component {
                 sorter: true,
             },
             {
-                title: '题库类型',
-                key: 'bankType',
+                title: '题库题型',
+                key: 'setType',
                 sorter: true,
-                render: (text: any) => <div>{BANK_TYPE_MAP[text.bankType] || '未知'}</div>,
+                render: (text: any) => <div>{BANK_TYPE_MAP[text.setType] || '未知'}</div>,
             },
             {
                 title: '创建时间',
-                dataIndex: 'createTime',
                 key: 'createTime',
                 sorter: true,
+                render: (text: any) => <div>{text.createTime}</div>,
             },
             {
                 title: '更新时间',
-                dataIndex: 'updateTime',
                 key: 'updateTime',
                 sorter: true,
+                render: (text: any) => <div>{text.updateTime}</div>,
             },
             {
                 title: '操作',
@@ -67,21 +67,47 @@ class QueBank extends React.Component {
             },
         ],
         data1: [],
+        teacher: [],
+        selTeacher: {
+            teacherId: '',
+            realName: '',
+        },
     };
     componentWillMount() {
         this.inited();
     }
     async inited() {
+        const teacher = await this.getTeacher();
+        const selTeacher = teacher.find((item: any) => {
+            return item.teacherId === Number(localStorage.getItem('classTeacherId'));
+        });
+        this.setState({
+            teacher,
+            selTeacher,
+        });
         this.getQuestionBankList();
     }
+
+    /** 获取教师列表 */
+    async getTeacher() {
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list` });
+        const teacher = res?.data || [];
+        teacher.unshift({
+            realName: '全部',
+            teacherId: 0,
+        });
+        return teacher;
+    }
+
     /** 获取题库列表 */
     async getQuestionBankList() {
-        const { bankQuery, pageNo, sortKey, sortOrder } = this.state;
+        const { bankQuery, pageNo, sortKey, sortOrder, selTeacher } = this.state;
+        console.log('selTeacher', selTeacher);
         let res = await get({
-            url: `${baseUrl}/api/v1/question-set/list?query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}&all=off`,
+            url: `${baseUrl}/api/v1/question-set/list?teacherId=${selTeacher.teacherId}&query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}&all=off`,
         });
         console.log('------------->', res);
-        const questionBankList = res?.data?.questionBankList || [];
+        const questionBankList = res?.data?.questionSetList || [];
         const totalCount = (res?.data?.totalCount || 0) / 20;
         this.setState({
             data1: questionBankList,
@@ -109,44 +135,52 @@ class QueBank extends React.Component {
     }
 
     /** 题库名称 */
-    onBankNameChange(event: any) {
+    onsetNameChange(event: any) {
         this.setState({
-            bankName: event.target.value,
+            setName: event.target.value,
         });
     }
 
     /** 确认新建 */
     async handleCreateOk(val: any) {
-        const { bankName } = this.state;
+        console.log('handleCreateOk', val);
+        const { setName } = this.state;
         this.setState({
             isVisible: false,
         });
         const bankID = await this.confimeNew();
-        sessionStorage.setItem('bankDetailId', bankID);
-        sessionStorage.setItem('bankDetailName', bankName);
-        window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
+        console.log('bankID', bankID);
+        if(bankID){
+            sessionStorage.setItem('bankDetailId', bankID);
+            sessionStorage.setItem('bankDetailName', setName);
+            window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
+        }
     }
 
     /** 编辑按钮 */
     clickEditButton(text: any) {
-        const bankID = text.bankID;
-        const bankName = text.bankName;
+        console.log('clickEditButton', text);
+        const bankID = text.setId;
+        const setName = text.setName;
         sessionStorage.setItem('bankDetailId', bankID);
-        sessionStorage.setItem('bankDetailName', bankName);
+        sessionStorage.setItem('bankDetailName', setName);
         window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
     }
 
     /** 确认新建接口 */
     async confimeNew() {
-        const { bankName, bankType } = this.state;
+        const { setName, setType } = this.state;
         const response: any = await post({
-            url: baseUrl + '/api/v1/question-set',
+            url: baseUrl + '/api/v1/question-set/',
             data: {
-                bankName,
-                bankType,
+                setName: setName,
+                setType: setType,
             },
         });
-        return response?.data?.bankID || '';
+        if(response.state !== 0){
+            return
+        }
+        return response?.data?.setId || '';
     }
 
     /** 取消新建 */
@@ -175,11 +209,26 @@ class QueBank extends React.Component {
             }
         );
     }
+    /** 教师切换 */
+    handleTeacher(val: any) {
+        const { teacher } = this.state;
+        const selTeacher = teacher.find((item: any) => {
+            return item.teacherId === val;
+        });
+        this.setState(
+            {
+                selTeacher,
+            },
+            async () => {
+                this.getQuestionBankList();
+            }
+        );
+    }
 
-    /** 题库类型 */
-    handleBankType(val: any) {
+    /** 题库题型 */
+    handlesetType(val: any) {
         this.setState({
-            bankType: val,
+            setType: val,
         });
     }
 
@@ -208,9 +257,11 @@ class QueBank extends React.Component {
             totalCount,
             bankQuery,
             isVisible,
-            bankName,
-            bankTypeList,
-            bankType,
+            setName,
+            setTypeList,
+            setType,
+            teacher,
+            selTeacher,
         } = this.state;
         return (
             <div className="quebank-wrapper">
@@ -242,6 +293,25 @@ class QueBank extends React.Component {
                                 新建
                             </Button>
                         </div>
+                    </div>
+                    <div className="sec">
+                        <span className="span">创建人:</span>
+                        <Select
+                            defaultValue="请选择"
+                            style={{ width: 180 }}
+                            value={
+                                selTeacher?.realName ||
+                                (teacher[0] && (teacher[0] as any).realName) ||
+                                '请选择'
+                            }
+                            onChange={this.handleTeacher.bind(this)}
+                        >
+                            {teacher.map((item: any) => (
+                                <Option key={item.teacherId} value={item.teacherId}>
+                                    {item.realName}
+                                </Option>
+                            ))}
+                        </Select>
                     </div>
                     <div className="thr">
                         <Table
@@ -277,22 +347,22 @@ class QueBank extends React.Component {
                             className="gap-8"
                             style={{ width: 294 }}
                             placeholder="请输入题库名称"
-                            value={bankName}
-                            onChange={this.onBankNameChange.bind(this)}
+                            value={setName}
+                            onChange={this.onsetNameChange.bind(this)}
                             maxLength={20}
                         />
                     </div>
                     <div className="module-area">
-                        题库类型:
+                        题库题型:
                         <Select
-                            defaultValue={bankType}
+                            defaultValue={setType}
                             className="gap-8"
                             style={{ width: 294 }}
                             placeholder="请选择学员批次"
-                            onChange={this.handleBankType.bind(this)}
-                            value={bankType}
+                            onChange={this.handlesetType.bind(this)}
+                            value={setType}
                         >
-                            {bankTypeList.map((item: any, index: number) => (
+                            {setTypeList.map((item: any, index: number) => (
                                 <Option key={index} value={item}>
                                     {BANK_TYPE_MAP[item] || '未知'}
                                 </Option>

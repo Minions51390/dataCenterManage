@@ -53,15 +53,15 @@ const StuPaperDetail = ({ query }: Props) => {
                     arr.push(
                         <div
                             className={cn({
-                                right: item.key === record.rightAnswer && record.choiceAnswer === item.key,
-                                error: record.choiceAnswer === item.key && item.key !== record.rightAnswer,
+                                right: item.key === record.rightKey,
+                                error: record.choiceKey === item.key && item.key !== record.rightKey,
                             }, 'option-item')}
                         >
                             {item.key}: {item.value}
                         </div>);
                 })
                 return new Array(Math.round(arr.length / 2)).fill('').map((item, index) => {
-                    return <div className='option-line'>{arr.slice(index * 2, index * 2 + 2)}</div>;
+                    return <div className="option-line">{arr.slice(index * 2, index * 2 + 2)}</div>;
                 });
             }
         },
@@ -69,25 +69,25 @@ const StuPaperDetail = ({ query }: Props) => {
             key: 'result',
             dataIndex: 'result',
             title: '判定',
-            render: (text: string, record: any) => record.rightAnswer === record.choiceAnswer ? '正确' : '错误'
+            render: (text: string, record: any) => record.rightKey === record.choiceKey ? '正确' : '错误'
         },
     ];
 
     const getData = async () => {
         const params = {
-            rollID: query?.roleID,
+            examPaperId: query?.examPaperId,
             queryType,
             pageSize,
             pageNo: pageNo,
         };
         let res = await get({
-            url: `${baseUrl}/api/testPaperResult/detail`,
+            url: `${baseUrl}/api/v1/exam/paper/question/list`,
             config: {
                 params
             }
         });
         console.log('------------->', res);
-        const result = (res?.data?.answerList)?.map((item: any, index: number) => ({
+        const result = (res?.data?.questionList)?.map((item: any, index: number) => ({
             ...item,
             key: index + 1
         }));
@@ -116,7 +116,7 @@ const StuPaperDetail = ({ query }: Props) => {
             <div className="body">
                 <div className="top">
                     <span className="span">{bici}/{banji}/{query.name}</span>
-                    <div className='select'>
+                    <div className="select">
                         <div>筛选：</div>
                         <Select style={{ width: 270 }} value={queryType} onChange={handleSelectChange}>
                             <Option value="all">全部</Option>

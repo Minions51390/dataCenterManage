@@ -1,9 +1,11 @@
-import React from 'react';
-import { Table, Pagination, Input, Button, Modal, PageHeader } from 'antd';
+import React, { useState } from 'react';
+import { Table, Pagination, Input, Button, Modal, PageHeader, Upload, message } from 'antd';
 import { Link } from 'react-router-dom';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, UploadOutlined, DownloadOutlined, FileAddOutlined, InboxOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/BankDetail.less';
 import { get, post, del, put, baseUrl } from '../../service/tools';
+import type { RcFile, UploadFile } from 'antd/es/upload/interface';
+const { Dragger } = Upload;
 const ENUM_BANK_TYPE: any = {
     choice: '单选题',
     pack: '填空题',
@@ -23,52 +25,53 @@ class BankDetail extends React.Component {
         ],
         bankQuery: '',
         isVisible: false,
-        bankTypeList: ['choice', 'pack'],
+        uploadVisible: false,
+        setTypeList: ['choice'], //['pack'],
         pageNo: 1,
         totalCount: 1,
         /** 默认数据 */
         bankID: sessionStorage.getItem('bankDetailId') || '',
-        bankName: sessionStorage.getItem('bankDetailName') || '',
+        setName: sessionStorage.getItem('bankDetailName') || '',
         creator: '',
         createTime: '0000-00-00 00:00:00',
         updateTime: '0000-00-00 00:00:00',
-        bankType: 'choice',
+        setType: 'choice',
         questionCount: '120',
         columns1: [
             {
                 title: '序号',
                 key: 'key',
-                render: (text: any, record: any, index: number) => <div>{index + 1}</div>,
+                render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
             },
             {
                 title: '试题内容',
-                key: 'bankName',
+                key: 'setName',
                 render: (text: any) => (
                     <div className="title">
                         <div className="que">{text.stem}</div>
                         <div className="choose">
                             <div className="tr">
                                 <div>
-                                    {text.option[0].Key}.{text.option[0].Value}
+                                    {text.options[0].key}.{text.options[0].value}
                                 </div>
                                 <div>
-                                    {text.option[1].Key}.{text.option[1].Value}
+                                    {text.options[1].key}.{text.options[1].value}
                                 </div>
                             </div>
                             <div className="tr">
                                 <div>
-                                    {text.option[2].Key}.{text.option[2].Value}
+                                    {text.options[2].key}.{text.options[2].value}
                                 </div>
-                                {text.option[3] ? (
+                                {text.options[3] ? (
                                     <div>
-                                        {text.option[3].Key}.{text.option[3].Value}
+                                        {text.options[3].key}.{text.options[3].value}
                                     </div>
                                 ) : (
                                     ''
                                 )}
                             </div>
                         </div>
-                        <div className="right">正确答案：{text.rightAnswer}</div>
+                        <div className="right">正确答案：{text.rightKey}</div>
                     </div>
                 ),
             },
@@ -92,13 +95,17 @@ class BankDetail extends React.Component {
         queNameC: '',
         queNameD: '',
         queNameR: '',
-        questionID: '',
+        questionId: '',
+        fileList: [],
+        // setFileList: useState<UploadFile[]>([]),
+        // fileList: useState<UploadFile[]>([])
     };
     componentWillMount() {
         this.inited();
     }
     async inited() {
         const bankData = await this.getQuestionBank();
+        console.log('bankData', bankData)
         this.setState({ ...bankData });
         this.getQuestionList();
     }
@@ -107,15 +114,15 @@ class BankDetail extends React.Component {
     async getQuestionBank() {
         const { bankID } = this.state;
         const res: any = await get({
-            url: `${baseUrl}/api/v1/question-set?bankID=${bankID}`,
+            url: `${baseUrl}/api/v1/question-set/?setId=${bankID}`,
         });
         return (
-            res || {
+            res?.data || {
                 bankID: '',
                 creator: '老实',
                 createTime: '0000-00-00 00:00:00',
                 updateTime: '0000-00-00 00:00:00',
-                bankType: 'choice',
+                setType: 'choice',
                 questionCount: '120',
             }
         );
@@ -125,13 +132,14 @@ class BankDetail extends React.Component {
     async getQuestionList() {
         const { bankID, bankQuery, pageNo } = this.state;
         const res: any = await get({
-            url: `${baseUrl}/api/v1/question-set/question/list?bankID=${bankID}&query=${bankQuery}&pageSize=20&pageNo=${pageNo}`,
+            url: `${baseUrl}/api/v1/question-set/question/list?setId=${bankID}&query=${bankQuery}&pageSize=20&pageNo=${pageNo}`,
         });
-        const questionBankList = res?.data?.questionBankList || [];
+        const questionBankList = res?.data?.questionList || [];
         const totalCount = (res?.data?.totalCount || 0) / 20;
         this.setState({
             data1: questionBankList,
             totalCount,
+            questionCount: res?.data?.totalCount
         });
     }
 
@@ -201,12 +209,13 @@ class BankDetail extends React.Component {
 
     /** 编辑单个试题 */
     async editQuestionInterface() {
-        const { questionID, queName, queNameA, queNameB, queNameC, queNameD, queNameR } =
+        const { questionId, queName, queNameA, queNameB, queNameC, queNameD, queNameR } =
             this.state;
+        console.log('editQuestionInterface', questionId)
         await put({
             url: `${baseUrl}/api/v1/question-set/question`,
             data: {
-                questionID,
+                questionId: questionId,
                 stem: queName,
                 options: [
                     {
@@ -226,7 +235,7 @@ class BankDetail extends React.Component {
                         value: queNameD,
                     },
                 ],
-                rightAnswer: queNameR,
+                rightKey: queNameR,
             },
         });
         this.getQuestionList();
@@ -234,11 +243,31 @@ class BankDetail extends React.Component {
 
     /** 删除接口 */
     async delQuestionInterface() {
-        const { questionID } = this.state;
-        await del({
-            url: `${baseUrl}/api/v1/question-set/question?questionID=${questionID}`,
+        const { questionId } = this.state;
+        await post({
+            url: `${baseUrl}/api/v1/question-set/question/delete`,
+            data: {
+                questionId
+            },
         });
         this.getQuestionList();
+    }
+
+    /** 下载模板 */
+    async loadTemplate() {
+        const template = await get({
+            url: `${baseUrl}/static/template/question-set-template.xls`,
+            config: {
+                responseType: 'blob'
+            }
+        })
+        const aElement = document.createElement("a");
+        aElement.setAttribute("download", '模版');
+        const href = URL.createObjectURL(template);
+        aElement.href = href;
+        aElement.setAttribute("target", "_blank");
+        aElement.click();
+        URL.revokeObjectURL(href);
     }
 
     /** 取消编辑 */
@@ -250,32 +279,32 @@ class BankDetail extends React.Component {
 
     /** 展示编辑弹窗 */
     showCreateModal(type: string, data: any) {
-        const { questionID, stem, option, rightAnswer } = data;
+        const { questionId, stem, options, rightKey } = data;
         if (type === 'edit') {
             this.setState({
                 isVisible: true,
                 moduleName: '编辑题目',
                 canEdit: true,
-                questionID,
+                questionId,
                 queName: stem,
-                queNameA: option[0].Value,
-                queNameB: option[1].Value,
-                queNameC: option[2].Value,
-                queNameD: option[3]?.Value || '',
-                queNameR: rightAnswer,
+                queNameA: options[0].value,
+                queNameB: options[1].value,
+                queNameC: options[2].value,
+                queNameD: options[3]?.value || '',
+                queNameR: rightKey,
             });
         } else {
             this.setState({
                 isVisible: true,
                 moduleName: '确认删除该试题？',
                 canEdit: false,
-                questionID,
+                questionId,
                 queName: stem,
-                queNameA: option[0].Value,
-                queNameB: option[1].Value,
-                queNameC: option[2].Value,
-                queNameD: option[3]?.Value || '',
-                queNameR: rightAnswer,
+                queNameA: options[0].value,
+                queNameB: options[1].value,
+                queNameC: options[2].value,
+                queNameD: options[3]?.value || '',
+                queNameR: rightKey,
             });
         }
     }
@@ -304,21 +333,57 @@ class BankDetail extends React.Component {
             }
         );
     }
-
-    /** 删除题库 */
-    // delBank() {
-    //     window.location.href = '/#/app/queBankCreate';
-    // }
-
+    /** 文件上传 */
+    handleUpload(){
+        this.setState({
+            uploadVisible: true
+        })
+    }
+    /** 确定上传 */
+    async handleUploadOk(){
+        this.handleUploadCancel();
+        message.success('上传中...');
+        const { bankID, fileList } = this.state;
+        const formData = new FormData();
+        fileList.forEach((file:any) => {
+            formData.append('setId', bankID);
+            formData.append('file', file as RcFile);
+        });
+        const res = await post({
+            url: `${baseUrl}/api/v1/question-set/question/file`,
+            data: formData,
+            config: {
+                headers:{
+                    'Accept': '*/*',
+                    'Content-Type': 'multipart/form-data;'
+                }
+            }
+        })
+        if(res.state === 0){
+            this.setState({
+                fileList: []
+            })
+            message.success('上传成功');
+            this.inited();
+        }else{
+            message.error('上传失败');
+        }
+    }
+    /** 取消上传 **/
+    handleUploadCancel(){
+        this.setState({
+            uploadVisible: false
+        })
+    }
     render() {
         const {
             bankID,
-            bankName,
+            setName,
             bankQuery,
             routes,
             creator,
             createTime,
-            bankType,
+            setType,
             updateTime,
             questionCount,
             columns1,
@@ -326,6 +391,7 @@ class BankDetail extends React.Component {
             totalCount,
             pageNo,
             isVisible,
+            uploadVisible,
             moduleName,
             canEdit,
             queName,
@@ -334,13 +400,54 @@ class BankDetail extends React.Component {
             queNameC,
             queNameD,
             queNameR,
+            fileList,
         } = this.state;
+        const uploadProps = {
+            name: 'file',
+            multiple: false,
+            action: `${baseUrl}/api/v1/question-set/question/file`,
+            maxCount: 1,
+            data:{
+                'setId': bankID
+            },
+            onChange: (info:any) => {
+                console.log(info)
+                if (info.file.status === 'done') {
+                    // console.log(info,'done');
+                    let res = info.file.response;
+                    // console.log(res.data)
+                    if (res.state === 0) {
+                        // 初始化
+                        this.inited()
+                        console.log('初始化')
+                    }
+                    message.success(`${info.file.name} 上传成功`);
+                } else if (info.file.status === 'error') {
+                    message.error(`${info.file.name} file upload failed.`);
+                }
+            },
+            onDrop(e:any) {
+              console.log('Dropped files', e.dataTransfer.files);
+            },
+            onRemove: (file:any) => {
+                this.setState({
+                    fileList: []
+                })
+            },
+            beforeUpload: (file:any) => {
+                this.setState({
+                    fileList: [...fileList, file]
+                })
+                return false;
+            },
+            fileList,
+        };
         return (
             <div className="bank-detail-wrapper">
                 <div className="header">
                     <PageHeader title="" breadcrumb={{ routes }} />
                     <div className="sec">
-                        <div className="text">{bankName}</div>
+                        <div className="text">{setName}</div>
                         {/* <Button onClick={this.delBank.bind(this)}>删除题库</Button> */}
                     </div>
                     <div className="thr">
@@ -355,7 +462,7 @@ class BankDetail extends React.Component {
                         </div>
                         <div className="tr">
                             <div>
-                                题库类型：<span>{ENUM_BANK_TYPE[bankType]}</span>
+                                题库题型：<span>{ENUM_BANK_TYPE[setType]}</span>
                             </div>
                             <div>
                                 更新时间：<span>{updateTime}</span>
@@ -382,7 +489,7 @@ class BankDetail extends React.Component {
                             >
                                 查询
                             </Button>
-                            <div className="gap-40">
+                            <div className="gap-12">
                                 <Link
                                     to={`/app/queBankCreate/bankDetail/questionAdd?bankID=${bankID}`}
                                 >
@@ -391,6 +498,14 @@ class BankDetail extends React.Component {
                                     </Button>
                                 </Link>
                             </div>
+                            <Button
+                                icon={<UploadOutlined />}
+                                className="gap-12"
+                                type="primary"
+                                onClick={this.handleUpload.bind(this)}
+                            >
+                                批量上传
+                            </Button>
                         </div>
                     </div>
                     <div className="thr">
@@ -479,6 +594,41 @@ class BankDetail extends React.Component {
                             value={queNameR}
                             onChange={this.onQueNameChangeR.bind(this)}
                         />
+                    </div>
+                </Modal>
+                <Modal
+                    width={800}
+                    title="模版导入"
+                    visible={uploadVisible}
+                    onOk={this.handleUploadOk.bind(this)}
+                    onCancel={this.handleUploadCancel.bind(this)}
+                >
+                    <div className="modal-top">
+                        <div className="modal-text">
+                            <div className="text-left">
+                                <span className="red">*</span>
+                                <span className="text">导入Excel文件：</span>
+                            </div>
+                        </div>
+                        <Button
+                            icon={<DownloadOutlined />}
+                            className="gap-12 load-template"
+                            type="primary"
+                            onClick={this.loadTemplate.bind(this)}
+                        >
+                            模版下载
+                        </Button>
+                    </div>
+                    <div className="modal-drag">
+                        <Dragger {...uploadProps}>
+                            <p className="ant-upload-drag-icon">
+                            <InboxOutlined />
+                            </p>
+                            <p className="ant-upload-text">点击选择本地文件</p>
+                            <p className="ant-upload-hint">
+                                或将Excel文件直接拖入此区域内
+                            </p>
+                        </Dragger>
                     </div>
                 </Modal>
             </div>

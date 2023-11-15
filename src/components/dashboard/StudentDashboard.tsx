@@ -21,15 +21,15 @@ const defaultOptions = {
             icon: 'rect', // 用矩形替换
         },
             {
-            name: '同期综合评分最优学员',
+            name: '综合评分最优学员',
             icon: 'rect',
         },
         {
-            name: '同期综合评分最差学员',
+            name: '综合评分最差学员',
             icon: 'rect', // 用矩形替换
         },
         {
-            name: '该指标同期平均值',
+            name: '该指标平均值',
             icon: 'rect',
         }
         ],
@@ -61,28 +61,28 @@ const defaultOptions = {
             name: '当前学员',
             type: 'line',
             smooth: true,
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
         {
-            name: '同期综合评分最优学员',
+            name: '综合评分最优学员',
             type: 'line',
             smooth: true,
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
         {
-            name: '同期综合评分最差学员',
+            name: '综合评分最差学员',
             type: 'line',
             smooth: true,
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
         {
-            name: '该指标同期平均值',
+            name: '该指标平均值',
             type: 'line',
             smooth: true,
             lineStyle: {
                 type: 'dashed',
             },
-            data: [0, 0, 0, 0, 0, 0],
+            data: [0, 0, 0, 0, 0, 0, 0],
         },
     ],
     color: ['#0089FF', '#00CF2C', '#FF1010', '#91949A']
@@ -151,16 +151,16 @@ const getyAxisBetween = (key: any) => {
         case 'score':
            label = '分'
            break;
-        case 'pass_rate':
+        case 'test_pass_rate':
             label = '%'
            break;
         case 'study_time':
-           label = '小时'
+           label = '分钟'
           break;
         case 'recite_count':
             label = '个'
            break;
-        case 'spt_pass_rate':
+        case 'stage_test_pass_rate':
             label = '%'
            break;
         default:
@@ -189,7 +189,7 @@ class Dashboard extends React.Component {
         centerData: {
 
         },
-        mydate1: (new Date(FunGetDateStr(-5, new Date()) + " 00:00:00") as any).format('yyyy-MM-dd'),
+        mydate1: (new Date(FunGetDateStr(-6, new Date()) + " 00:00:00") as any).format('yyyy-MM-dd'),
         mydate2: (new Date() as any).format('yyyy-MM-dd'),
         columns1: [
             {
@@ -520,12 +520,24 @@ class Dashboard extends React.Component {
     }
     async getPici() {
         let res = await get({url: baseUrl + '/api/v1/structure/batch/list'});
-        return res.data.detail || [];
+        const pici = res.data || [];
+        pici.unshift({
+            describe: '全部',
+            batchId: 0,
+        });
+        return pici;
     }
     async getClass(pici: any) {
-        let res = await get({url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&category=sc`});
-        console.log(res);
-        return res.data.detail || [];
+        let res = await get({url: baseUrl + `/api/v1/structure/class/list?batchId=${pici}&pageNo=1&pageSize=99999`});
+        const banji = res?.data?.classList ?? [];
+        banji.unshift({
+            classCode: '',
+            classId: 0,
+            createDate: '',
+            describe: '全部',
+            studentCount: 0,
+        });
+        return banji;
     }
     async getStu(banji: any) {
         const {selPici} = this.state;
@@ -536,12 +548,16 @@ class Dashboard extends React.Component {
 
     async handlePiCi(val: any) {
         let res = await this.getClass(val);
-        let res1 = await this.getStu(res[0] ? res[0].classId : 0);
+        let res1 = await this.getStu(res[1] ? res[1].classId : 0);
+        let selBanji = res[1] ? res[1].classId : 0;
         let selStu = res1[0] ? res1[0].studentId : 0
+        if(!val){
+            selBanji = 0
+        }
         this.setState({
             selPici: val,
             banji: res,
-            selBanji: res[0] ? res[0].classId : 0,
+            selBanji,
             stu: res1,
             selStu: res1[0] ? res1[0].classId : 0,
         });
@@ -567,7 +583,7 @@ class Dashboard extends React.Component {
             let newDefaultOption = getDefaultOption()
             if (this.echartsReact != null) {
                 instance.clear(); 
-                let date1 = (new Date(FunGetDateStr(-5, new Date()) + " 00:00:00") as any).format('yyyy-MM-dd')
+                let date1 = (new Date(FunGetDateStr(-6, new Date()) + " 00:00:00") as any).format('yyyy-MM-dd')
                 let date2 = (new Date() as any).format('yyyy-MM-dd')
                 newDefaultOption.xAxis.data = getDateBetween(date1, date2);
                 instance.setOption(newDefaultOption, true);
@@ -783,17 +799,17 @@ class Dashboard extends React.Component {
                         <div className="line-chart">
                             <Tabs defaultActiveKey="score" onChange={this.tabCallback.bind(this)}>
                                 <TabPane tab="综合评分趋势" key="score" />
-                                <TabPane tab="测试通过率" key="pass_rate" />
+                                <TabPane tab="测试通过率" key="test_pass_rate" />
                                 <TabPane tab="每日学习时长" key="study_time" />
                                 <TabPane tab="每日背词数" key="recite_count" />
-                                <TabPane tab="大考通过率" key="spt_pass_rate" />
+                                <TabPane tab="单词阶段考通过率" key="stage_test_pass_rate" />
                             </Tabs>
                             <div className="tab-content">
                                 <div className="content">
                                     <span>时间：</span>
                                     <RangePicker
                                         defaultValue={[
-                                            moment(new Date(FunGetDateStr(-5, new Date()) + " 00:00:00"), dateFormat),
+                                            moment(new Date(FunGetDateStr(-6, new Date()) + " 00:00:00"), dateFormat),
                                             moment(new Date(), dateFormat),
                                         ]}
                                         onChange={this.dataChange.bind(this)}
@@ -832,15 +848,15 @@ class Dashboard extends React.Component {
                                     />
                                 </div>
                             </div>
-                            <div className={data1.length ? "pag" : "display-none"}>
-                                <Pagination defaultCurrent={1} defaultPageSize={20} current={nowPag} total={allCount * 20} onChange={this.nowPagChange.bind(this)} />
+                            <div className={allCount > 20 ? "pag" : "display-none"}>
+                                <Pagination defaultCurrent={1} defaultPageSize={20} current={nowPag} total={allCount} onChange={this.nowPagChange.bind(this)} />
                             </div>
                         </div>
                     </Col>
                     <Col span={8}>
                         <div className="distance-fir">
                             <div>
-                                {baseInfo.endDescribe}
+                                打卡天数：{baseInfo.endDescribe || 0}
                             </div>
                         </div>
                         <div className="calendar-area">
@@ -855,11 +871,11 @@ class Dashboard extends React.Component {
                                         const year = value.year();
                                         return (
                                           <div className="custom-header">
-                                            <div className="left-icon" onClick={this.onCalendarGoPrev.bind(this, value, onChange)}/>
+                                            <div className="left-icon" onClick={this.onCalendarGoPrev.bind(this, value, onChange)} />
                                             <div className="current-date-title">
                                                 {`${String(year)}年  ${String(month + 1)}月`}
                                             </div>
-                                            <div className="right-icon" onClick={this.onCalendarGoNext.bind(this, value, onChange)}/>
+                                            <div className="right-icon" onClick={this.onCalendarGoNext.bind(this, value, onChange)} />
                                           </div>
                                         );
                                       }}
@@ -927,7 +943,7 @@ class Dashboard extends React.Component {
                                 </div>
                                 <div className="right">
                                     <div className="main">
-                                    <span className="big">{(testInfo.passRate*100).toFixed(2)}</span>
+                                    <span className="big">{(testInfo.passRate*100).toFixed(0)}</span>
                                         <span className="small">%</span>
                                     </div>
                                     <div className="sub">当日测试通过率</div>
