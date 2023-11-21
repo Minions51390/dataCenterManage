@@ -644,7 +644,7 @@ class MainSet extends React.Component {
                 createWritingId: '',
                 createExamType: 'practice',
                 createStartTime: moment().format(dateFormat1),
-                createEndTime: (new Date(FunGetDateStr(7, new Date()) + ' 00:00:00') as any).format(dateFormat1),
+                createEndTime: moment((new Date(FunGetDateStr(7, new Date()) + ' 00:00:00') as any)).format(dateFormat1),
             });
         } else {
             message.error(`发布作文任务失败:${res.msg}`);
