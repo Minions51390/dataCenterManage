@@ -9,6 +9,7 @@ const { Option } = Select;
 const BANK_TYPE_MAP: any = {
     choice: '单选',
     pack: '填空',
+    readingChoose: '词汇理解-选词填空',
 };
 class QueBank extends React.Component {
     state = {
@@ -16,7 +17,7 @@ class QueBank extends React.Component {
         isVisible: false,
         setName: '',
         setType: 'choice',
-        setTypeList: ['choice'], //['pack']
+        setTypeList: ['choice', 'readingChoose'], //['pack']
         pageNo: 1,
         totalCount: 1,
         sortKey: 'creator',
@@ -25,7 +26,9 @@ class QueBank extends React.Component {
             {
                 title: '序号',
                 key: 'key',
-                render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
+                render: (text: any, record: any, index: number) => (
+                    <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>
+                ),
             },
             {
                 title: '题库名称',
@@ -150,7 +153,7 @@ class QueBank extends React.Component {
         });
         const bankID = await this.confimeNew();
         console.log('bankID', bankID);
-        if(bankID){
+        if (bankID) {
             sessionStorage.setItem('bankDetailId', bankID);
             sessionStorage.setItem('bankDetailName', setName);
             window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
@@ -177,8 +180,8 @@ class QueBank extends React.Component {
                 setType: setType,
             },
         });
-        if(response.state !== 0){
-            return
+        if (response.state !== 0) {
+            return;
         }
         return response?.data?.setId || '';
     }
