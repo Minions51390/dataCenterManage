@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Pagination, Input, Button, Modal, Select, message } from 'antd';
+import { Table, Pagination, Input, Button, Modal, Select, message, Radio } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { createBrowserHistory } from 'history';
 import '../../style/pageStyle/QueBankCreate.less';
@@ -8,8 +8,9 @@ export const history = createBrowserHistory();
 const { Option } = Select;
 const BANK_TYPE_MAP: any = {
     choice: '单选',
-    pack: '填空',
-    readingChoose: '词汇理解-选词填空',
+    pack: '词汇理解',
+    long_reading: '长篇阅读',
+    cf_reading: '仔细阅读',
 };
 class QueBank extends React.Component {
     state = {
@@ -17,7 +18,8 @@ class QueBank extends React.Component {
         isVisible: false,
         setName: '',
         setType: 'choice',
-        setTypeList: ['choice', 'readingChoose'], //['pack']
+        genuine: false,
+        setTypeList: ['choice', 'pack', 'long_reading', 'cf_reading'],
         pageNo: 1,
         totalCount: 1,
         sortKey: 'creator',
@@ -172,12 +174,13 @@ class QueBank extends React.Component {
 
     /** 确认新建接口 */
     async confimeNew() {
-        const { setName, setType } = this.state;
+        const { setName, setType, genuine } = this.state;
         const response: any = await post({
             url: baseUrl + '/api/v1/question-set/',
             data: {
                 setName: setName,
                 setType: setType,
+                genuine,
             },
         });
         if (response.state !== 0) {
@@ -235,6 +238,14 @@ class QueBank extends React.Component {
         });
     }
 
+    /** 切换真题 */
+    onGenuineChange(val: any) {
+        console.log(val);
+        this.setState({
+            genuine: val.target.value,
+        });
+    }
+
     /** 排序更换触发 */
     tableChange(pagination: any, filters: any, sorter: any, extra: any) {
         if (sorter?.columnKey) {
@@ -263,6 +274,7 @@ class QueBank extends React.Component {
             setName,
             setTypeList,
             setType,
+            genuine,
             teacher,
             selTeacher,
         } = this.state;
@@ -371,6 +383,15 @@ class QueBank extends React.Component {
                                 </Option>
                             ))}
                         </Select>
+                    </div>
+                    <div className="module-area">
+                        真题题库:
+                        <div style={{ width: '294px', marginLeft: '12px' }}>
+                            <Radio.Group onChange={this.onGenuineChange.bind(this)} value={genuine}>
+                                <Radio value={true}>是</Radio>
+                                <Radio value={false}>否</Radio>
+                            </Radio.Group>
+                        </div>
                     </div>
                 </Modal>
             </div>
