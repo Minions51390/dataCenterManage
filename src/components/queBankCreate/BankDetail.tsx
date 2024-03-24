@@ -209,7 +209,7 @@ class BankDetail extends React.Component {
 
     /** 编辑单个试题 */
     async editQuestionInterface() {
-        const { questionId, queName, queNameA, queNameB, queNameC, queNameD, queNameR } =
+        const { questionId, queName, queNameA, queNameB, queNameC, queNameD, queNameR, setType } =
             this.state;
         console.log('editQuestionInterface', questionId)
         await put({
@@ -217,6 +217,7 @@ class BankDetail extends React.Component {
             data: {
                 questionId: questionId,
                 stem: queName,
+				setType,
                 options: [
                     {
                         key: 'A',
@@ -491,7 +492,7 @@ class BankDetail extends React.Component {
                             </Button>
                             <div className="gap-12">
                                 <Link
-                                    to={`/app/queBankCreate/bankDetail/questionAdd?bankID=${bankID}`}
+                                    to={`/app/queBankCreate/bankDetail/questionAdd?bankID=${bankID}&setType=${setType}`}
                                 >
                                     <Button type="primary" icon={<PlusOutlined />}>
                                         新建

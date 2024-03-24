@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Pagination, Input, Button, Modal, Select, message, Radio } from 'antd';
+import { Table, Pagination, Input, Button, Modal, Select, message, Radio, Checkbox } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { createBrowserHistory } from 'history';
 import '../../style/pageStyle/QueBankCreate.less';
@@ -12,13 +12,16 @@ const BANK_TYPE_MAP: any = {
     long_reading: '长篇阅读',
     cf_reading: '仔细阅读',
 };
+const BANK_TYPE_LIST = ['', 'choice', 'pack', 'long_reading', 'cf_reading'];
 class QueBank extends React.Component {
     state = {
         bankQuery: '',
         isVisible: false,
         setName: '',
         setType: 'choice',
+		setTypeFilter: 'choice',
         genuine: false,
+		genuineFilter: 0,
         setTypeList: ['choice', 'pack', 'long_reading', 'cf_reading'],
         pageNo: 1,
         totalCount: 1,
@@ -106,10 +109,9 @@ class QueBank extends React.Component {
 
     /** 获取题库列表 */
     async getQuestionBankList() {
-        const { bankQuery, pageNo, sortKey, sortOrder, selTeacher } = this.state;
-        console.log('selTeacher', selTeacher);
+        const { bankQuery, pageNo, sortKey, sortOrder, selTeacher, setTypeFilter, genuineFilter } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/question-set/list?teacherId=${selTeacher.teacherId}&query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}&all=off`,
+            url: `${baseUrl}/api/v1/question-set/list?teacherId=${selTeacher.teacherId}&query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}&setType=${setTypeFilter}&genuine=${genuineFilter}&all=off`,
         });
         console.log('------------->', res);
         const questionBankList = res?.data?.questionSetList || [];
@@ -231,6 +233,28 @@ class QueBank extends React.Component {
         );
     }
 
+	handelSetTypeFilter(val: any) {
+        this.setState(
+            {
+                setTypeFilter: val
+            },
+            async () => {
+                this.getQuestionBankList();
+            }
+        );
+	}
+
+	handleGenuineFilter(val: any) {
+		this.setState(
+            {
+                genuineFilter: val.target.checked ? 1 : 0
+            },
+            async () => {
+                this.getQuestionBankList();
+            }
+        );
+	}
+
     /** 题库题型 */
     handlesetType(val: any) {
         this.setState({
@@ -277,6 +301,7 @@ class QueBank extends React.Component {
             genuine,
             teacher,
             selTeacher,
+			setTypeFilter,
         } = this.state;
         return (
             <div className="quebank-wrapper">
@@ -327,6 +352,21 @@ class QueBank extends React.Component {
                                 </Option>
                             ))}
                         </Select>
+						<span className="span" style={{marginLeft: '24px'}}>题库题型:</span>
+                        <Select
+                            defaultValue={setTypeFilter}
+                            style={{ width: 180 }}
+                            placeholder="请选择学员批次"
+                            onChange={this.handelSetTypeFilter.bind(this)}
+                            value={setTypeFilter}
+                        >
+                            {BANK_TYPE_LIST.map((item: any, index: number) => (
+                                <Option key={index} value={item}>
+                                    {BANK_TYPE_MAP[item] || '全部'}
+                                </Option>
+                            ))}
+                        </Select>
+						<Checkbox style={{marginLeft: '24px'}} onChange={this.handleGenuineFilter.bind(this)}>只看真题题库</Checkbox>
                     </div>
                     <div className="thr">
                         <Table

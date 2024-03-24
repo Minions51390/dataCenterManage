@@ -35,6 +35,7 @@ class QuestionAdd extends React.Component {
             },
         ],
         bankID: '',
+        setType: '',
         questionArr: [
             {
                 stem: '',
@@ -67,6 +68,7 @@ class QuestionAdd extends React.Component {
     async inited() {
         this.setState({
             bankID: GetRequest()['bankID'],
+            setType: GetRequest()['setType'],
         });
     }
 
@@ -103,7 +105,7 @@ class QuestionAdd extends React.Component {
     /** 保存试题 */
     async saveQuestion() {
         const res = await this.saveQuestionInterface();
-        if(res.state === 0){
+        if (res.state === 0) {
             message.success('保存成功');
             setTimeout(() => {
                 window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
@@ -113,11 +115,12 @@ class QuestionAdd extends React.Component {
 
     /** 保存接口 */
     async saveQuestionInterface() {
-        const { bankID, questionArr } = this.state;
+        const { bankID, questionArr, setType } = this.state;
         const response: any = await post({
             url: baseUrl + '/api/v1/question-set/question',
             data: {
                 setId: bankID,
+                setType,
                 questionList: questionArr,
             },
         });
@@ -128,11 +131,11 @@ class QuestionAdd extends React.Component {
     updateInput(val: any, index: number, type: string, key: number, event: any) {
         const { questionArr } = this.state;
         const valData = event.target.value;
-        if (type === "stem") {
+        if (type === 'stem') {
             questionArr[index].stem = valData;
-        } else if (type === "options") {
+        } else if (type === 'options') {
             questionArr[index].options[key].value = valData;
-        } else if (type === "rightKey") {
+        } else if (type === 'rightKey') {
             questionArr[index].rightKey = valData;
         }
         this.setState({
@@ -143,7 +146,7 @@ class QuestionAdd extends React.Component {
     /** 删除试题 */
     delQuestion(index: number) {
         const { questionArr } = this.state;
-        questionArr.splice(index, 1)
+        questionArr.splice(index, 1);
         this.setState({
             questionArr,
         });
@@ -177,7 +180,13 @@ class QuestionAdd extends React.Component {
                                         <TextArea
                                             className="gap-8"
                                             value={val.stem}
-                                            onChange={this.updateInput.bind(this, val, index, "stem", 0)}
+                                            onChange={this.updateInput.bind(
+                                                this,
+                                                val,
+                                                index,
+                                                'stem',
+                                                0
+                                            )}
                                         />
                                     </div>
                                     <div className="area">
@@ -185,7 +194,13 @@ class QuestionAdd extends React.Component {
                                         <Input
                                             className="gap-8"
                                             value={val.options[0].value}
-                                            onChange={this.updateInput.bind(this, val, index, "options", 0)}
+                                            onChange={this.updateInput.bind(
+                                                this,
+                                                val,
+                                                index,
+                                                'options',
+                                                0
+                                            )}
                                         />
                                     </div>
                                     <div className="area">
@@ -193,7 +208,13 @@ class QuestionAdd extends React.Component {
                                         <Input
                                             className="gap-8"
                                             value={val.options[1].value}
-                                            onChange={this.updateInput.bind(this, val, index, "options", 1)}
+                                            onChange={this.updateInput.bind(
+                                                this,
+                                                val,
+                                                index,
+                                                'options',
+                                                1
+                                            )}
                                         />
                                     </div>
                                     <div className="area">
@@ -201,7 +222,13 @@ class QuestionAdd extends React.Component {
                                         <Input
                                             className="gap-8"
                                             value={val.options[2].value}
-                                            onChange={this.updateInput.bind(this, val, index, "options", 2)}
+                                            onChange={this.updateInput.bind(
+                                                this,
+                                                val,
+                                                index,
+                                                'options',
+                                                2
+                                            )}
                                         />
                                     </div>
                                     <div className="area">
@@ -209,7 +236,13 @@ class QuestionAdd extends React.Component {
                                         <Input
                                             className="gap-8"
                                             value={val.options[3].value}
-                                            onChange={this.updateInput.bind(this, val, index, "options", 3)}
+                                            onChange={this.updateInput.bind(
+                                                this,
+                                                val,
+                                                index,
+                                                'options',
+                                                3
+                                            )}
                                         />
                                     </div>
                                     <div className="area">
@@ -217,11 +250,19 @@ class QuestionAdd extends React.Component {
                                         <Input
                                             className="gap-8"
                                             value={val.rightKey}
-                                            onChange={this.updateInput.bind(this, val, index, "rightKey", 0)}
+                                            onChange={this.updateInput.bind(
+                                                this,
+                                                val,
+                                                index,
+                                                'rightKey',
+                                                0
+                                            )}
                                         />
                                     </div>
                                 </div>
-                                <div className="del" onClick={this.delQuestion.bind(this, index)}>删除试题</div>
+                                <div className="del" onClick={this.delQuestion.bind(this, index)}>
+                                    删除试题
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -231,8 +272,10 @@ class QuestionAdd extends React.Component {
                         </Button>
                     </div>
                     <div className="tools">
-                        <Button type="primary" onClick={this.saveQuestion.bind(this)}>保存</Button>
-                        <Link to={"/app/queBankCreate/bankDetail"}>
+                        <Button type="primary" onClick={this.saveQuestion.bind(this)}>
+                            保存
+                        </Button>
+                        <Link to={'/app/queBankCreate/bankDetail'}>
                             <Button>取消</Button>
                         </Link>
                     </div>
