@@ -17,6 +17,7 @@ import Dashboard from './dashboard/Dashboard';
 import QueBankCreate from './queBankCreate/QueBankCreate';
 import BankDetail from './queBankCreate/BankDetail';
 import QuestionAdd from "./queBankCreate/QuestionAdd";
+import QuestionAddPack from "./queBankCreate/QuestionAddPack";
 import TestPaper from './testPaper/TestPaper';
 import TestRank from './testRank/TestRank';
 import StuRank from './testRank/stuRank';
@@ -101,4 +102,5 @@ export default {
     WritingDetail,
     ExamRank,
     ExamDetail,
+	QuestionAddPack,
 } as any;

@@ -1,15 +1,36 @@
 import React, { useState } from 'react';
-import { Table, Pagination, Input, Button, Modal, PageHeader, Upload, message } from 'antd';
+import { Table, Pagination, Input, Button, Modal, PageHeader, Upload, message, Select } from 'antd';
 import { Link } from 'react-router-dom';
-import { PlusOutlined, UploadOutlined, DownloadOutlined, FileAddOutlined, InboxOutlined } from '@ant-design/icons';
+import {
+    PlusOutlined,
+    UploadOutlined,
+    DownloadOutlined,
+    FileAddOutlined,
+    InboxOutlined,
+} from '@ant-design/icons';
 import '../../style/pageStyle/BankDetail.less';
 import { get, post, del, put, baseUrl } from '../../service/tools';
 import type { RcFile, UploadFile } from 'antd/es/upload/interface';
 const { Dragger } = Upload;
+const { Option } = Select;
 const ENUM_BANK_TYPE: any = {
-    choice: '单选题',
-    pack: '填空题',
+    choice: '单选',
+    pack: '词汇理解',
+    long_reading: '长篇阅读',
+    cf_reading: '仔细阅读',
 };
+
+const SELECT_TP: any = {
+    cet4: '四级',
+    cet6: '六级',
+};
+
+const SELECT_TP_LIST = ['cet4', 'cet6'];
+
+const YEAR_MAP = new Array(new Date().getFullYear() - 1950).fill(0).map((item, index) => {
+    return `${index + 1951}`;
+});
+
 const { TextArea } = Input;
 class BankDetail extends React.Component {
     state = {
@@ -41,39 +62,14 @@ class BankDetail extends React.Component {
             {
                 title: '序号',
                 key: 'key',
-                render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
+                render: (text: any, record: any, index: number) => (
+                    <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>
+                ),
             },
             {
                 title: '试题内容',
                 key: 'setName',
-                render: (text: any) => (
-                    <div className="title">
-                        <div className="que">{text.stem}</div>
-                        <div className="choose">
-                            <div className="tr">
-                                <div>
-                                    {text.options[0].key}.{text.options[0].value}
-                                </div>
-                                <div>
-                                    {text.options[1].key}.{text.options[1].value}
-                                </div>
-                            </div>
-                            <div className="tr">
-                                <div>
-                                    {text.options[2].key}.{text.options[2].value}
-                                </div>
-                                {text.options[3] ? (
-                                    <div>
-                                        {text.options[3].key}.{text.options[3].value}
-                                    </div>
-                                ) : (
-                                    ''
-                                )}
-                            </div>
-                        </div>
-                        <div className="right">正确答案：{text.rightKey}</div>
-                    </div>
-                ),
+                render: this.choiceRender.bind(this)
             },
             {
                 title: '操作',
@@ -97,6 +93,8 @@ class BankDetail extends React.Component {
         queNameR: '',
         questionId: '',
         fileList: [],
+        selectYear: YEAR_MAP[YEAR_MAP.length - 1],
+        selectTp: 'cet4',
         // setFileList: useState<UploadFile[]>([]),
         // fileList: useState<UploadFile[]>([])
     };
@@ -105,9 +103,40 @@ class BankDetail extends React.Component {
     }
     async inited() {
         const bankData = await this.getQuestionBank();
-        console.log('bankData', bankData)
+        console.log('bankData', bankData);
         this.setState({ ...bankData });
         this.getQuestionList();
+    }
+
+    choiceRender(text: any) {
+        return (
+            <div className="title">
+                <div className="que">{text.stem}</div>
+                <div className="choose">
+                    <div className="tr">
+                        <div>
+                            {text.options[0].key}.{text.options[0].value}
+                        </div>
+                        <div>
+                            {text.options[1].key}.{text.options[1].value}
+                        </div>
+                    </div>
+                    <div className="tr">
+                        <div>
+                            {text.options[2].key}.{text.options[2].value}
+                        </div>
+                        {text.options[3] ? (
+                            <div>
+                                {text.options[3].key}.{text.options[3].value}
+                            </div>
+                        ) : (
+                            ''
+                        )}
+                    </div>
+                </div>
+                <div className="right">正确答案：{text.rightKey}</div>
+            </div>
+        );
     }
 
     /** 单个题库信息 */
@@ -130,16 +159,16 @@ class BankDetail extends React.Component {
 
     /** 题库试题列表 */
     async getQuestionList() {
-        const { bankID, bankQuery, pageNo } = this.state;
+        const { bankID, bankQuery, pageNo, selectTp, selectYear } = this.state;
         const res: any = await get({
-            url: `${baseUrl}/api/v1/question-set/question/list?setId=${bankID}&query=${bankQuery}&pageSize=20&pageNo=${pageNo}`,
+            url: `${baseUrl}/api/v1/question-set/question/list?setId=${bankID}&query=${bankQuery}&year=${selectYear}&tp=${selectTp}&pageSize=20&pageNo=${pageNo}`,
         });
         const questionBankList = res?.data?.questionList || [];
         const totalCount = (res?.data?.totalCount || 0) / 20;
         this.setState({
             data1: questionBankList,
             totalCount,
-            questionCount: res?.data?.totalCount
+            questionCount: res?.data?.totalCount,
         });
     }
 
@@ -211,13 +240,13 @@ class BankDetail extends React.Component {
     async editQuestionInterface() {
         const { questionId, queName, queNameA, queNameB, queNameC, queNameD, queNameR, setType } =
             this.state;
-        console.log('editQuestionInterface', questionId)
+        console.log('editQuestionInterface', questionId);
         await put({
             url: `${baseUrl}/api/v1/question-set/question`,
             data: {
                 questionId: questionId,
                 stem: queName,
-				setType,
+                setType,
                 options: [
                     {
                         key: 'A',
@@ -248,7 +277,7 @@ class BankDetail extends React.Component {
         await post({
             url: `${baseUrl}/api/v1/question-set/question/delete`,
             data: {
-                questionId
+                questionId,
             },
         });
         this.getQuestionList();
@@ -259,14 +288,14 @@ class BankDetail extends React.Component {
         const template = await get({
             url: `${baseUrl}/static/template/question-set-template.xls`,
             config: {
-                responseType: 'blob'
-            }
-        })
-        const aElement = document.createElement("a");
-        aElement.setAttribute("download", '模版');
+                responseType: 'blob',
+            },
+        });
+        const aElement = document.createElement('a');
+        aElement.setAttribute('download', '模版');
         const href = URL.createObjectURL(template);
         aElement.href = href;
-        aElement.setAttribute("target", "_blank");
+        aElement.setAttribute('target', '_blank');
         aElement.click();
         URL.revokeObjectURL(href);
     }
@@ -334,19 +363,21 @@ class BankDetail extends React.Component {
             }
         );
     }
+
     /** 文件上传 */
-    handleUpload(){
+    handleUpload() {
         this.setState({
-            uploadVisible: true
-        })
+            uploadVisible: true,
+        });
     }
+
     /** 确定上传 */
-    async handleUploadOk(){
+    async handleUploadOk() {
         this.handleUploadCancel();
         message.success('上传中...');
         const { bankID, fileList } = this.state;
         const formData = new FormData();
-        fileList.forEach((file:any) => {
+        fileList.forEach((file: any) => {
             formData.append('setId', bankID);
             formData.append('file', file as RcFile);
         });
@@ -354,28 +385,52 @@ class BankDetail extends React.Component {
             url: `${baseUrl}/api/v1/question-set/question/file`,
             data: formData,
             config: {
-                headers:{
-                    'Accept': '*/*',
-                    'Content-Type': 'multipart/form-data;'
-                }
-            }
-        })
-        if(res.state === 0){
+                headers: {
+                    Accept: '*/*',
+                    'Content-Type': 'multipart/form-data;',
+                },
+            },
+        });
+        if (res.state === 0) {
             this.setState({
-                fileList: []
-            })
+                fileList: [],
+            });
             message.success('上传成功');
             this.inited();
-        }else{
+        } else {
             message.error('上传失败');
         }
     }
+
     /** 取消上传 **/
-    handleUploadCancel(){
+    handleUploadCancel() {
         this.setState({
-            uploadVisible: false
-        })
+            uploadVisible: false,
+        });
     }
+
+    handleSelectTp(val: any) {
+        this.setState(
+            {
+                selectTp: val,
+            },
+            () => {
+                this.getQuestionList();
+            }
+        );
+    }
+
+    handleSelectYear(val: any) {
+        this.setState(
+            {
+                selectYear: val,
+            },
+            () => {
+                this.getQuestionList();
+            }
+        );
+    }
+
     render() {
         const {
             bankID,
@@ -402,43 +457,45 @@ class BankDetail extends React.Component {
             queNameD,
             queNameR,
             fileList,
+            selectYear,
+            selectTp,
         } = this.state;
         const uploadProps = {
             name: 'file',
             multiple: false,
             action: `${baseUrl}/api/v1/question-set/question/file`,
             maxCount: 1,
-            data:{
-                'setId': bankID
+            data: {
+                setId: bankID,
             },
-            onChange: (info:any) => {
-                console.log(info)
+            onChange: (info: any) => {
+                console.log(info);
                 if (info.file.status === 'done') {
                     // console.log(info,'done');
                     let res = info.file.response;
                     // console.log(res.data)
                     if (res.state === 0) {
                         // 初始化
-                        this.inited()
-                        console.log('初始化')
+                        this.inited();
+                        console.log('初始化');
                     }
                     message.success(`${info.file.name} 上传成功`);
                 } else if (info.file.status === 'error') {
                     message.error(`${info.file.name} file upload failed.`);
                 }
             },
-            onDrop(e:any) {
-              console.log('Dropped files', e.dataTransfer.files);
+            onDrop(e: any) {
+                console.log('Dropped files', e.dataTransfer.files);
             },
-            onRemove: (file:any) => {
+            onRemove: (file: any) => {
                 this.setState({
-                    fileList: []
-                })
+                    fileList: [],
+                });
             },
-            beforeUpload: (file:any) => {
+            beforeUpload: (file: any) => {
                 this.setState({
-                    fileList: [...fileList, file]
-                })
+                    fileList: [...fileList, file],
+                });
                 return false;
             },
             fileList,
@@ -491,22 +548,68 @@ class BankDetail extends React.Component {
                                 查询
                             </Button>
                             <div className="gap-12">
+                                年份:
+                                <Select
+                                    defaultValue={selectYear}
+                                    className="gap-12"
+                                    style={{ width: 124 }}
+                                    placeholder="请选择学员批次"
+                                    onChange={this.handleSelectYear.bind(this)}
+                                    value={selectYear}
+                                >
+                                    {YEAR_MAP.map((item: any, index: number) => (
+                                        <Option key={index} value={item}>
+                                            {item}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </div>
+                            <div className="gap-12">
+                                类型:
+                                <Select
+                                    defaultValue={selectTp}
+                                    className="gap-12"
+                                    style={{ width: 124 }}
+                                    placeholder="类型"
+                                    onChange={this.handleSelectTp.bind(this)}
+                                    value={selectTp}
+                                >
+                                    {SELECT_TP_LIST.map((item: any, index: number) => (
+                                        <Option key={index} value={item}>
+                                            {SELECT_TP[item] || '未知'}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </div>
+                            <div className="gap-12">
                                 <Link
-                                    to={`/app/queBankCreate/bankDetail/questionAdd?bankID=${bankID}&setType=${setType}`}
+                                    to={
+                                        setType === 'choice'
+                                            ? `/app/queBankCreate/bankDetail/questionAdd?bankID=${bankID}&setType=${setType}`
+                                            : setType === 'pack'
+                                            ? `/app/queBankCreate/bankDetail/questionAddPack?bankID=${bankID}&setType=${setType}`
+                                            : setType === 'long_reading'
+                                            ? ''
+                                            : ''
+                                    }
                                 >
                                     <Button type="primary" icon={<PlusOutlined />}>
                                         新建
                                     </Button>
                                 </Link>
                             </div>
-                            <Button
-                                icon={<UploadOutlined />}
-                                className="gap-12"
-                                type="primary"
-                                onClick={this.handleUpload.bind(this)}
-                            >
-                                批量上传
-                            </Button>
+                            {/* {setType === 'choice' ? (
+                                <Button
+                                    icon={<UploadOutlined />}
+                                    className="gap-12"
+                                    type="primary"
+                                    onClick={this.handleUpload.bind(this)}
+                                >
+                                    批量上传
+                                </Button>
+                            ) : (
+                                <></>
+                            )} */}
                         </div>
                     </div>
                     <div className="thr">
@@ -623,12 +726,10 @@ class BankDetail extends React.Component {
                     <div className="modal-drag">
                         <Dragger {...uploadProps}>
                             <p className="ant-upload-drag-icon">
-                            <InboxOutlined />
+                                <InboxOutlined />
                             </p>
                             <p className="ant-upload-text">点击选择本地文件</p>
-                            <p className="ant-upload-hint">
-                                或将Excel文件直接拖入此区域内
-                            </p>
+                            <p className="ant-upload-hint">或将Excel文件直接拖入此区域内</p>
                         </Dragger>
                     </div>
                 </Modal>
