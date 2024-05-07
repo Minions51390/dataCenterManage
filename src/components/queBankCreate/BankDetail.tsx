@@ -47,7 +47,7 @@ class BankDetail extends React.Component {
         bankQuery: '',
         isVisible: false,
         uploadVisible: false,
-        setTypeList: ['choice'], //['pack'],
+        // setTypeList: ['choice'], //['pack'],
         pageNo: 1,
         totalCount: 1,
         /** 默认数据 */
@@ -56,7 +56,7 @@ class BankDetail extends React.Component {
         creator: '',
         createTime: '0000-00-00 00:00:00',
         updateTime: '0000-00-00 00:00:00',
-        setType: 'choice',
+        setType: 'long_reading',
         questionCount: '120',
         columns1: [
             {
@@ -151,7 +151,7 @@ class BankDetail extends React.Component {
                 creator: '老实',
                 createTime: '0000-00-00 00:00:00',
                 updateTime: '0000-00-00 00:00:00',
-                setType: 'choice',
+                setType: 'long_reading',
                 questionCount: '120',
             }
         );
@@ -589,7 +589,7 @@ class BankDetail extends React.Component {
                                             : setType === 'pack'
                                             ? `/app/queBankCreate/bankDetail/questionAddPack?bankID=${bankID}&setType=${setType}`
                                             : setType === 'long_reading'
-                                            ? ''
+                                            ? `/app/queBankCreate/bankDetail/questionAddLongReading?bankID=${bankID}&setType=${setType}`
                                             : ''
                                     }
                                 >
