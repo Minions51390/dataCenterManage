@@ -19,6 +19,7 @@ import BankDetail from './queBankCreate/BankDetail';
 import QuestionAdd from "./queBankCreate/QuestionAdd";
 import QuestionAddPack from "./queBankCreate/QuestionAddPack";
 import QuestionAddLongReading from "./queBankCreate/QuestionAddLongReading";
+import QuestionAddCfReading from "./queBankCreate/QuestionAddCfReading";
 import TestPaper from './testPaper/TestPaper';
 import TestRank from './testRank/TestRank';
 import StuRank from './testRank/stuRank';
@@ -105,4 +106,5 @@ export default {
     ExamDetail,
 	QuestionAddPack,
 	QuestionAddLongReading,
+	QuestionAddCfReading,
 } as any;

@@ -590,7 +590,7 @@ class BankDetail extends React.Component {
                                             ? `/app/queBankCreate/bankDetail/questionAddPack?bankID=${bankID}&setType=${setType}`
                                             : setType === 'long_reading'
                                             ? `/app/queBankCreate/bankDetail/questionAddLongReading?bankID=${bankID}&setType=${setType}`
-                                            : ''
+                                            : `/app/queBankCreate/bankDetail/questionAddCfReading?bankID=${bankID}&setType=${setType}`
                                     }
                                 >
                                     <Button type="primary" icon={<PlusOutlined />}>

@@ -53,6 +53,7 @@ const menus: {
         { key: '/app/queBankCreate/bankDetail/questionAdd', title: '', icon: 'mobile', component: 'QuestionAdd' },
 		{ key: '/app/queBankCreate/bankDetail/questionAddPack', title: '', icon: 'mobile', component: 'QuestionAddPack' },
 		{ key: '/app/queBankCreate/bankDetail/questionAddLongReading', title: '', icon: 'mobile', component: 'QuestionAddLongReading' },
+		{ key: '/app/queBankCreate/bankDetail/questionAddCfReading', title: '', icon: 'mobile', component: 'QuestionAddCfReading' },
         { key: '/app/test/testPaper/testDetail', title: '', icon: 'mobile', component: 'TestDetail' },
         { key: '/app/test/testPaper/stuDetail', title: '', icon: 'mobile', component: 'StuPaperDetail' },
         { key: '/app/test/testRank/stuRank', title: '', icon: 'mobile', component: 'StuRank' },
