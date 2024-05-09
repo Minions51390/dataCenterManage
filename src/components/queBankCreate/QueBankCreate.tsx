@@ -151,7 +151,7 @@ class QueBank extends React.Component {
     /** 确认新建 */
     async handleCreateOk(val: any) {
         console.log('handleCreateOk', val);
-        const { setName } = this.state;
+        const { setName, setType } = this.state;
         this.setState({
             isVisible: false,
         });
@@ -160,7 +160,16 @@ class QueBank extends React.Component {
         if (bankID) {
             sessionStorage.setItem('bankDetailId', bankID);
             sessionStorage.setItem('bankDetailName', setName);
-            window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
+			console.log(123123, setType);
+			if (setType === 'choice') {
+				window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
+			} else if (setType === 'pack') {
+				window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailPack`;
+			} else if (setType === 'long_reading') {
+				window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailLongReading`;
+			} else {
+				window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailCfReading`;
+			}
         }
     }
 
@@ -169,9 +178,18 @@ class QueBank extends React.Component {
         console.log('clickEditButton', text);
         const bankID = text.setId;
         const setName = text.setName;
+		const setType = text.setType;
         sessionStorage.setItem('bankDetailId', bankID);
         sessionStorage.setItem('bankDetailName', setName);
-        window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
+		if (setType === 'choice') {
+			window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
+		} else if (setType === 'pack') {
+			window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailPack`;
+		} else if (setType === 'long_reading') {
+			window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailLongReading`;
+		} else {
+			window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailCfReading`;
+		}
     }
 
     /** 确认新建接口 */

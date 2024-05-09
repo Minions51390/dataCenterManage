@@ -8,7 +8,7 @@ import {
     FileAddOutlined,
     InboxOutlined,
 } from '@ant-design/icons';
-import '../../style/pageStyle/BankDetail.less';
+import '../../style/pageStyle/BankDetailCfReading.less';
 import { get, post, del, put, baseUrl } from '../../service/tools';
 import type { RcFile, UploadFile } from 'antd/es/upload/interface';
 const { Dragger } = Upload;
@@ -34,7 +34,7 @@ YEAR_MAP.push('');
 YEAR_MAP = YEAR_MAP.reverse();
 
 const { TextArea } = Input;
-class BankDetail extends React.Component {
+class BankDetailCfReading extends React.Component {
     state = {
         routes: [
             {
@@ -42,7 +42,7 @@ class BankDetail extends React.Component {
                 breadcrumbName: '题库建设',
             },
             {
-                path: '/bankDetail',
+                path: '/bankDetailCfReading',
                 breadcrumbName: `${sessionStorage.getItem('bankDetailName') || '新建'}题库`,
             },
         ],
@@ -58,7 +58,7 @@ class BankDetail extends React.Component {
         creator: '',
         createTime: '0000-00-00 00:00:00',
         updateTime: '0000-00-00 00:00:00',
-        setType: 'choice',
+        setType: 'long_reading',
         questionCount: '120',
         columns1: [
             {
@@ -127,30 +127,8 @@ class BankDetail extends React.Component {
     choiceRender(text: any) {
         return (
             <div className="title">
-                <div className="que">{text.stem}</div>
-                <div className="choose">
-                    <div className="tr">
-                        <div>
-                            {text.options[0].key}.{text.options[0].value}
-                        </div>
-                        <div>
-                            {text.options[1].key}.{text.options[1].value}
-                        </div>
-                    </div>
-                    <div className="tr">
-                        <div>
-                            {text.options[2].key}.{text.options[2].value}
-                        </div>
-                        {text.options[3] ? (
-                            <div>
-                                {text.options[3].key}.{text.options[3].value}
-                            </div>
-                        ) : (
-                            ''
-                        )}
-                    </div>
-                </div>
-                <div className="right">正确答案：{text.rightKey}</div>
+                <div className="name">{text.title}</div>
+                <div className="stem">{text.stem}</div>
             </div>
         );
     }
@@ -519,7 +497,7 @@ class BankDetail extends React.Component {
             fileList,
         };
         return (
-            <div className="bank-detail-wrapper">
+            <div className="bank-detail-cf-reading-wrapper">
                 <div className="header">
                     <PageHeader title="" breadcrumb={{ routes }} />
                     <div className="sec">
@@ -602,7 +580,7 @@ class BankDetail extends React.Component {
                             <div className="gap-12">
                                 <Link
                                     to={
-                                        `/app/queBankCreate/bankDetail/questionAdd?bankID=${bankID}&setType=${setType}`
+                                        `/app/queBankCreate/bankDetailCfReading/questionAddCfReading?bankID=${bankID}&setType=${setType}`
                                     }
                                 >
                                     <Button type="primary" icon={<PlusOutlined />}>
@@ -750,4 +728,4 @@ class BankDetail extends React.Component {
     }
 }
 
-export default BankDetail;
+export default BankDetailCfReading;

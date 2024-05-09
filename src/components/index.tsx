@@ -16,6 +16,9 @@ import Drags from './ui/Draggable';
 import Dashboard from './dashboard/Dashboard';
 import QueBankCreate from './queBankCreate/QueBankCreate';
 import BankDetail from './queBankCreate/BankDetail';
+import BankDetailPack from './queBankCreate/BankDetailPack';
+import BankDetailCfReading from './queBankCreate/BankDetailCfReading';
+import BankDetailLongReading from './queBankCreate/BankDetailLongReading';
 import QuestionAdd from "./queBankCreate/QuestionAdd";
 import QuestionAddPack from "./queBankCreate/QuestionAddPack";
 import QuestionAddLongReading from "./queBankCreate/QuestionAddLongReading";
@@ -86,6 +89,9 @@ export default {
     MainSet,
     QueBankCreate,
     BankDetail,
+	BankDetailPack,
+	BankDetailCfReading,
+	BankDetailLongReading,
     QuestionAdd,
     TestPaper,
     TestRank,

@@ -70,11 +70,11 @@ class QuestionAddLongReading extends React.Component {
                 breadcrumbName: '题库建设',
             },
             {
-                path: '/bankDetail',
+                path: '/bankDetailLongReading',
                 breadcrumbName: `${sessionStorage.getItem('bankDetailName') || '新建题库'}`,
             },
             {
-                path: '/questionAdd',
+                path: '/questionAddLongReading',
                 breadcrumbName: '新增试题',
             },
         ],
@@ -122,7 +122,7 @@ class QuestionAddLongReading extends React.Component {
         if (res.state === 0) {
             message.success('保存成功');
             setTimeout(() => {
-                window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
+                window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailLongReading`;
             }, 200);
         }
     }
@@ -405,7 +405,7 @@ class QuestionAddLongReading extends React.Component {
                         <Button type="primary" onClick={this.saveQuestion.bind(this)}>
                             保存
                         </Button>
-                        <Link to={'/app/queBankCreate/bankDetail'}>
+                        <Link to={'/app/queBankCreate/bankDetailLongReading'}>
                             <Button>取消</Button>
                         </Link>
                     </div>

@@ -70,11 +70,11 @@ class QuestionAddPack extends React.Component {
                 breadcrumbName: '题库建设',
             },
             {
-                path: '/bankDetail',
+                path: '/bankDetailPack',
                 breadcrumbName: `${sessionStorage.getItem('bankDetailName') || '新建题库'}`,
             },
             {
-                path: '/questionAdd',
+                path: '/questionAddPack',
                 breadcrumbName: '新增试题',
             },
         ],
@@ -161,7 +161,7 @@ class QuestionAddPack extends React.Component {
         if (res.state === 0) {
             message.success('保存成功');
             setTimeout(() => {
-                window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
+                window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailPack`;
             }, 200);
         }
     }
@@ -365,7 +365,7 @@ class QuestionAddPack extends React.Component {
                         <Button type="primary" onClick={this.saveQuestion.bind(this)}>
                             保存
                         </Button>
-                        <Link to={'/app/queBankCreate/bankDetail'}>
+                        <Link to={'/app/queBankCreate/bankDetailPack'}>
                             <Button>取消</Button>
                         </Link>
                     </div>

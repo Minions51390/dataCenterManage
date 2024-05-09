@@ -41,11 +41,11 @@ class QuestionAddCfReading extends React.Component {
                 breadcrumbName: '题库建设',
             },
             {
-                path: '/bankDetail',
+                path: '/bankDetailCfReading',
                 breadcrumbName: `${sessionStorage.getItem('bankDetailName') || '新建题库'}`,
             },
             {
-                path: '/questionAdd',
+                path: '/questionAddCfReading',
                 breadcrumbName: '新增试题',
             },
         ],
@@ -96,7 +96,7 @@ class QuestionAddCfReading extends React.Component {
         if (res.state === 0) {
             message.success('保存成功');
             setTimeout(() => {
-                window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
+                window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailCfReading`;
             }, 200);
         }
     }
@@ -379,7 +379,7 @@ class QuestionAddCfReading extends React.Component {
                         <Button type="primary" onClick={this.saveQuestion.bind(this)}>
                             保存
                         </Button>
-                        <Link to={'/app/queBankCreate/bankDetail'}>
+                        <Link to={'/app/queBankCreate/bankDetailCfReading'}>
                             <Button>取消</Button>
                         </Link>
                     </div>
