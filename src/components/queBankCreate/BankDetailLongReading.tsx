@@ -1,17 +1,9 @@
 import React, { useState } from 'react';
-import { Table, Pagination, Input, Button, Modal, PageHeader, Upload, message, Select } from 'antd';
+import { Table, Pagination, Input, Button, Modal, PageHeader, Select } from 'antd';
 import { Link } from 'react-router-dom';
-import {
-    PlusOutlined,
-    UploadOutlined,
-    DownloadOutlined,
-    FileAddOutlined,
-    InboxOutlined,
-} from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/BankDetailLongReading.less';
-import { get, post, del, put, baseUrl } from '../../service/tools';
-import type { RcFile, UploadFile } from 'antd/es/upload/interface';
-const { Dragger } = Upload;
+import { get, post, put, baseUrl } from '../../service/tools';
 const { Option } = Select;
 const ENUM_BANK_TYPE: any = {
     choice: '单选',
@@ -24,6 +16,35 @@ const SELECT_TP: any = {
     cet4: '四级',
     cet6: '六级',
 };
+
+const A_Z = [
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'F',
+    'G',
+    'H',
+    'I',
+    'J',
+    'K',
+    'L',
+    'M',
+    'N',
+    'O',
+    'P',
+    'Q',
+    'R',
+    'S',
+    'T',
+    'U',
+    'V',
+    'W',
+    'X',
+    'Y',
+    'Z',
+];
 
 const SELECT_TP_LIST = ['', 'cet4', 'cet6'];
 
@@ -49,7 +70,6 @@ class BankDetailLongReading extends React.Component {
         bankQuery: '',
         isVisible: false,
         uploadVisible: false,
-        // setTypeList: ['choice'], //['pack'],
         pageNo: 1,
         totalCount: 1,
         /** 默认数据 */
@@ -71,16 +91,12 @@ class BankDetailLongReading extends React.Component {
             {
                 title: '真题年份',
                 key: 'key',
-                render: (text: any, record: any, index: number) => (
-                    <div>-</div>
-                ),
+                render: (text: any, record: any, index: number) => <div>-</div>,
             },
             {
                 title: '真题类型',
                 key: 'key',
-                render: (text: any, record: any, index: number) => (
-                    <div>-</div>
-                ),
+                render: (text: any, record: any, index: number) => <div>-</div>,
             },
             {
                 title: '试题内容',
@@ -101,18 +117,14 @@ class BankDetailLongReading extends React.Component {
         data1: [],
         moduleName: '编辑题目',
         canEdit: true,
-        queName: '',
-        queNameA: '',
-        queNameB: '',
-        queNameC: '',
-        queNameD: '',
-        queNameR: '',
+        title: '',
+        topic: '',
+        options: [],
+        questions: [],
         questionId: '',
         fileList: [],
         selectYear: '',
         selectTp: '',
-        // setFileList: useState<UploadFile[]>([]),
-        // fileList: useState<UploadFile[]>([])
     };
     componentWillMount() {
         this.inited();
@@ -128,7 +140,7 @@ class BankDetailLongReading extends React.Component {
         return (
             <div className="title">
                 <div className="name">{text.title}</div>
-                <div className="stem">{text.stem}</div>
+                <div className="stem">{text.topic}</div>
             </div>
         );
     }
@@ -175,48 +187,6 @@ class BankDetailLongReading extends React.Component {
         });
     }
 
-    /** 题干名称 */
-    onQueNameChange(event: any) {
-        this.setState({
-            queName: event.target.value,
-        });
-    }
-
-    /** A名称 */
-    onQueNameChangeA(event: any) {
-        this.setState({
-            queNameA: event.target.value,
-        });
-    }
-
-    /** B名称 */
-    onQueNameChangeB(event: any) {
-        this.setState({
-            queNameB: event.target.value,
-        });
-    }
-
-    /** C名称 */
-    onQueNameChangeC(event: any) {
-        this.setState({
-            queNameC: event.target.value,
-        });
-    }
-
-    /** D名称 */
-    onQueNameChangeD(event: any) {
-        this.setState({
-            queNameD: event.target.value,
-        });
-    }
-
-    /** 正确名称 */
-    onQueNameChangeR(event: any) {
-        this.setState({
-            queNameR: event.target.value,
-        });
-    }
-
     /** 确认编辑 */
     handleCreateOk(val: any) {
         const { canEdit } = this.state;
@@ -234,34 +204,18 @@ class BankDetailLongReading extends React.Component {
 
     /** 编辑单个试题 */
     async editQuestionInterface() {
-        const { questionId, queName, queNameA, queNameB, queNameC, queNameD, queNameR, setType } =
-            this.state;
+        const { questionId, setType, title, topic, options, questions, bankID } = this.state;
         console.log('editQuestionInterface', questionId);
         await put({
             url: `${baseUrl}/api/v1/question-set/question`,
             data: {
                 questionId: questionId,
-                stem: queName,
+                topic,
+                title,
+                setId: bankID,
                 setType,
-                options: [
-                    {
-                        key: 'A',
-                        value: queNameA,
-                    },
-                    {
-                        key: 'B',
-                        value: queNameB,
-                    },
-                    {
-                        key: 'C',
-                        value: queNameC,
-                    },
-                    {
-                        key: 'D',
-                        value: queNameD,
-                    },
-                ],
-                rightKey: queNameR,
+                options,
+                questions,
             },
         });
         this.getQuestionList();
@@ -269,11 +223,13 @@ class BankDetailLongReading extends React.Component {
 
     /** 删除接口 */
     async delQuestionInterface() {
-        const { questionId } = this.state;
+        const { questionId, bankID, setType } = this.state;
         await post({
             url: `${baseUrl}/api/v1/question-set/question/delete`,
             data: {
                 questionId,
+                setId: bankID,
+                setType,
             },
         });
         this.getQuestionList();
@@ -305,19 +261,17 @@ class BankDetailLongReading extends React.Component {
 
     /** 展示编辑弹窗 */
     showCreateModal(type: string, data: any) {
-        const { questionId, stem, options, rightKey } = data;
+        const { questionId, title, topic, options, questions } = data;
         if (type === 'edit') {
             this.setState({
                 isVisible: true,
                 moduleName: '编辑题目',
                 canEdit: true,
                 questionId,
-                queName: stem,
-                queNameA: options[0].value,
-                queNameB: options[1].value,
-                queNameC: options[2].value,
-                queNameD: options[3]?.value || '',
-                queNameR: rightKey,
+                title,
+                topic,
+                options,
+                questions,
             });
         } else {
             this.setState({
@@ -325,12 +279,10 @@ class BankDetailLongReading extends React.Component {
                 moduleName: '确认删除该试题？',
                 canEdit: false,
                 questionId,
-                queName: stem,
-                queNameA: options[0].value,
-                queNameB: options[1].value,
-                queNameC: options[2].value,
-                queNameD: options[3]?.value || '',
-                queNameR: rightKey,
+                title,
+                topic,
+                options,
+                questions,
             });
         }
     }
@@ -360,51 +312,6 @@ class BankDetailLongReading extends React.Component {
         );
     }
 
-    /** 文件上传 */
-    handleUpload() {
-        this.setState({
-            uploadVisible: true,
-        });
-    }
-
-    /** 确定上传 */
-    async handleUploadOk() {
-        this.handleUploadCancel();
-        message.success('上传中...');
-        const { bankID, fileList } = this.state;
-        const formData = new FormData();
-        fileList.forEach((file: any) => {
-            formData.append('setId', bankID);
-            formData.append('file', file as RcFile);
-        });
-        const res = await post({
-            url: `${baseUrl}/api/v1/question-set/question/file`,
-            data: formData,
-            config: {
-                headers: {
-                    Accept: '*/*',
-                    'Content-Type': 'multipart/form-data;',
-                },
-            },
-        });
-        if (res.state === 0) {
-            this.setState({
-                fileList: [],
-            });
-            message.success('上传成功');
-            this.inited();
-        } else {
-            message.error('上传失败');
-        }
-    }
-
-    /** 取消上传 **/
-    handleUploadCancel() {
-        this.setState({
-            uploadVisible: false,
-        });
-    }
-
     handleSelectTp(val: any) {
         this.setState(
             {
@@ -427,6 +334,46 @@ class BankDetailLongReading extends React.Component {
         );
     }
 
+    handleTitle(event: any) {
+        const valData = event.target.value;
+        this.setState({
+            title: valData,
+        });
+    }
+
+    handleTopic(event: any) {
+        const valData = event.target.value;
+        this.setState({
+            topic: valData,
+        });
+    }
+
+    updateOptions(val: any, index: number, event: any) {
+        const { options } = this.state;
+        const valData = event.target.value;
+        (options[index] as any).value = valData;
+        this.setState({
+            options,
+        });
+    }
+
+    updateStem(val: any, index: number, event: any) {
+        const { questions } = this.state;
+        const valData = event.target.value;
+        (questions[index] as any).qStem = valData;
+        this.setState({
+            questions,
+        });
+    }
+
+    handelAnswer(index: any, val: any) {
+        const { questions } = this.state;
+        (questions[index] as any).rightKey = val;
+        this.setState({
+            questions,
+        });
+    }
+
     render() {
         const {
             bankID,
@@ -443,59 +390,15 @@ class BankDetailLongReading extends React.Component {
             totalCount,
             pageNo,
             isVisible,
-            uploadVisible,
             moduleName,
             canEdit,
-            queName,
-            queNameA,
-            queNameB,
-            queNameC,
-            queNameD,
-            queNameR,
-            fileList,
             selectYear,
             selectTp,
+            title,
+            options,
+            questions,
+            topic,
         } = this.state;
-        const uploadProps = {
-            name: 'file',
-            multiple: false,
-            action: `${baseUrl}/api/v1/question-set/question/file`,
-            maxCount: 1,
-            data: {
-                setId: bankID,
-            },
-            onChange: (info: any) => {
-                console.log(info);
-                if (info.file.status === 'done') {
-                    // console.log(info,'done');
-                    let res = info.file.response;
-                    // console.log(res.data)
-                    if (res.state === 0) {
-                        // 初始化
-                        this.inited();
-                        console.log('初始化');
-                    }
-                    message.success(`${info.file.name} 上传成功`);
-                } else if (info.file.status === 'error') {
-                    message.error(`${info.file.name} file upload failed.`);
-                }
-            },
-            onDrop(e: any) {
-                console.log('Dropped files', e.dataTransfer.files);
-            },
-            onRemove: (file: any) => {
-                this.setState({
-                    fileList: [],
-                });
-            },
-            beforeUpload: (file: any) => {
-                this.setState({
-                    fileList: [...fileList, file],
-                });
-                return false;
-            },
-            fileList,
-        };
         return (
             <div className="bank-detail-long-reading-wrapper">
                 <div className="header">
@@ -579,27 +482,13 @@ class BankDetailLongReading extends React.Component {
                             </div>
                             <div className="gap-12">
                                 <Link
-                                    to={
-                                        `/app/queBankCreate/bankDetailLongReading/questionAddLongReading?bankID=${bankID}&setType=${setType}`
-                                    }
+                                    to={`/app/queBankCreate/bankDetailLongReading/questionAddLongReading?bankID=${bankID}&setType=${setType}`}
                                 >
                                     <Button type="primary" icon={<PlusOutlined />}>
                                         新建
                                     </Button>
                                 </Link>
                             </div>
-                            {/* {setType === 'choice' ? (
-                                <Button
-                                    icon={<UploadOutlined />}
-                                    className="gap-12"
-                                    type="primary"
-                                    onClick={this.handleUpload.bind(this)}
-                                >
-                                    批量上传
-                                </Button>
-                            ) : (
-                                <></>
-                            )} */}
                         </div>
                     </div>
                     <div className="thr">
@@ -624,103 +513,90 @@ class BankDetailLongReading extends React.Component {
                 <Modal
                     title={moduleName}
                     visible={isVisible}
+                    width="800px"
                     cancelText="取消"
                     okText="确定"
                     onOk={this.handleCreateOk.bind(this)}
                     onCancel={this.handleCreateCancel.bind(this)}
                 >
-                    <div className="module-area">
-                        <span className="title">题干：</span>
-                        <TextArea
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queName}
-                            onChange={this.onQueNameChange.bind(this)}
-                        />
-                    </div>
-                    <div className="module-area">
-                        <span className="title">A：</span>
-                        <Input
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queNameA}
-                            onChange={this.onQueNameChangeA.bind(this)}
-                        />
-                    </div>
-                    <div className="module-area">
-                        <span className="title">B：</span>
-                        <Input
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queNameB}
-                            onChange={this.onQueNameChangeB.bind(this)}
-                        />
-                    </div>
-                    <div className="module-area">
-                        <span className="title">C：</span>
-                        <Input
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queNameC}
-                            onChange={this.onQueNameChangeC.bind(this)}
-                        />
-                    </div>
-                    <div className="module-area">
-                        <span className="title">D：</span>
-                        <Input
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queNameD}
-                            onChange={this.onQueNameChangeD.bind(this)}
-                        />
-                    </div>
-                    <div className="module-area">
-                        <span className="title">正确选项：</span>
-                        <Input
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queNameR}
-                            onChange={this.onQueNameChangeR.bind(this)}
-                        />
-                    </div>
-                </Modal>
-                <Modal
-                    width={800}
-                    title="模版导入"
-                    visible={uploadVisible}
-                    onOk={this.handleUploadOk.bind(this)}
-                    onCancel={this.handleUploadCancel.bind(this)}
-                >
-                    <div className="modal-top">
-                        <div className="modal-text">
-                            <div className="text-left">
-                                <span className="red">*</span>
-                                <span className="text">导入Excel文件：</span>
+                    <div className="input-block">
+                        <div className="left">
+                            <div className="mt-8">标题:</div>
+                            <Input
+                                className="mt-8"
+                                disabled={!canEdit}
+                                placeholder="请输入"
+                                value={title}
+                                onChange={this.handleTitle.bind(this)}
+                            />
+                            <div className="mt-8">选项:</div>
+                            <div className="mt-8 option-area">
+                                <div
+                                    className="mt-8"
+                                    style={{ display: 'flex', alignItems: 'center' }}
+                                >
+                                    文章主题：
+                                    <Input
+                                        disabled={!canEdit}
+                                        placeholder="请输入"
+                                        value={topic}
+                                        style={{ flex: 1 }}
+                                        onChange={this.handleTopic.bind(this)}
+                                    />
+                                </div>
+                                {options.map((val: any, index) => (
+                                    <div className="item">
+                                        <span className="title">{val.key}：</span>
+                                        <TextArea
+                                            disabled={!canEdit}
+                                            className="gap-8"
+                                            value={val.value}
+                                            style={{ width: '92%', height: 140, resize: 'none' }}
+                                            onChange={this.updateOptions.bind(this, val, index)}
+                                        />
+                                    </div>
+                                ))}
                             </div>
                         </div>
-                        <Button
-                            icon={<DownloadOutlined />}
-                            className="gap-12 load-template"
-                            type="primary"
-                            onClick={this.loadTemplate.bind(this)}
-                        >
-                            模版下载
-                        </Button>
-                    </div>
-                    <div className="modal-drag">
-                        <Dragger {...uploadProps}>
-                            <p className="ant-upload-drag-icon">
-                                <InboxOutlined />
-                            </p>
-                            <p className="ant-upload-text">点击选择本地文件</p>
-                            <p className="ant-upload-hint">或将Excel文件直接拖入此区域内</p>
-                        </Dragger>
+                        <div className="right">
+                            <div className="mt-8">题干:</div>
+                            <div className="mt-8 option-area">
+                                {questions.map((val: any, index) => (
+                                    <div>
+                                        <div className="item">
+                                            <span className="title">{index + 1}：</span>
+                                            <TextArea
+                                                disabled={!canEdit}
+                                                className="gap-8"
+                                                value={val.qStem}
+                                                style={{
+                                                    width: '92%',
+                                                    height: 100,
+                                                    resize: 'none',
+                                                }}
+                                                onChange={this.updateStem.bind(this, val, index)}
+                                            />
+                                        </div>
+                                        <div className="sel">
+                                            <Select
+                                                disabled={!canEdit}
+                                                className="mt-8"
+                                                style={{ width: '95.5%' }}
+                                                placeholder="请选择匹配答案"
+                                                onChange={this.handelAnswer.bind(this, index)}
+                                                value={val.rightKey}
+                                            >
+                                                {A_Z.map((item: any, index: number) => (
+                                                    <Option key={index} value={item}>
+                                                        {item}
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </Modal>
             </div>

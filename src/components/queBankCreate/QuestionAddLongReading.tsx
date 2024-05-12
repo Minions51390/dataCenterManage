@@ -81,19 +81,20 @@ class QuestionAddLongReading extends React.Component {
         bankID: '',
         setType: '',
         title: '',
+        topic: '',
         selectYear: YEAR_MAP[YEAR_MAP.length - 1],
         selectTp: 'cet4',
         genuine: true,
-		questions: [
-			{
-				qStem: '',
-				rightKey: undefined,
-			},
-			{
-				qStem: '',
-				rightKey: undefined,
-			}
-		],
+        questions: [
+            {
+                qStem: '',
+                rightKey: undefined,
+            },
+            {
+                qStem: '',
+                rightKey: undefined,
+            },
+        ],
         options: [
             {
                 key: 'A',
@@ -129,7 +130,8 @@ class QuestionAddLongReading extends React.Component {
 
     /** 保存接口 */
     async saveQuestionInterface() {
-        const { bankID, setType, title, genuine, selectYear, selectTp, options, questions } = this.state;
+        const { bankID, setType, title, genuine, selectYear, selectTp, options, questions, topic } =
+            this.state;
         const response: any = await post({
             url: baseUrl + '/api/v1/question-set/question',
             data: {
@@ -138,11 +140,12 @@ class QuestionAddLongReading extends React.Component {
                 questionList: [
                     {
                         title,
+                        topic,
                         genuine,
                         year: selectYear,
                         tp: selectTp,
                         options,
-						questions,
+                        questions,
                     },
                 ],
             },
@@ -154,6 +157,13 @@ class QuestionAddLongReading extends React.Component {
         const valData = event.target.value;
         this.setState({
             title: valData,
+        });
+    }
+
+    handleTopic(event: any) {
+        const valData = event.target.value;
+        this.setState({
+            topic: valData,
         });
     }
 
@@ -178,13 +188,13 @@ class QuestionAddLongReading extends React.Component {
     }
 
     updateOptions(val: any, index: number, event: any) {
-		const { options } = this.state;
+        const { options } = this.state;
         const valData = event.target.value;
         options[index].value = valData;
         this.setState({
             options,
         });
-	}
+    }
 
     /** 删除试题 */
     delQuestion(index: number) {
@@ -198,7 +208,7 @@ class QuestionAddLongReading extends React.Component {
         });
     }
 
-	/** 增加输入框 */
+    /** 增加输入框 */
     addQuestion() {
         const { options } = this.state;
         this.setState({
@@ -206,16 +216,16 @@ class QuestionAddLongReading extends React.Component {
         });
     }
 
-	updateStem(val: any, index: number, event: any) {
-		const { questions } = this.state;
+    updateStem(val: any, index: number, event: any) {
+        const { questions } = this.state;
         const valData = event.target.value;
         questions[index].qStem = valData;
         this.setState({
             questions,
         });
-	}
+    }
 
-	/** 删除题干 */
+    /** 删除题干 */
     delStem(index: number) {
         const { questions } = this.state;
         questions.splice(index, 1);
@@ -224,27 +234,31 @@ class QuestionAddLongReading extends React.Component {
         });
     }
 
-	/** 增加题干 */
+    /** 增加题干 */
     addStem() {
         const { questions } = this.state;
         this.setState({
-            questions: [...questions, {
-				qStem: '',
-				rightKey: undefined,
-			}],
+            questions: [
+                ...questions,
+                {
+                    qStem: '',
+                    rightKey: undefined,
+                },
+            ],
         });
     }
 
-	handelAnswer(index: any, val: any) {
-		const { questions } = this.state;
-		questions[index].rightKey = val;
-		this.setState({
+    handelAnswer(index: any, val: any) {
+        const { questions } = this.state;
+        questions[index].rightKey = val;
+        this.setState({
             questions,
         });
-	}
+    }
 
     render() {
-        const { routes, title, selectYear, selectTp, genuine, options, questions } = this.state;
+        const { routes, title, selectYear, selectTp, genuine, options, questions, topic } =
+            this.state;
         return (
             <div className="question-add-long-reading-wrapper">
                 <div className="header">
@@ -263,8 +277,20 @@ class QuestionAddLongReading extends React.Component {
                                 value={title}
                                 onChange={this.handleTitle.bind(this)}
                             />
-							<div className="mt-8">选项:</div>
+                            <div className="mt-8">选项:</div>
                             <div className="mt-8 option-area">
+                                <div
+                                    className="mt-8"
+                                    style={{ display: 'flex', alignItems: 'center' }}
+                                >
+                                    文章主题：
+                                    <Input
+                                        placeholder="请输入"
+                                        value={topic}
+                                        style={{ flex: 1 }}
+                                        onChange={this.handleTopic.bind(this)}
+                                    />
+                                </div>
                                 {options.map((val, index) => (
                                     <div className="item">
                                         <span className="title">{val.key}：</span>
@@ -272,11 +298,7 @@ class QuestionAddLongReading extends React.Component {
                                             className="gap-8"
                                             value={val.value}
                                             style={{ width: '92%', height: 140, resize: 'none' }}
-                                            onChange={this.updateOptions.bind(
-                                                this,
-                                                val,
-                                                index,
-                                            )}
+                                            onChange={this.updateOptions.bind(this, val, index)}
                                         />
                                         <span
                                             className="del"
@@ -347,45 +369,45 @@ class QuestionAddLongReading extends React.Component {
                                     </Select>
                                 </div>
                             </div>
-							<div className="mt-8">题干:</div>
+                            <div className="mt-8">题干:</div>
                             <div className="mt-8 option-area">
                                 {questions.map((val, index) => (
-									<div>
-										<div className="item">
-											<span className="title">{index + 1}：</span>
-											<TextArea
-												className="gap-8"
-												value={val.qStem}
-												style={{ width: '92%', height: 100, resize: 'none' }}
-												onChange={this.updateStem.bind(
-													this,
-													val,
-													index,
-												)}
-											/>
-											<span
-												className="del"
-												onClick={this.delStem.bind(this, index)}
-											>
-												<DeleteOutlined />
-											</span>
-										</div>
-										<div className="sel">
-											<Select
-												className="mt-8"
-												style={{ width: '95.5%' }}
-												placeholder="请选择匹配答案"
-												onChange={this.handelAnswer.bind(this, index)}
-												value={val.rightKey}
-											>
-												{A_Z.map((item: any, index: number) => (
-													<Option key={index} value={item}>
-														{item}
-													</Option>
-												))}
-											</Select>
-										</div>
-									</div>
+                                    <div>
+                                        <div className="item">
+                                            <span className="title">{index + 1}：</span>
+                                            <TextArea
+                                                className="gap-8"
+                                                value={val.qStem}
+                                                style={{
+                                                    width: '92%',
+                                                    height: 100,
+                                                    resize: 'none',
+                                                }}
+                                                onChange={this.updateStem.bind(this, val, index)}
+                                            />
+                                            <span
+                                                className="del"
+                                                onClick={this.delStem.bind(this, index)}
+                                            >
+                                                <DeleteOutlined />
+                                            </span>
+                                        </div>
+                                        <div className="sel">
+                                            <Select
+                                                className="mt-8"
+                                                style={{ width: '95.5%' }}
+                                                placeholder="请选择匹配答案"
+                                                onChange={this.handelAnswer.bind(this, index)}
+                                                value={val.rightKey}
+                                            >
+                                                {A_Z.map((item: any, index: number) => (
+                                                    <Option key={index} value={item}>
+                                                        {item}
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        </div>
+                                    </div>
                                 ))}
                                 {questions.length < 26 && (
                                     <div className="add" onClick={this.addStem.bind(this)}>

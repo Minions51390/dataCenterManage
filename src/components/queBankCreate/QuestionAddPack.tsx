@@ -224,13 +224,13 @@ class QuestionAddPack extends React.Component {
     }
 
     updateOptions(val: any, index: number, event: any) {
-		const { options } = this.state;
+        const { options } = this.state;
         const valData = event.target.value;
         options[index].value = valData;
         this.setState({
             options,
         });
-	}
+    }
 
     /** 删除试题 */
     delQuestion(index: number) {
@@ -333,11 +333,7 @@ class QuestionAddPack extends React.Component {
                                             className="gap-8"
                                             value={val.value}
                                             style={{ width: 180 }}
-                                            onChange={this.updateOptions.bind(
-                                                this,
-                                                val,
-                                                index,
-                                            )}
+                                            onChange={this.updateOptions.bind(this, val, index)}
                                         />
                                         <span
                                             className="del"

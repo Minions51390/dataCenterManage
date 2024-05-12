@@ -512,6 +512,7 @@ class BankDetailPack extends React.Component {
                 <Modal
                     title={moduleName}
                     visible={isVisible}
+                    width="800px"
                     cancelText="取消"
                     okText="确定"
                     onOk={this.handleCreateOk.bind(this)}
