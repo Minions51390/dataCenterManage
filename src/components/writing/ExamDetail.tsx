@@ -1,10 +1,11 @@
-import React from "react";
+import React, {useRef} from "react";
 import { get, post, baseUrl } from '../../service/tools';
 import '../../style/pageStyle/ExamDetail.less';
 import {
     PageHeader,
     Tabs,
     Button,
+    Radio,
     Input,
     InputNumber,
     message,
@@ -12,6 +13,7 @@ import {
 } from "antd";
 import { EditOutlined } from '@ant-design/icons'
 import { getQueryString } from '../../utils';
+import { spawn } from "child_process";
 
 const { TextArea } = Input;
 
@@ -27,6 +29,7 @@ function GetRequest() {
     }
     return theRequest;
 }
+
 
 class examDetail extends React.Component {
     state = {
@@ -73,29 +76,54 @@ class examDetail extends React.Component {
                 "aiSentenceScore": 73.91,
                 "aiStructureScore": 38.46,
                 "aiVocabularyScore": 58.93,
-                "sentenceComments": [
+                "aiSentenceComments": [
                     {
                         "sentence": "That is my grandfather's traditional Chinese medicine pharmacy, affectionately referred to by patients as the 'apricot forest'.",
+                        "key": -1,
                         "suggestions": [
-                            "请检查the 'apricot，可能存在大小写拼写建议或空格错误，建议替换为the'apricot。"
+                            {
+                                "errBaseInfo":"xxxxxxxx错了，需要改成xxxx",
+                                "startPos":22,
+                                "endPos": 28,
+                                "correctChunk":"xxx",
+                                "orgChunk":"xxxxxxx"
+                            }
                         ]
                     },
                     {
                         "sentence": "I can feel as if there is an apricot forest behind this pharmacy, shining brightly under the sunlight.",
                         "suggestions": [
-                            "请检查under，可能存在介词错误，建议替换为in。"
+                            {
+                                "errBaseInfo":"xxxxxxxx错了，需要改成xxxx",
+                                "startPos":22,
+                                "endPos": 28,
+                                "correctChunk":"xxx",
+                                "orgChunk":"xxxxxxx"
+                            }
                         ]
                     },
                     {
                         "sentence": "Grandfather said, \"This is saving people, and it's also saving oneself\".",
                         "suggestions": [
-                            "请检查, \"This，可能存在大小写拼写建议或空格错误，建议替换为,\" This。"
+                            {
+                                "errBaseInfo":"xxxxxxxx错了，需要改成xxxx",
+                                "startPos":22,
+                                "endPos": 28,
+                                "correctChunk":"xxx",
+                                "orgChunk":"xxxxxxx"
+                            }
                         ]
                     },
                     {
                         "sentence": "I think this medicine juice, which is boiled into three mouthfuls with three bowls of water, is exactly where the precious essence of Chinese medicine lies: redemption and self redemption",
                         "suggestions": [
-                            "请检查是否有标点错误，建议新增.。"
+                            {
+                                "errBaseInfo":"xxxxxxxx错了，需要改成xxxx",
+                                "startPos":22,
+                                "endPos": 28,
+                                "correctChunk":"xxx",
+                                "orgChunk":"xxxxxxx"
+                            }
                         ]
                     }
                 ]
@@ -103,12 +131,17 @@ class examDetail extends React.Component {
         score: 0, // -1 为未考试
         examType: "", // practice
         submitTimes: 1, // 提交次数
+        fontSize: 14,
         editStatus: false,
+        errorKey: 0,
+        errorMouseover: false,
     };
+
     componentWillMount() {
         this.inited();
     }
-
+    errorItemRef:any;
+    errorWritingRef:any;
     // 初始化
     inited() {
         this.getWritingDetail();
@@ -127,6 +160,13 @@ class examDetail extends React.Component {
             comment: event.target.value,
         });
     }
+    
+    // 字体大小修改
+    onFontSizeChange(event:any){
+        this.setState({
+            fontSize: event.target.value,
+        });
+    }
 
     // 评语/成绩 编辑点击
     handleEditClick(){
@@ -135,6 +175,42 @@ class examDetail extends React.Component {
             editStatus: !editStatus,
         });
     }
+    // 作文文章中鼠标点击错误
+    handleWritingErrorClick(event:any){
+        this.setState({
+            errorKey: event?.key,
+        });
+        this.errorItemRef.childNodes[event?.key].scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center',
+        });
+    }
+    // 鼠标移入错误
+    handleMouseOver(event:any){
+        this.setState({
+            errorMouseover: true,
+        });
+    }
+    // 鼠标移出错误
+    handleMouseLeave(){
+        this.setState({
+            errorMouseover: false,
+        });
+    }
+
+    //错误项列表点击
+    handleErrorListItemClick(event:any){
+        this.setState({
+            errorKey: event?.key,
+        });
+        this.errorWritingRef.childNodes[event?.key].scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center',
+        });
+    }
+
     // 作文成绩修改
     handleScoreChange(val:any) {
         this.setState({
@@ -167,26 +243,29 @@ class examDetail extends React.Component {
             url: `${baseUrl}/api/v1/writing-exam/result/detail?paperId=${paperId}`
         })
         if(res){
-            console.log(res);
+            let aiReview = res?.data?.aiReview;
+            aiReview.aiSentenceComments.map((review:any, index:any) => {
+                review.key = index;
+            });
             this.setState({
                 paperId: paperId,
                 writing: res?.data?.writingBaseInfo,
                 title: res?.data?.writingAnswer?.title,
                 content: res?.data?.writingAnswer?.content,
-                aiReview: res?.data?.aiReview,
+                aiReview,
                 comment: res?.data?.comment || res?.data?.aiReview?.aiComment,
                 examType: res?.data?.examType,
                 isSubmit: res?.data?.isSubmit, // 是否已提交
                 stuName: res?.data?.stuName,
                 className: res?.data?.className,
                 score: res?.data?.score,
-                
-            },);
+            });
         }else{
             message.error("获取作文失败!");
         }
     }
-    
+
+    // 计算文本长度
     computedTextCount(str:any) {
         let value = str;
         // 替换中文字符为空格
@@ -205,29 +284,74 @@ class examDetail extends React.Component {
         }
         return length;
     }
+    // 获取带错误格式的文章
+    getFinalContent(content:any, aiSentenceComments:any){
+        const { errorKey } = this.state;
+        let keyWordArr:any = [];
+        let contentStr = content;
+        aiSentenceComments.forEach((aiSentenceComment:any, index:any)=>{
+            const sentence = aiSentenceComment.sentence
+            const pos = aiSentenceComment.sentStartPos + index;
+            keyWordArr.push(`|${sentence}`);
+            contentStr = `${contentStr.slice(0, pos)}|${contentStr.slice(pos)}`;
+        })
+        function splitByMultipleValues(str:any, separators:any) {
+            if (separators.length === 0) {
+                return [str];
+            }
+            const firstSeparator = separators.shift();
+            return str.split(firstSeparator).reduce((result:any, part:any) => {
+                return result.concat(splitByMultipleValues(part, separators.slice()));
+            }, []);
+        }
+        const contentSplits = splitByMultipleValues(contentStr, [...keyWordArr]);
+        return (
+            aiSentenceComments.map((aiSentenceComment:any, index:any)=>{
+                return (
+                    <span>
+                        <span>{contentSplits[index]}</span>
+                        <span
+                            className={[
+                                errorKey === aiSentenceComment.key ? 'content-error-mouseover' : 'content-error'
+                            ].join(' ')}
+                            onClick={this.handleWritingErrorClick.bind(this, aiSentenceComment)}
+                            onMouseOver={this.handleMouseOver.bind(this, aiSentenceComment)}
+                            onMouseLeave={this.handleMouseLeave.bind(this)}
+                        >{keyWordArr[index].replace('|', '')}</span>
+                        {
+                            index === aiSentenceComments.length - 1 ? <span>{contentSplits[contentSplits.length - 1]}</span> :''
+                        }
+                    </span>
+                )
+            })
+        )
+    }
     
     errorItem() {
-        const { aiReview } = this.state;
+        const { aiReview, errorKey } = this.state;
         return (
-            <div>
-            {aiReview.sentenceComments.map((item) => {
+            <div ref={(ele) => (this.errorItemRef = ele)}>
+            {aiReview.aiSentenceComments.map((item) => {
                 return (
-                <div className="errorItem">
-                    <span className="errorItemCount" />
-                    <div className="errorItemContent">
-                    <div className="errorItemContent">{item.sentence}</div>
-                    {item.suggestions.map((suggestion) => {
-                        return (<div className="errorItemContent">{suggestion}</div>)
-                    })}
+                    <div
+                        className={["errorItem", item.key === errorKey ?'errorItemSelect':''].join(' ')}
+                        onClick={this.handleErrorListItemClick.bind(this, item)}
+                    >
+                        <span className="errorItemCount" />
+                        <div className="errorItemContent">
+                        <div className="errorItemContent">{item.sentence}</div>
+                        {item.suggestions.map((suggestion) => {
+                            return (<div className="errorItemContent">{suggestion.errBaseInfo}</div>)
+                        })}
+                        </div>
                     </div>
-                </div>
                 );
             })}
             </div>
         );
     }
     render() {
-        const { paperId, routes, title, content, writing, comment, aiReview, className, stuName, score, editStatus } = this.state;
+        const { paperId, routes, title, content, writing, comment, aiReview, className, stuName, score, editStatus, fontSize } = this.state;
         return (
             <div className="writing-detail-container">
             <div className="header">
@@ -241,15 +365,26 @@ class examDetail extends React.Component {
                 <div className="detail-content">
                 <div className="content-left">
                     <div className="left-fir">
-                    <div className="fir-word-num">
-                        词数统计：{this.computedTextCount(content)}词
+                        <div className="fir-word-num">
+                            词数统计：{this.computedTextCount(content)}词
+                        </div>
+                        <Radio.Group 
+                            buttonStyle="solid" 
+                            onChange={this.onFontSizeChange.bind(this)}
+                            defaultValue="14"
+                        >
+                            <Radio.Button value={'12'}>小</Radio.Button>
+                            <Radio.Button value={'14'}>中</Radio.Button>
+                            <Radio.Button value={'16'}>大</Radio.Button>
+                        </Radio.Group>
                     </div>
+                    <div className="left-sec" style={{fontSize: `${fontSize}px`, lineHeight: `${1.5 * fontSize}px`}}>
+                        <div className="writing-title">{title}</div>
                     </div>
-                    <div className="left-sec">
-                    <div className="writing-title">{title}</div>
-                    </div>
-                    <div className="left-thr">
-                    <div className="writing-content">{content}</div>
+                    <div className="left-thr" style={{fontSize: `${fontSize}px`, lineHeight: `${1.5 * fontSize}px`}}>
+                        <div className="writing-content" ref={(ele) => (this.errorWritingRef = ele)}>
+                            {this.getFinalContent(content, aiReview.aiSentenceComments)}
+                        </div>
                     </div>
                 </div>
                 <div className="content-right">
@@ -323,7 +458,7 @@ class examDetail extends React.Component {
                     <div className="commit-error">
                     <div className="fir-line">
                     <div className="title">AI纠错</div>
-                    <div className="count">{aiReview.sentenceComments.length}</div>
+                    <div className="count">{aiReview.aiSentenceComments.length}</div>
                     </div>
                     <div className="error-content">{this.errorItem()}</div>
                 </div>

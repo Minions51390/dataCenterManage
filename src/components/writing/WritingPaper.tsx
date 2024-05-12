@@ -171,7 +171,6 @@ class writingPaper extends React.Component {
     }
     // 作文物料名称修改
     onWritingNameChange(event:any){
-        console.log('onWritingNameChange', event)
         this.setState({
             createWritingName: event.target.value,
         })

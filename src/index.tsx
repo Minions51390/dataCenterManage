@@ -49,7 +49,7 @@ const login = async () => {
     let res = await post({
         url: baseUrl + '/api/v1/auth/login',
         data: {
-            userName: 'teacher01',
+            userName: 'wutonghe',
             password: 'qwer123'
             // userName: 'star001',
             // password: 'star001'
@@ -59,7 +59,7 @@ const login = async () => {
     return res;
 };
 // 上线前注释掉
-// login();
+login();
 ReactDOM.render(
     // <AppContainer>
     <AlitaProvider>

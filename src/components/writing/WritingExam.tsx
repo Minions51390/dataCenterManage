@@ -1,11 +1,13 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Row, Col, Tabs, Popconfirm, message, Space, DatePicker, Radio, Modal, Input, Button, Table, Select, Pagination, Tooltip } from 'antd';
 import { PlusOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/WritingExam.less';
 import { get, post, baseUrl } from '../../service/tools';
 import moment from 'moment';
 const { Option } = Select;
+const { RangePicker } = DatePicker;
 const dateFormat = 'YYYY-MM-DD HH:mm:ss';
+const dateFormat1 = 'YYYY-MM-DD';
 const FunGetDateStr = (p_count: any, nowDate: any) => {
     let dd = nowDate;
     dd.setDate(dd.getDate() + p_count);//获取p_count天后的日期 
@@ -52,8 +54,6 @@ class writingExam extends React.Component {
         selPici: '',
         banji: [],
         selBanji: '',
-        semester: [],
-        selSemester: [],
         status: 0,
         statusList: [{
             key: 0,
@@ -121,18 +121,27 @@ class writingExam extends React.Component {
             },
             {
                 title: '班级',
-                dataIndex: 'className',
                 key: 'className',
-            },
-            {
-                title: '阶段',
-                dataIndex: 'semesterName',
-                key: 'semesterName',
+                render: (text: any, record: any, index: number) => (
+                    <Tooltip
+                        title={text.className.join(',')}
+                        trigger="hover"
+                        placement="top"
+                        color="rgba(0, 0, 0, 0.7)"
+                    >
+                        <div style={{overflow:'hidden',textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{text.className.join(',')}</div>
+                    </Tooltip>
+                )
             },
             {
                 title: '考试时间',
                 dataIndex: 'startTime',
                 key: 'startTime',
+            },
+            {
+                title: '结束时间',
+                dataIndex: 'endTime',
+                key: 'endTime',
             },
             {
                 title: '作文状态',
@@ -169,6 +178,8 @@ class writingExam extends React.Component {
         createExamType: 'practice',
         createStartTime: moment().format(dateFormat),
         createEndTime: moment((new Date(FunGetDateStr(7, new Date()) + " 00:00:00") as any)).format(dateFormat),
+        startDate: moment(new Date(FunGetDateStr(-6, new Date())) as any).format(dateFormat1),
+        endDate: moment(new Date() as any).format(dateFormat1),
         modalSelPici: 0,
         modalSelClass: [],
         modalClassList: [],
@@ -212,14 +223,7 @@ class writingExam extends React.Component {
                     selPici: pici[0].batchId,
                     selBanji: banji[0].classId,
                 }, async () => {
-                    const semester = await this.getSemester(banji[0].classId || 0);
-                    const selSemester = [0]
-                    this.setState({
-                        semester,
-                        selSemester,
-                    }, () => {
-                        this.getExamList()
-                    });
+                    this.getExamList()
                 })
             }
         );
@@ -255,23 +259,10 @@ class writingExam extends React.Component {
         });
         return banji;
     }
-    async getSemester(classId: any){
-        const {selPici, selTeacher} = this.state
-        let res = await get({
-            url: baseUrl + `/api/v1/structure/semester/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${classId}`
-        })
-        const semester = res?.data || [];
-        semester.unshift({
-            isCurrent: false,
-            semesterId: 0,
-            semesterName: '全部',
-        });
-        return semester;
-    }
     async getExamList(){
-        const {query, queryType, status, examType, selTeacher, selPici, selBanji, selSemester, pageNo, pageSize, sort, sortKey} = this.state;
+        const {query, queryType, status, examType, selTeacher, selPici, selBanji, pageNo, pageSize, sort, sortKey, startDate, endDate} = this.state;
         const res = await get({
-            url: baseUrl + `/api/v1/writing-exam/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${selBanji}&semesters=${JSON.stringify(selSemester)}&pageNo=${pageNo}&pageSize=${pageSize}&query=${query}&queryType=${queryType}&status=${status}&examType=${examType}`
+            url: baseUrl + `/api/v1/writing-exam/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${selBanji}&startDate=${startDate}&endDate=${endDate}&pageNo=${pageNo}&pageSize=${pageSize}&query=${query}&queryType=${queryType}&status=${status}&examType=${examType}`
         })
         this.setState({
             data1: res?.data?.data ?? [],
@@ -306,23 +297,9 @@ class writingExam extends React.Component {
         });
     }
     async handleBanji(val: any) {
-        const semester = await this.getSemester(val);
-        let selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : []
-        if(!val){
-            selSemester = [0]
-        }
         this.setState({
             selBanji: val,
-            semester,
-            selSemester,
         }, async () => {
-            this.handleSemester(selSemester);
-        });
-    }
-    async handleSemester(val: any) {
-        this.setState({
-            selSemester: val,
-        }, ()=>{
             this.getExamList()
         });
     }
@@ -386,6 +363,7 @@ class writingExam extends React.Component {
             isVisible: true
         })
     }
+    // 新增确认
     async handleCreateOk(val:any){
         const {
             createExamName,
@@ -428,6 +406,7 @@ class writingExam extends React.Component {
             message.error(`发布作文任务失败:${res.msg}`);
         }
     }
+    // 新增取消
     handleCreateCancel(val:any){
         this.setState({
             isVisible: false
@@ -461,15 +440,24 @@ class writingExam extends React.Component {
     handleModalPiCiChange(val:any){
         this.setState({
             modalSelPici: val,
+            modalPageNo: 1,
         }, ()=>{
             this.getModalClass();
         });
     }
     handleModalSelClassChange(selectedRowKeys:any, selectedRows:any){
-        console.log('handleModalSelClassChange', selectedRowKeys, selectedRows)
         this.setState({
             modalSelClass: selectedRowKeys
         })
+    }
+    /** 更换时间 */
+    handleDateChange(date: any) {
+        this.setState({
+            startDate: moment(new Date(date[0]._d) as any).format(dateFormat1),
+            endDate: moment(new Date(date[1]._d) as any).format(dateFormat1)
+        }, () => {
+            this.getExamList()
+        });
     }
     async getModalClass() {
         const { selTeacher, modalPageNo, modalPageSize, modalSelPici } = this.state;
@@ -510,8 +498,6 @@ class writingExam extends React.Component {
             selPici,
             banji,
             selBanji,
-            semester,
-            selSemester,
             columns1,
             data1,
             pageNo,
@@ -591,7 +577,7 @@ class writingExam extends React.Component {
                                 </Option>
                             ))}
                         </Select>
-                        <span className="span span2">任务类型</span>
+                        <span className="span span10">任务类型</span>
                         <span className="semicolon">:</span>
                         <Select
                             defaultValue="请选择"
@@ -624,7 +610,7 @@ class writingExam extends React.Component {
                             </Select>
                         </div>
                         <div>
-                            <span className="span">学员批次</span>
+                            <span className="span span10">学员批次</span>
                             <span className="semicolon">:</span>
                             <Select
                                 defaultValue="请选择"
@@ -640,7 +626,7 @@ class writingExam extends React.Component {
                             </Select>
                         </div>
                         <div>
-                            <span className="span">班级</span>
+                            <span className="span span10">班级</span>
                             <span className="semicolon">:</span>
                             <Select
                                 defaultValue="请选择"
@@ -656,21 +642,16 @@ class writingExam extends React.Component {
                             </Select>
                         </div>
                         <div>
-                            <span className="span">阶段</span>
+                            <span className="span span10">时间</span>
                             <span className="semicolon">:</span>
-                            <Select
-                                mode="multiple"
-                                allowClear
-                                style={{ width: 240 }}
-                                value={selSemester}
-                                onChange={this.handleSemester.bind(this)}
-                            >
-                                {semester.map((item: any) => (
-                                    <Option key={item.semesterId} value={item.semesterId}>
-                                        {item.semesterName || item.semesterId}
-                                    </Option>
-                                ))}
-                            </Select>
+                            <RangePicker
+                                defaultValue={[
+                                    moment(new Date(FunGetDateStr(-6, new Date())), dateFormat1),
+                                    moment(new Date(), dateFormat1),
+                                ]}
+                                onChange={this.handleDateChange.bind(this)}
+                                format={dateFormat1}
+                            />
                         </div>
                         
                     </div>

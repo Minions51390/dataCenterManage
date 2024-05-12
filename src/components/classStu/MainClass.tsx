@@ -415,7 +415,7 @@ class MainClass extends React.Component {
                             <div className="sec-item-content">{classInfo.createDate.split('T')[0]}</div>
                         </div>
                         <div className="left">
-                            <div className="sec-item-title">当前阶段:</div>
+                            <div className="sec-item-title">词库任务:</div>
                             <div className="sec-item-content">{classInfo.currentSemester}</div>
                         </div>
                         <div className="right">新生申请</div>

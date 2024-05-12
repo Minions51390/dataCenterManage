@@ -47,11 +47,6 @@ class examRank extends React.Component {
                 key: 'className',
             },
             {
-                title: '阶段',
-                key: 'semesterName',
-                dataIndex: 'semesterName',
-            },
-            {
                 title: '学生姓名',
                 key: 'stuName',
                 dataIndex: 'stuName',
