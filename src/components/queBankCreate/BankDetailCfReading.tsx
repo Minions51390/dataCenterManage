@@ -1,17 +1,9 @@
 import React, { useState } from 'react';
-import { Table, Pagination, Input, Button, Modal, PageHeader, Upload, message, Select } from 'antd';
+import { Table, Pagination, Input, Button, Modal, PageHeader, Select, Radio } from 'antd';
 import { Link } from 'react-router-dom';
-import {
-    PlusOutlined,
-    UploadOutlined,
-    DownloadOutlined,
-    FileAddOutlined,
-    InboxOutlined,
-} from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/BankDetailCfReading.less';
-import { get, post, del, put, baseUrl } from '../../service/tools';
-import type { RcFile, UploadFile } from 'antd/es/upload/interface';
-const { Dragger } = Upload;
+import { get, post, put, baseUrl } from '../../service/tools';
 const { Option } = Select;
 const ENUM_BANK_TYPE: any = {
     choice: '单选',
@@ -49,7 +41,6 @@ class BankDetailCfReading extends React.Component {
         bankQuery: '',
         isVisible: false,
         uploadVisible: false,
-        // setTypeList: ['choice'], //['pack'],
         pageNo: 1,
         totalCount: 1,
         /** 默认数据 */
@@ -71,16 +62,12 @@ class BankDetailCfReading extends React.Component {
             {
                 title: '真题年份',
                 key: 'key',
-                render: (text: any, record: any, index: number) => (
-                    <div>-</div>
-                ),
+                render: (text: any, record: any, index: number) => <div>-</div>,
             },
             {
                 title: '真题类型',
                 key: 'key',
-                render: (text: any, record: any, index: number) => (
-                    <div>-</div>
-                ),
+                render: (text: any, record: any, index: number) => <div>-</div>,
             },
             {
                 title: '试题内容',
@@ -101,18 +88,13 @@ class BankDetailCfReading extends React.Component {
         data1: [],
         moduleName: '编辑题目',
         canEdit: true,
-        queName: '',
-        queNameA: '',
-        queNameB: '',
-        queNameC: '',
-        queNameD: '',
-        queNameR: '',
+        title: '',
+        stem: '',
+        questions: [],
         questionId: '',
         fileList: [],
         selectYear: '',
         selectTp: '',
-        // setFileList: useState<UploadFile[]>([]),
-        // fileList: useState<UploadFile[]>([])
     };
     componentWillMount() {
         this.inited();
@@ -175,48 +157,6 @@ class BankDetailCfReading extends React.Component {
         });
     }
 
-    /** 题干名称 */
-    onQueNameChange(event: any) {
-        this.setState({
-            queName: event.target.value,
-        });
-    }
-
-    /** A名称 */
-    onQueNameChangeA(event: any) {
-        this.setState({
-            queNameA: event.target.value,
-        });
-    }
-
-    /** B名称 */
-    onQueNameChangeB(event: any) {
-        this.setState({
-            queNameB: event.target.value,
-        });
-    }
-
-    /** C名称 */
-    onQueNameChangeC(event: any) {
-        this.setState({
-            queNameC: event.target.value,
-        });
-    }
-
-    /** D名称 */
-    onQueNameChangeD(event: any) {
-        this.setState({
-            queNameD: event.target.value,
-        });
-    }
-
-    /** 正确名称 */
-    onQueNameChangeR(event: any) {
-        this.setState({
-            queNameR: event.target.value,
-        });
-    }
-
     /** 确认编辑 */
     handleCreateOk(val: any) {
         const { canEdit } = this.state;
@@ -234,34 +174,17 @@ class BankDetailCfReading extends React.Component {
 
     /** 编辑单个试题 */
     async editQuestionInterface() {
-        const { questionId, queName, queNameA, queNameB, queNameC, queNameD, queNameR, setType } =
-            this.state;
+        const { questionId, setType, title, stem, questions, bankID } = this.state;
         console.log('editQuestionInterface', questionId);
         await put({
             url: `${baseUrl}/api/v1/question-set/question`,
             data: {
                 questionId: questionId,
-                stem: queName,
+                stem,
+                title,
                 setType,
-                options: [
-                    {
-                        key: 'A',
-                        value: queNameA,
-                    },
-                    {
-                        key: 'B',
-                        value: queNameB,
-                    },
-                    {
-                        key: 'C',
-                        value: queNameC,
-                    },
-                    {
-                        key: 'D',
-                        value: queNameD,
-                    },
-                ],
-                rightKey: queNameR,
+                questions,
+                setId: bankID,
             },
         });
         this.getQuestionList();
@@ -269,31 +192,16 @@ class BankDetailCfReading extends React.Component {
 
     /** 删除接口 */
     async delQuestionInterface() {
-        const { questionId } = this.state;
+        const { questionId, bankID, setType } = this.state;
         await post({
             url: `${baseUrl}/api/v1/question-set/question/delete`,
             data: {
                 questionId,
+                setId: bankID,
+                setType,
             },
         });
         this.getQuestionList();
-    }
-
-    /** 下载模板 */
-    async loadTemplate() {
-        const template = await get({
-            url: `${baseUrl}/static/template/question-set-template.xls`,
-            config: {
-                responseType: 'blob',
-            },
-        });
-        const aElement = document.createElement('a');
-        aElement.setAttribute('download', '模版');
-        const href = URL.createObjectURL(template);
-        aElement.href = href;
-        aElement.setAttribute('target', '_blank');
-        aElement.click();
-        URL.revokeObjectURL(href);
     }
 
     /** 取消编辑 */
@@ -305,19 +213,16 @@ class BankDetailCfReading extends React.Component {
 
     /** 展示编辑弹窗 */
     showCreateModal(type: string, data: any) {
-        const { questionId, stem, options, rightKey } = data;
+        const { questionId, stem, title, questions } = data;
         if (type === 'edit') {
             this.setState({
                 isVisible: true,
                 moduleName: '编辑题目',
                 canEdit: true,
                 questionId,
-                queName: stem,
-                queNameA: options[0].value,
-                queNameB: options[1].value,
-                queNameC: options[2].value,
-                queNameD: options[3]?.value || '',
-                queNameR: rightKey,
+                title,
+                stem,
+                questions,
             });
         } else {
             this.setState({
@@ -325,12 +230,9 @@ class BankDetailCfReading extends React.Component {
                 moduleName: '确认删除该试题？',
                 canEdit: false,
                 questionId,
-                queName: stem,
-                queNameA: options[0].value,
-                queNameB: options[1].value,
-                queNameC: options[2].value,
-                queNameD: options[3]?.value || '',
-                queNameR: rightKey,
+                title,
+                stem,
+                questions,
             });
         }
     }
@@ -360,48 +262,44 @@ class BankDetailCfReading extends React.Component {
         );
     }
 
-    /** 文件上传 */
-    handleUpload() {
+    handleTitle(event: any) {
+        const valData = event.target.value;
         this.setState({
-            uploadVisible: true,
+            title: valData,
         });
     }
 
-    /** 确定上传 */
-    async handleUploadOk() {
-        this.handleUploadCancel();
-        message.success('上传中...');
-        const { bankID, fileList } = this.state;
-        const formData = new FormData();
-        fileList.forEach((file: any) => {
-            formData.append('setId', bankID);
-            formData.append('file', file as RcFile);
+    handleStem(event: any) {
+        const valData = event.target.value;
+        this.setState({
+            stem: valData,
         });
-        const res = await post({
-            url: `${baseUrl}/api/v1/question-set/question/file`,
-            data: formData,
-            config: {
-                headers: {
-                    Accept: '*/*',
-                    'Content-Type': 'multipart/form-data;',
-                },
-            },
-        });
-        if (res.state === 0) {
-            this.setState({
-                fileList: [],
-            });
-            message.success('上传成功');
-            this.inited();
-        } else {
-            message.error('上传失败');
-        }
     }
 
-    /** 取消上传 **/
-    handleUploadCancel() {
+    updateQStem(val: any, index: number, event: any) {
+        const { questions } = this.state;
+        const valData = event.target.value;
+        (questions[index] as any).qStem = valData;
         this.setState({
-            uploadVisible: false,
+            questions,
+        });
+    }
+
+    updateOptionVal(val: any, index: number, key: number, event: any) {
+        const { questions } = this.state;
+        const valData = event.target.value;
+        (questions[index] as any).options[key].value = valData;
+        this.setState({
+            questions,
+        });
+    }
+
+    updateRightChange(val: any, index: number, event: any) {
+        const { questions } = this.state;
+        const valData = event.target.value;
+        (questions[index] as any).rightKey = valData;
+        this.setState({
+            questions,
         });
     }
 
@@ -443,59 +341,14 @@ class BankDetailCfReading extends React.Component {
             totalCount,
             pageNo,
             isVisible,
-            uploadVisible,
             moduleName,
             canEdit,
-            queName,
-            queNameA,
-            queNameB,
-            queNameC,
-            queNameD,
-            queNameR,
-            fileList,
             selectYear,
             selectTp,
+            stem,
+            title,
+            questions,
         } = this.state;
-        const uploadProps = {
-            name: 'file',
-            multiple: false,
-            action: `${baseUrl}/api/v1/question-set/question/file`,
-            maxCount: 1,
-            data: {
-                setId: bankID,
-            },
-            onChange: (info: any) => {
-                console.log(info);
-                if (info.file.status === 'done') {
-                    // console.log(info,'done');
-                    let res = info.file.response;
-                    // console.log(res.data)
-                    if (res.state === 0) {
-                        // 初始化
-                        this.inited();
-                        console.log('初始化');
-                    }
-                    message.success(`${info.file.name} 上传成功`);
-                } else if (info.file.status === 'error') {
-                    message.error(`${info.file.name} file upload failed.`);
-                }
-            },
-            onDrop(e: any) {
-                console.log('Dropped files', e.dataTransfer.files);
-            },
-            onRemove: (file: any) => {
-                this.setState({
-                    fileList: [],
-                });
-            },
-            beforeUpload: (file: any) => {
-                this.setState({
-                    fileList: [...fileList, file],
-                });
-                return false;
-            },
-            fileList,
-        };
         return (
             <div className="bank-detail-cf-reading-wrapper">
                 <div className="header">
@@ -579,9 +432,7 @@ class BankDetailCfReading extends React.Component {
                             </div>
                             <div className="gap-12">
                                 <Link
-                                    to={
-                                        `/app/queBankCreate/bankDetailCfReading/questionAddCfReading?bankID=${bankID}&setType=${setType}`
-                                    }
+                                    to={`/app/queBankCreate/bankDetailCfReading/questionAddCfReading?bankID=${bankID}&setType=${setType}`}
                                 >
                                     <Button type="primary" icon={<PlusOutlined />}>
                                         新建
@@ -624,103 +475,127 @@ class BankDetailCfReading extends React.Component {
                 <Modal
                     title={moduleName}
                     visible={isVisible}
+                    bodyStyle={{ height: '500px', overflow: 'auto' }}
+                    width="800px"
                     cancelText="取消"
                     okText="确定"
                     onOk={this.handleCreateOk.bind(this)}
                     onCancel={this.handleCreateCancel.bind(this)}
                 >
-                    <div className="module-area">
-                        <span className="title">题干：</span>
-                        <TextArea
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queName}
-                            onChange={this.onQueNameChange.bind(this)}
-                        />
-                    </div>
-                    <div className="module-area">
-                        <span className="title">A：</span>
-                        <Input
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queNameA}
-                            onChange={this.onQueNameChangeA.bind(this)}
-                        />
-                    </div>
-                    <div className="module-area">
-                        <span className="title">B：</span>
-                        <Input
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queNameB}
-                            onChange={this.onQueNameChangeB.bind(this)}
-                        />
-                    </div>
-                    <div className="module-area">
-                        <span className="title">C：</span>
-                        <Input
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queNameC}
-                            onChange={this.onQueNameChangeC.bind(this)}
-                        />
-                    </div>
-                    <div className="module-area">
-                        <span className="title">D：</span>
-                        <Input
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queNameD}
-                            onChange={this.onQueNameChangeD.bind(this)}
-                        />
-                    </div>
-                    <div className="module-area">
-                        <span className="title">正确选项：</span>
-                        <Input
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queNameR}
-                            onChange={this.onQueNameChangeR.bind(this)}
-                        />
-                    </div>
-                </Modal>
-                <Modal
-                    width={800}
-                    title="模版导入"
-                    visible={uploadVisible}
-                    onOk={this.handleUploadOk.bind(this)}
-                    onCancel={this.handleUploadCancel.bind(this)}
-                >
-                    <div className="modal-top">
-                        <div className="modal-text">
-                            <div className="text-left">
-                                <span className="red">*</span>
-                                <span className="text">导入Excel文件：</span>
+                    <div className="cf-input-block">
+                        <div className="firLine">
+                            <div>标题:</div>
+                            <Input
+                                className="ml-14"
+                                disabled={!canEdit}
+                                placeholder="请输入"
+                                value={title}
+                                style={{ width: 180 }}
+                                onChange={this.handleTitle.bind(this)}
+                            />
+                        </div>
+                        <div className="secLine">
+                            <div className="mt-8">短文:</div>
+                            <TextArea
+                                className="mt-8"
+                                disabled={!canEdit}
+                                value={stem}
+                                onChange={this.handleStem.bind(this)}
+                                style={{ height: 240, resize: 'none' }}
+                            />
+                        </div>
+                        <div className="thrLine">
+                            <div className="mt-8">小题:</div>
+                            <div className="mt-8 option-area">
+                                {questions.map((val: any, index) => (
+                                    <div className="item">
+                                        <div className="titleBlock">
+                                            <span className="title">{index + 1}：</span>
+                                            <Input
+                                                className="gap-8"
+                                                disabled={!canEdit}
+                                                value={val.qStem}
+                                                style={{ flex: 1 }}
+                                                onChange={this.updateQStem.bind(this, val, index)}
+                                            />
+                                        </div>
+                                        <div className="questionBlock">
+                                            <div className="left">
+                                                {val.options.map((val: any, key: number) => {
+                                                    return (
+                                                        <div className="optionBlock">
+                                                            <div className="title">{val.key} :</div>
+                                                            <Input
+                                                                className="gap-8"
+                                                                disabled={!canEdit}
+                                                                value={val.value}
+                                                                style={{ flex: 1 }}
+                                                                onChange={this.updateOptionVal.bind(
+                                                                    this,
+                                                                    val,
+                                                                    index,
+                                                                    key
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                            <div className="right">
+                                                <div className="checkBlock">
+                                                    <Radio.Group
+                                                        className="myRadio"
+                                                        onChange={this.updateRightChange.bind(
+                                                            this,
+                                                            val,
+                                                            index
+                                                        )}
+                                                        value={val.rightKey}
+                                                    >
+                                                        <Radio
+                                                            className="inner"
+                                                            disabled={!canEdit}
+                                                            value="A"
+                                                        >
+                                                            {val.rightKey === 'A'
+                                                                ? '设为正确答案'
+                                                                : ''}
+                                                        </Radio>
+                                                        <Radio
+                                                            className="inner"
+                                                            disabled={!canEdit}
+                                                            value="B"
+                                                        >
+                                                            {val.rightKey === 'B'
+                                                                ? '设为正确答案'
+                                                                : ''}
+                                                        </Radio>
+                                                        <Radio
+                                                            className="inner"
+                                                            disabled={!canEdit}
+                                                            value="C"
+                                                        >
+                                                            {val.rightKey === 'C'
+                                                                ? '设为正确答案'
+                                                                : ''}
+                                                        </Radio>
+                                                        <Radio
+                                                            className="inner"
+                                                            disabled={!canEdit}
+                                                            value="D"
+                                                        >
+                                                            {val.rightKey === 'D'
+                                                                ? '设为正确答案'
+                                                                : ''}
+                                                        </Radio>
+                                                    </Radio.Group>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
-                        <Button
-                            icon={<DownloadOutlined />}
-                            className="gap-12 load-template"
-                            type="primary"
-                            onClick={this.loadTemplate.bind(this)}
-                        >
-                            模版下载
-                        </Button>
-                    </div>
-                    <div className="modal-drag">
-                        <Dragger {...uploadProps}>
-                            <p className="ant-upload-drag-icon">
-                                <InboxOutlined />
-                            </p>
-                            <p className="ant-upload-text">点击选择本地文件</p>
-                            <p className="ant-upload-hint">或将Excel文件直接拖入此区域内</p>
-                        </Dragger>
                     </div>
                 </Modal>
             </div>
