@@ -111,7 +111,7 @@ class QueBank extends React.Component {
     async getQuestionBankList() {
         const { bankQuery, pageNo, sortKey, sortOrder, selTeacher, setTypeFilter, genuineFilter } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/question-set/list?teacherId=${selTeacher.teacherId}&query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}&setType=${setTypeFilter}&genuine=${genuineFilter}&all=off`,
+            url: `${baseUrl}/api/v1/question-set/list?teacherId=${selTeacher.teacherId}&query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}${setTypeFilter ? '&setType=' + setTypeFilter : ''}&genuine=${genuineFilter}&all=off`,
         });
         console.log('------------->', res);
         const questionBankList = res?.data?.questionSetList || [];

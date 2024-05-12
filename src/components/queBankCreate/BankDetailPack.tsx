@@ -1,18 +1,12 @@
 import React, { useState } from 'react';
-import { Table, Pagination, Input, Button, Modal, PageHeader, Upload, message, Select } from 'antd';
+import { Table, Pagination, Input, Button, Modal, PageHeader, message, Select } from 'antd';
 import { Link } from 'react-router-dom';
-import {
-    PlusOutlined,
-    UploadOutlined,
-    DownloadOutlined,
-    FileAddOutlined,
-    InboxOutlined,
-} from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/BankDetailPack.less';
-import { get, post, del, put, baseUrl } from '../../service/tools';
-import type { RcFile, UploadFile } from 'antd/es/upload/interface';
-const { Dragger } = Upload;
+import { get, post, put, baseUrl } from '../../service/tools';
+import type { RcFile } from 'antd/es/upload/interface';
 const { Option } = Select;
+
 const ENUM_BANK_TYPE: any = {
     choice: '单选',
     pack: '词汇理解',
@@ -97,18 +91,13 @@ class BankDetailPack extends React.Component {
         data1: [],
         moduleName: '编辑题目',
         canEdit: true,
-        queName: '',
-        queNameA: '',
-        queNameB: '',
-        queNameC: '',
-        queNameD: '',
-        queNameR: '',
+        title: '',
+        stem: '',
+        options: [],
         questionId: '',
         fileList: [],
         selectYear: '',
         selectTp: '',
-        // setFileList: useState<UploadFile[]>([]),
-        // fileList: useState<UploadFile[]>([])
     };
     componentWillMount() {
         this.inited();
@@ -172,44 +161,27 @@ class BankDetailPack extends React.Component {
     }
 
     /** 题干名称 */
-    onQueNameChange(event: any) {
+    handleStem(event: any) {
         this.setState({
-            queName: event.target.value,
+            stem: event.target.value,
         });
     }
 
-    /** A名称 */
-    onQueNameChangeA(event: any) {
+    /** 标题 */
+    handleTitle(event: any) {
+        const valData = event.target.value;
         this.setState({
-            queNameA: event.target.value,
+            title: valData,
         });
     }
 
-    /** B名称 */
-    onQueNameChangeB(event: any) {
+    /** 更新选项 */
+    updateOptions(val: any, index: number, event: any) {
+        const { options } = this.state;
+        const valData = event.target.value;
+        (options[index] as any).value = valData;
         this.setState({
-            queNameB: event.target.value,
-        });
-    }
-
-    /** C名称 */
-    onQueNameChangeC(event: any) {
-        this.setState({
-            queNameC: event.target.value,
-        });
-    }
-
-    /** D名称 */
-    onQueNameChangeD(event: any) {
-        this.setState({
-            queNameD: event.target.value,
-        });
-    }
-
-    /** 正确名称 */
-    onQueNameChangeR(event: any) {
-        this.setState({
-            queNameR: event.target.value,
+            options,
         });
     }
 
@@ -230,34 +202,17 @@ class BankDetailPack extends React.Component {
 
     /** 编辑单个试题 */
     async editQuestionInterface() {
-        const { questionId, queName, queNameA, queNameB, queNameC, queNameD, queNameR, setType } =
-            this.state;
+        const { questionId, stem, options, setType, title, bankID } = this.state;
         console.log('editQuestionInterface', questionId);
         await put({
             url: `${baseUrl}/api/v1/question-set/question`,
             data: {
                 questionId: questionId,
-                stem: queName,
+                stem: stem,
+                title: title,
                 setType,
-                options: [
-                    {
-                        key: 'A',
-                        value: queNameA,
-                    },
-                    {
-                        key: 'B',
-                        value: queNameB,
-                    },
-                    {
-                        key: 'C',
-                        value: queNameC,
-                    },
-                    {
-                        key: 'D',
-                        value: queNameD,
-                    },
-                ],
-                rightKey: queNameR,
+                options,
+                setId: bankID,
             },
         });
         this.getQuestionList();
@@ -265,11 +220,13 @@ class BankDetailPack extends React.Component {
 
     /** 删除接口 */
     async delQuestionInterface() {
-        const { questionId } = this.state;
+        const { questionId, bankID, setType } = this.state;
         await post({
             url: `${baseUrl}/api/v1/question-set/question/delete`,
             data: {
                 questionId,
+                setId: bankID,
+                setType,
             },
         });
         this.getQuestionList();
@@ -301,19 +258,16 @@ class BankDetailPack extends React.Component {
 
     /** 展示编辑弹窗 */
     showCreateModal(type: string, data: any) {
-        const { questionId, stem, options, rightKey } = data;
+        const { questionId, stem, title, options } = data;
         if (type === 'edit') {
             this.setState({
                 isVisible: true,
                 moduleName: '编辑题目',
                 canEdit: true,
                 questionId,
-                queName: stem,
-                queNameA: options[0].value,
-                queNameB: options[1].value,
-                queNameC: options[2].value,
-                queNameD: options[3]?.value || '',
-                queNameR: rightKey,
+                stem,
+                title,
+                options,
             });
         } else {
             this.setState({
@@ -321,12 +275,9 @@ class BankDetailPack extends React.Component {
                 moduleName: '确认删除该试题？',
                 canEdit: false,
                 questionId,
-                queName: stem,
-                queNameA: options[0].value,
-                queNameB: options[1].value,
-                queNameC: options[2].value,
-                queNameD: options[3]?.value || '',
-                queNameR: rightKey,
+                stem,
+                title,
+                options,
             });
         }
     }
@@ -439,59 +390,14 @@ class BankDetailPack extends React.Component {
             totalCount,
             pageNo,
             isVisible,
-            uploadVisible,
             moduleName,
             canEdit,
-            queName,
-            queNameA,
-            queNameB,
-            queNameC,
-            queNameD,
-            queNameR,
-            fileList,
+            title,
+            stem,
+            options,
             selectYear,
             selectTp,
         } = this.state;
-        const uploadProps = {
-            name: 'file',
-            multiple: false,
-            action: `${baseUrl}/api/v1/question-set/question/file`,
-            maxCount: 1,
-            data: {
-                setId: bankID,
-            },
-            onChange: (info: any) => {
-                console.log(info);
-                if (info.file.status === 'done') {
-                    // console.log(info,'done');
-                    let res = info.file.response;
-                    // console.log(res.data)
-                    if (res.state === 0) {
-                        // 初始化
-                        this.inited();
-                        console.log('初始化');
-                    }
-                    message.success(`${info.file.name} 上传成功`);
-                } else if (info.file.status === 'error') {
-                    message.error(`${info.file.name} file upload failed.`);
-                }
-            },
-            onDrop(e: any) {
-                console.log('Dropped files', e.dataTransfer.files);
-            },
-            onRemove: (file: any) => {
-                this.setState({
-                    fileList: [],
-                });
-            },
-            beforeUpload: (file: any) => {
-                this.setState({
-                    fileList: [...fileList, file],
-                });
-                return false;
-            },
-            fileList,
-        };
         return (
             <div className="bank-detail-pack-wrapper">
                 <div className="header">
@@ -582,18 +488,6 @@ class BankDetailPack extends React.Component {
                                     </Button>
                                 </Link>
                             </div>
-                            {/* {setType === 'choice' ? (
-                                <Button
-                                    icon={<UploadOutlined />}
-                                    className="gap-12"
-                                    type="primary"
-                                    onClick={this.handleUpload.bind(this)}
-                                >
-                                    批量上传
-                                </Button>
-                            ) : (
-                                <></>
-                            )} */}
                         </div>
                     </div>
                     <div className="thr">
@@ -623,98 +517,46 @@ class BankDetailPack extends React.Component {
                     onOk={this.handleCreateOk.bind(this)}
                     onCancel={this.handleCreateCancel.bind(this)}
                 >
-                    <div className="module-area">
-                        <span className="title">题干：</span>
-                        <TextArea
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queName}
-                            onChange={this.onQueNameChange.bind(this)}
-                        />
-                    </div>
-                    <div className="module-area">
-                        <span className="title">A：</span>
-                        <Input
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queNameA}
-                            onChange={this.onQueNameChangeA.bind(this)}
-                        />
-                    </div>
-                    <div className="module-area">
-                        <span className="title">B：</span>
-                        <Input
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queNameB}
-                            onChange={this.onQueNameChangeB.bind(this)}
-                        />
-                    </div>
-                    <div className="module-area">
-                        <span className="title">C：</span>
-                        <Input
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queNameC}
-                            onChange={this.onQueNameChangeC.bind(this)}
-                        />
-                    </div>
-                    <div className="module-area">
-                        <span className="title">D：</span>
-                        <Input
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queNameD}
-                            onChange={this.onQueNameChangeD.bind(this)}
-                        />
-                    </div>
-                    <div className="module-area">
-                        <span className="title">正确选项：</span>
-                        <Input
-                            disabled={!canEdit}
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            value={queNameR}
-                            onChange={this.onQueNameChangeR.bind(this)}
-                        />
-                    </div>
-                </Modal>
-                <Modal
-                    width={800}
-                    title="模版导入"
-                    visible={uploadVisible}
-                    onOk={this.handleUploadOk.bind(this)}
-                    onCancel={this.handleUploadCancel.bind(this)}
-                >
-                    <div className="modal-top">
-                        <div className="modal-text">
-                            <div className="text-left">
-                                <span className="red">*</span>
-                                <span className="text">导入Excel文件：</span>
+                    <div className="input-block">
+                        <div className="left">
+                            <div className="mt-8">标题:</div>
+                            <Input
+                                disabled={!canEdit}
+                                className="mt-8"
+                                placeholder="请输入"
+                                value={title}
+                                onChange={this.handleTitle.bind(this)}
+                            />
+                            <div className="mt-8">题干:</div>
+                            <TextArea
+                                disabled={!canEdit}
+                                className="mt-8"
+                                value={stem}
+                                onChange={this.handleStem.bind(this)}
+                                style={{ height: 500, resize: 'none' }}
+                            />
+                            <div className="tips">
+                                *提示：在输入题干文本时，选词的地方用(\选项\)表示； *示例：Let there
+                                be (\A\). [假设选项A是"light"]
                             </div>
                         </div>
-                        <Button
-                            icon={<DownloadOutlined />}
-                            className="gap-12 load-template"
-                            type="primary"
-                            onClick={this.loadTemplate.bind(this)}
-                        >
-                            模版下载
-                        </Button>
-                    </div>
-                    <div className="modal-drag">
-                        <Dragger {...uploadProps}>
-                            <p className="ant-upload-drag-icon">
-                                <InboxOutlined />
-                            </p>
-                            <p className="ant-upload-text">点击选择本地文件</p>
-                            <p className="ant-upload-hint">或将Excel文件直接拖入此区域内</p>
-                        </Dragger>
+                        <div className="right">
+                            <div className="mt-8">选项:</div>
+                            <div className="mt-8 option-area">
+                                {options.map((val: any, index) => (
+                                    <div className="item">
+                                        <span className="title">{val.key}：</span>
+                                        <Input
+                                            disabled={!canEdit}
+                                            className="gap-8"
+                                            value={val.value}
+                                            style={{ width: 180 }}
+                                            onChange={this.updateOptions.bind(this, val, index)}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </Modal>
             </div>
