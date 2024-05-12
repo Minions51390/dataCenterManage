@@ -518,7 +518,7 @@ class BankDetailPack extends React.Component {
                     onOk={this.handleCreateOk.bind(this)}
                     onCancel={this.handleCreateCancel.bind(this)}
                 >
-                    <div className="input-block">
+                    <div className="pack-input-block">
                         <div className="left">
                             <div className="mt-8">标题:</div>
                             <Input
@@ -551,7 +551,7 @@ class BankDetailPack extends React.Component {
                                             disabled={!canEdit}
                                             className="gap-8"
                                             value={val.value}
-                                            style={{ width: 180 }}
+                                            style={{ flex: 1 }}
                                             onChange={this.updateOptions.bind(this, val, index)}
                                         />
                                     </div>

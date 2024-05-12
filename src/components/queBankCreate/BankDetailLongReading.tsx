@@ -519,7 +519,7 @@ class BankDetailLongReading extends React.Component {
                     onOk={this.handleCreateOk.bind(this)}
                     onCancel={this.handleCreateCancel.bind(this)}
                 >
-                    <div className="input-block">
+                    <div className="lr-input-block">
                         <div className="left">
                             <div className="mt-8">标题:</div>
                             <Input
