@@ -39,7 +39,7 @@ class TestDetail extends React.Component {
                 key: 'testName',
                 render: (text: any) => (
                     <div className="title">
-                        <div className="que">{text.stem}</div>
+                        {/* <div className="que">{text.stem}</div>
                         <div className="choose">
                             <div className="tr">
                                 <div>
@@ -62,7 +62,7 @@ class TestDetail extends React.Component {
                                 )}
                             </div>
                         </div>
-                        <div className="right">正确答案：{text.rightKey}</div>
+                        <div className="right">正确答案：{text.rightKey}</div> */}
                     </div>
                 ),
             },

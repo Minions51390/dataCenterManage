@@ -1,6 +1,6 @@
 import React from 'react';
-import { Table, Pagination, Input, Button, Select, Modal, message } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Table, Pagination, Input, Button, Select, Modal, message, Tooltip } from 'antd';
+import { InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/TestPaper.less';
 import copy from 'clipboard-copy';
 import { get, post, baseUrl } from '../../service/tools';
@@ -11,12 +11,15 @@ class TestPaper extends React.Component {
         totalCount: 1,
         testQuery: '',
         testName: '',
+        baseQuestionPaperId: '',
         isVisible: false,
         columns1: [
             {
                 title: '序号',
                 key: 'key',
-                render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
+                render: (text: any, record: any, index: number) => (
+                    <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>
+                ),
             },
             {
                 title: '试卷名称',
@@ -49,7 +52,7 @@ class TestPaper extends React.Component {
                 render: (text: any) => (
                     <div className="edit">
                         <div className="entry" onClick={this.handleEdit.bind(this, text)}>
-                            编辑
+                            详情
                         </div>
                         <div
                             className="copy"
@@ -119,7 +122,7 @@ class TestPaper extends React.Component {
             realName: '全部',
             teacherId: 0,
         });
-        return teacher
+        return teacher;
     }
 
     handleTeacher(val: any) {
@@ -184,6 +187,12 @@ class TestPaper extends React.Component {
         });
     }
 
+    onBaseChange(event: any) {
+        this.setState({
+            baseQuestionPaperId: event.target.value,
+        });
+    }
+
     /** 确认新建 */
     async handleCreateOk(val: any) {
         const { testName } = this.state;
@@ -191,7 +200,7 @@ class TestPaper extends React.Component {
             isVisible: false,
         });
         const testID = await this.confimeNew();
-        if(testID){
+        if (testID) {
             sessionStorage.setItem('testDetailId', testID);
             sessionStorage.setItem('testDetailName', testName);
             window.location.href = `${window.location.pathname}#/app/test/testPaper/testDetail`;
@@ -208,15 +217,19 @@ class TestPaper extends React.Component {
 
     /** 确认新建接口 */
     async confimeNew() {
-        const { testName } = this.state;
+        const { testName, baseQuestionPaperId } = this.state;
+        let data: any = {
+            questionPaperName: testName,
+        };
+        if (baseQuestionPaperId) {
+            data.baseQuestionPaperId = baseQuestionPaperId;
+        }
         const response: any = await post({
             url: baseUrl + '/api/v1/question-paper/',
-            data: {
-                questionPaperName: testName,
-            },
+            data,
         });
-        if(response.state !== 0){
-            return
+        if (response.state !== 0) {
+            return;
         }
         return response?.data?.questionPaperId || '1';
     }
@@ -258,6 +271,7 @@ class TestPaper extends React.Component {
             selTeacher,
             queryType,
             queryTypeList,
+            baseQuestionPaperId,
         } = this.state;
         return (
             <div className="paper-wrapper">
@@ -357,6 +371,22 @@ class TestPaper extends React.Component {
                             onChange={this.onTestNameChange.bind(this)}
                             maxLength={20}
                         />
+                    </div>
+                    <div className="module-area">
+                        基于某试卷新建：
+                        <Input
+                            className="gap-8"
+                            style={{ width: 294 }}
+                            placeholder="请输入试卷名称"
+                            value={baseQuestionPaperId}
+                            onChange={this.onBaseChange.bind(this)}
+                        />
+                        <Tooltip
+                            placement="top"
+                            title="可以选取已发布的试卷作为模板并在此基础上做试题修改"
+                        >
+                            <InfoCircleOutlined style={{marginLeft: '4px'}} />
+                        </Tooltip>
                     </div>
                 </Modal>
             </div>
