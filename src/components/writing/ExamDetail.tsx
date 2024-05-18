@@ -14,6 +14,7 @@ import {
 import { EditOutlined } from '@ant-design/icons'
 import { getQueryString } from '../../utils';
 import { spawn } from "child_process";
+import { off } from "process";
 
 const { TextArea } = Input;
 
@@ -79,14 +80,15 @@ class examDetail extends React.Component {
                 "aiSentenceComments": [
                     {
                         "sentence": "That is my grandfather's traditional Chinese medicine pharmacy, affectionately referred to by patients as the 'apricot forest'.",
-                        "key": -1,
                         "suggestions": [
                             {
                                 "errBaseInfo":"xxxxxxxx错了，需要改成xxxx",
                                 "startPos":22,
                                 "endPos": 28,
                                 "correctChunk":"xxx",
-                                "orgChunk":"xxxxxxx"
+                                "orgChunk":"xxxxxxx",
+                                "key": -1,
+                                "showType" : 2,
                             }
                         ]
                     },
@@ -98,7 +100,9 @@ class examDetail extends React.Component {
                                 "startPos":22,
                                 "endPos": 28,
                                 "correctChunk":"xxx",
-                                "orgChunk":"xxxxxxx"
+                                "orgChunk":"xxxxxxx",
+                                "key": -1,
+                                "showType" : 2,
                             }
                         ]
                     },
@@ -110,7 +114,9 @@ class examDetail extends React.Component {
                                 "startPos":22,
                                 "endPos": 28,
                                 "correctChunk":"xxx",
-                                "orgChunk":"xxxxxxx"
+                                "orgChunk":"xxxxxxx",
+                                "key": -1,
+                                "showType" : 2,
                             }
                         ]
                     },
@@ -122,7 +128,9 @@ class examDetail extends React.Component {
                                 "startPos":22,
                                 "endPos": 28,
                                 "correctChunk":"xxx",
-                                "orgChunk":"xxxxxxx"
+                                "orgChunk":"xxxxxxx",
+                                "key": -1,
+                                "showType" : 2,
                             }
                         ]
                     }
@@ -134,7 +142,8 @@ class examDetail extends React.Component {
         fontSize: 14,
         editStatus: false,
         errorKey: 0,
-        errorMouseover: false,
+        errorKeywords:['|'],
+        errorSuggestions: [],
     };
 
     componentWillMount() {
@@ -186,18 +195,6 @@ class examDetail extends React.Component {
             inline: 'center',
         });
     }
-    // 鼠标移入错误
-    handleMouseOver(event:any){
-        this.setState({
-            errorMouseover: true,
-        });
-    }
-    // 鼠标移出错误
-    handleMouseLeave(){
-        this.setState({
-            errorMouseover: false,
-        });
-    }
 
     //错误项列表点击
     handleErrorListItemClick(event:any){
@@ -244,8 +241,14 @@ class examDetail extends React.Component {
         })
         if(res){
             let aiReview = res?.data?.aiReview;
-            aiReview.aiSentenceComments.map((review:any, index:any) => {
-                review.key = index;
+            let errorKeywords:any = [];
+            let errorSuggestions:any = [];
+            aiReview.aiSentenceComments.forEach((aiSentenceComment:any, index:any) => {
+                aiSentenceComment.suggestions.forEach((suggestion:any, index:any)=>{
+                    suggestion.relStartPos = suggestion.startPos + aiSentenceComment.sentStartPos;
+                    errorKeywords.push(`|${suggestion.orgChunk}`);
+                    errorSuggestions.push(suggestion);
+                })
             });
             this.setState({
                 paperId: paperId,
@@ -259,6 +262,8 @@ class examDetail extends React.Component {
                 stuName: res?.data?.stuName,
                 className: res?.data?.className,
                 score: res?.data?.score,
+                errorSuggestions,
+                errorKeywords,
             });
         }else{
             message.error("获取作文失败!");
@@ -285,16 +290,9 @@ class examDetail extends React.Component {
         return length;
     }
     // 获取带错误格式的文章
-    getFinalContent(content:any, aiSentenceComments:any){
-        const { errorKey } = this.state;
-        let keyWordArr:any = [];
+    getFinalContent(){
+        const {errorKey, errorSuggestions, errorKeywords, content} = this.state
         let contentStr = content;
-        aiSentenceComments.forEach((aiSentenceComment:any, index:any)=>{
-            const sentence = aiSentenceComment.sentence
-            const pos = aiSentenceComment.sentStartPos + index;
-            keyWordArr.push(`|${sentence}`);
-            contentStr = `${contentStr.slice(0, pos)}|${contentStr.slice(pos)}`;
-        })
         function splitByMultipleValues(str:any, separators:any) {
             if (separators.length === 0) {
                 return [str];
@@ -304,54 +302,65 @@ class examDetail extends React.Component {
                 return result.concat(splitByMultipleValues(part, separators.slice()));
             }, []);
         }
-        const contentSplits = splitByMultipleValues(contentStr, [...keyWordArr]);
-        return (
-            aiSentenceComments.map((aiSentenceComment:any, index:any)=>{
-                return (
-                    <span>
-                        <span>{contentSplits[index]}</span>
-                        <span
-                            className={[
-                                errorKey === aiSentenceComment.key ? 'content-error-mouseover' : 'content-error'
-                            ].join(' ')}
-                            onClick={this.handleWritingErrorClick.bind(this, aiSentenceComment)}
-                            onMouseOver={this.handleMouseOver.bind(this, aiSentenceComment)}
-                            onMouseLeave={this.handleMouseLeave.bind(this)}
-                        >{keyWordArr[index].replace('|', '')}</span>
-                        {
-                            index === aiSentenceComments.length - 1 ? <span>{contentSplits[contentSplits.length - 1]}</span> :''
-                        }
-                    </span>
-                )
+            errorSuggestions.forEach((suggestion:any, index:any)=>{
+                suggestion.key = index;
+                const pos = suggestion.relStartPos + index;
+                contentStr = `${contentStr.slice(0, pos)}|${contentStr.slice(pos)}`;
             })
-        )
+            const contentSplits = splitByMultipleValues(contentStr, [...errorKeywords]);
+            return (
+                errorSuggestions.map((suggestion:any, index:any)=>{
+                    return (
+                        <span>
+                            <span>{contentSplits[index]}</span>
+                            <span
+                                className={[
+                                    'content-error-suggestions',
+                                    suggestion.showType === 2 ? 
+                                        errorKey === suggestion.key ? 
+                                            'content-suggestion-mouseover' : 'content-suggestion'
+                                    : errorKey === suggestion.key ? 
+                                            'content-error-mouseover' : 'content-error'
+                                ].join(' ')}
+                                onClick={this.handleWritingErrorClick.bind(this, suggestion)}
+                            >{errorKeywords[index].replace('|', '')}</span>
+                            {
+                                index === errorSuggestions.length - 1 ? <span>{contentSplits[contentSplits.length - 1]}</span> :''
+                            }
+                        </span>
+                    )
+                })
+            )
     }
     
     errorItem() {
         const { aiReview, errorKey } = this.state;
         return (
             <div ref={(ele) => (this.errorItemRef = ele)}>
-            {aiReview.aiSentenceComments.map((item) => {
-                return (
-                    <div
-                        className={["errorItem", item.key === errorKey ?'errorItemSelect':''].join(' ')}
-                        onClick={this.handleErrorListItemClick.bind(this, item)}
-                    >
-                        <span className="errorItemCount" />
-                        <div className="errorItemContent">
-                        <div className="errorItemContent">{item.sentence}</div>
-                        {item.suggestions.map((suggestion) => {
-                            return (<div className="errorItemContent">{suggestion.errBaseInfo}</div>)
-                        })}
+            {aiReview.aiSentenceComments.map((aiSentenceComment) => {
+                return aiSentenceComment.suggestions.map((suggestion) => {
+                    return (
+                        <div
+                            className={[
+                                "list-item",
+                                suggestion.showType === 2 ? "suggestion-item" : "error-item",
+                                suggestion.key === errorKey ? 
+                                    suggestion.showType === 2 ? "suggestion-item-select" : "error-item-select"
+                                : ""
+                            ].join(' ')}
+                            onClick={this.handleErrorListItemClick.bind(this, suggestion)}
+                        >
+                            <span className="error-item-count" />
+                            <div className="error-text">{suggestion.orgChunk}: {suggestion.errBaseInfo}</div>
                         </div>
-                    </div>
-                );
+                    );
+                })
             })}
             </div>
         );
     }
     render() {
-        const { paperId, routes, title, content, writing, comment, aiReview, className, stuName, score, editStatus, fontSize } = this.state;
+        const { paperId, routes, title, content, writing, comment, errorSuggestions, className, stuName, score, editStatus, fontSize } = this.state;
         return (
             <div className="writing-detail-container">
             <div className="header">
@@ -383,7 +392,7 @@ class examDetail extends React.Component {
                     </div>
                     <div className="left-thr" style={{fontSize: `${fontSize}px`, lineHeight: `${1.5 * fontSize}px`}}>
                         <div className="writing-content" ref={(ele) => (this.errorWritingRef = ele)}>
-                            {this.getFinalContent(content, aiReview.aiSentenceComments)}
+                            {this.getFinalContent()}
                         </div>
                     </div>
                 </div>
@@ -458,7 +467,7 @@ class examDetail extends React.Component {
                     <div className="commit-error">
                     <div className="fir-line">
                     <div className="title">AI纠错</div>
-                    <div className="count">{aiReview.aiSentenceComments.length}</div>
+                    <div className="count">{errorSuggestions.length}</div>
                     </div>
                     <div className="error-content">{this.errorItem()}</div>
                 </div>

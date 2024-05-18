@@ -269,14 +269,22 @@
                     margin: 12px 0px;
                     height: 370px;
                     overflow: scroll;
-                    .errorItem {
+                    .list-item {
                         display: flex;
                         padding: 12px 16px;
                         background-color: #fff;
                         margin-bottom: 12px;
                         border-radius: 8px;
                         cursor: pointer;
-                        .errorItemCount {
+                        .error-text {
+                            flex: 1;
+                            font-size: 14px;
+                            line-height: 22px;
+                            color: rgba(0, 0, 0, 0.65);
+                        }
+                    }
+                    .error-item{
+                        .error-item-count {
                             display: inline-block;
                             width: 8px;
                             height: 8px;
@@ -285,17 +293,27 @@
                             margin-right: 8px;
                             margin-top: 8px;
                         }
-                        .errorItemContent {
-                            flex: 1;
-                            font-size: 14px;
-                            line-height: 22px;
-                            color: rgba(0, 0, 0, 0.65);
-                        }
                     }
-                    .errorItemSelect{
+                    .error-item-select{
                         box-shadow: 0px 4px 10px 0px rgba(0,0,0,0.1);
                         border-radius: 8px;
                         border: 1px solid rgba(225,0,0,0.2);
+                    }
+                    .suggestion-item{
+                        .error-item-count {
+                            display: inline-block;
+                            width: 8px;
+                            height: 8px;
+                            background: #ffbe40;
+                            border-radius: 50%;
+                            margin-right: 8px;
+                            margin-top: 8px;
+                        }
+                    }
+                    .suggestion-item-select{
+                        box-shadow: 0px 4px 10px 0px rgba(0,0,0,0.1);
+                        border-radius: 8px;
+                        border: 1px solid #fff2d9;
                     }
                 }
                 }
@@ -307,15 +325,27 @@
                     padding: 16px;
                 }
             }
+            .content-error-suggestions{
+                cursor: pointer;
+            }
             .content-error{
                 color: #e10000;
                 text-decoration: underline #e10000;
-                cursor: pointer;
             }
             .content-error-mouseover{
                 color: #e10000;
                 text-decoration: underline #e10000;
                 background: rgba(225,0,0,0.2);
+            }
+            .content-suggestion{
+                color: #ffbe40;
+                text-decoration: underline #ffbe40;
+                
+            }
+            .content-suggestion-mouseover{
+                color: #ffbe40;
+                text-decoration: underline #ffbe40;
+                background: #fff2d9;
             }
         }
         .content-control {
