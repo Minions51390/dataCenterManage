@@ -212,7 +212,7 @@ class QuestionAddLongReading extends React.Component {
     addQuestion() {
         const { options } = this.state;
         this.setState({
-            options: [...options, { key: A_Z[options.length + 1], value: '' }],
+            options: [...options, { key: A_Z[options.length], value: '' }],
         });
     }
 
