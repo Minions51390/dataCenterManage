@@ -820,8 +820,14 @@ class Dashboard extends React.Component {
     }
     async handleSemester(val: any){
         const { selStu } = this.state;
+        let retVal = val;
+        if(retVal.length > 1 && retVal.includes(0)){// 多选
+            retVal = retVal.filter((item:any) => item !== 0)
+        }else if(retVal.length === 0){
+            retVal = [0]
+        }
         this.setState({
-            selSemester: val,
+            selSemester: retVal,
         });
         setTimeout(()=>{
             this.handleStu(selStu);
@@ -1013,7 +1019,7 @@ class Dashboard extends React.Component {
                             </Select>
                         </div>
                         <div className="select-box">
-                            <span className="span">阶段:</span>
+                            <span className="span">任务:</span>
                             <Select
                                 mode="multiple"
                                 allowClear

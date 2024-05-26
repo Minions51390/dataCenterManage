@@ -552,8 +552,8 @@ class MainSet extends React.Component {
             });
             this.handleJieduan(selJieduan);
             Modal.confirm({
-                title: '新增学习阶段',
-                content: '学习阶段添加成功！请同步设置班级新的学习任务。',
+                title: '新增词库任务',
+                content: '词库任务添加成功！请同步设置班级新的学习任务。',
                 cancelText: '取消',
                 okText: '确定',
             });
@@ -699,33 +699,33 @@ class MainSet extends React.Component {
                     ) : (
                         <div className="xueqi-tips">
                             <div>i</div>
-                            <div>新创建的班级，需要添加一个学习阶段后，才能设置学习任务。</div>
+                            <div>新创建的班级，需要添加一个词库任务后，才能设置学习任务。</div>
                         </div>
                     )}
                     <div className="line">
                         <div className="sec">
-                            <span style={{ marginRight: '12px' }}>学习阶段：</span>
+                            <span style={{ marginRight: '12px' }}>词库任务：</span>
                             <Select
-                                defaultValue="当前暂无学习阶段"
+                                defaultValue="当前暂无词库任务"
                                 value={
                                     selJieduan ||
                                     (jieduan[0] && (jieduan[0] as any)?.semesterName) ||
-                                    '当前暂无学习阶段'
+                                    '当前暂无词库任务'
                                 }
-                                style={{ width: 240 }}
+                                style={{ width: 480 }}
                                 onChange={this.handleJieduan.bind(this)}
                             >
                                 {jieduan.map((item: any) => (
                                     <Option key={item.semesterId} value={item.semesterId}>
                                         {item.semesterName}
-                                        {item.isCurrent ? <span>（当前阶段）</span> : ''}
+                                        {item.isCurrent ? <span>（当前任务）</span> : ''}
                                     </Option>
                                 ))}
                             </Select>
                         </div>
                         <div className="div1">
                             <Button block onClick={this.addJieduan.bind(this)}>
-                                + 新增阶段
+                                + 新增任务
                             </Button>
                         </div>
                     </div>
@@ -737,7 +737,7 @@ class MainSet extends React.Component {
                             <div className="fir-line-icon">i</div>
                             <div>
                                 <div>
-                                    背词设置内除每日背词数选项外，其他选项在当前阶段内只能设置一次；保存设置后或学员开始背词后无法再做更改。
+                                    背词设置内除每日背词数选项外，其他选项在当前任务内只能设置一次；保存设置后或学员开始背词后无法再做更改。
                                 </div>
                             </div>
                         </div>
@@ -797,7 +797,8 @@ class MainSet extends React.Component {
                                     onChange={this.onStartTypeChange.bind(this)}
                                     value={startType}
                                     defaultValue="arbitrarily"
-                                    disabled={!selJieduan || !canSet}
+                                    // disabled={!selJieduan || !canSet}
+                                    disabled
                                 >
                                     <Radio value={'arbitrarily'}>是</Radio>
                                     <Radio value={'noChoice'}>否</Radio>
@@ -920,7 +921,8 @@ class MainSet extends React.Component {
                                 <Radio.Group
                                     onChange={this.onLittleTypeChange.bind(this)}
                                     value={littleType}
-                                    disabled={!selJieduan}
+                                    // disabled={!selJieduan}
+                                    disabled
                                 >
                                     <Radio value={'ch-to-en'}>展示中文释义选择英文</Radio>
                                     <Radio value={'en-to-ch'}>展示英文选择中文释义</Radio>
@@ -963,7 +965,7 @@ class MainSet extends React.Component {
                                 <Radio.Group
                                     onChange={this.onBigTypeChange.bind(this)}
                                     value={bigType}
-                                    disabled={!selJieduan}
+                                    disabled
                                 >
                                     <Radio value={'off'}>暂不开启</Radio>
                                     <Radio value={'on'}>开启</Radio>
@@ -981,7 +983,7 @@ class MainSet extends React.Component {
                                             考试词数：
                                         </div>
                                         <Input
-                                            disabled={!selJieduan}
+                                            disabled
                                             style={{ width: 172 }}
                                             value={bigCount}
                                             onChange={this.onBigCountChange.bind(this)}
@@ -1217,7 +1219,7 @@ class MainSet extends React.Component {
                     </div>
                 </div>
                 <Modal
-                    title="新增学习阶段"
+                    title="新增词库任务"
                     visible={addJieduanModule}
                     cancelText="取消"
                     okText="确定"
@@ -1227,13 +1229,13 @@ class MainSet extends React.Component {
                     <div>
                         {!selJieduan ? (
                             <Alert
-                                message="教师可以根据实际教学场景设置教学阶段名称；阶段名称设置后无法进行修改，请谨慎操作！设置新阶段后，需设置新阶段学习任务。"
+                                message="教师可以根据实际教学场景设置教学任务名称；任务名称设置后无法进行修改，请谨慎操作！设置新阶段后，需设置新阶段学习任务。"
                                 type="info"
                                 showIcon
                             />
                         ) : (
                             <Alert
-                                message="新增阶段 适用于开展新一学期学习任务；开启新阶段后，当前阶段所有学习任务将终无法回退，请谨慎操作！"
+                                message="新增词库任务 适用于开展新的词库任务学习；开启新词库任务后，当前词库任务的所有词库内容将自动停止且无法回退，请谨慎操作！"
                                 type="info"
                                 showIcon
                             />
@@ -1242,16 +1244,16 @@ class MainSet extends React.Component {
                             <div className="line" style={{ display: 'block' }}>
                                 <div className="sec">
                                     <span style={{ color: 'red', marginRight: '6px' }}>*</span>
-                                    <span style={{ marginRight: '12px' }}>阶段名称：</span>
+                                    <span style={{ marginRight: '12px' }}>任务名称：</span>
                                     <Input
-                                        placeholder="例：2023届大一上学期"
+                                        placeholder="例：任务1"
                                         style={{ width: 240 }}
                                         value={jieduanText}
                                         onChange={this.onJieduanTextChange.bind(this)}
                                     />
                                 </div>
                                 <div className="jieduanTips">
-                                    （新的阶段名称不能与之前的任何阶段名称重复）
+                                    （新的任务名称不能与之前的任何任务名称重复）
                                 </div>
                             </div>
                         </div>

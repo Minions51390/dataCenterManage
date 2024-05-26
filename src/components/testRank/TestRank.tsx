@@ -1,10 +1,23 @@
 import React from 'react';
-import { Table, Pagination, Input, Button, message, Select, Popconfirm } from 'antd';
+import { Table, Pagination, Input, Button, message, Select, Popconfirm, DatePicker } from 'antd';
 import '../../style/pageStyle/TestRank.less';
 import copy from 'clipboard-copy';
 import { get, post, baseUrl } from '../../service/tools';
 import { getQueryString } from '../../utils';
+import moment from 'moment';
+
 const { Option } = Select;
+const { RangePicker } = DatePicker;
+const dateFormat = 'YYYY-MM-DD';
+
+const FunGetDateStr = (p_count: any, nowDate: any) => {
+    let dd = nowDate;
+    dd.setDate(dd.getDate() + p_count); //获取p_count天后的日期
+    let y = dd.getFullYear();
+    let m = dd.getMonth() + 1; //获取当前月份的日期
+    let d = dd.getDate();
+    return y + '-' + m + '-' + d;
+};
 
 const mockExamList = [
     {
@@ -13,7 +26,6 @@ const mockExamList = [
         questionPaperName: '初三下册第一次测验',
         creator: '大橙子',
         questionPaperId: '4175d9df-f29c-4a59-819f-d2b0e92b6dcb',
-        semesterName: '123',
         examTime: '2022-03-19 17:56:43',
         status: 1,
     },
@@ -23,7 +35,6 @@ const mockExamList = [
         questionPaperName: '初三下册第一次测验',
         creator: '大橙子',
         questionPaperId: '4175d9df-f29c-4a59-819f-d2b0e92b6dcb',
-        semesterName: '123',
         examTime: '2022-03-19 17:56:43',
         status: 2,
     },
@@ -33,7 +44,6 @@ const mockExamList = [
         questionPaperName: '初三下册第一次测验',
         creator: '大橙子',
         questionPaperId: '4175d9df-f29c-4a59-819f-d2b0e92b6dcb',
-        semesterName: '123',
         examTime: '2022-03-19 17:56:43',
         status: 2,
     },
@@ -54,8 +64,6 @@ class TestRank extends React.Component {
         selPici: '',
         banji: [],
         selBanji: '',
-        semester: [],
-        selSemester: [],
         query: '',
         queryType: 'examName',
         queryTypeList: [
@@ -130,12 +138,6 @@ class TestRank extends React.Component {
                 ),
             },
             {
-                title: '阶段',
-                dataIndex: 'semesterName',
-                key: 'semesterName',
-                sorter: true,
-            },
-            {
                 title: '考试时间',
                 dataIndex: 'examTime',
                 key: 'examTime',
@@ -177,6 +179,8 @@ class TestRank extends React.Component {
             },
         ],
         data1: [],
+        startDate: moment(new Date(FunGetDateStr(-6, new Date())) as any).format(dateFormat),
+        endDate: moment(new Date() as any).format(dateFormat),
     };
     componentWillMount() {
         this.inited();
@@ -200,17 +204,7 @@ class TestRank extends React.Component {
                 selPici: pici[0].batchId,
                 selBanji: banji[0].classId,
             }, async () => {
-                const semester = await this.getSemester(banji[0].classId || 0);
-                // const selSemester = getQueryString().selSemester ? [Number(getQueryString().selSemester)] : 
-                //     semester.length > 0 ? [semester.find((item: any) => item.isCurrent)?.semesterId ?? 0] : [];
-                const selSemester = getQueryString().selSemester ? [Number(getQueryString().selSemester)] : [0];
-                console.log('selSemester', selSemester)
-                this.setState({
-                    semester,
-                    selSemester,
-                }, () => {
-                    this.getTest();
-                });
+                this.getTest();
             })
         })
     }
@@ -245,26 +239,18 @@ class TestRank extends React.Component {
 
     /** 更换班级列表 */
     async handleBanji(val: any) {
-        const semester = await this.getSemester(val);
-        let selSemester =
-            semester.length > 0 ? [semester.find((item: any) => item.isCurrent)?.semesterId ?? 0] : [];
-        if(!val){
-            selSemester = [0]
-        }
         this.setState({
             selBanji: val,
-            semester,
-            selSemester,
         }, async () => {
-            this.handleSemester(selSemester);
+            this.getTest();
         });
     }
 
-    /** 更换阶段列表 */
-    handleSemester(val: any) {
-        console.log('val', val);
+    /** 更换时间 */
+    handleDateChange(date: any) {
         this.setState({
-            selSemester: val,
+            startDate: moment(new Date(date[0]._d) as any).format(dateFormat),
+            endDate: moment(new Date(date[1]._d) as any).format(dateFormat)
         }, () => {
             this.getTest();
         });
@@ -404,28 +390,11 @@ class TestRank extends React.Component {
         return banji;
     }
 
-    /** 获取阶段列表 */
-    async getSemester(classId: any) {
-        const {selPici, selTeacher} = this.state
-        let res = await get({
-            url: baseUrl + `/api/v1/structure/semester/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${classId}`,
-        });
-        const semester = res?.data || [];
-        semester.unshift({
-            isCurrent: false,
-            semesterId: 0,
-            semesterName: '全部',
-        });
-        return semester;
-    }
-
     /** 获取成绩列表 */
     async getTest() {
-        const { pageNo, selTeacher, selPici, selBanji ,selSemester, queryType, query, sortKey, sort, status } = this.state;
+        const { pageNo, selTeacher, selPici, selBanji, queryType, query, sortKey, sort, status, startDate, endDate } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/exam/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${selBanji}&pageSize=20&pageNo=${pageNo}&semesters=${JSON.stringify(
-                selSemester
-            )}&queryType=${queryType}&query=${query}&status=${status}`,
+            url: `${baseUrl}/api/v1/exam/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${selBanji}&pageSize=20&pageNo=${pageNo}&startDate=${startDate}&endDate=${endDate}&queryType=${queryType}&query=${query}&status=${status}`,
         });
         console.log('------------->', res);
         const examList = res?.data?.examList || mockExamList;
@@ -496,8 +465,6 @@ class TestRank extends React.Component {
             pici,
             selBanji,
             banji,
-            semester,
-            selSemester,
             query,
             queryType,
             queryTypeList,
@@ -581,7 +548,7 @@ class TestRank extends React.Component {
                             </Select>
                         </div>
                         <div className="select-box">
-                            <span className="span">学员批次:</span>
+                            <span className="span  span10">学员批次:</span>
                             <Select
                                 defaultValue="请选择"
                                 style={{ width: 180 }}
@@ -596,7 +563,7 @@ class TestRank extends React.Component {
                             </Select>
                         </div>
                         <div className="select-box">
-                            <span className="span">班级:</span>
+                            <span className="span span10">班级:</span>
                             <Select
                                 defaultValue="请选择"
                                 style={{ width: 180 }}
@@ -611,20 +578,15 @@ class TestRank extends React.Component {
                             </Select>
                         </div>
                         <div className="select-box">
-                            <span className="span">阶段:</span>
-                            <Select
-                                mode="multiple"
-                                allowClear
-                                style={{ width: 240 }}
-                                value={selSemester}
-                                onChange={this.handleSemester.bind(this)}
-                            >
-                                {semester.map((item: any) => (
-                                    <Option key={item.semesterId} value={item.semesterId}>
-                                        {item.semesterName || item.semesterId}
-                                    </Option>
-                                ))}
-                            </Select>
+                            <span className="span span10">时间:</span>
+                            <RangePicker
+                                defaultValue={[
+                                    moment(new Date(FunGetDateStr(-6, new Date())), dateFormat),
+                                    moment(new Date(), dateFormat),
+                                ]}
+                                onChange={this.handleDateChange.bind(this)}
+                                format={dateFormat}
+                            />
                         </div>
                     </div>
                     <div className="thr">

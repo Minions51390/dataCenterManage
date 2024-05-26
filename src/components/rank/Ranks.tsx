@@ -262,8 +262,14 @@ class Ranks extends React.Component {
         );
     }
     async handleSemester(val: any) {
+        let retVal = val;
+        if(retVal.length > 1 && retVal.includes(0)){// 多选
+            retVal = retVal.filter((item:any) => item !== 0)
+        }else if(retVal.length === 0){
+            retVal = [0]
+        }
         this.setState({
-            selSemester: val,
+            selSemester: retVal,
         }, async () => {
             this.getRank();
         });
@@ -328,7 +334,7 @@ class Ranks extends React.Component {
                                 </Option>
                             ))}
                         </Select>
-                        <span className="span1">阶段:</span>
+                        <span className="span1">任务:</span>
                         <Select
                             mode="multiple"
                             allowClear
