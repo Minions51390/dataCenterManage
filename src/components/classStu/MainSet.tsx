@@ -22,7 +22,9 @@ import moment from 'moment';
 import img from '../../style/imgs/qiyewechat.png';
 const { Option } = Select;
 const dateFormat = 'YYYY-MM-DD';
-const dateFormat1 = 'YYYY-MM-DD HH:mm:ss';
+const dateFormat1 = 'YYYY-MM-DD HH:mm';
+
+const { RangePicker } = DatePicker;
 
 function GetRequest() {
     const url = `?${window.location.href.split('?')[1]}`; //获取url中"?"符后的字串
@@ -106,7 +108,7 @@ class MainSet extends React.Component {
         reciteSetting: false,
         paperId: '',
         paperName: '',
-        diyTime: moment().format(dateFormat),
+        diyTime: [moment(), moment()],
         jieduan: [],
         selJieduan: '',
         curJieduan: '',
@@ -133,7 +135,9 @@ class MainSet extends React.Component {
         createWritingId: '',
         createExamType: 'practice',
         createStartTime: moment().format(dateFormat1),
-        createEndTime: moment((new Date(FunGetDateStr(7, new Date()) + ' 00:00:00') as any)).format(dateFormat1),
+        createEndTime: moment(new Date(FunGetDateStr(7, new Date()) + ' 00:00:00') as any).format(
+            dateFormat1
+        ),
     };
 
     async componentWillMount() {
@@ -158,25 +162,23 @@ class MainSet extends React.Component {
             }
         });
 
-        this.setState(
-            {
-                jieduan: jieduanRes || [],
-                selJieduan,
-                curJieduan: selJieduan,
-                canSet: res?.data?.canSet,
-                firState,
-                startType: res?.data?.choiceWordsMethod || 'arbitrarily',
-                wordVal: res?.data?.reciteVersion ? +res?.data?.reciteVersion : 0,
-                dbVal,
-                dbName: dbName || '',
-                littleType: res?.data?.wordTestType || '',
-                bigType: res?.data?.stageWordsTest || '',
-                specialTestDate: res?.data?.specialTestDate || new Date(),
-                paperId: res?.data?.specialTestID || '',
-                bigCount: res?.data?.stageTestReciteVersion || 0,
-                pici,
-            },
-        );
+        this.setState({
+            jieduan: jieduanRes || [],
+            selJieduan,
+            curJieduan: selJieduan,
+            canSet: res?.data?.canSet,
+            firState,
+            startType: res?.data?.choiceWordsMethod || 'arbitrarily',
+            wordVal: res?.data?.reciteVersion ? +res?.data?.reciteVersion : 0,
+            dbVal,
+            dbName: dbName || '',
+            littleType: res?.data?.wordTestType || '',
+            bigType: res?.data?.stageWordsTest || '',
+            specialTestDate: res?.data?.specialTestDate || new Date(),
+            paperId: res?.data?.specialTestID || '',
+            bigCount: res?.data?.stageTestReciteVersion || 0,
+            pici,
+        });
 
         this.setState({
             classId,
@@ -254,7 +256,7 @@ class MainSet extends React.Component {
         });
     }
     setTest() {
-        const { littleType, bigType, bigCount, classId, paperId, diyTime, selJieduan } = this.state;
+        const { littleType, bigType, bigCount, classId, paperId, selJieduan } = this.state;
         let params: any = {};
         if (bigType === 'on') {
             params = {
@@ -262,7 +264,6 @@ class MainSet extends React.Component {
                 stageWordsTest: bigType || 'off',
                 specialTestType: 'customTest',
                 specialTestID: paperId,
-                specialTestDate: diyTime,
                 classId: +classId,
                 semesterId: +selJieduan,
                 stageTestReciteVersion: +bigCount,
@@ -400,7 +401,6 @@ class MainSet extends React.Component {
                 startType: res?.data?.choiceWordsMethod || 'noChoice',
                 wordVal: res?.data?.reciteVersion ? +res?.data?.reciteVersion : 0,
                 dbVal: res?.data?.dictionaryId || 0,
-                diyTime: res?.data?.specialTestDate || new Date(),
                 bigCount: res?.data?.stageTestReciteVersion || 0,
                 canSet: res?.data?.canSet,
             },
@@ -467,7 +467,7 @@ class MainSet extends React.Component {
 
     onDiyTimeChange(date: any, dateString: any) {
         this.setState({
-            diyTime: dateString,
+            diyTime: [moment(date[0]), moment(date[1])],
         });
         console.log(date, dateString);
     }
@@ -487,7 +487,8 @@ class MainSet extends React.Component {
             data: {
                 classId: +classId,
                 questionPaperId: paperId.trim() || '',
-                examTime: diyTime,
+                examStartTime: `${moment(diyTime[0]).format(dateFormat1)}`,
+                examEndTime: `${moment(diyTime[1]).format(dateFormat1)}`,
                 examName: paperName,
             },
         });
@@ -644,7 +645,9 @@ class MainSet extends React.Component {
                 createWritingId: '',
                 createExamType: 'practice',
                 createStartTime: moment().format(dateFormat1),
-                createEndTime: moment((new Date(FunGetDateStr(7, new Date()) + ' 00:00:00') as any)).format(dateFormat1),
+                createEndTime: moment(
+                    new Date(FunGetDateStr(7, new Date()) + ' 00:00:00') as any
+                ).format(dateFormat1),
             });
         } else {
             message.error(`发布作文任务失败:${res.msg}`);
@@ -1051,7 +1054,7 @@ class MainSet extends React.Component {
                                     />
                                 </div>
                                 <div className="sec">
-                                    <div>试卷名称：</div>
+                                    <div>考试名称：</div>
                                     <Input
                                         disabled={!selJieduan}
                                         style={{ width: 172 }}
@@ -1062,11 +1065,15 @@ class MainSet extends React.Component {
                                 <div className="sec">
                                     <div>考试时间：</div>
                                     <Space direction="vertical" size={12}>
-                                        <DatePicker
+                                        <RangePicker
+                                            defaultValue={[moment(), moment()]}
+                                            onChange={this.onDiyTimeChange.bind(this)}
+                                        />
+                                        {/* <DatePicker
                                             defaultValue={moment(diyTime, dateFormat)}
                                             format={dateFormat}
                                             onChange={this.onDiyTimeChange.bind(this)}
-                                        />
+                                        /> */}
                                     </Space>
                                 </div>
                             </div>
@@ -1079,7 +1086,11 @@ class MainSet extends React.Component {
                                     试卷名称: <div className="state-co">{paperName}</div>
                                 </div>
                                 <div style={{ marginTop: 18 }}>
-                                    考试时间: <div className="state-co">{diyTime}</div>
+                                    考试时间:{' '}
+                                    <div className="state-co">
+                                        {moment(diyTime[0]).format(dateFormat)}-
+                                        {moment(diyTime[1]).format(dateFormat)}
+                                    </div>
                                 </div>
                             </div>
                         )}

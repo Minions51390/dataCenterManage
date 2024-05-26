@@ -50,7 +50,7 @@ const login = async () => {
         url: baseUrl + '/api/v1/auth/login',
         data: {
             userName: 'wutonghe',
-            password: 'qwer123'
+            password: '123'
             // userName: 'star001',
             // password: 'star001'
         }
