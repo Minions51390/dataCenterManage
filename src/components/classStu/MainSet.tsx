@@ -23,6 +23,11 @@ import img from '../../style/imgs/qiyewechat.png';
 const { Option } = Select;
 const dateFormat = 'YYYY-MM-DD';
 const dateFormat1 = 'YYYY-MM-DD HH:mm:ss';
+const { RangePicker } = DatePicker;
+const disabledDate = (current:any) => {
+    // Can not select days before today
+    return current && current < moment().subtract(1, 'days');
+};
 
 function GetRequest() {
     const url = `?${window.location.href.split('?')[1]}`; //获取url中"?"符后的字串
@@ -595,10 +600,14 @@ class MainSet extends React.Component {
             createExamType: event.target.value,
         });
     }
-    onCreateStartTimeChange(date: any, dateString: any) {
+    onCreateTimeChange(date: any, dateArr: any) {
         this.setState({
-            createStartTime: dateString,
+            createStartTime: dateArr[0],
+            createEndTime: dateArr[1]
         });
+        if(new Date(dateArr[1]) <= new Date()){
+            message.warn('截止时间已过期');
+        }
     }
     onCreateEndTimeChange(date: any, dateString: any) {
         this.setState({
@@ -1182,22 +1191,16 @@ class MainSet extends React.Component {
                             <div className="left">
                                 <span className="span span2">开始时间:</span>
                                 <Space direction="vertical" size={12}>
-                                    <DatePicker
+                                    <RangePicker
                                         disabled={!selJieduan}
-                                        defaultValue={moment(createStartTime, dateFormat1)}
+                                        defaultValue={[
+                                            moment(createStartTime, dateFormat1),
+                                            moment(createEndTime, dateFormat1),
+                                        ]}
+                                        disabledDate={disabledDate}
+                                        showTime
+                                        onChange={this.onCreateTimeChange.bind(this)}
                                         format={dateFormat1}
-                                        onChange={this.onCreateStartTimeChange.bind(this)}
-                                    />
-                                </Space>
-                            </div>
-                            <div className="right">
-                                <span className="span span2">截止时间:</span>
-                                <Space direction="vertical" size={12}>
-                                    <DatePicker
-                                        disabled={!selJieduan}
-                                        defaultValue={moment(createEndTime, dateFormat1)}
-                                        format={dateFormat1}
-                                        onChange={this.onCreateEndTimeChange.bind(this)}
                                     />
                                 </Space>
                             </div>
