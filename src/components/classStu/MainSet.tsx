@@ -159,7 +159,7 @@ class MainSet extends React.Component {
         const { wordDb } = this.state;
         wordDb.forEach((val: any) => {
             if (val?.dictionaryId === res?.data?.dictionaryId) {
-                dbName = val?.dictionaryName;
+                dbName = `${val?.dictionaryName}（${val?.count}词）`;
             }
         });
 
@@ -848,7 +848,7 @@ class MainSet extends React.Component {
                                 >
                                     {wordDb.map((item: any) => (
                                         <Option key={item.dictionaryId} value={item.dictionaryId}>
-                                            {item.dictionaryName}
+                                            {item.dictionaryName}（{item.count}词）
                                         </Option>
                                     ))}
                                 </Select>
