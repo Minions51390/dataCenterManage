@@ -11,6 +11,8 @@ import {
 import '../../style/pageStyle/BankDetail.less';
 import { get, post, del, put, baseUrl } from '../../service/tools';
 import type { RcFile, UploadFile } from 'antd/es/upload/interface';
+import Choice from '../preview/choice';
+
 const { Dragger } = Upload;
 const { Option } = Select;
 const ENUM_BANK_TYPE: any = {
@@ -71,16 +73,12 @@ class BankDetail extends React.Component {
             {
                 title: '真题年份',
                 key: 'key',
-                render: (text: any, record: any, index: number) => (
-                    <div>-</div>
-                ),
+                render: (text: any, record: any, index: number) => <div>-</div>,
             },
             {
                 title: '真题类型',
                 key: 'key',
-                render: (text: any, record: any, index: number) => (
-                    <div>-</div>
-                ),
+                render: (text: any, record: any, index: number) => <div>-</div>,
             },
             {
                 title: '试题内容',
@@ -92,6 +90,7 @@ class BankDetail extends React.Component {
                 key: 'control',
                 render: (text: any) => (
                     <div className="edit">
+                        <div onClick={this.showPreviewModal.bind(this, text)}>预览</div>
                         <div onClick={this.showCreateModal.bind(this, 'edit', text)}>编辑</div>
                         <div onClick={this.showCreateModal.bind(this, 'del', text)}>删除</div>
                     </div>
@@ -111,6 +110,8 @@ class BankDetail extends React.Component {
         fileList: [],
         selectYear: '',
         selectTp: '',
+        showPreview: false,
+        previewData: {},
         // setFileList: useState<UploadFile[]>([]),
         // fileList: useState<UploadFile[]>([])
     };
@@ -318,6 +319,19 @@ class BankDetail extends React.Component {
         URL.revokeObjectURL(href);
     }
 
+    showPreviewModal(data: any) {
+        this.setState({
+            showPreview: true,
+            previewData: data,
+        });
+    }
+
+    cancelPreviewModal() {
+        this.setState({
+            showPreview: false,
+        });
+    }
+
     /** 取消编辑 */
     handleCreateCancel(val: any) {
         this.setState({
@@ -331,6 +345,7 @@ class BankDetail extends React.Component {
         if (type === 'edit') {
             this.setState({
                 isVisible: true,
+                showPreview: false,
                 moduleName: '编辑题目',
                 canEdit: true,
                 questionId,
@@ -344,6 +359,7 @@ class BankDetail extends React.Component {
         } else {
             this.setState({
                 isVisible: true,
+                showPreview: false,
                 moduleName: '确认删除该试题？',
                 canEdit: false,
                 questionId,
@@ -477,7 +493,10 @@ class BankDetail extends React.Component {
             fileList,
             selectYear,
             selectTp,
+            showPreview,
+            previewData,
         } = this.state;
+
         const uploadProps = {
             name: 'file',
             multiple: false,
@@ -518,6 +537,7 @@ class BankDetail extends React.Component {
             },
             fileList,
         };
+
         return (
             <div className="bank-detail-wrapper">
                 <div className="header">
@@ -601,9 +621,7 @@ class BankDetail extends React.Component {
                             </div>
                             <div className="gap-12">
                                 <Link
-                                    to={
-                                        `/app/queBankCreate/bankDetail/questionAdd?bankID=${bankID}&setType=${setType}`
-                                    }
+                                    to={`/app/queBankCreate/bankDetail/questionAdd?bankID=${bankID}&setType=${setType}`}
                                 >
                                     <Button type="primary" icon={<PlusOutlined />}>
                                         新建
@@ -743,6 +761,25 @@ class BankDetail extends React.Component {
                             <p className="ant-upload-text">点击选择本地文件</p>
                             <p className="ant-upload-hint">或将Excel文件直接拖入此区域内</p>
                         </Dragger>
+                    </div>
+                </Modal>
+                <Modal
+                    title="预览"
+                    visible={showPreview}
+                    width={600}
+                    bodyStyle={{ height: '540px', overflow: 'auto' }}
+                    onCancel={this.cancelPreviewModal.bind(this)}
+                    footer={[
+                        <Button
+                            type="primary"
+                            onClick={this.showCreateModal.bind(this, 'edit', previewData)}
+                        >
+                            编辑
+                        </Button>,
+                    ]}
+                >
+                    <div>
+                        <Choice dataSource={previewData} />
                     </div>
                 </Modal>
             </div>
