@@ -1,3 +1,4 @@
+/** 单选 */
 import React from 'react';
 import '../../style/pageStyle/choice.less';
 

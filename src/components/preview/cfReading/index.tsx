@@ -1,3 +1,4 @@
+/** 仔细阅读 */
 import React from 'react';
 import './index.less';
 
@@ -9,8 +10,6 @@ const CfReading = (props: ICfReading) => {
     const { dataSource = {} } = props;
 
     const { title, stem, questions } = dataSource;
-
-    console.log(123123, dataSource);
 
     return (
         <div className="preview-cf">

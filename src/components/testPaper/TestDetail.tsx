@@ -4,6 +4,10 @@ import { PlusOutlined } from '@ant-design/icons';
 import PreviewAll from '../preview/all';
 import copy from 'clipboard-copy';
 import '../../style/pageStyle/TestDetail.less';
+import LongReading from '../preview/longReading/index';
+import Pack from '../preview/pack/index';
+import CfReading from '../preview/cfReading/index';
+import Choice from '../preview/choice';
 import { get, post, baseUrl } from '../../service/tools';
 
 const { Option } = Select;
@@ -91,10 +95,20 @@ class TestDetail extends React.Component {
                 key: 'control',
                 render: (text: any, record: any, index: number) => (
                     <div
-                        onClick={this.delOneQuestion.bind(this, text, index)}
-                        style={{ cursor: 'pointer' }}
+                        style={{ display: 'flex', width: '60px', justifyContent: 'space-between' }}
                     >
-                        删除
+                        <div
+                            onClick={this.showPreviewModal.bind(this, text)}
+                            style={{ cursor: 'pointer', color: '#1890ff' }}
+                        >
+                            预览
+                        </div>
+                        <div
+                            onClick={this.delOneQuestion.bind(this, text, index)}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            删除
+                        </div>
                     </div>
                 ),
             },
@@ -170,10 +184,26 @@ class TestDetail extends React.Component {
             },
         ],
         partsIndex: 0,
+        showPreview: false,
+        previewData: {},
     };
 
     componentWillMount() {
         this.inited();
+    }
+
+    showPreviewModal(data: any) {
+        console.log(123123123, data);
+        this.setState({
+            showPreview: true,
+            previewData: data,
+        });
+    }
+
+    cancelPreviewModal() {
+        this.setState({
+            showPreview: false,
+        });
     }
 
     onPartsDescChange(val: any, index: number, event: any) {
@@ -721,6 +751,8 @@ class TestDetail extends React.Component {
             selectTp,
             parts,
             previewVisible,
+            showPreview,
+            previewData,
         } = this.state;
 
         const rowSelection = {
@@ -1056,6 +1088,25 @@ class TestDetail extends React.Component {
                             </div>
                         </div>
                     )}
+                </Modal>
+                <Modal
+                    title="预览"
+                    visible={showPreview}
+                    width={600}
+                    bodyStyle={{ height: '540px', overflow: 'auto' }}
+                    onCancel={this.cancelPreviewModal.bind(this)}
+                >
+                    <div>
+                        {(previewData as any).setType === 'choice' ? (
+                            <Choice dataSource={previewData} />
+                        ) : (previewData as any).setType === 'pack' ? (
+                            <Pack dataSource={previewData} />
+                        ) : (previewData as any).setType === 'long_reading' ? (
+                            <LongReading dataSource={previewData} />
+                        ) : (
+                            <CfReading dataSource={previewData} />
+                        )}
+                    </div>
                 </Modal>
             </div>
         );

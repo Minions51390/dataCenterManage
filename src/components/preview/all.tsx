@@ -1,7 +1,7 @@
+/** 所有题型的合集 */
 import React from 'react';
-import { Table, Pagination, Input, Button, Select, Modal, message, Tooltip } from 'antd';
 import '../../style/pageStyle/AllPreview.less';
-import { get, post, baseUrl } from '../../service/tools';
+import { get, baseUrl } from '../../service/tools';
 
 const BankType = {
     choice: 'choice',

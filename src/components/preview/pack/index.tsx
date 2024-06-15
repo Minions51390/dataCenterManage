@@ -1,3 +1,4 @@
+/** 词汇理解 */
 import React from 'react';
 import './index.less';
 
