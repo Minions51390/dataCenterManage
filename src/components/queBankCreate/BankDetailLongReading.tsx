@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/BankDetailLongReading.less';
 import { get, post, put, baseUrl } from '../../service/tools';
+import LongReading from '../preview/longReading/index';
+
 const { Option } = Select;
 const ENUM_BANK_TYPE: any = {
     choice: '单选',
@@ -108,6 +110,7 @@ class BankDetailLongReading extends React.Component {
                 key: 'control',
                 render: (text: any) => (
                     <div className="edit">
+                        <div onClick={this.showPreviewModal.bind(this, text)}>预览</div>
                         <div onClick={this.showCreateModal.bind(this, 'edit', text)}>编辑</div>
                         <div onClick={this.showCreateModal.bind(this, 'del', text)}>删除</div>
                     </div>
@@ -125,6 +128,8 @@ class BankDetailLongReading extends React.Component {
         fileList: [],
         selectYear: '',
         selectTp: '',
+        showPreview: false,
+        previewData: {},
     };
     componentWillMount() {
         this.inited();
@@ -252,6 +257,19 @@ class BankDetailLongReading extends React.Component {
         URL.revokeObjectURL(href);
     }
 
+    showPreviewModal(data: any) {
+        this.setState({
+            showPreview: true,
+            previewData: data,
+        });
+    }
+
+    cancelPreviewModal() {
+        this.setState({
+            showPreview: false,
+        });
+    }
+
     /** 取消编辑 */
     handleCreateCancel(val: any) {
         this.setState({
@@ -265,6 +283,7 @@ class BankDetailLongReading extends React.Component {
         if (type === 'edit') {
             this.setState({
                 isVisible: true,
+                showPreview: false,
                 moduleName: '编辑题目',
                 canEdit: true,
                 questionId,
@@ -276,6 +295,7 @@ class BankDetailLongReading extends React.Component {
         } else {
             this.setState({
                 isVisible: true,
+                showPreview: false,
                 moduleName: '确认删除该试题？',
                 canEdit: false,
                 questionId,
@@ -398,6 +418,8 @@ class BankDetailLongReading extends React.Component {
             options,
             questions,
             topic,
+            showPreview,
+            previewData,
         } = this.state;
         return (
             <div className="bank-detail-long-reading-wrapper">
@@ -597,6 +619,25 @@ class BankDetailLongReading extends React.Component {
                                 ))}
                             </div>
                         </div>
+                    </div>
+                </Modal>
+                <Modal
+                    title="预览"
+                    visible={showPreview}
+                    width={600}
+                    bodyStyle={{ height: '540px', overflow: 'auto' }}
+                    onCancel={this.cancelPreviewModal.bind(this)}
+                    footer={[
+                        <Button
+                            type="primary"
+                            onClick={this.showCreateModal.bind(this, 'edit', previewData)}
+                        >
+                            编辑
+                        </Button>,
+                    ]}
+                >
+                    <div>
+                        <LongReading dataSource={previewData} />
                     </div>
                 </Modal>
             </div>

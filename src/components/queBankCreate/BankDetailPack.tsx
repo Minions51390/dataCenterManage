@@ -5,6 +5,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/BankDetailPack.less';
 import { get, post, put, baseUrl } from '../../service/tools';
 import type { RcFile } from 'antd/es/upload/interface';
+import Pack from '../preview/pack/index';
 const { Option } = Select;
 
 const ENUM_BANK_TYPE: any = {
@@ -82,6 +83,7 @@ class BankDetailPack extends React.Component {
                 key: 'control',
                 render: (text: any) => (
                     <div className="edit">
+                        <div onClick={this.showPreviewModal.bind(this, text)}>预览</div>
                         <div onClick={this.showCreateModal.bind(this, 'edit', text)}>编辑</div>
                         <div onClick={this.showCreateModal.bind(this, 'del', text)}>删除</div>
                     </div>
@@ -98,6 +100,8 @@ class BankDetailPack extends React.Component {
         fileList: [],
         selectYear: '',
         selectTp: '',
+        showPreview: false,
+        previewData: {},
     };
     componentWillMount() {
         this.inited();
@@ -249,6 +253,19 @@ class BankDetailPack extends React.Component {
         URL.revokeObjectURL(href);
     }
 
+    showPreviewModal(data: any) {
+        this.setState({
+            showPreview: true,
+            previewData: data,
+        });
+    }
+
+    cancelPreviewModal() {
+        this.setState({
+            showPreview: false,
+        });
+    }
+
     /** 取消编辑 */
     handleCreateCancel(val: any) {
         this.setState({
@@ -262,6 +279,7 @@ class BankDetailPack extends React.Component {
         if (type === 'edit') {
             this.setState({
                 isVisible: true,
+                showPreview: false,
                 moduleName: '编辑题目',
                 canEdit: true,
                 questionId,
@@ -272,6 +290,7 @@ class BankDetailPack extends React.Component {
         } else {
             this.setState({
                 isVisible: true,
+                showPreview: false,
                 moduleName: '确认删除该试题？',
                 canEdit: false,
                 questionId,
@@ -397,6 +416,8 @@ class BankDetailPack extends React.Component {
             options,
             selectYear,
             selectTp,
+            showPreview,
+            previewData,
         } = this.state;
         return (
             <div className="bank-detail-pack-wrapper">
@@ -558,6 +579,25 @@ class BankDetailPack extends React.Component {
                                 ))}
                             </div>
                         </div>
+                    </div>
+                </Modal>
+                <Modal
+                    title="预览"
+                    visible={showPreview}
+                    width={600}
+                    bodyStyle={{ height: '540px', overflow: 'auto' }}
+                    onCancel={this.cancelPreviewModal.bind(this)}
+                    footer={[
+                        <Button
+                            type="primary"
+                            onClick={this.showCreateModal.bind(this, 'edit', previewData)}
+                        >
+                            编辑
+                        </Button>,
+                    ]}
+                >
+                    <div>
+                        <Pack dataSource={previewData} />
                     </div>
                 </Modal>
             </div>

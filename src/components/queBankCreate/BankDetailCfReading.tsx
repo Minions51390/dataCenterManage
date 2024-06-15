@@ -3,7 +3,9 @@ import { Table, Pagination, Input, Button, Modal, PageHeader, Select, Radio } fr
 import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/BankDetailCfReading.less';
+import CfReading from '../preview/cfReading/index';
 import { get, post, put, baseUrl } from '../../service/tools';
+
 const { Option } = Select;
 const ENUM_BANK_TYPE: any = {
     choice: '单选',
@@ -79,6 +81,7 @@ class BankDetailCfReading extends React.Component {
                 key: 'control',
                 render: (text: any) => (
                     <div className="edit">
+                        <div onClick={this.showPreviewModal.bind(this, text)}>预览</div>
                         <div onClick={this.showCreateModal.bind(this, 'edit', text)}>编辑</div>
                         <div onClick={this.showCreateModal.bind(this, 'del', text)}>删除</div>
                     </div>
@@ -95,6 +98,8 @@ class BankDetailCfReading extends React.Component {
         fileList: [],
         selectYear: '',
         selectTp: '',
+        showPreview: false,
+        previewData: {},
     };
     componentWillMount() {
         this.inited();
@@ -204,6 +209,19 @@ class BankDetailCfReading extends React.Component {
         this.getQuestionList();
     }
 
+    showPreviewModal(data: any) {
+        this.setState({
+            showPreview: true,
+            previewData: data,
+        });
+    }
+
+    cancelPreviewModal() {
+        this.setState({
+            showPreview: false,
+        });
+    }
+
     /** 取消编辑 */
     handleCreateCancel(val: any) {
         this.setState({
@@ -217,6 +235,7 @@ class BankDetailCfReading extends React.Component {
         if (type === 'edit') {
             this.setState({
                 isVisible: true,
+                showPreview: false,
                 moduleName: '编辑题目',
                 canEdit: true,
                 questionId,
@@ -227,6 +246,7 @@ class BankDetailCfReading extends React.Component {
         } else {
             this.setState({
                 isVisible: true,
+                showPreview: false,
                 moduleName: '确认删除该试题？',
                 canEdit: false,
                 questionId,
@@ -348,6 +368,8 @@ class BankDetailCfReading extends React.Component {
             stem,
             title,
             questions,
+            showPreview,
+            previewData,
         } = this.state;
         return (
             <div className="bank-detail-cf-reading-wrapper">
@@ -596,6 +618,25 @@ class BankDetailCfReading extends React.Component {
                                 ))}
                             </div>
                         </div>
+                    </div>
+                </Modal>
+                <Modal
+                    title="预览"
+                    visible={showPreview}
+                    width={600}
+                    bodyStyle={{ height: '540px', overflow: 'auto' }}
+                    onCancel={this.cancelPreviewModal.bind(this)}
+                    footer={[
+                        <Button
+                            type="primary"
+                            onClick={this.showCreateModal.bind(this, 'edit', previewData)}
+                        >
+                            编辑
+                        </Button>,
+                    ]}
+                >
+                    <div>
+                        <CfReading dataSource={previewData} />
                     </div>
                 </Modal>
             </div>
