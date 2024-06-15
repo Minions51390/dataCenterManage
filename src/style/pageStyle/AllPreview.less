@@ -1,0 +1,127 @@
+.preview-all {
+    .main {
+        overflow: auto;
+        flex: 1;
+        width: 100%;
+        background-color: white;
+        padding: 8px 16px;
+        height: calc(100% - 20px);
+        &::-webkit-scrollbar {
+            display: none;
+        }
+        .mainItem {
+            .titleBlock {
+                display: flex;
+                .name {
+                    font-size: 20px;
+                    font-weight: 500;
+                    color: #000000;
+                }
+                .title {
+                    font-size: 20px;
+                    font-weight: 500;
+                    color: #000000;
+                    margin-left: 24px;
+                }
+            }
+            .section {
+                margin-top: 12px;
+                .sectionBlock {
+                    position: relative;
+                    display: flex;
+                    margin-bottom: 16px;
+                    .sectionMain {
+                        flex: 1;
+                        width: 0;
+                        background: rgba(57, 131, 198, 0.04);
+                        border-radius: 4px;
+                        padding: 8px 16px;
+                        .title {
+                            font-size: 20px;
+                            font-weight: 500;
+                        }
+                        .directions {
+                            margin-top: 8px;
+                            font-size: 16px;
+                        }
+                        .paper {
+                            margin-top: 8px;
+                            font-size: 16px;
+                            .answer {
+                                margin-bottom: 12px;
+                            }
+                        }
+                    }
+                    .sectionRes {
+                        width: 250px;
+                        min-width: 250px;
+                        margin-left: 16px;
+                        border-top: 1px solid #e3e3e3;
+                        border-bottom: 1px solid #e3e3e3;
+                        padding: 39px 0;
+                        position: relative;
+                        overflow-y: auto;
+                        &::-webkit-scrollbar {
+                            display: none;
+                        }
+                        .sectionPos {
+                            position: absolute;
+                            .answer {
+                                font-size: 16px;
+                                line-height: 20px;
+                                margin-bottom: 8px;
+                            }
+                            .question {
+                                font-weight: 500;
+                                font-size: 17px;
+                                line-height: 20px;
+                            }
+                            .questionAnswer {
+                                font-size: 16px;
+                                margin-left: 32px;
+                                margin-bottom: 16px;
+                                margin-top: 8px;
+                                line-height: 20px;
+                                .answerItem {
+                                    margin-bottom: 8px;
+                                }
+                            }
+                        }
+                    }
+                }
+                .sectionChoice {
+                    position: relative;
+                    .sectionMain {
+                        background: rgba(57, 131, 198, 0.04);
+                        border-radius: 4px;
+                        padding: 8px 16px;
+                        .title {
+                            font-size: 20px;
+                            font-weight: 500;
+                        }
+                        .directions {
+                            margin-top: 8px;
+                            font-size: 16px;
+                        }
+                        .paper {
+                            margin-top: 8px;
+                            font-size: 16px;
+                            font-weight: 500;
+                            .answer {
+                                margin-bottom: 12px;
+                            }
+                        }
+                    }
+                    .sectionRes {
+                        border-radius: 4px;
+                        padding: 0 16px 8px 16px;
+                        background: rgba(57, 131, 198, 0.04);
+                        .answer {
+                            font-size: 16px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

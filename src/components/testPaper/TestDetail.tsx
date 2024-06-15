@@ -1,6 +1,7 @@
 import React from 'react';
 import { Table, Pagination, Input, Button, PageHeader, message, Modal, Select, Tag } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import PreviewAll from '../preview/all';
 import copy from 'clipboard-copy';
 import '../../style/pageStyle/TestDetail.less';
 import { get, post, baseUrl } from '../../service/tools';
@@ -54,6 +55,7 @@ class TestDetail extends React.Component {
         createTime: '0000-00-00 00:00:00',
         updateTime: '0000-00-00 00:00:00',
         questionCount: '120',
+        previewVisible: false,
         columns1: [
             {
                 title: '序号',
@@ -552,6 +554,18 @@ class TestDetail extends React.Component {
         });
     }
 
+    handlePreviewCancel(val: any) {
+        this.setState({
+            previewVisible: false,
+        });
+    }
+
+    handleShowPreview() {
+        this.setState({
+            previewVisible: true,
+        });
+    }
+
     async getPaper() {
         return [];
     }
@@ -706,6 +720,7 @@ class TestDetail extends React.Component {
             selectYear,
             selectTp,
             parts,
+            previewVisible,
         } = this.state;
 
         const rowSelection = {
@@ -777,7 +792,7 @@ class TestDetail extends React.Component {
                             </div>
                         </div>
                         <div className="right">
-                            <Button>预览试卷</Button>
+                            <Button onClick={this.handleShowPreview.bind(this)}>预览试卷</Button>
                         </div>
                     </div>
                     <div className="thr">
@@ -836,6 +851,18 @@ class TestDetail extends React.Component {
                         </div>
                     </div>
                 </div>
+                <Modal
+                    title="预览试卷"
+                    visible={previewVisible}
+                    footer={null}
+                    width={900}
+                    bodyStyle={{ height: '740px', overflow: 'auto' }}
+                    onCancel={this.handlePreviewCancel.bind(this)}
+                >
+                    <div>
+                        <PreviewAll testPaperID={testPaperID} />
+                    </div>
+                </Modal>
                 <Modal
                     title="导入试题"
                     visible={isVisible}
@@ -1011,7 +1038,7 @@ class TestDetail extends React.Component {
                                                             index
                                                         )}
                                                     >
-                                                        {item.title}
+                                                        {item.title || item.stem}
                                                     </Tag>
                                                 </div>
                                             );
