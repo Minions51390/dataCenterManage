@@ -1,7 +1,7 @@
 import React from 'react';
-import { Input, Button, PageHeader, Alert, message, Select, Radio } from 'antd';
+import { Input, Button, PageHeader, Alert, message, Select, Radio, Modal } from 'antd';
 import { Link } from 'react-router-dom';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/QuestionAddLongReading.less';
 import { get, post, baseUrl } from '../../service/tools';
 
@@ -80,10 +80,11 @@ class QuestionAddLongReading extends React.Component {
         ],
         bankID: '',
         setType: '',
-        title: '',
+        title: `entry ${+(GetRequest()['questionCount'] || 0) + 1}`,
         topic: '',
         selectYear: YEAR_MAP[YEAR_MAP.length - 1],
         selectTp: 'cet4',
+        fatherGenuine: Boolean(+(GetRequest()['genuine'] || 0)),
         genuine: true,
         questions: [
             {
@@ -105,6 +106,7 @@ class QuestionAddLongReading extends React.Component {
                 value: '',
             },
         ],
+        saveLoading: false,
     };
     componentWillMount() {
         this.inited();
@@ -118,9 +120,44 @@ class QuestionAddLongReading extends React.Component {
     }
 
     /** 保存试题 */
-    async saveQuestion() {
+    saveQuestion() {
+        const { questions } = this.state;
+        let hasAllRightKey = false;
+        let rightCount = 0;
+
+        for (let i = 0; i < questions.length; i++) {
+            if (questions[i].rightKey) {
+                rightCount++;
+            }
+        }
+
+        if (rightCount === questions.length) {
+            hasAllRightKey = true;
+        }
+
+        if (questions.length < 10 || !hasAllRightKey) {
+            Modal.confirm({
+                title: '新建题库',
+                icon: <ExclamationCircleOutlined />,
+                content: '试题不满足标准题型要求，请再次确认是否保存',
+                okText: '确认',
+                cancelText: '取消',
+                onOk: () => {
+                    this.saveQuestionBack();
+                },
+            });
+            return;
+        }
+        this.saveQuestionBack();
+    }
+
+    /** 保存试题 */
+    async saveQuestionBack() {
         const res = await this.saveQuestionInterface();
         if (res.state === 0) {
+            this.setState({
+                saveLoading: true,
+            });
             message.success('保存成功');
             setTimeout(() => {
                 window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailLongReading`;
@@ -257,8 +294,18 @@ class QuestionAddLongReading extends React.Component {
     }
 
     render() {
-        const { routes, title, selectYear, selectTp, genuine, options, questions, topic } =
-            this.state;
+        const {
+            routes,
+            title,
+            selectYear,
+            selectTp,
+            genuine,
+            options,
+            questions,
+            topic,
+            fatherGenuine,
+            saveLoading,
+        } = this.state;
         return (
             <div className="question-add-long-reading-wrapper">
                 <div className="header">
@@ -329,13 +376,23 @@ class QuestionAddLongReading extends React.Component {
                                         className="mt-8"
                                         onChange={this.onGenuineChange.bind(this)}
                                         value={genuine}
+                                        disabled={fatherGenuine}
                                     >
                                         <Radio value={true}>是</Radio>
                                         <Radio value={false}>否</Radio>
                                     </Radio.Group>
                                 </div>
                                 <div>
-                                    <div>年份:</div>
+                                    <div>
+                                        {fatherGenuine ? (
+                                            <span style={{ color: '#f00', marginRight: '4px' }}>
+                                                *
+                                            </span>
+                                        ) : (
+                                            ''
+                                        )}
+                                        年份:
+                                    </div>
                                     <Select
                                         className="mt-8"
                                         defaultValue={selectYear}
@@ -352,7 +409,10 @@ class QuestionAddLongReading extends React.Component {
                                     </Select>
                                 </div>
                                 <div>
-                                    <div>类型:</div>
+                                    <div>
+                                        <span style={{ color: '#f00', marginRight: '4px' }}>*</span>
+                                        类型:
+                                    </div>
                                     <Select
                                         className="mt-8"
                                         defaultValue={selectTp}
@@ -424,7 +484,11 @@ class QuestionAddLongReading extends React.Component {
                         </div>
                     </div>
                     <div className="tools">
-                        <Button type="primary" onClick={this.saveQuestion.bind(this)}>
+                        <Button
+                            type="primary"
+                            loading={saveLoading}
+                            onClick={this.saveQuestion.bind(this)}
+                        >
                             保存
                         </Button>
                         <Link to={'/app/queBankCreate/bankDetailLongReading'}>

@@ -9,6 +9,7 @@ import Pack from '../preview/pack/index';
 import CfReading from '../preview/cfReading/index';
 import Choice from '../preview/choice';
 import { get, post, baseUrl } from '../../service/tools';
+import realItem from '../../style/imgs/realItem.png';
 
 const { Option } = Select;
 
@@ -65,7 +66,10 @@ class TestDetail extends React.Component {
                 title: '序号',
                 key: 'key',
                 render: (text: any, record: any, index: number) => (
-                    <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>
+                    <div className="number">
+                        {text.genuine ? <img src={realItem} alt="" /> : <div />}
+                        {index + 1 + (this.state.pageNo - 1) * 20}
+                    </div>
                 ),
             },
             {
@@ -876,11 +880,17 @@ class TestDetail extends React.Component {
                                 </div>
                             );
                         })}
-                        <div className="add" onClick={this.addPart.bind(this)}>
-                            <Button style={{ width: '100%' }} type="dashed" icon={<PlusOutlined />}>
-                                添加新的Part
-                            </Button>
-                        </div>
+                        {parts.length < 15 && (
+                            <div className="add" onClick={this.addPart.bind(this)}>
+                                <Button
+                                    style={{ width: '100%' }}
+                                    type="dashed"
+                                    icon={<PlusOutlined />}
+                                >
+                                    添加新的Part
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <Modal

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Input, Button, PageHeader, Alert, message, Select, Radio } from 'antd';
+import { Input, Button, PageHeader, Alert, message, Select, Radio, Modal } from 'antd';
 import { Link } from 'react-router-dom';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/QuestionAddPack.less';
 import { get, post, baseUrl } from '../../service/tools';
 
@@ -80,11 +80,12 @@ class QuestionAddPack extends React.Component {
         ],
         bankID: '',
         setType: '',
-        title: '',
+        title: `entry ${+(GetRequest()['questionCount'] || 0) + 1}`,
         stem: '',
         selectYear: YEAR_MAP[YEAR_MAP.length - 1],
         selectTp: 'cet4',
         genuine: true,
+        fatherGenuine: Boolean(+(GetRequest()['genuine'] || 0)),
         options: [
             {
                 key: 'A',
@@ -135,9 +136,11 @@ class QuestionAddPack extends React.Component {
                 value: '',
             },
         ],
+        saveLoading: false,
     };
     componentWillMount() {
         this.inited();
+        console.log(123123, this.state.fatherGenuine);
     }
 
     async inited() {
@@ -156,13 +159,36 @@ class QuestionAddPack extends React.Component {
     }
 
     /** 保存试题 */
-    async saveQuestion() {
+    saveQuestion() {
+        const { options } = this.state;
+        if (options.length < 15) {
+            Modal.confirm({
+                title: '新建题库',
+                icon: <ExclamationCircleOutlined />,
+                content: '试题不满足标准题型要求，请再次确认是否保存',
+                okText: '确认',
+                cancelText: '取消',
+                onOk: () => {
+                    this.saveQuestionBack();
+                },
+            });
+            return;
+        }
+        this.saveQuestionBack();
+    }
+
+    async saveQuestionBack() {
         const res = await this.saveQuestionInterface();
         if (res.state === 0) {
+            this.setState({
+                saveLoading: true,
+            });
             message.success('保存成功');
             setTimeout(() => {
                 window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailPack`;
             }, 200);
+        } else {
+            message.error('题干编辑有误!');
         }
     }
 
@@ -245,7 +271,17 @@ class QuestionAddPack extends React.Component {
     }
 
     render() {
-        const { routes, title, stem, selectYear, selectTp, genuine, options } = this.state;
+        const {
+            routes,
+            title,
+            stem,
+            selectYear,
+            selectTp,
+            genuine,
+            options,
+            fatherGenuine,
+            saveLoading,
+        } = this.state;
         return (
             <div className="question-add-pack-wrapper">
                 <div className="header">
@@ -284,13 +320,23 @@ class QuestionAddPack extends React.Component {
                                         className="mt-8"
                                         onChange={this.onGenuineChange.bind(this)}
                                         value={genuine}
+                                        disabled={fatherGenuine}
                                     >
                                         <Radio value={true}>是</Radio>
                                         <Radio value={false}>否</Radio>
                                     </Radio.Group>
                                 </div>
                                 <div>
-                                    <div>年份:</div>
+                                    <div>
+                                        {fatherGenuine ? (
+                                            <span style={{ color: '#f00', marginRight: '4px' }}>
+                                                *
+                                            </span>
+                                        ) : (
+                                            ''
+                                        )}
+                                        年份:
+                                    </div>
                                     <Select
                                         className="mt-8"
                                         defaultValue={selectYear}
@@ -307,7 +353,10 @@ class QuestionAddPack extends React.Component {
                                     </Select>
                                 </div>
                                 <div>
-                                    <div>类型:</div>
+                                    <div>
+                                        <span style={{ color: '#f00', marginRight: '4px' }}>*</span>
+                                        类型:
+                                    </div>
                                     <Select
                                         className="mt-8"
                                         defaultValue={selectTp}
@@ -358,7 +407,11 @@ class QuestionAddPack extends React.Component {
                         </div>
                     </div>
                     <div className="tools">
-                        <Button type="primary" onClick={this.saveQuestion.bind(this)}>
+                        <Button
+                            type="primary"
+                            loading={saveLoading}
+                            onClick={this.saveQuestion.bind(this)}
+                        >
                             保存
                         </Button>
                         <Link to={'/app/queBankCreate/bankDetailPack'}>

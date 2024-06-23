@@ -1,92 +1,131 @@
 .test-detail-wrapper {
-    overflow-y: auto;
-    .header {
-        height: 178px;
-        background: #ffffff;
-        overflow: hidden;
-        .sec {
-            display: flex;
-            justify-content: space-between;
-            margin: 0 32px;
-            height: 30px;
-            line-height: 30px;
-            .text {
-                font-size: 20px;
-                font-family: PingFangSC-Medium, PingFang SC;
-                font-weight: 500;
-                color: rgba(0, 0, 0, 0.85);
-            }
-            span {
-                color: rgba(0, 0, 0, 0.65);
-            }
-        }
-        .thr {
-            margin: 0 32px;
-            margin-top: 24px;
-            .tr {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 8px;
-                .sp {
-                    color: rgba(0, 0, 0, 0.45);
-                }
-                .hard {
-                    font-size: 20px;
-                }
-                div {
-                    span {
-                        color: rgba(0, 0, 0, 0.65);
-                    }
-                    &:nth-of-type(1) {
-                        width: 360px;
-                    }
-                    &:nth-of-type(2) {
-                        flex: 1;
-                    }
-                    &:nth-of-type(3) {
-                        width: 70px;
-                    }
-                }
-            }
-        }
-    }
-    .body {
-        width: auto;
-        margin: 24px;
-        margin-bottom: 0;
-        background: #ffffff;
-        padding: 32px;
-        .fir {
-            display: flex;
-            justify-content: space-between;
-            .gap-12 {
-                margin-left: 12px;
-            }
-            .gap-40 {
-                margin-left: 40px;
-            }
+	overflow-y: auto;
+
+	.header {
+		height: 178px;
+		background: #ffffff;
+		overflow: hidden;
+
+		.sec {
+			display: flex;
+			justify-content: space-between;
+			margin: 0 32px;
+			height: 30px;
+			line-height: 30px;
+
+			.text {
+				font-size: 20px;
+				font-family: PingFangSC-Medium, PingFang SC;
+				font-weight: 500;
+				color: rgba(0, 0, 0, 0.85);
+			}
+
+			span {
+				color: rgba(0, 0, 0, 0.65);
+			}
+		}
+
+		.thr {
+			margin: 0 32px;
+			margin-top: 24px;
+
+			.tr {
+				display: flex;
+				justify-content: space-between;
+				margin-bottom: 8px;
+
+				.sp {
+					color: rgba(0, 0, 0, 0.45);
+				}
+
+				.hard {
+					font-size: 20px;
+				}
+
+				div {
+					span {
+						color: rgba(0, 0, 0, 0.65);
+					}
+
+					&:nth-of-type(1) {
+						width: 360px;
+					}
+
+					&:nth-of-type(2) {
+						flex: 1;
+					}
+
+					&:nth-of-type(3) {
+						width: 70px;
+					}
+				}
+			}
+		}
+	}
+
+	.body {
+		width: auto;
+		margin: 24px;
+		margin-bottom: 0;
+		background: #ffffff;
+		padding: 32px;
+
+		.fir {
+			display: flex;
+			justify-content: space-between;
+
+			.gap-12 {
+				margin-left: 12px;
+			}
+
+			.gap-40 {
+				margin-left: 40px;
+			}
+
 			.left {
 				display: flex;
 			}
-            .right {
-                display: flex;
-            }
-        }
-        .thr {
-            .thrHeader {
+
+			.right {
+				display: flex;
+			}
+		}
+
+		.thr {
+			.thrHeader {
 				margin-top: 20px;
 				display: flex;
 				justify-content: space-between;
 				margin-bottom: 24px;
+
 				.name {
 					.gap12 {
 						margin-left: 12px;
 					}
 				}
 			}
+
+			.number {
+				display: flex;
+				align-items: center;
+
+				img {
+					margin-right: 8px;
+					width: 33px;
+					height: 18px;
+				}
+
+				div {
+					margin-right: 8px;
+					width: 33px;
+					height: 18px;
+				}
+			}
+
 			.title {
 				display: flex;
 				justify-content: flex-start;
+
 				.que {
 					display: flex;
 					align-items: center;
@@ -95,16 +134,20 @@
 					min-width: 300px;
 					margin-right: 24px;
 				}
+
 				.choose {
 					flex: 2;
+
 					.tr {
 						display: flex;
+
 						div {
 							text-align: left;
 							min-width: 100px;
 						}
 					}
 				}
+
 				.right {
 					display: flex;
 					align-items: center;
@@ -112,13 +155,15 @@
 					width: 81px;
 				}
 			}
+
 			.titles {
 				.name {
 					color: #000;
 					text-align: left;
 				}
+
 				.stem {
-					color: rgb(144,144,144);
+					color: rgb(144, 144, 144);
 					text-align: left;
 					overflow: hidden;
 					display: -webkit-box;
@@ -126,180 +171,216 @@
 					-webkit-box-orient: vertical;
 				}
 			}
+
 			.add {
 				margin-top: 24px;
 			}
-            th {
-                text-align: center;
-                color: #000 !important;
-            }
-            td {
-                text-align: center;
-                color: #595959 !important;
-            }
-        }
-        .pag {
-            display: flex;
-            flex-direction: row-reverse;
-            margin-top: 24px;
-        }
-        .display-none {
-            display: none;
-        }
-    }
+
+			th {
+				text-align: center;
+				color: #000 !important;
+			}
+
+			td {
+				text-align: center;
+				color: #595959 !important;
+			}
+		}
+
+		.pag {
+			display: flex;
+			flex-direction: row-reverse;
+			margin-top: 24px;
+		}
+
+		.display-none {
+			display: none;
+		}
+	}
 }
 
 .module-area {
-    margin-top: 16px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    .gap-8 {
-        margin-left: 8px;
-    }
-    .title {
-        display: inline-block;
-        width: 70px;
-        text-align: right;
-    }
+	margin-top: 16px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	.gap-8 {
+		margin-left: 8px;
+	}
+
+	.title {
+		display: inline-block;
+		width: 70px;
+		text-align: right;
+	}
 }
 
 .btnw {
-    button {
-        width: 50%;
-    }
+	button {
+		width: 50%;
+	}
 }
 
 .details-m {
-    .mt-20 {
-        margin-top: 20px;
-    }
-    .fir {
-        display: flex;
-        justify-content: space-between;
-        .title {
-            font-size: 16px;
-            font-weight: 500;
-            color: rgba(0, 0, 0, 0.85);
-        }
-        .gap-12 {
-            margin-left: 12px;
-        }
-        .gap-40 {
-            margin-left: 40px;
-        }
+	.mt-20 {
+		margin-top: 20px;
+	}
+
+	.fir {
+		display: flex;
+		justify-content: space-between;
+
+		.title {
+			font-size: 16px;
+			font-weight: 500;
+			color: rgba(0, 0, 0, 0.85);
+		}
+
+		.gap-12 {
+			margin-left: 12px;
+		}
+
+		.gap-40 {
+			margin-left: 40px;
+		}
+
 		.left {
 			display: flex;
 			align-items: center;
 		}
-        .right {
-            display: flex;
-        }
-    }
-    .thr {
-        margin-top: 20px;
-        .title {
-            display: flex;
+
+		.right {
+			display: flex;
+		}
+	}
+
+	.thr {
+		margin-top: 20px;
+
+		.title {
+			display: flex;
 			justify-content: flex-start;
-            .que {
-                display: flex;
-                align-items: center;
-                flex: 3;
-                text-align: left;
-                min-width: 300px;
-                margin-right: 24px;
-            }
-            .choose {
-                flex: 2;
-                .tr {
-                    display: flex;
-                    div {
-                        text-align: left;
-                        min-width: 100px;
-                    }
-                }
-            }
-            .right {
-                display: flex;
-                align-items: center;
-                margin-right: 24px;
-                width: 81px;
-            }
-        }
+
+			.que {
+				display: flex;
+				align-items: center;
+				flex: 3;
+				text-align: left;
+				min-width: 300px;
+				margin-right: 24px;
+			}
+
+			.choose {
+				flex: 2;
+
+				.tr {
+					display: flex;
+
+					div {
+						text-align: left;
+						min-width: 100px;
+					}
+				}
+			}
+
+			.right {
+				display: flex;
+				align-items: center;
+				margin-right: 24px;
+				width: 81px;
+			}
+		}
+
 		.titles {
 			.name {
 				color: #000;
 				text-align: left;
 			}
+
 			.stem {
-				color: rgb(144,144,144);
+				color: rgb(144, 144, 144);
 				text-align: left;
 				overflow: hidden;
 				display: -webkit-box;
 				-webkit-line-clamp: 3;
 				-webkit-box-orient: vertical;
 			}
-        }
-        .edit {
-            display: flex;
-            justify-content: center;
-            div {
-                width: 56px;
-                height: 22px;
-                font-size: 14px;
-                font-family: PingFangSC-Regular, PingFang SC;
-                font-weight: 400;
-                color: #1890ff;
-                line-height: 22px;
-                cursor: pointer;
-                &:nth-of-type(2) {
-                    color: rgba(0, 0, 0, 0.45);
-                }
-            }
-        }
-        th {
-            text-align: center;
-            color: #000 !important;
-        }
-        td {
-            text-align: center;
-            color: #595959 !important;
-        }
-    }
-    .pag {
-        display: flex;
-        flex-direction: row-reverse;
-        margin-top: 24px;
-    }
-    .display-none {
-        display: none;
-    }
+		}
+
+		.edit {
+			display: flex;
+			justify-content: center;
+
+			div {
+				width: 56px;
+				height: 22px;
+				font-size: 14px;
+				font-family: PingFangSC-Regular, PingFang SC;
+				font-weight: 400;
+				color: #1890ff;
+				line-height: 22px;
+				cursor: pointer;
+
+				&:nth-of-type(2) {
+					color: rgba(0, 0, 0, 0.45);
+				}
+			}
+		}
+
+		th {
+			text-align: center;
+			color: #000 !important;
+		}
+
+		td {
+			text-align: center;
+			color: #595959 !important;
+		}
+	}
+
+	.pag {
+		display: flex;
+		flex-direction: row-reverse;
+		margin-top: 24px;
+	}
+
+	.display-none {
+		display: none;
+	}
+
 	.footer {
 		display: flex;
 		justify-content: space-between;
+
 		.left {
 			min-width: 102px;
 		}
+
 		.mid {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
 			flex: 1;
 			margin-left: 24px;
+
 			.tags {
 				display: flex;
 				flex-wrap: wrap;
+
 				.ant-tag {
 					display: flex;
 					align-items: center;
 					height: 32px;
 				}
 			}
+
 			.length {
 				font-size: 14px;
 				min-width: 110px;
 			}
 		}
+
 		.right {
 			min-width: 102px;
 			margin-left: 24px;

@@ -12,6 +12,8 @@ import '../../style/pageStyle/BankDetail.less';
 import { get, post, del, put, baseUrl } from '../../service/tools';
 import type { RcFile, UploadFile } from 'antd/es/upload/interface';
 import Choice from '../preview/choice';
+import realItem from '../../style/imgs/realItem.png';
+import realKu from '../../style/imgs/realKu.png';
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -23,8 +25,8 @@ const ENUM_BANK_TYPE: any = {
 };
 
 const SELECT_TP: any = {
-    cet4: '四级',
-    cet6: '六级',
+    cet4: 'CET4',
+    cet6: 'CET6',
 };
 
 const SELECT_TP_LIST = ['', 'cet4', 'cet6'];
@@ -60,6 +62,7 @@ class BankDetail extends React.Component {
         creator: '',
         createTime: '0000-00-00 00:00:00',
         updateTime: '0000-00-00 00:00:00',
+        genuine: false,
         setType: 'choice',
         questionCount: '120',
         columns1: [
@@ -67,18 +70,21 @@ class BankDetail extends React.Component {
                 title: '序号',
                 key: 'key',
                 render: (text: any, record: any, index: number) => (
-                    <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>
+                    <div className="number">
+                        {text.genuine ? <img src={realItem} alt="" /> : <div />}
+                        {index + 1 + (this.state.pageNo - 1) * 20}
+                    </div>
                 ),
             },
             {
                 title: '真题年份',
                 key: 'key',
-                render: (text: any, record: any, index: number) => <div>-</div>,
+                render: (text: any, record: any, index: number) => <div>{text.year}</div>,
             },
             {
                 title: '真题类型',
                 key: 'key',
-                render: (text: any, record: any, index: number) => <div>-</div>,
+                render: (text: any, record: any, index: number) => <div>{SELECT_TP[text.tp]}</div>,
             },
             {
                 title: '试题内容',
@@ -170,6 +176,7 @@ class BankDetail extends React.Component {
                 updateTime: '0000-00-00 00:00:00',
                 setType: 'long_reading',
                 questionCount: '120',
+                genuine: false,
             }
         );
     }
@@ -470,6 +477,7 @@ class BankDetail extends React.Component {
             bankID,
             setName,
             bankQuery,
+            genuine,
             routes,
             creator,
             createTime,
@@ -543,8 +551,10 @@ class BankDetail extends React.Component {
                 <div className="header">
                     <PageHeader title="" breadcrumb={{ routes }} />
                     <div className="sec">
-                        <div className="text">{setName}</div>
-                        {/* <Button onClick={this.delBank.bind(this)}>删除题库</Button> */}
+                        <div className="text">
+                            {genuine ? <img src={realKu} alt="" /> : ''}
+                            {setName}
+                        </div>
                     </div>
                     <div className="thr">
                         <div className="tr">
@@ -586,7 +596,7 @@ class BankDetail extends React.Component {
                                 查询
                             </Button>
                             <div className="gap-12">
-                                年份:
+                                {genuine ? '真题' : ''}年份:
                                 <Select
                                     defaultValue={selectYear}
                                     className="gap-12"
@@ -603,7 +613,7 @@ class BankDetail extends React.Component {
                                 </Select>
                             </div>
                             <div className="gap-12">
-                                类型:
+                                {genuine ? '真题' : ''}类型:
                                 <Select
                                     defaultValue={selectTp}
                                     className="gap-12"
@@ -621,7 +631,7 @@ class BankDetail extends React.Component {
                             </div>
                             <div className="gap-12">
                                 <Link
-                                    to={`/app/queBankCreate/bankDetail/questionAdd?bankID=${bankID}&setType=${setType}`}
+                                    to={`/app/queBankCreate/bankDetail/questionAdd?bankID=${bankID}&setType=${setType}&questionCount=${questionCount}&genuine=${+genuine}`}
                                 >
                                     <Button type="primary" icon={<PlusOutlined />}>
                                         新建
@@ -662,6 +672,7 @@ class BankDetail extends React.Component {
                     </div>
                 </div>
                 <Modal
+                    width="900px"
                     title={moduleName}
                     visible={isVisible}
                     cancelText="取消"
@@ -731,7 +742,7 @@ class BankDetail extends React.Component {
                     </div>
                 </Modal>
                 <Modal
-                    width={800}
+                    width={900}
                     title="模版导入"
                     visible={uploadVisible}
                     onOk={this.handleUploadOk.bind(this)}
@@ -766,7 +777,7 @@ class BankDetail extends React.Component {
                 <Modal
                     title="预览"
                     visible={showPreview}
-                    width={600}
+                    width={900}
                     bodyStyle={{ height: '540px', overflow: 'auto' }}
                     onCancel={this.cancelPreviewModal.bind(this)}
                     footer={[

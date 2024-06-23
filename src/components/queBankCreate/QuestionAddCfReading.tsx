@@ -1,7 +1,7 @@
 import React from 'react';
-import { Input, Button, PageHeader, Alert, message, Select, Radio } from 'antd';
+import { Input, Button, PageHeader, Alert, message, Select, Radio, Modal } from 'antd';
 import { Link } from 'react-router-dom';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/QuestionAddCfReading.less';
 import { get, post, baseUrl } from '../../service/tools';
 
@@ -51,11 +51,12 @@ class QuestionAddCfReading extends React.Component {
         ],
         bankID: '',
         setType: '',
-        title: '',
+        title: `entry ${+(GetRequest()['questionCount'] || 0) + 1}`,
         stem: '',
         selectYear: YEAR_MAP[YEAR_MAP.length - 1],
         selectTp: 'cet4',
         genuine: true,
+        fatherGenuine: Boolean(+(GetRequest()['genuine'] || 0)),
         questions: [
             {
                 qStem: '',
@@ -78,6 +79,7 @@ class QuestionAddCfReading extends React.Component {
                 rightKey: 'A',
             },
         ],
+        saveLoading: false,
     };
     componentWillMount() {
         this.inited();
@@ -92,8 +94,30 @@ class QuestionAddCfReading extends React.Component {
 
     /** 保存试题 */
     async saveQuestion() {
+        const { questions } = this.state;
+        if (questions.length < 5) {
+            Modal.confirm({
+                title: '新建题库',
+                icon: <ExclamationCircleOutlined />,
+                content: '试题不满足标准题型要求，请再次确认是否保存',
+                okText: '确认',
+                cancelText: '取消',
+                onOk: () => {
+                    this.saveQuestionBack();
+                },
+            });
+            return;
+        }
+        this.saveQuestionBack();
+    }
+
+    /** 保存试题 */
+    async saveQuestionBack() {
         const res = await this.saveQuestionInterface();
         if (res.state === 0) {
+            this.setState({
+                saveLoading: true,
+            });
             message.success('保存成功');
             setTimeout(() => {
                 window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailCfReading`;
@@ -216,7 +240,17 @@ class QuestionAddCfReading extends React.Component {
     }
 
     render() {
-        const { routes, title, stem, selectYear, selectTp, genuine, questions } = this.state;
+        const {
+            routes,
+            title,
+            stem,
+            selectYear,
+            selectTp,
+            genuine,
+            questions,
+            fatherGenuine,
+            saveLoading,
+        } = this.state;
         return (
             <div className="question-add-cf-reading-wrapper">
                 <div className="header">
@@ -241,11 +275,19 @@ class QuestionAddCfReading extends React.Component {
                                 className="ml-14"
                                 onChange={this.onGenuineChange.bind(this)}
                                 value={genuine}
+                                disabled={fatherGenuine}
                             >
                                 <Radio value={true}>是</Radio>
                                 <Radio value={false}>否</Radio>
                             </Radio.Group>
-                            <div className="ml-14">年份:</div>
+                            <div className="ml-14">
+                                {fatherGenuine ? (
+                                    <span style={{ color: '#f00', marginRight: '4px' }}>*</span>
+                                ) : (
+                                    ''
+                                )}
+                                年份:
+                            </div>
                             <Select
                                 className="ml-14"
                                 defaultValue={selectYear}
@@ -260,7 +302,9 @@ class QuestionAddCfReading extends React.Component {
                                     </Option>
                                 ))}
                             </Select>
-                            <div className="ml-14">类型:</div>
+                            <div className="ml-14">
+                                <span style={{ color: '#f00', marginRight: '4px' }}>*</span>类型:
+                            </div>
                             <Select
                                 className="ml-14"
                                 defaultValue={selectTp}
@@ -376,7 +420,11 @@ class QuestionAddCfReading extends React.Component {
                         </div>
                     </div>
                     <div className="tools">
-                        <Button type="primary" onClick={this.saveQuestion.bind(this)}>
+                        <Button
+                            type="primary"
+                            loading={saveLoading}
+                            onClick={this.saveQuestion.bind(this)}
+                        >
                             保存
                         </Button>
                         <Link to={'/app/queBankCreate/bankDetailCfReading'}>

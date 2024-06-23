@@ -5,6 +5,8 @@ import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/BankDetailCfReading.less';
 import CfReading from '../preview/cfReading/index';
 import { get, post, put, baseUrl } from '../../service/tools';
+import realItem from '../../style/imgs/realItem.png';
+import realKu from '../../style/imgs/realKu.png';
 
 const { Option } = Select;
 const ENUM_BANK_TYPE: any = {
@@ -15,8 +17,8 @@ const ENUM_BANK_TYPE: any = {
 };
 
 const SELECT_TP: any = {
-    cet4: '四级',
-    cet6: '六级',
+    cet4: 'CET4',
+    cet6: 'CET6',
 };
 
 const SELECT_TP_LIST = ['', 'cet4', 'cet6'];
@@ -53,23 +55,27 @@ class BankDetailCfReading extends React.Component {
         updateTime: '0000-00-00 00:00:00',
         setType: 'long_reading',
         questionCount: '120',
+        genuine: false,
         columns1: [
             {
                 title: '序号',
                 key: 'key',
                 render: (text: any, record: any, index: number) => (
-                    <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>
+                    <div className="number">
+                        {text.genuine ? <img src={realItem} alt="" /> : <div />}
+                        {index + 1 + (this.state.pageNo - 1) * 20}
+                    </div>
                 ),
             },
             {
                 title: '真题年份',
                 key: 'key',
-                render: (text: any, record: any, index: number) => <div>-</div>,
+                render: (text: any, record: any, index: number) => <div>{text.year}</div>,
             },
             {
                 title: '真题类型',
                 key: 'key',
-                render: (text: any, record: any, index: number) => <div>-</div>,
+                render: (text: any, record: any, index: number) => <div>{SELECT_TP[text.tp]}</div>,
             },
             {
                 title: '试题内容',
@@ -95,6 +101,9 @@ class BankDetailCfReading extends React.Component {
         stem: '',
         questions: [],
         questionId: '',
+        staticGenuine: false,
+        staticYear: '',
+        staticType: '',
         fileList: [],
         selectYear: '',
         selectTp: '',
@@ -134,6 +143,7 @@ class BankDetailCfReading extends React.Component {
                 updateTime: '0000-00-00 00:00:00',
                 setType: 'long_reading',
                 questionCount: '120',
+                genuine: false,
             }
         );
     }
@@ -231,7 +241,7 @@ class BankDetailCfReading extends React.Component {
 
     /** 展示编辑弹窗 */
     showCreateModal(type: string, data: any) {
-        const { questionId, stem, title, questions } = data;
+        const { questionId, stem, title, questions, tp, year, genuine } = data;
         if (type === 'edit') {
             this.setState({
                 isVisible: true,
@@ -242,6 +252,9 @@ class BankDetailCfReading extends React.Component {
                 title,
                 stem,
                 questions,
+                staticGenuine: genuine,
+                staticYear: year,
+                staticType: tp,
             });
         } else {
             this.setState({
@@ -253,6 +266,9 @@ class BankDetailCfReading extends React.Component {
                 title,
                 stem,
                 questions,
+                staticGenuine: genuine,
+                staticYear: year,
+                staticType: tp,
             });
         }
     }
@@ -349,6 +365,7 @@ class BankDetailCfReading extends React.Component {
         const {
             bankID,
             setName,
+            genuine,
             bankQuery,
             routes,
             creator,
@@ -370,14 +387,19 @@ class BankDetailCfReading extends React.Component {
             questions,
             showPreview,
             previewData,
+            staticGenuine,
+            staticYear,
+            staticType,
         } = this.state;
         return (
             <div className="bank-detail-cf-reading-wrapper">
                 <div className="header">
                     <PageHeader title="" breadcrumb={{ routes }} />
                     <div className="sec">
-                        <div className="text">{setName}</div>
-                        {/* <Button onClick={this.delBank.bind(this)}>删除题库</Button> */}
+                        <div className="text">
+                            {genuine ? <img src={realKu} alt="" /> : ''}
+                            {setName}
+                        </div>
                     </div>
                     <div className="thr">
                         <div className="tr">
@@ -419,7 +441,7 @@ class BankDetailCfReading extends React.Component {
                                 查询
                             </Button>
                             <div className="gap-12">
-                                年份:
+                                {genuine ? '真题' : ''}年份:
                                 <Select
                                     defaultValue={selectYear}
                                     className="gap-12"
@@ -436,7 +458,7 @@ class BankDetailCfReading extends React.Component {
                                 </Select>
                             </div>
                             <div className="gap-12">
-                                类型:
+                                {genuine ? '真题' : ''}类型:
                                 <Select
                                     defaultValue={selectTp}
                                     className="gap-12"
@@ -454,7 +476,7 @@ class BankDetailCfReading extends React.Component {
                             </div>
                             <div className="gap-12">
                                 <Link
-                                    to={`/app/queBankCreate/bankDetailCfReading/questionAddCfReading?bankID=${bankID}&setType=${setType}`}
+                                    to={`/app/queBankCreate/bankDetailCfReading/questionAddCfReading?bankID=${bankID}&setType=${setType}&questionCount=${questionCount}&genuine=${+genuine}`}
                                 >
                                     <Button type="primary" icon={<PlusOutlined />}>
                                         新建
@@ -498,13 +520,20 @@ class BankDetailCfReading extends React.Component {
                     title={moduleName}
                     visible={isVisible}
                     bodyStyle={{ height: '500px', overflow: 'auto' }}
-                    width="800px"
+                    width="900px"
                     cancelText="取消"
                     okText="确定"
                     onOk={this.handleCreateOk.bind(this)}
                     onCancel={this.handleCreateCancel.bind(this)}
                 >
                     <div className="cf-input-block">
+                        <div className="mt-8">
+                            <span>是否为真题：{staticGenuine ? '是' : '否'}</span>
+                            <span style={{ marginLeft: '36px' }}>年份：{staticYear}</span>
+                            <span style={{ marginLeft: '36px' }}>
+                                类型：{SELECT_TP[staticType]}
+                            </span>
+                        </div>
                         <div className="firLine">
                             <div>标题:</div>
                             <Input
@@ -623,7 +652,7 @@ class BankDetailCfReading extends React.Component {
                 <Modal
                     title="预览"
                     visible={showPreview}
-                    width={600}
+                    width={900}
                     bodyStyle={{ height: '540px', overflow: 'auto' }}
                     onCancel={this.cancelPreviewModal.bind(this)}
                     footer={[

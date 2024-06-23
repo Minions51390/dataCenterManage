@@ -377,7 +377,7 @@ class TestPaper extends React.Component {
                         <Input
                             className="gap-8"
                             style={{ width: 294 }}
-                            placeholder="请输入试卷名称"
+                            placeholder="请输入试卷ID"
                             value={baseQuestionPaperId}
                             onChange={this.onBaseChange.bind(this)}
                         />

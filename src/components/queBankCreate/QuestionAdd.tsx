@@ -60,6 +60,7 @@ class QuestionAdd extends React.Component {
                 rightKey: '',
             },
         ],
+        saveLoading: false,
     };
     componentWillMount() {
         this.inited();
@@ -106,6 +107,9 @@ class QuestionAdd extends React.Component {
     async saveQuestion() {
         const res = await this.saveQuestionInterface();
         if (res.state === 0) {
+            this.setState({
+                saveLoading: true,
+            });
             message.success('保存成功');
             setTimeout(() => {
                 window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
@@ -153,7 +157,7 @@ class QuestionAdd extends React.Component {
     }
 
     render() {
-        const { routes, questionArr } = this.state;
+        const { routes, questionArr, saveLoading } = this.state;
         return (
             <div className="question-add-wrapper">
                 <div className="header">
@@ -272,7 +276,11 @@ class QuestionAdd extends React.Component {
                         </Button>
                     </div>
                     <div className="tools">
-                        <Button type="primary" onClick={this.saveQuestion.bind(this)}>
+                        <Button
+                            type="primary"
+                            loading={saveLoading}
+                            onClick={this.saveQuestion.bind(this)}
+                        >
                             保存
                         </Button>
                         <Link to={'/app/queBankCreate/bankDetail'}>

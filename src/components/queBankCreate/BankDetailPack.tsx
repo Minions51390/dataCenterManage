@@ -6,6 +6,9 @@ import '../../style/pageStyle/BankDetailPack.less';
 import { get, post, put, baseUrl } from '../../service/tools';
 import type { RcFile } from 'antd/es/upload/interface';
 import Pack from '../preview/pack/index';
+import realItem from '../../style/imgs/realItem.png';
+import realKu from '../../style/imgs/realKu.png';
+
 const { Option } = Select;
 
 const ENUM_BANK_TYPE: any = {
@@ -16,8 +19,8 @@ const ENUM_BANK_TYPE: any = {
 };
 
 const SELECT_TP: any = {
-    cet4: '四级',
-    cet6: '六级',
+    cet4: 'CET4',
+    cet6: 'CET6',
 };
 
 const SELECT_TP_LIST = ['', 'cet4', 'cet6'];
@@ -54,13 +57,17 @@ class BankDetailPack extends React.Component {
         createTime: '0000-00-00 00:00:00',
         updateTime: '0000-00-00 00:00:00',
         setType: 'long_reading',
+        genuine: false,
         questionCount: '120',
         columns1: [
             {
                 title: '序号',
                 key: 'key',
                 render: (text: any, record: any, index: number) => (
-                    <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>
+                    <div className="number">
+                        {text.genuine ? <img src={realItem} alt="" /> : <div />}
+                        {index + 1 + (this.state.pageNo - 1) * 20}
+                    </div>
                 ),
             },
             {
@@ -96,6 +103,9 @@ class BankDetailPack extends React.Component {
         title: '',
         stem: '',
         options: [],
+        staticGenuine: false,
+        staticYear: '',
+        staticType: '',
         questionId: '',
         fileList: [],
         selectYear: '',
@@ -136,6 +146,7 @@ class BankDetailPack extends React.Component {
                 updateTime: '0000-00-00 00:00:00',
                 setType: 'long_reading',
                 questionCount: '120',
+                genuine: false,
             }
         );
     }
@@ -208,7 +219,7 @@ class BankDetailPack extends React.Component {
     async editQuestionInterface() {
         const { questionId, stem, options, setType, title, bankID } = this.state;
         console.log('editQuestionInterface', questionId);
-        await put({
+        const res = await put({
             url: `${baseUrl}/api/v1/question-set/question`,
             data: {
                 questionId: questionId,
@@ -219,7 +230,11 @@ class BankDetailPack extends React.Component {
                 setId: bankID,
             },
         });
-        this.getQuestionList();
+        if (res.state === 0) {
+            this.getQuestionList();
+        } else {
+            message.error('题干编辑有误!');
+        }
     }
 
     /** 删除接口 */
@@ -275,7 +290,7 @@ class BankDetailPack extends React.Component {
 
     /** 展示编辑弹窗 */
     showCreateModal(type: string, data: any) {
-        const { questionId, stem, title, options } = data;
+        const { questionId, stem, title, options, tp, year, genuine } = data;
         if (type === 'edit') {
             this.setState({
                 isVisible: true,
@@ -286,6 +301,9 @@ class BankDetailPack extends React.Component {
                 stem,
                 title,
                 options,
+                staticGenuine: genuine,
+                staticYear: year,
+                staticType: tp,
             });
         } else {
             this.setState({
@@ -297,6 +315,9 @@ class BankDetailPack extends React.Component {
                 stem,
                 title,
                 options,
+                staticGenuine: genuine,
+                staticYear: year,
+                staticType: tp,
             });
         }
     }
@@ -397,6 +418,7 @@ class BankDetailPack extends React.Component {
         const {
             bankID,
             setName,
+            genuine,
             bankQuery,
             routes,
             creator,
@@ -418,14 +440,19 @@ class BankDetailPack extends React.Component {
             selectTp,
             showPreview,
             previewData,
+            staticGenuine,
+            staticYear,
+            staticType,
         } = this.state;
         return (
             <div className="bank-detail-pack-wrapper">
                 <div className="header">
                     <PageHeader title="" breadcrumb={{ routes }} />
                     <div className="sec">
-                        <div className="text">{setName}</div>
-                        {/* <Button onClick={this.delBank.bind(this)}>删除题库</Button> */}
+                        <div className="text">
+                            {genuine ? <img src={realKu} alt="" /> : ''}
+                            {setName}
+                        </div>
                     </div>
                     <div className="thr">
                         <div className="tr">
@@ -467,7 +494,7 @@ class BankDetailPack extends React.Component {
                                 查询
                             </Button>
                             <div className="gap-12">
-                                年份:
+                                {genuine ? '真题' : ''}年份:
                                 <Select
                                     defaultValue={selectYear}
                                     className="gap-12"
@@ -484,7 +511,7 @@ class BankDetailPack extends React.Component {
                                 </Select>
                             </div>
                             <div className="gap-12">
-                                类型:
+                                {genuine ? '真题' : ''}类型:
                                 <Select
                                     defaultValue={selectTp}
                                     className="gap-12"
@@ -502,7 +529,7 @@ class BankDetailPack extends React.Component {
                             </div>
                             <div className="gap-12">
                                 <Link
-                                    to={`/app/queBankCreate/bankDetailPack/questionAddPack?bankID=${bankID}&setType=${setType}`}
+                                    to={`/app/queBankCreate/bankDetailPack/questionAddPack?bankID=${bankID}&setType=${setType}&questionCount=${questionCount}&genuine=${+genuine}`}
                                 >
                                     <Button type="primary" icon={<PlusOutlined />}>
                                         新建
@@ -533,7 +560,7 @@ class BankDetailPack extends React.Component {
                 <Modal
                     title={moduleName}
                     visible={isVisible}
-                    width="800px"
+                    width="900px"
                     cancelText="取消"
                     okText="确定"
                     onOk={this.handleCreateOk.bind(this)}
@@ -563,6 +590,13 @@ class BankDetailPack extends React.Component {
                             </div>
                         </div>
                         <div className="right">
+                            <div className="mt-8">
+                                <span>是否为真题：{staticGenuine ? '是' : '否'}</span>
+                                <span style={{ marginLeft: '36px' }}>年份：{staticYear}</span>
+                                <span style={{ marginLeft: '36px' }}>
+                                    类型：{SELECT_TP[staticType]}
+                                </span>
+                            </div>
                             <div className="mt-8">选项:</div>
                             <div className="mt-8 option-area">
                                 {options.map((val: any, index) => (
@@ -584,7 +618,7 @@ class BankDetailPack extends React.Component {
                 <Modal
                     title="预览"
                     visible={showPreview}
-                    width={600}
+                    width={900}
                     bodyStyle={{ height: '540px', overflow: 'auto' }}
                     onCancel={this.cancelPreviewModal.bind(this)}
                     footer={[

@@ -4,7 +4,10 @@ import { PlusOutlined } from '@ant-design/icons';
 import { createBrowserHistory } from 'history';
 import '../../style/pageStyle/QueBankCreate.less';
 import { get, post, baseUrl } from '../../service/tools';
+import realKu from '../../style/imgs/realKu.png';
 export const history = createBrowserHistory();
+
+
 const { Option } = Select;
 const BANK_TYPE_MAP: any = {
     choice: '单选',
@@ -19,9 +22,9 @@ class QueBank extends React.Component {
         isVisible: false,
         setName: '',
         setType: 'choice',
-		setTypeFilter: 'choice',
+        setTypeFilter: 'choice',
         genuine: false,
-		genuineFilter: 0,
+        genuineFilter: 0,
         setTypeList: ['choice', 'pack', 'long_reading', 'cf_reading'],
         pageNo: 1,
         totalCount: 1,
@@ -37,8 +40,13 @@ class QueBank extends React.Component {
             },
             {
                 title: '题库名称',
-                dataIndex: 'setName',
                 key: 'setName',
+                render: (text: any, record: any, index: number) => (
+                    <div className="title">
+                        {text.genuine ? <img src={realKu} alt="" /> : <div />}
+                        {text.setName}
+                    </div>
+                ),
             },
             {
                 title: '创建人',
@@ -109,9 +117,14 @@ class QueBank extends React.Component {
 
     /** 获取题库列表 */
     async getQuestionBankList() {
-        const { bankQuery, pageNo, sortKey, sortOrder, selTeacher, setTypeFilter, genuineFilter } = this.state;
+        const { bankQuery, pageNo, sortKey, sortOrder, selTeacher, setTypeFilter, genuineFilter } =
+            this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/question-set/list?teacherId=${selTeacher.teacherId}&query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}${setTypeFilter ? '&setType=' + setTypeFilter : ''}&genuine=${genuineFilter}&all=off`,
+            url: `${baseUrl}/api/v1/question-set/list?teacherId=${
+                selTeacher.teacherId
+            }&query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}${
+                setTypeFilter ? '&setType=' + setTypeFilter : ''
+            }&genuine=${genuineFilter}&all=off`,
         });
         console.log('------------->', res);
         const questionBankList = res?.data?.questionSetList || [];
@@ -160,16 +173,16 @@ class QueBank extends React.Component {
         if (bankID) {
             sessionStorage.setItem('bankDetailId', bankID);
             sessionStorage.setItem('bankDetailName', setName);
-			console.log(123123, setType);
-			if (setType === 'choice') {
-				window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
-			} else if (setType === 'pack') {
-				window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailPack`;
-			} else if (setType === 'long_reading') {
-				window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailLongReading`;
-			} else {
-				window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailCfReading`;
-			}
+            console.log(123123, setType);
+            if (setType === 'choice') {
+                window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
+            } else if (setType === 'pack') {
+                window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailPack`;
+            } else if (setType === 'long_reading') {
+                window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailLongReading`;
+            } else {
+                window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailCfReading`;
+            }
         }
     }
 
@@ -178,18 +191,18 @@ class QueBank extends React.Component {
         console.log('clickEditButton', text);
         const bankID = text.setId;
         const setName = text.setName;
-		const setType = text.setType;
+        const setType = text.setType;
         sessionStorage.setItem('bankDetailId', bankID);
         sessionStorage.setItem('bankDetailName', setName);
-		if (setType === 'choice') {
-			window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
-		} else if (setType === 'pack') {
-			window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailPack`;
-		} else if (setType === 'long_reading') {
-			window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailLongReading`;
-		} else {
-			window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailCfReading`;
-		}
+        if (setType === 'choice') {
+            window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
+        } else if (setType === 'pack') {
+            window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailPack`;
+        } else if (setType === 'long_reading') {
+            window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailLongReading`;
+        } else {
+            window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailCfReading`;
+        }
     }
 
     /** 确认新建接口 */
@@ -251,27 +264,27 @@ class QueBank extends React.Component {
         );
     }
 
-	handelSetTypeFilter(val: any) {
+    handelSetTypeFilter(val: any) {
         this.setState(
             {
-                setTypeFilter: val
+                setTypeFilter: val,
             },
             async () => {
                 this.getQuestionBankList();
             }
         );
-	}
+    }
 
-	handleGenuineFilter(val: any) {
-		this.setState(
+    handleGenuineFilter(val: any) {
+        this.setState(
             {
-                genuineFilter: val.target.checked ? 1 : 0
+                genuineFilter: val.target.checked ? 1 : 0,
             },
             async () => {
                 this.getQuestionBankList();
             }
         );
-	}
+    }
 
     /** 题库题型 */
     handlesetType(val: any) {
@@ -319,7 +332,7 @@ class QueBank extends React.Component {
             genuine,
             teacher,
             selTeacher,
-			setTypeFilter,
+            setTypeFilter,
         } = this.state;
         return (
             <div className="quebank-wrapper">
@@ -370,7 +383,9 @@ class QueBank extends React.Component {
                                 </Option>
                             ))}
                         </Select>
-						<span className="span" style={{marginLeft: '24px'}}>题库题型:</span>
+                        <span className="span" style={{ marginLeft: '24px' }}>
+                            题库题型:
+                        </span>
                         <Select
                             defaultValue={setTypeFilter}
                             style={{ width: 180 }}
@@ -384,7 +399,12 @@ class QueBank extends React.Component {
                                 </Option>
                             ))}
                         </Select>
-						<Checkbox style={{marginLeft: '24px'}} onChange={this.handleGenuineFilter.bind(this)}>只看真题题库</Checkbox>
+                        <Checkbox
+                            style={{ marginLeft: '24px' }}
+                            onChange={this.handleGenuineFilter.bind(this)}
+                        >
+                            只看真题题库
+                        </Checkbox>
                     </div>
                     <div className="thr">
                         <Table

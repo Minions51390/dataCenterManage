@@ -20,10 +20,10 @@ const CfReading = (props: ICfReading) => {
                     return (
                         <div className="item">
                             <div>
-                                ({index + 1}) {item.qStem}
+                                {index + 1}. {item.qStem}
                             </div>
                             {item.options.map((val: any) => {
-                                return <div className="answer">{`(${val.key})${val.value}`}</div>;
+                                return <div className="answer">{`${val.key}. ${val.value}`}</div>;
                             })}
                         </div>
                     );

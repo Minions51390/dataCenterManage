@@ -5,6 +5,8 @@ import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/BankDetailLongReading.less';
 import { get, post, put, baseUrl } from '../../service/tools';
 import LongReading from '../preview/longReading/index';
+import realItem from '../../style/imgs/realItem.png';
+import realKu from '../../style/imgs/realKu.png';
 
 const { Option } = Select;
 const ENUM_BANK_TYPE: any = {
@@ -15,8 +17,8 @@ const ENUM_BANK_TYPE: any = {
 };
 
 const SELECT_TP: any = {
-    cet4: '四级',
-    cet6: '六级',
+    cet4: 'CET4',
+    cet6: 'CET6',
 };
 
 const A_Z = [
@@ -82,23 +84,27 @@ class BankDetailLongReading extends React.Component {
         updateTime: '0000-00-00 00:00:00',
         setType: 'long_reading',
         questionCount: '120',
+        genuine: false,
         columns1: [
             {
                 title: '序号',
                 key: 'key',
                 render: (text: any, record: any, index: number) => (
-                    <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>
+                    <div className="number">
+                        {text.genuine ? <img src={realItem} alt="" /> : <div />}
+                        {index + 1 + (this.state.pageNo - 1) * 20}
+                    </div>
                 ),
             },
             {
                 title: '真题年份',
                 key: 'key',
-                render: (text: any, record: any, index: number) => <div>-</div>,
+                render: (text: any, record: any, index: number) => <div>{text.year}</div>,
             },
             {
                 title: '真题类型',
                 key: 'key',
-                render: (text: any, record: any, index: number) => <div>-</div>,
+                render: (text: any, record: any, index: number) => <div>{SELECT_TP[text.tp]}</div>,
             },
             {
                 title: '试题内容',
@@ -125,6 +131,9 @@ class BankDetailLongReading extends React.Component {
         options: [],
         questions: [],
         questionId: '',
+        staticGenuine: false,
+        staticYear: '',
+        staticType: '',
         fileList: [],
         selectYear: '',
         selectTp: '',
@@ -164,6 +173,7 @@ class BankDetailLongReading extends React.Component {
                 updateTime: '0000-00-00 00:00:00',
                 setType: 'long_reading',
                 questionCount: '120',
+                genuine: false,
             }
         );
     }
@@ -279,7 +289,7 @@ class BankDetailLongReading extends React.Component {
 
     /** 展示编辑弹窗 */
     showCreateModal(type: string, data: any) {
-        const { questionId, title, topic, options, questions } = data;
+        const { questionId, title, topic, options, questions, tp, year, genuine } = data;
         if (type === 'edit') {
             this.setState({
                 isVisible: true,
@@ -291,6 +301,9 @@ class BankDetailLongReading extends React.Component {
                 topic,
                 options,
                 questions,
+                staticGenuine: genuine,
+                staticYear: year,
+                staticType: tp,
             });
         } else {
             this.setState({
@@ -303,6 +316,9 @@ class BankDetailLongReading extends React.Component {
                 topic,
                 options,
                 questions,
+                staticGenuine: genuine,
+                staticYear: year,
+                staticType: tp,
             });
         }
     }
@@ -398,6 +414,7 @@ class BankDetailLongReading extends React.Component {
         const {
             bankID,
             setName,
+            genuine,
             bankQuery,
             routes,
             creator,
@@ -420,14 +437,19 @@ class BankDetailLongReading extends React.Component {
             topic,
             showPreview,
             previewData,
+            staticGenuine,
+            staticYear,
+            staticType,
         } = this.state;
         return (
             <div className="bank-detail-long-reading-wrapper">
                 <div className="header">
                     <PageHeader title="" breadcrumb={{ routes }} />
                     <div className="sec">
-                        <div className="text">{setName}</div>
-                        {/* <Button onClick={this.delBank.bind(this)}>删除题库</Button> */}
+                        <div className="text">
+                            {genuine ? <img src={realKu} alt="" /> : ''}
+                            {setName}
+                        </div>
                     </div>
                     <div className="thr">
                         <div className="tr">
@@ -469,7 +491,7 @@ class BankDetailLongReading extends React.Component {
                                 查询
                             </Button>
                             <div className="gap-12">
-                                年份:
+                                {genuine ? '真题' : ''}年份:
                                 <Select
                                     defaultValue={selectYear}
                                     className="gap-12"
@@ -486,7 +508,7 @@ class BankDetailLongReading extends React.Component {
                                 </Select>
                             </div>
                             <div className="gap-12">
-                                类型:
+                                {genuine ? '真题' : ''}类型:
                                 <Select
                                     defaultValue={selectTp}
                                     className="gap-12"
@@ -504,7 +526,7 @@ class BankDetailLongReading extends React.Component {
                             </div>
                             <div className="gap-12">
                                 <Link
-                                    to={`/app/queBankCreate/bankDetailLongReading/questionAddLongReading?bankID=${bankID}&setType=${setType}`}
+                                    to={`/app/queBankCreate/bankDetailLongReading/questionAddLongReading?bankID=${bankID}&setType=${setType}&questionCount=${questionCount}&genuine=${+genuine}`}
                                 >
                                     <Button type="primary" icon={<PlusOutlined />}>
                                         新建
@@ -535,7 +557,7 @@ class BankDetailLongReading extends React.Component {
                 <Modal
                     title={moduleName}
                     visible={isVisible}
-                    width="800px"
+                    width="900px"
                     cancelText="取消"
                     okText="确定"
                     onOk={this.handleCreateOk.bind(this)}
@@ -581,6 +603,13 @@ class BankDetailLongReading extends React.Component {
                             </div>
                         </div>
                         <div className="right">
+                            <div className="mt-8">
+                                <span>是否为真题：{staticGenuine ? '是' : '否'}</span>
+                                <span style={{ marginLeft: '36px' }}>年份：{staticYear}</span>
+                                <span style={{ marginLeft: '36px' }}>
+                                    类型：{SELECT_TP[staticType]}
+                                </span>
+                            </div>
                             <div className="mt-8">题干:</div>
                             <div className="mt-8 option-area">
                                 {questions.map((val: any, index) => (
@@ -624,7 +653,7 @@ class BankDetailLongReading extends React.Component {
                 <Modal
                     title="预览"
                     visible={showPreview}
-                    width={600}
+                    width={900}
                     bodyStyle={{ height: '540px', overflow: 'auto' }}
                     onCancel={this.cancelPreviewModal.bind(this)}
                     footer={[
