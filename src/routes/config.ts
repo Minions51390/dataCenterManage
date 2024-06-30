@@ -26,16 +26,16 @@ const menus: {
         { key: '/app/ranks', title: '排行榜', icon: 'mobile', component: 'Ranks' },
         { key: '/app/dashboard', title: '数据中心', icon: 'mobile', component: 'Dashboard' },
         { key: '/app/errorBook', title: '错词本', icon: 'mobile', component: 'ErrorBook' },
-        { key: '/app/queBankCreate', title: '题库建设', icon: 'mobile', component: 'QueBankCreate' },
-        {
-            key: '/app/test',
-            title: '考试中心',
-            icon: 'mobile',
-            subs: [
-                { key: '/app/test/testPaper', title: '试卷管理', icon: 'mobile', component: 'TestPaper' },
-                { key: '/app/test/testRank', title: '已发布考试/考试成绩', icon: 'mobile', component: 'TestRank' },
-            ]
-        },
+        // { key: '/app/queBankCreate', title: '题库建设', icon: 'mobile', component: 'QueBankCreate' },
+        // {
+        //     key: '/app/test',
+        //     title: '考试中心',
+        //     icon: 'mobile',
+        //     subs: [
+        //         { key: '/app/test/testPaper', title: '试卷管理', icon: 'mobile', component: 'TestPaper' },
+        //         { key: '/app/test/testRank', title: '已发布考试/考试成绩', icon: 'mobile', component: 'TestRank' },
+        //     ]
+        // },
         {
             key: '/app/writing',
             title: '作文中心',
