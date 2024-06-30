@@ -31,7 +31,7 @@ class MainClass extends React.Component {
             },
             {
                 path: '/class',
-                breadcrumbName: `${sessionStorage.getItem('className') || '新建班级'}`,
+                breadcrumbName: `${sessionStorage.getItem('className') || '当前班级'}`,
             },
         ],
         classId: '',

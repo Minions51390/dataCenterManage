@@ -8,6 +8,10 @@ const { Option } = Select;
 const { RangePicker } = DatePicker;
 const dateFormat = 'YYYY-MM-DD HH:mm:ss';
 const dateFormat1 = 'YYYY-MM-DD';
+const disabledDate = (current:any) => {
+    // Can not select days before today
+    return current && current < moment().subtract(1, 'days');
+};
 const FunGetDateStr = (p_count: any, nowDate: any) => {
     let dd = nowDate;
     dd.setDate(dd.getDate() + p_count);//获取p_count天后的日期 
@@ -402,6 +406,7 @@ class writingExam extends React.Component {
                 modalClassList: [],
             })
             this.getExamList()
+            this.getModalClass()
         }else{
             message.error(`发布作文任务失败:${res.msg}`);
         }
@@ -427,15 +432,14 @@ class writingExam extends React.Component {
             createExamType: event.target.value
         })
     }
-    onCreateStartTimeChange(date: any, dateString: any) {
+    onCreateTimeChange(date: any, dateArr: any) {
         this.setState({
-            createStartTime: dateString,
+            createStartTime: dateArr[0],
+            createEndTime: dateArr[1]
         });
-    }
-    onCreateEndTimeChange(date: any, dateString: any){
-        this.setState({
-            createEndTime: dateString,
-        });
+        if(new Date(dateArr[1]) <= new Date()){
+            message.warn('截止时间已过期');
+        }
     }
     handleModalPiCiChange(val:any){
         this.setState({
@@ -732,22 +736,17 @@ class writingExam extends React.Component {
                     </div>
                     <div className="exam-module-area exam-module-area2">
                         <div className="left">
-                            <span className="span span2">开始时间:</span>
+                            <span className="span span2">时间:</span>
                             <Space direction="vertical" size={12}>
-                                <DatePicker
-                                    defaultValue={moment(createStartTime, dateFormat)}
+                                <RangePicker
+                                    defaultValue={[
+                                        moment(createStartTime, dateFormat),
+                                        moment(createEndTime, dateFormat),
+                                    ]}
+                                    disabledDate={disabledDate}
+                                    showTime
+                                    onChange={this.onCreateTimeChange.bind(this)}
                                     format={dateFormat}
-                                    onChange={this.onCreateStartTimeChange.bind(this)}
-                                />
-                            </Space>
-                        </div>
-                        <div className="right">
-                            <span className="span span2">截止时间:</span>
-                            <Space direction="vertical" size={12}>
-                                <DatePicker
-                                    defaultValue={moment(createEndTime, dateFormat)}
-                                    format={dateFormat}
-                                    onChange={this.onCreateEndTimeChange.bind(this)}
                                 />
                             </Space>
                         </div>

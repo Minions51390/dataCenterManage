@@ -143,7 +143,7 @@ class examDetail extends React.Component {
         editStatus: false,
         errorKey: 0,
         errorKeywords:['|'],
-        errorSuggestions: [],
+        errorSuggestions: [{key:0, showType: 0}],
     };
 
     componentWillMount() {
@@ -302,35 +302,35 @@ class examDetail extends React.Component {
                 return result.concat(splitByMultipleValues(part, separators.slice()));
             }, []);
         }
-            errorSuggestions.forEach((suggestion:any, index:any)=>{
-                suggestion.key = index;
-                const pos = suggestion.relStartPos + index;
-                contentStr = `${contentStr.slice(0, pos)}|${contentStr.slice(pos)}`;
+        errorSuggestions.forEach((suggestion:any, index:any)=>{
+            suggestion.key = index;
+            const pos = suggestion.relStartPos + index;
+            contentStr = `${contentStr.slice(0, pos)}|${contentStr.slice(pos)}`;
+        })
+        const contentSplits = splitByMultipleValues(contentStr, [...errorKeywords]);
+        return (
+            contentSplits.map((contentSplit:any, index:any)=>{
+                return (
+                    <span>
+                        <span>{contentSplit}</span>
+                        <span
+                            className={[
+                                'content-error-suggestions',
+                                errorSuggestions[index]?.showType === 2 ? 
+                                    errorKey === errorSuggestions[index]?.key ? 
+                                        'content-suggestion-mouseover' : 'content-suggestion'
+                                : errorKey === errorSuggestions[index]?.key ? 
+                                        'content-error-mouseover' : 'content-error'
+                            ].join(' ')}
+                            onClick={this.handleWritingErrorClick.bind(this, errorSuggestions[index])}
+                        >{errorKeywords[index] && errorKeywords[index].replace('|', '')}</span>
+                        {
+                            index === errorSuggestions.length - 1 ? <span>{contentSplits[contentSplits.length - 1]}</span> :''
+                        }
+                    </span>
+                )
             })
-            const contentSplits = splitByMultipleValues(contentStr, [...errorKeywords]);
-            return (
-                errorSuggestions.map((suggestion:any, index:any)=>{
-                    return (
-                        <span>
-                            <span>{contentSplits[index]}</span>
-                            <span
-                                className={[
-                                    'content-error-suggestions',
-                                    suggestion.showType === 2 ? 
-                                        errorKey === suggestion.key ? 
-                                            'content-suggestion-mouseover' : 'content-suggestion'
-                                    : errorKey === suggestion.key ? 
-                                            'content-error-mouseover' : 'content-error'
-                                ].join(' ')}
-                                onClick={this.handleWritingErrorClick.bind(this, suggestion)}
-                            >{errorKeywords[index].replace('|', '')}</span>
-                            {
-                                index === errorSuggestions.length - 1 ? <span>{contentSplits[contentSplits.length - 1]}</span> :''
-                            }
-                        </span>
-                    )
-                })
-            )
+        )
     }
     
     errorItem() {
