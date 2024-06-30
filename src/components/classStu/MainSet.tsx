@@ -108,7 +108,7 @@ class MainSet extends React.Component {
         reciteSetting: false,
         paperId: '',
         paperName: '',
-        diyTime: [moment(), moment()],
+        diyTime: [moment(), moment().endOf('day')],
         jieduan: [],
         selJieduan: '',
         curJieduan: '',
@@ -487,8 +487,8 @@ class MainSet extends React.Component {
             data: {
                 classId: +classId,
                 questionPaperId: paperId.trim() || '',
-                examStartTime: `${moment(diyTime[0]).add(1, 'minutes').format(dateFormat1)}`,
-                examEndTime: `${moment(diyTime[1]).add(2, 'minutes').format(dateFormat1)}`,
+                examStartTime: `${moment(diyTime[0]).add(1, 'seconds').format(dateFormat1)}`,
+                examEndTime: `${moment(diyTime[1]).format(dateFormat1)}`,
                 examName: paperName,
             },
         });
