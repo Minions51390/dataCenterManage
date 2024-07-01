@@ -105,8 +105,8 @@
         "xlsx": "^0.18.5"
     },
     "scripts": {
-        "start": "node scripts/start.js dev",
-        "build": "node scripts/build.js production",
+        "start": "NODE_OPTIONS=--openssl-legacy-provider node scripts/start.js dev",
+        "build": "NODE_OPTIONS=--openssl-legacy-provider node scripts/build.js production",
         "starandsea": "node scripts/build.js starandsea",
         "test": "node scripts/test.js",
         "release": "standard-version"
