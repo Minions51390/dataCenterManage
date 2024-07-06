@@ -26,16 +26,16 @@ const menus: {
         { key: '/app/ranks', title: '排行榜', icon: 'mobile', component: 'Ranks' },
         { key: '/app/dashboard', title: '数据中心', icon: 'mobile', component: 'Dashboard' },
         { key: '/app/errorBook', title: '错词本', icon: 'mobile', component: 'ErrorBook' },
-        // { key: '/app/queBankCreate', title: '题库建设', icon: 'mobile', component: 'QueBankCreate' },
-        // {
-        //     key: '/app/test',
-        //     title: '考试中心',
-        //     icon: 'mobile',
-        //     subs: [
-        //         { key: '/app/test/testPaper', title: '试卷管理', icon: 'mobile', component: 'TestPaper' },
-        //         { key: '/app/test/testRank', title: '已发布考试/考试成绩', icon: 'mobile', component: 'TestRank' },
-        //     ]
-        // },
+        { key: '/app/queBankCreate', title: '题库建设', icon: 'mobile', component: 'QueBankCreate' },
+        {
+            key: '/app/test',
+            title: '考试中心',
+            icon: 'mobile',
+            subs: [
+                { key: '/app/test/testPaper', title: '试卷管理', icon: 'mobile', component: 'TestPaper' },
+                { key: '/app/test/testRank', title: '已发布考试/考试成绩', icon: 'mobile', component: 'TestRank' },
+            ]
+        },
         {
             key: '/app/writing',
             title: '作文中心',
@@ -51,12 +51,6 @@ const menus: {
         { key: '/app/class/main/class/set', title: '', icon: 'mobile', component: 'MainSet' },
         { key: '/app/queBankCreate/bankDetail', title: '', icon: 'mobile', component: 'BankDetail' },
         { key: '/app/queBankCreate/bankDetail/questionAdd', title: '', icon: 'mobile', component: 'QuestionAdd' },
-		{ key: '/app/queBankCreate/bankDetailPack', title: '', icon: 'mobile', component: 'BankDetailPack' },
-		{ key: '/app/queBankCreate/bankDetailPack/questionAddPack', title: '', icon: 'mobile', component: 'QuestionAddPack' },
-		{ key: '/app/queBankCreate/bankDetailLongReading', title: '', icon: 'mobile', component: 'BankDetailLongReading' },
-		{ key: '/app/queBankCreate/bankDetailLongReading/questionAddLongReading', title: '', icon: 'mobile', component: 'QuestionAddLongReading' },
-		{ key: '/app/queBankCreate/bankDetailCfReading', title: '', icon: 'mobile', component: 'BankDetailCfReading' },
-		{ key: '/app/queBankCreate/bankDetailCfReading/questionAddCfReading', title: '', icon: 'mobile', component: 'QuestionAddCfReading' },
         { key: '/app/test/testPaper/testDetail', title: '', icon: 'mobile', component: 'TestDetail' },
         { key: '/app/test/testPaper/stuDetail', title: '', icon: 'mobile', component: 'StuPaperDetail' },
         { key: '/app/test/testRank/stuRank', title: '', icon: 'mobile', component: 'StuRank' },
