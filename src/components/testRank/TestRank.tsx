@@ -1,14 +1,15 @@
 import React from 'react';
-import { Table, Pagination, Input, Button, message, Select, Popconfirm, DatePicker } from 'antd';
+import { Table, Pagination, Input, Button, message, Popconfirm, Alert, Modal, Select, Space, DatePicker } from 'antd';
 import '../../style/pageStyle/TestRank.less';
 import copy from 'clipboard-copy';
 import { get, post, baseUrl } from '../../service/tools';
 import { getQueryString } from '../../utils';
+import { PlusOutlined } from '@ant-design/icons';
 import moment from 'moment';
-
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const dateFormat = 'YYYY-MM-DD';
+const modalDataFormat = 'YYYY-MM-DD HH:mm';
 
 const FunGetDateStr = (p_count: any, nowDate: any) => {
     let dd = nowDate;
@@ -53,7 +54,33 @@ const statusTextList = ['全部', '待考试', '已考'];
 
 class TestRank extends React.Component {
     state = {
+        isVisible: false,
+        createExamName: '',
+        createExamId: '',
+        createStartTime: moment().format(modalDataFormat),
+        createEndTime: moment((new Date(FunGetDateStr(7, new Date()) + " 00:00:00") as any)).format(modalDataFormat),
+        modalSelPici: 0,
+        modalSelClass: [],
+        modalClassList: [],
+        examType: 'all',
         pageNo: 1,
+        pageSize: 20,
+        modalPageNo: 1,
+        modalPageSize: 5,
+        modalColumns: [{
+            title: '序号',
+            dataIndex: 'key',
+            render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.modalPageNo - 1) * this.state.modalPageSize}</div>,
+        },{
+            title: '班级名称',
+            key: 'describe',
+            dataIndex: 'describe',
+        },{
+            title: '批次',
+            key: 'batchName',
+            dataIndex: 'batchName',
+        }],
+        modalAllCount: 0,
         totalCount: 1,
         teacher: [],
         selTeacher: {
@@ -138,10 +165,16 @@ class TestRank extends React.Component {
                 ),
             },
             {
-                title: '考试时间',
-                dataIndex: 'examTime',
-                key: 'examTime',
+                title: '考试起止时间',
+                key: 'examStartTime',
                 sorter: true,
+                render: (text: any) => (
+                    <div>
+                        <div>{text.examStartTime}</div>
+                        <div>-</div>
+                        <div>{text.examEndTime}</div>
+                    </div>
+                ),
             },
             {
                 title: '试卷状态',
@@ -198,6 +231,7 @@ class TestRank extends React.Component {
         }, async () => {
             const pici = await this.getPici(selTeacher.teacherId);
             const banji = await this.getClass(pici[0].batchId);
+            this.getModalClass();
             this.setState({
                 pici,
                 banji,
@@ -453,6 +487,119 @@ class TestRank extends React.Component {
         this.getTest();
     }
 
+    // 新建弹窗点击
+    showCreateModal(val:any){
+        this.setState({
+            isVisible: true
+        })
+    }
+
+    async handleCreateOk(val:any){
+        const {
+            createExamName,
+            createExamId,
+            createStartTime,
+            createEndTime,
+            modalSelClass,
+        } = this.state;
+        if(!createExamName || !createExamId || !createStartTime || !createEndTime || modalSelClass.length === 0){
+            message.error('请填写新建考试的必要信息');
+            return
+        }
+        let res = await post({
+            url: `${baseUrl}/api/v1/exam/bulk`,
+            data: {
+                examName: createExamName,
+                questionPaperId: createExamId,
+                examStartTime: createStartTime,
+                examEndTime: createEndTime,
+                classList: modalSelClass,
+            },
+        });
+        if(res.state === 0){
+            message.success('发布考试任务成功');
+            this.setState({
+                isVisible: false,
+                createExamName: '',
+                createExamId: '',
+                createStartTime: moment().format(modalDataFormat),
+                createEndTime: moment((new Date(FunGetDateStr(7, new Date()) + " 00:00:00") as any)).format(modalDataFormat),
+                modalSelPici: 0,
+                modalSelClass: [],
+                modalClassList: [],
+            })
+            this.getTest()
+        }else{
+            message.error(`发布考试任务失败:${res.msg}`);
+        }
+    }
+    handleCreateCancel(val:any){
+        this.setState({
+            isVisible: false
+        })
+    }
+
+    onCreateExamNameChange(event:any){
+        this.setState({
+            createExamName: event.target.value
+        })
+    }
+
+    oncreateExamIdChange(event:any){
+        this.setState({
+            createExamId: event.target.value
+        })
+    }
+
+    handleModalPiCiChange(val:any){
+        this.setState({
+            modalSelPici: val,
+        }, ()=>{
+            this.getModalClass();
+        });
+    }
+
+    async getModalClass() {
+        const { selTeacher, modalPageNo, modalPageSize, modalSelPici } = this.state;
+        let res = await get({ url: baseUrl + `/api/v1/structure/class/list?teacherId=${selTeacher.teacherId}&batchId=${modalSelPici}&category=sc&pageNo=${modalPageNo}&pageSize=${modalPageSize}` });
+        const list = res?.data?.classList ?? [];
+        list.map((item:any) => item.key = item.classId)
+        console.log('list', list)
+        this.setState({
+            modalClassList: res?.data?.classList ?? [],
+            modalAllCount: res?.data?.totalCount
+        })
+    }
+
+    onCreateStartTimeChange(date: any, dateString: any) {
+        this.setState({
+            createStartTime: dateString,
+        });
+    }
+    onCreateEndTimeChange(date: any, dateString: any){
+        this.setState({
+            createEndTime: dateString,
+        });
+    }
+
+    handleModalSelClassChange(selectedRowKeys:any, selectedRows:any){
+        console.log('handleModalSelClassChange', selectedRowKeys, selectedRows)
+        this.setState({
+            modalSelClass: selectedRowKeys
+        })
+    }
+
+    modalNowPagChange(val: any) {
+        this.setState(
+            {
+                modalPageNo: val,
+            },
+            () => {
+                this.getModalClass()
+            }
+        );
+    }
+
     render() {
         const {
             columns1,
@@ -470,12 +617,31 @@ class TestRank extends React.Component {
             queryTypeList,
             statusList,
             status,
+            isVisible,
+            createExamName,
+            createExamId,
+            createStartTime,
+            createEndTime,
+            modalSelPici,
+            modalSelClass,
+            modalPageNo,
+            modalPageSize,
+            modalColumns,
+            modalClassList,
+            modalAllCount,
         } = this.state;
         return (
             <div className="paper-rank">
                 <div className="header">
                     <div className="fir">已发布考试/考试成绩</div>
-                    <div className="sec">已发布考试/考试成绩</div>
+                    <div className="sec">
+                        已发布考试/考试成绩
+                        <div onClick={this.showCreateModal.bind(this)}>
+                            <Button className="gap-30" type="primary" icon={<PlusOutlined />}>
+                                发布考试
+                            </Button>  
+                        </div>
+                    </div>
                 </div>
                 <div className="body">
                     <div className="zero">
@@ -609,6 +775,118 @@ class TestRank extends React.Component {
                         />
                     </div>
                 </div>
+                <Modal
+                    width={'680px'}
+                    title="发布考试"
+                    visible={isVisible}
+                    cancelText="取消"
+                    okText="确定"
+                    onOk={this.handleCreateOk.bind(this)}
+                    onCancel={this.handleCreateCancel.bind(this)}
+                >
+                    <div className="exam-module-area">
+                        <span className="span">考试名称:</span>
+                        <Input
+                            className="gap-8"
+                            placeholder="请输入考试名称"
+                            value={createExamName}
+                            onChange={this.onCreateExamNameChange.bind(this)}
+                            maxLength={200}
+                        />
+                    </div>
+                    <div className="exam-module-area exam-module-area2">
+                        <div className="left">
+                            <span className="span span1">考试ID:</span>
+                            <Input
+                                className="gap-8"
+                                style={{ width: 150 }}
+                                placeholder="请输入考试ID"
+                                value={createExamId}
+                                onChange={this.oncreateExamIdChange.bind(this)}
+                                maxLength={200}
+                            />
+                        </div>
+                    </div>
+                    <div className="exam-module-area exam-module-area2">
+                        <div className="left">
+                            <span className="span span2">开始时间:</span>
+                            <Space direction="vertical" size={12}>
+                                <DatePicker
+                                    showTime
+                                    defaultValue={moment(createStartTime, modalDataFormat)}
+                                    format={modalDataFormat}
+                                    onChange={this.onCreateStartTimeChange.bind(this)}
+                                />
+                            </Space>
+                        </div>
+                        <div className="right">
+                            <span className="span span2">截止时间:</span>
+                            <Space direction="vertical" size={12}>
+                                <DatePicker
+                                    showTime
+                                    defaultValue={moment(createEndTime, modalDataFormat)}
+                                    format={modalDataFormat}
+                                    onChange={this.onCreateEndTimeChange.bind(this)}
+                                />
+                            </Space>
+                        </div>
+                    </div>
+                    <div className="exam-divider" />
+                    <div className="exam-module-area">
+                        <span className="span">学员批次:</span>
+                        <Select
+                            defaultValue="请选择"
+                            style={{ width: 180 }}
+                            value={modalSelPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
+                            onChange={this.handleModalPiCiChange.bind(this)}
+                        >
+                            {pici.map((item: any) => (
+                                <Option key={item.batchId} value={item.batchId}>
+                                    {item.describe}
+                                </Option>
+                            ))}
+                        </Select>
+                    </div>
+                    <Alert
+                        message={`已选择${modalSelClass.length}项`}
+                        type="info"
+                        showIcon
+                        action={
+                            <Button
+                                type="link"
+                                onClick={() => this.setState({
+                                    modalSelClass: [],
+                                })}
+                            >
+                                清空
+                            </Button>
+                        }
+                    />
+                    <div className="exam-module-table">
+                        <Table
+                            columns={modalColumns}
+                            dataSource={modalClassList}
+                            pagination={false}
+                            size={'middle'}
+                            bordered={false}
+                            rowSelection={{
+                                type: 'checkbox',
+                                selectedRowKeys: modalSelClass,
+                                preserveSelectedRowKeys: true,
+                                onChange: this.handleModalSelClassChange.bind(this),
+                            }}
+                        />
+                    </div>
+                    <div className="exam-module-pag">
+                        <Pagination
+                            defaultCurrent={1}
+                            pageSize={modalPageSize}
+                            current={modalPageNo}
+                            total={modalAllCount}
+                            onChange={this.modalNowPagChange.bind(this)}
+                        />
+                    </div>
+                </Modal>
             </div>
         );
     }

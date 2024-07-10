@@ -21,6 +21,10 @@ const StuPaperDetail = ({ query }: Props) => {
     const [total, setTotal] = useState(0);
     const [pageSize, setPageSize] = useState(20);
 
+    const showDetail = (record: any) => {
+        console.log(record);
+    };
+
     const routes = [
         {
             path: '/app/test/testRank',
@@ -71,6 +75,12 @@ const StuPaperDetail = ({ query }: Props) => {
             title: '判定',
             render: (text: string, record: any) => record.rightKey === record.choiceKey ? '正确' : '错误'
         },
+        {
+            key: 'operation',
+            dataIndex: 'operation',
+            title: '操作',
+            render: (text: string, record: any) => <div onClick={(record) => showDetail(record)}>详情</div>
+        },
     ];
 
     const getData = async () => {
@@ -115,13 +125,26 @@ const StuPaperDetail = ({ query }: Props) => {
             </div>
             <div className="body">
                 <div className="top">
-                    <span className="span">{bici}/{banji}/{query.name}</span>
-                    <div className="select">
-                        <div>筛选：</div>
-                        <Select style={{ width: 270 }} value={queryType} onChange={handleSelectChange}>
-                            <Option value="all">全部</Option>
-                            <Option value="error">只看错题</Option>
-                        </Select>
+                    {/* <span className="span">{bici}/{banji}/{query.name}</span> */}
+                    <div className="filter">
+                        <div>
+                            <span>当前学生:</span>
+                            <Select style={{ width: 270 }}></Select>
+                        </div>
+                        <Button>上一位</Button>
+                        <Button>下一位</Button>
+                        <div className="select">
+                            <div>筛选：</div>
+                            <Select style={{ width: 270 }} value={queryType} onChange={handleSelectChange}>
+                                <Option value="all">全部</Option>
+                                <Option value="error">只看错题</Option>
+                            </Select>
+                        </div>
+                    </div>
+                    
+                    <div className="score">
+                        <span>考试成绩:</span>
+                        <span>90</span>
                     </div>
                 </div>
                 <div className="table">

@@ -185,6 +185,15 @@ class StuRank extends React.Component {
             });
     }
 
+    jumpMistakeRank = () => {
+        const { examId, testPaperName, pici, banji } = this.state;
+        sessionStorage.setItem('examId', examId || '');
+        sessionStorage.setItem('questionPaperName', testPaperName || '');
+        sessionStorage.setItem('pici', pici || '');
+        sessionStorage.setItem('banji', banji || '');
+        window.location.href = `${window.location.pathname}#/app/test/testRank/mistakeRank`;
+    }
+
     render() {
         const { columns1, data1, pageNo, routes, totalCount, query, pici, banji } = this.state;
         return (
@@ -195,23 +204,26 @@ class StuRank extends React.Component {
                 </div>
                 <div className="body">
                     <div className="fir">
-                        <span className="span">学员批次:</span>
-                        <span>{pici}</span>
-                        <span className="span2">班级:</span>
-                        <span>{banji}</span>
-                        <Input
-                            style={{ width: '240px', marginLeft: '30px' }}
-                            placeholder="请输入学生姓名"
-                            value={query}
-                            onChange={this.onTestQueryChange.bind(this)}
-                        />
-                        <Button
-                            className="gap-30"
-                            type="primary"
-                            onClick={this.clickSearch.bind(this)}
-                        >
-                            搜索
-                        </Button>
+                        <div>
+                            <span className="span">学员批次:</span>
+                            <span>{pici}</span>
+                            <span className="span2">班级:</span>
+                            <span>{banji}</span>
+                            <Input
+                                style={{ width: '240px', marginLeft: '30px' }}
+                                placeholder="请输入学生姓名"
+                                value={query}
+                                onChange={this.onTestQueryChange.bind(this)}
+                            />
+                            <Button
+                                className="gap-30"
+                                type="primary"
+                                onClick={this.clickSearch.bind(this)}
+                            >
+                                搜索
+                            </Button>
+                        </div>
+                        <div className="mistakeRank" onClick={this.jumpMistakeRank}>查看错题排行</div>
                     </div>
                     <div className="thr">
                         <Table
