@@ -23,6 +23,7 @@ import img from '../../style/imgs/qiyewechat.png';
 const { Option } = Select;
 const dateFormat = 'YYYY-MM-DD';
 const dateFormat1 = 'YYYY-MM-DD HH:mm:ss';
+const dataFormat2 = 'YYYY-MM-DD HH:mm';
 const { RangePicker } = DatePicker;
 const disabledDate = (current:any) => {
     // Can not select days before today
@@ -490,8 +491,8 @@ class MainSet extends React.Component {
             data: {
                 classId: +classId,
                 questionPaperId: paperId.trim() || '',
-                examStartTime: `${moment(diyTime[0]).add(1, 'seconds').format(dateFormat1)}`,
-                examEndTime: `${moment(diyTime[1]).format(dateFormat1)}`,
+                examStartTime: `${moment(diyTime[0]).format(dataFormat2)}`,
+                examEndTime: `${moment(diyTime[1]).format(dataFormat2)}`,
                 examName: paperName,
             },
         });
