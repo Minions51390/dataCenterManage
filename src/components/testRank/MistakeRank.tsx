@@ -7,6 +7,7 @@ import '../../style/pageStyle/MistakeRank.less';
 import cn from 'classnames';
 import { Choice, Pack, LongReading, CfReading } from '../questionTableCell';
 import { useLocation } from 'react-router-dom';
+import { ReactComponent as GenuineSvg } from '../../assets/svg/genuine.svg';
 import qs from 'qs';
 const { Option } = Select;
 
@@ -50,6 +51,22 @@ const getQuestionContent = (setType: QuestionType, data: any) => {
     }
 };
 
+const getTextForFilter = (data: any) => {
+    let stemForFilter = data.stem;
+    let optionsForFilter = '';
+    if (data.setType === QuestionType.LongReading) {
+        stemForFilter = data.questions.map((item: any) => item.qStem).join('');
+    }
+
+    if (data.setType === QuestionType.Choice) {
+        optionsForFilter = data.options.map((item: any) => item.value).join('');
+    }
+    return {
+        stem: stemForFilter.replace(/\\([A-Z]*\\)/g, ' '),
+        choice: optionsForFilter,
+    };
+};
+
 
 const QUESTION_LIST = [
     {
@@ -83,9 +100,10 @@ const MistakeRank = () => {
     const [pageSize, setPageSize] = useState(20);
     const [selectedBatch, setSelectedBatch] = useState<number>();
     const [selectedClass, setSelectedClass] = useState<number>();
-    const [selectedQuestionType, setSelectedQuestionType] = useState('all');
+    const [selectedQuestionType, setSelectedQuestionType] = useState(QuestionType.All);
     const [batchList, setBatchList] = useState<any[]>([]);
     const [examName, setExamName] = useState('');
+    const [filteredList, setFilteredList] = useState<any[]>([]);
 
     const location = useLocation();
     const examId = qs.parse(location.search.slice(1)).examId;
@@ -127,6 +145,7 @@ const MistakeRank = () => {
         {
             type: 'choice',
             name: '选项',
+            disabled: selectedQuestionType !== QuestionType.Choice
         },
     ];
 
@@ -147,6 +166,17 @@ const MistakeRank = () => {
             dataIndex: 'key',
             title: '序号',
             align: 'center',
+            render: (index: any, record: any) => {
+                if (record.genuine) {
+                    return (
+                        <div style={{ display: 'flex' }}>
+                            <GenuineSvg />
+                            {index}
+                        </div>
+                    );
+                }
+                return index;
+            },
         },
         {
             key: 'questionType',
@@ -198,10 +228,15 @@ const MistakeRank = () => {
         });
         const result = res?.data?.map((item: any, index: number) => ({
             ...item,
-            key: index + 1
+            key: index + 1,
+            textForFilter: getTextForFilter(item),
         }));
+        console.log('result', result);
         setList(result);
+        setFilteredList(result);
         setTotal(res?.data?.length);
+        setQueryType('stem');
+        setQuery('');
     }, [selectedClass, examId]);
 
     useEffect(() => {
@@ -219,12 +254,29 @@ const MistakeRank = () => {
     }
 
     const handleSearch = () => {
-        getData();
+        if (queryType === 'stem') {
+            const filterRes = list.filter((item: any) => {
+                return item.textForFilter.stem.includes(query);
+            });
+            setFilteredList(filterRes);
+        } else {
+            const filterRes = list.filter((item: any) => {
+                return item.textForFilter.choice.includes(query);
+            });
+            setFilteredList(filterRes);
+        }
     }
 
     const handlePaginationChange = (page: number, pageSize: number = 20) => {
         setPageNum(page);
         setPageSize(pageSize);
+    }
+
+    const handleQuestionTypeChange = (type: QuestionType) => {
+        setSelectedQuestionType(type);
+        if (type !== QuestionType.Choice) {
+            setQueryType('stem');
+        }
     }
 
 
@@ -269,7 +321,7 @@ const MistakeRank = () => {
                         <Select
                             style={{ width: 120 }}
                             value={selectedQuestionType}
-                            onChange={v => setSelectedQuestionType(v)}
+                            onChange={handleQuestionTypeChange}
                         >
                             {
                                 QUESTION_LIST.map(item => (
@@ -291,7 +343,7 @@ const MistakeRank = () => {
                             >
                                 {
                                     queryTypeList.map((item: any) => (
-                                        <Option value={item.type} key={item.type}>{ item.name }</Option>
+                                        <Option disabled={item.disabled} value={item.type} key={item.type}>{ item.name }</Option>
                                     ))
                                 }
                             </Select>
@@ -315,13 +367,13 @@ const MistakeRank = () => {
                 <div className="table">
                     <Table
                         columns={columns}
-                        dataSource={list}
+                        dataSource={filteredList}
                         size={'middle'}
                         bordered={false}
                         pagination={false}
                     />
                 </div>
-                <div className={list?.length ? 'pag' : 'display-none'}>
+                <div className={filteredList?.length ? 'pag' : 'display-none'}>
                     <Pagination
                         defaultCurrent={1}
                         pageSize={pageSize}
