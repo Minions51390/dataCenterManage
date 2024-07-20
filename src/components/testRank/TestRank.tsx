@@ -359,8 +359,28 @@ class TestRank extends React.Component {
     }
 
     jumpMistake = (text: any) => {
-        const { examId } = text;
-        window.location.href = `${window.location.pathname}#/app/test/testRank/mistakeRank?examId=${examId}`;
+        console.log(text);
+        const { examId, questionPaperName } = text;
+        const { selPici, selBanji, pici, banji } = this.state;
+        let piciName = '';
+        let banjiName = '';
+        pici.map((item: any) => {
+            if (item.batchId === selPici) {
+                piciName = item.describe;
+            }
+            return item;
+        });
+        banji.map((item: any) => {
+            if (item.classId === selBanji) {
+                banjiName = item.describe;
+            }
+            return item;
+        });
+        sessionStorage.setItem('examId', examId);
+        sessionStorage.setItem('questionPaperName', questionPaperName);
+        sessionStorage.setItem('pici', piciName);
+        sessionStorage.setItem('banji', banjiName);
+        window.location.href = `${window.location.pathname}#/app/test/testRank/mistakeRank`;
     };
 
     /** 获取教师列表 */
@@ -490,7 +510,7 @@ class TestRank extends React.Component {
             url: `${baseUrl}/api/v1/exam/bulk`,
             data: {
                 examName: createExamName,
-                questionPaperId: createExamId,
+                questionPaperId: Number(createExamId),
                 examStartTime: createStartTime,
                 examEndTime: createEndTime,
                 classList: modalSelClass,
@@ -633,7 +653,7 @@ class TestRank extends React.Component {
                                     onChange={this.handleQueryType.bind(this)}
                                 >
                                     {queryTypeList.map((item: any) => (
-                                        <Option value={item.type} key={item.type}>
+                                        <Option value={item.type} key={item.classId}>
                                             {item.name}
                                         </Option>
                                     ))}
@@ -743,7 +763,6 @@ class TestRank extends React.Component {
                             size={'middle'}
                             bordered={false}
                             onChange={this.tableChange.bind(this)}
-                            rowKey={record => record.examId}
                         />
                     </div>
                     <div className={ totalCount > 20 ? 'pag' : 'display-none'}>
@@ -777,11 +796,11 @@ class TestRank extends React.Component {
                     </div>
                     <div className="exam-module-area exam-module-area2">
                         <div className="left">
-                            <span className="span span1">试卷ID:</span>
+                            <span className="span span1">考试ID:</span>
                             <Input
                                 className="gap-8"
                                 style={{ width: 150 }}
-                                placeholder="请输入试卷ID"
+                                placeholder="请输入考试ID"
                                 value={createExamId}
                                 onChange={this.oncreateExamIdChange.bind(this)}
                                 maxLength={200}

@@ -1,9 +1,10 @@
 import React from 'react';
-import { Table, Pagination, Input, Button, message, PageHeader } from 'antd';
+import { Table, Pagination, Input, Button, message, PageHeader, Select } from 'antd';
 import '../../style/pageStyle/StuRank.less';
 import copy from 'clipboard-copy';
 import { get, baseUrl } from '../../service/tools';
 
+const { Option } = Select;
 const mockRollList = [
     {
         examPaperId: "xxxxx",
@@ -40,7 +41,7 @@ class StuRank extends React.Component {
             },
             {
                 path: '/stuRank',
-                breadcrumbName: `${sessionStorage.getItem('banji')}`,
+                breadcrumbName: '成绩排行',
             },
         ],
         pageNo: 1,
@@ -50,8 +51,14 @@ class StuRank extends React.Component {
         sort: 'desc',
         examId: sessionStorage.getItem('examId'),
         testPaperName: sessionStorage.getItem('testPaperName'),
-        pici: sessionStorage.getItem('pici'),
-        banji: sessionStorage.getItem('banji'),
+        pici: [],
+        selPici: '',
+        banji: [],
+        selBanji: '',
+        selTeacher: {
+            teacherId: '',
+            realName: '',
+        },
         columns1: [
             {
                 title: '序号',
@@ -108,7 +115,91 @@ class StuRank extends React.Component {
     }
 
     async inited() {
-        this.getTest();
+        const teacher = await this.getTeacher();
+        const selTeacher = teacher.find((item: any) => {
+            return item.teacherId === Number(localStorage.getItem('classTeacherId'));
+        });
+        this.setState({
+            teacher,
+            selTeacher,
+        }, async () => {
+            const pici = await this.getPici(selTeacher.teacherId);
+            const banji = await this.getClass(pici[0].batchId);
+            this.setState({
+                pici,
+                banji,
+                selPici: pici[0].batchId,
+                selBanji: banji[0].classId,
+            }, async () => {
+                this.getTest();
+            })
+        })
+    }
+
+    /** 获取教师列表 */
+    async getTeacher() {
+        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list` });
+        const teacher = res?.data || [];
+        teacher.unshift({
+            realName: '全部',
+            teacherId: 0,
+        });
+        return teacher;
+    }
+
+    /** 获取批次列表 */
+    async getPici(teacherId: any) {
+        let res = await get({
+            url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}`,
+        });
+        const pici = res.data || [];
+        pici.unshift({
+            describe: '全部',
+            batchId: 0,
+        });
+        return pici;
+    }
+
+    /** 获取班级列表 */
+    async getClass(pici: any) {
+        const { selTeacher } = this.state;
+        let res = await get({
+            url: baseUrl + `/api/v1/structure/class/list?teacherId=${selTeacher.teacherId}&batchId=${pici}&pageNo=1&pageSize=99999`,
+        });
+        const banji = res?.data?.classList ?? [];
+        banji.unshift({
+            classCode: '',
+            classId: 0,
+            createDate: '',
+            describe: '全部',
+            studentCount: 0,
+        });
+        return banji;
+    }
+
+    /** 更换批次列表 */
+    async handlePiCi(val: any) {
+        let res = await this.getClass(val);
+        let selBanji = res[1] ? res[1].classId : 0;
+        if(!val){
+            selBanji = 0
+        }
+        this.setState({
+            selPici: val,
+            banji: res,
+            selBanji,
+        }, async () => {
+            this.handleBanji(selBanji);
+        });
+    }
+
+    /** 更换班级列表 */
+    async handleBanji(val: any) {
+        this.setState({
+            selBanji: val,
+        }, async () => {
+            this.getTest();
+        });
     }
 
     /** 搜索 */
@@ -137,9 +228,9 @@ class StuRank extends React.Component {
 
     /** 获取成绩列表 */
     async getTest() {
-        const { pageNo, query, sortKey, sort, examId } = this.state;
+        const { pageNo, query, sortKey, sort, examId, selPici, selBanji } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/exam/paper/list?pageSize=20&pageNo=${pageNo}&examId=${examId}&query=${query}&sortKey=${sortKey}&sort=${sort}`,
+            url: `${baseUrl}/api/v1/exam/paper/list?pageSize=20&pageNo=${pageNo}&examId=${examId}&batchId=${selPici}&classId=${selBanji}&query=${query}&sortKey=${sortKey}&sort=${sort}`,
         });
         console.log('------------->', res);
         const rollList = res?.data?.examPaperList || mockRollList;
@@ -186,29 +277,51 @@ class StuRank extends React.Component {
     }
 
     jumpMistakeRank = () => {
-        const { examId, testPaperName, pici, banji } = this.state;
+        const { examId, testPaperName, selPici, selBanji } = this.state;
         sessionStorage.setItem('examId', examId || '');
         sessionStorage.setItem('questionPaperName', testPaperName || '');
-        sessionStorage.setItem('pici', pici || '');
-        sessionStorage.setItem('banji', banji || '');
+        sessionStorage.setItem('pici', selPici || '');
+        sessionStorage.setItem('banji', selBanji || '');
         window.location.href = `${window.location.pathname}#/app/test/testRank/mistakeRank`;
     }
 
     render() {
-        const { columns1, data1, pageNo, routes, totalCount, query, pici, banji } = this.state;
+        const { columns1, data1, pageNo, routes, totalCount, query, pici, selPici, banji, selBanji } = this.state;
         return (
             <div className="stu-rank">
                 <div className="header">
                     <PageHeader title="" breadcrumb={{ routes }} />
-                    <div className="sec">{banji}</div>
+                    <div className="sec">成绩排行</div>
                 </div>
                 <div className="body">
                     <div className="fir">
                         <div>
                             <span className="span">学员批次:</span>
-                            <span>{pici}</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
+                                onChange={this.handlePiCi.bind(this)}
+                            >
+                                {pici.map((item: any) => (
+                                    <Option key={item.batchId} value={item.batchId}>
+                                        {item.describe}
+                                    </Option>
+                                ))}
+                            </Select>
                             <span className="span2">班级:</span>
-                            <span>{banji}</span>
+                            <Select
+                                defaultValue="请选择"
+                                style={{ width: 180 }}
+                                value={selBanji || (banji[0] && (banji[0] as any).describe) || '请选择'}
+                                onChange={this.handleBanji.bind(this)}
+                            >
+                                {banji.map((item: any) => (
+                                    <Option key={item.classId} value={item.classId}>
+                                        {item.describe}
+                                    </Option>
+                                ))}
+                            </Select>
                             <Input
                                 style={{ width: '240px', marginLeft: '30px' }}
                                 placeholder="请输入学生姓名"
