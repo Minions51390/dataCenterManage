@@ -465,7 +465,7 @@ class QueBank extends React.Component {
                     <div className="module-area">
                         真题题库:
                         <div style={{ width: '294px', marginLeft: '12px' }}>
-                            <Radio.Group onChange={this.onGenuineChange.bind(this)} value={genuine}>
+                            <Radio.Group onChange={this.onGenuineChange.bind(this)} value={genuine} disabled={setType === 'choice' ? true : false}>
                                 <Radio value={true}>是</Radio>
                                 <Radio value={false}>否</Radio>
                             </Radio.Group>
