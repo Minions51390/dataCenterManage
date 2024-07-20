@@ -377,6 +377,7 @@ class TestRank extends React.Component {
             return item;
         });
         sessionStorage.setItem('examId', examId);
+        sessionStorage.setItem('classList', JSON.stringify(text.className));
         sessionStorage.setItem('questionPaperName', questionPaperName);
         sessionStorage.setItem('pici', piciName);
         sessionStorage.setItem('banji', banjiName);
@@ -653,7 +654,7 @@ class TestRank extends React.Component {
                                     onChange={this.handleQueryType.bind(this)}
                                 >
                                     {queryTypeList.map((item: any) => (
-                                        <Option value={item.type} key={item.classId}>
+                                        <Option value={item.type} key={item.type}>
                                             {item.name}
                                         </Option>
                                     ))}
@@ -763,6 +764,7 @@ class TestRank extends React.Component {
                             size={'middle'}
                             bordered={false}
                             onChange={this.tableChange.bind(this)}
+                            rowKey={record => record.examId}
                         />
                     </div>
                     <div className={ totalCount > 20 ? 'pag' : 'display-none'}>
@@ -796,11 +798,11 @@ class TestRank extends React.Component {
                     </div>
                     <div className="exam-module-area exam-module-area2">
                         <div className="left">
-                            <span className="span span1">考试ID:</span>
+                            <span className="span span1">试卷ID:</span>
                             <Input
                                 className="gap-8"
                                 style={{ width: 150 }}
-                                placeholder="请输入考试ID"
+                                placeholder="请输入试卷ID"
                                 value={createExamId}
                                 onChange={this.oncreateExamIdChange.bind(this)}
                                 maxLength={200}
