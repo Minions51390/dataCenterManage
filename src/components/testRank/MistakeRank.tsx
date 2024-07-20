@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Table, Pagination, Input, Button, PageHeader, Select, Tooltip } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { get, baseUrl } from '../../service/tools';
@@ -6,6 +6,8 @@ import { InfoCircleOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/MistakeRank.less';
 import cn from 'classnames';
 import { Choice, Pack, LongReading, CfReading } from '../questionTableCell';
+import { useLocation } from 'react-router-dom';
+import qs from 'qs';
 const { Option } = Select;
 
 const enum QuestionType {
@@ -74,16 +76,48 @@ const QUESTION_LIST = [
 
 const MistakeRank = () => {
     const [list, setList] = useState([]);
-    const bici = useRef(sessionStorage.getItem('pici'));
-    const paperName = useRef(sessionStorage.getItem('testPaperName'));
-    const classList = useRef<{class_id: string, class_name: string}[]>(JSON.parse(sessionStorage.getItem('classList') || '[]') || []);
     const [queryType, setQueryType] = useState('stem');
     const [query, setQuery] = useState('');
     const [pageNum, setPageNum] = useState(1);
     const [total, setTotal] = useState(0);
     const [pageSize, setPageSize] = useState(20);
-    const [selectedClass, setSelectedClass] = useState(classList?.current?.[0]?.class_id);
+    const [selectedBatch, setSelectedBatch] = useState<number>();
+    const [selectedClass, setSelectedClass] = useState<number>();
     const [selectedQuestionType, setSelectedQuestionType] = useState('all');
+    const [batchList, setBatchList] = useState<any[]>([]);
+    const [examName, setExamName] = useState('');
+
+    const location = useLocation();
+    const examId = qs.parse(location.search.slice(1)).examId;
+
+    const init = async () => {
+        let { data } = await get({
+            url: `${baseUrl}/api/v1/exam/batch-class`,
+            config: {
+                params: {
+                    examId
+                }
+            }
+        });
+        const { batchClass, examName } = data;
+        setExamName(examName);
+        setBatchList(batchClass);
+        setSelectedBatch(batchClass?.[0]?.batchId);
+        setSelectedClass(batchClass?.[0]?.classes?.[0]?.classId);
+    }
+
+    const classList = useMemo(() => {
+        return batchList?.find(item => item.batchId === selectedBatch)?.classes || [];
+    }, [batchList, selectedBatch]);
+
+    const handleBatchChange = (batchId: number) => {
+        setSelectedBatch(batchId);
+        setSelectedClass(batchList?.find(item => item.batchId === batchId)?.classes?.[0]?.classId);
+    }
+
+    useEffect(() => {
+        init();
+    }, []);
 
     const queryTypeList = [
         {
@@ -153,12 +187,8 @@ const MistakeRank = () => {
 
     const getData = useCallback(async () => {
         const params = {
-            examId: sessionStorage.getItem('examId'),
-            classId: classList?.current?.[0].class_id,
-            queryType,
-            pageSize,
-            pageNo: pageNum,
-            query,
+            examId,
+            classId: selectedClass,
         };
         let res = await get({
             url: `${baseUrl}/api/v1/exam/statistics`,
@@ -166,14 +196,19 @@ const MistakeRank = () => {
                 params
             }
         });
-        console.log('------------->', res);
         const result = res?.data?.map((item: any, index: number) => ({
             ...item,
             key: index + 1
         }));
         setList(result);
         setTotal(res?.data?.length);
-    }, [pageNum, pageSize, query, queryType])
+    }, [selectedClass, examId]);
+
+    useEffect(() => {
+        if (selectedClass) {
+            getData();
+        }
+    }, [selectedClass, getData]);
 
     const handleQueryTypeChange = (v: string) => {
         setQueryType(v);
@@ -192,22 +227,28 @@ const MistakeRank = () => {
         setPageSize(pageSize);
     }
 
-    useEffect(() => {
-        getData();
-    }, [getData, pageNum, pageSize]);
-
 
     return (
         <div className="mistake-rank">
             <div className="header">
                 <PageHeader title="" breadcrumb={{ routes }} />
-                <div className="sec">{paperName?.current}</div>
+                <div className="sec">{examName}-错题排行</div>
             </div>
             <div className="body">
                 <div className="select">
                     <div className="select-item">
                         <span>学员批次：</span>
-                        <span>{bici?.current}</span>
+                        <Select
+                            style={{ width: 120 }}
+                            value={selectedBatch}
+                            onChange={handleBatchChange}
+                        >
+                            {
+                                batchList?.map((item: any) => (
+                                    <Option value={item.batchId} key={item.batchId}>{item.describe}</Option>
+                                ))
+                            }
+                        </Select>
                     </div>
                     <div className="select-item">
                         <span className="span2">班级：</span>
@@ -217,8 +258,8 @@ const MistakeRank = () => {
                             onChange={v => setSelectedClass(v)}
                         >
                             {
-                                classList?.current?.map((item: any) => (
-                                    <Option value={item.class_id} key={item.class_id}>{item.class_name}</Option>
+                                classList?.map((item: any) => (
+                                    <Option value={item.classId} key={item.classId}>{item.describe}</Option>
                                 ))
                             }
                         </Select>
