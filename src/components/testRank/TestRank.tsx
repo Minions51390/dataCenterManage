@@ -511,7 +511,7 @@ class TestRank extends React.Component {
             url: `${baseUrl}/api/v1/exam/bulk`,
             data: {
                 examName: createExamName,
-                questionPaperId: Number(createExamId),
+                questionPaperId: createExamId,
                 examStartTime: createStartTime,
                 examEndTime: createEndTime,
                 classList: modalSelClass,
