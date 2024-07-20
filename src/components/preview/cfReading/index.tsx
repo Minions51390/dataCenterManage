@@ -9,12 +9,19 @@ export interface ICfReading {
 const CfReading = (props: ICfReading) => {
     const { dataSource = {} } = props;
 
-    const { title, stem, questions } = dataSource;
+    let { title, stem, questions } = dataSource;
+
+	stem = `<span style="margin-left: 30px"></span>${stem}`;
+
+	stem = stem.replace(/\n\n/g, '\n');
+
+	stem = stem.replace(/\n/g, '<br/><span style="margin-left: 30px; margin-top: 30px; display: inline-block;"></span>');
+
 
     return (
         <div className="preview-cf">
             <div className="title">{title}</div>
-            <div className="stem">{stem}</div>
+            <div className="stem" dangerouslySetInnerHTML={{ __html: stem }} />
             <div className="question">
                 {questions.map((item: any, index: number) => {
                     return (

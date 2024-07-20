@@ -49,8 +49,8 @@ const login = async () => {
     let res = await post({
         url: baseUrl + '/api/v1/auth/login',
         data: {
-            userName: 'wutonghe',
-            password: '123'
+            userName: '8090cs',
+            password: '8090cs'
             // userName: 'star001',
             // password: 'star001'
         }

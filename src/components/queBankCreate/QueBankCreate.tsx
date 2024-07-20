@@ -22,7 +22,7 @@ class QueBank extends React.Component {
         isVisible: false,
         setName: '',
         setType: 'choice',
-        setTypeFilter: 'choice',
+        setTypeFilter: '',
         genuine: false,
         genuineFilter: 0,
         setTypeList: ['choice', 'pack', 'long_reading', 'cf_reading'],
