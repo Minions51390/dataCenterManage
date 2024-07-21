@@ -594,10 +594,33 @@ class TestDetail extends React.Component {
         });
     }
 
-    handleShowPreview() {
-        this.setState({
-            previewVisible: true,
+    async handleShowPreview() {
+		const { testPaperID, parts } = this.state;
+        const myPart = parts.map((item) => {
+            return {
+                partDesc: item.partDesc,
+                partName: item.partName,
+                questionList: item.questionList.map((val: any) => {
+                    return {
+                        setId: val.setId,
+                        questionId: val.questionId,
+                        setType: val.setType,
+                    };
+                }),
+            };
         });
+
+        const res = await post({
+            url: baseUrl + '/api/v1/question-paper/question',
+            data: {
+                questionPaperId: testPaperID,
+                parts: myPart,
+            },
+        });
+        this.getTestList();
+        const testData = await this.getTestData();
+        console.log(123123, testData);
+        this.setState({ ...testData, selectedRowKeysM: [], previewVisible: true });
     }
 
     async getPaper() {

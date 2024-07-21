@@ -77,16 +77,6 @@ class BankDetail extends React.Component {
                 ),
             },
             {
-                title: '真题年份',
-                key: 'key',
-                render: (text: any, record: any, index: number) => <div>{text.year}</div>,
-            },
-            {
-                title: '真题类型',
-                key: 'key',
-                render: (text: any, record: any, index: number) => <div>{SELECT_TP[text.tp]}</div>,
-            },
-            {
                 title: '试题内容',
                 key: 'setName',
                 render: this.choiceRender.bind(this),

@@ -9,12 +9,18 @@ export interface IPack {
 const Pack = (props: IPack) => {
     const { dataSource = {} } = props;
 
-    const { title, stem, options, rightInfo } = dataSource;
+    let { title, stem, options, rightInfo } = dataSource;
+
+	stem = `<span style="margin-left: 30px"></span>${stem}`;
+
+	stem = stem.replace(/\n\n/g, '\n');
+
+	stem = stem.replace(/\n/g, '<br/><span style="margin-left: 30px; margin-top: 30px; display: inline-block;"></span>');
 
     return (
         <div className="preview-pack">
             <div className="title">{title}</div>
-            <div className="stem">{stem}</div>
+            <div className="stem" dangerouslySetInnerHTML={{ __html: stem }} />
             <div className="options">
                 {options.map((item: any) => {
                     return (
