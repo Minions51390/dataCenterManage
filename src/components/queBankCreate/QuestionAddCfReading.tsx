@@ -256,7 +256,7 @@ class QuestionAddCfReading extends React.Component {
                 <div className="header">
                     <PageHeader title="" breadcrumb={{ routes }} />
                     <div className="sec">
-                        <div className="text">新增试题_词汇理解-选词填空</div>
+                        <div className="text">新增试题-仔细阅读-多项选择</div>
                     </div>
                 </div>
                 <div className="body">

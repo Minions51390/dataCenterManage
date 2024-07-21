@@ -287,7 +287,7 @@ class QuestionAddPack extends React.Component {
                 <div className="header">
                     <PageHeader title="" breadcrumb={{ routes }} />
                     <div className="sec">
-                        <div className="text">新增试题_词汇理解-选词填空</div>
+                        <div className="text">新增试题-词汇理解-选词填空</div>
                     </div>
                 </div>
                 <div className="body">

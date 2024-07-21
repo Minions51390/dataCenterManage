@@ -10,8 +10,8 @@ export const Choice = ({ data }: QuestionData) => {
     return (
         <div>
             <div>{stem}</div>
-            <div>{options.map((item: any) => {
-                return <div>{item.key}: {item.value}</div>
+            <div className={styles.choiceWrapper}>{options.map((item: any) => {
+                return <div key={item.key} className={styles.choiceItem}>{item.key}: {item.value}</div>
             })}</div>
         </div>
     )

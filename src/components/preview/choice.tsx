@@ -17,7 +17,7 @@ const Choice = (props: IChoice) => {
             <div className="options">
                 {options.map((item: any) => {
                     return (
-                        <div className="item">
+                        <div key={item.key} className="item">
                             {item.key}) {item.value}
                         </div>
                     );

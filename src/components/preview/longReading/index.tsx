@@ -18,7 +18,7 @@ const LongReading = (props: ILong) => {
             <div className="options">
                 {options.map((item: any) => {
                     return (
-                        <div className="item">
+                        <div key={item.key} className="item">
                             {item.key}) {item.value}
                         </div>
                     );
@@ -27,7 +27,7 @@ const LongReading = (props: ILong) => {
             <div className="question">
                 {questions.map((item: any, index: number) => {
                     return (
-                        <div className="item">
+                        <div key={index} className="item">
                             {index + 1}. {item.qStem}
                         </div>
                     );
@@ -37,7 +37,7 @@ const LongReading = (props: ILong) => {
                 正确答案：
                 {questions.map((item: any, index: number) => {
                     return (
-                        <span style={{ marginRight: '12px' }}>
+                        <span key={index} style={{ marginRight: '12px' }}>
                             <span>({index + 1})</span>
                             <span style={{ marginLeft: '8px' }}>{item.rightKey};</span>
                         </span>

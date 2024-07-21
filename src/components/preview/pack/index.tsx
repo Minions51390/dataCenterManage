@@ -9,16 +9,22 @@ export interface IPack {
 const Pack = (props: IPack) => {
     const { dataSource = {} } = props;
 
-    const { title, stem, options, rightInfo } = dataSource;
+    let { title, stem, options, rightInfo } = dataSource;
+
+	stem = `<span style="margin-left: 30px"></span>${stem}`;
+
+	stem = stem.replace(/\n\n/g, '\n');
+
+	stem = stem.replace(/\n/g, '<br/><span style="margin-left: 30px; margin-top: 30px; display: inline-block;"></span>');
 
     return (
         <div className="preview-pack">
             <div className="title">{title}</div>
-            <div className="stem">{stem}</div>
+            <div className="stem" dangerouslySetInnerHTML={{ __html: stem }} />
             <div className="options">
                 {options.map((item: any) => {
                     return (
-                        <div className="item">
+                        <div className="item" key={item.key}>
                             ({item.key}) {item.value}
                         </div>
                     );
@@ -28,7 +34,7 @@ const Pack = (props: IPack) => {
                 正确答案：
                 {rightInfo.map((item: any, index: number) => {
                     return (
-                        <span style={{marginRight: '12px'}}>
+                        <span key={item} style={{marginRight: '12px'}}>
                             <span>({index + 1})</span>
                             <span style={{marginLeft: '8px'}}>{item};</span>
                         </span>
