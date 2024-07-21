@@ -1,29 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Pagination, Input, Button, PageHeader, Select, Tooltip, Divider, Skeleton } from 'antd';
 import { get, baseUrl } from '../../service/tools';
 import '../../style/pageStyle/StuPaperDetail.less';
-
+import { useLocation } from 'react-router-dom';
 import cn from 'classnames';
+import qs from 'qs';
 
 const { Option } = Select;
 
 interface Props {
-    query: any
+    query: any,
 }
 
 const StuPaperDetail = ({ query }: Props) => {
     const [list, setList] = useState([]);
-    const [bici, setBici] = useState(() => sessionStorage.getItem('pici'));
-    const [banji, setBanji] = useState(() => sessionStorage.getItem('banji'));
+    const [studentList, setStudentList] = useState([]);
+    const [selectedExamPaperId, setSelectedExamPaperId] = useState<Number>(Number(query?.examPaperId));
     const [paperName, setPaperName] = useState(() => sessionStorage.getItem('testPaperName'));
     const [queryType, setQueryType] = useState('all');
     const [pageNo, setPageNo] = useState(1);
     const [total, setTotal] = useState(0);
     const [pageSize, setPageSize] = useState(20);
-
-    const showDetail = (record: any) => {
-        console.log(record);
-    };
+    const location = useLocation();
+    const {batchId, classId, examId, examPaperId } = query
 
     const routes = [
         {
@@ -83,6 +82,14 @@ const StuPaperDetail = ({ query }: Props) => {
         },
     ];
 
+    const init = async () => {
+        getStudentList();
+    }
+
+    const showDetail = (record: any) => {
+        console.log(record);
+    };
+
     const getData = async () => {
         const params = {
             examPaperId: query?.examPaperId,
@@ -104,7 +111,17 @@ const StuPaperDetail = ({ query }: Props) => {
         setList(result);
         setTotal(res?.data?.totalCount);
     }
-
+    // 获取学生列表
+    const getStudentList = useCallback(async () => {
+        let res = await get({
+            url: `${baseUrl}/api/v1/exam/paper/list?pageSize=99999&pageNo=1&examId=${examId}&batchId=${batchId}&classId=${classId}&query=${query.query}`,
+        });
+        console.log('res', res)
+        setStudentList(res?.data?.examPaperList)
+    }, [selectedExamPaperId])
+    const handleSelectedStudenChange = (examPaperId: Number) => {
+        setSelectedExamPaperId(examPaperId);
+    }
     const handleSelectChange = (v: string) => {
         setQueryType(v);
     }
@@ -113,10 +130,12 @@ const StuPaperDetail = ({ query }: Props) => {
         setPageNo(page);
         setPageSize(pageSize);
     }
-
-    useEffect(() => {
-        getData();
-    }, [queryType, pageNo, pageSize]);
+    useEffect(()=>{
+        init();
+    }, [examPaperId])
+    // useEffect(() => {
+    //     getData();
+    // }, [queryType, pageNo, pageSize]);
     return (
         <div className="stu-paper-detail">
             <div className="header">
@@ -129,7 +148,13 @@ const StuPaperDetail = ({ query }: Props) => {
                     <div className="filter">
                         <div>
                             <span>当前学生:</span>
-                            <Select style={{ width: 270 }}></Select>
+                            <Select style={{ width: 200 }} value={Number(examPaperId)} onChange={handleSelectedStudenChange}>
+                                {studentList.map((item: any) => (
+                                    <Option key={item.examPaperId} value={item.examPaperId}>
+                                        {item.username}
+                                    </Option>
+                                ))}
+                            </Select>
                         </div>
                         <Button>上一位</Button>
                         <Button>下一位</Button>

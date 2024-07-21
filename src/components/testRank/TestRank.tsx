@@ -334,28 +334,8 @@ class TestRank extends React.Component {
     }
 
     jumpStu(text: any) {
-        console.log(text);
-        const { examId, questionPaperName } = text;
-        const { selPici, selBanji, pici, banji } = this.state;
-        let piciName = '';
-        let banjiName = '';
-        pici.map((item: any) => {
-            if (item.batchId === selPici) {
-                piciName = item.describe;
-            }
-            return item;
-        });
-        banji.map((item: any) => {
-            if (item.classId === selBanji) {
-                banjiName = item.describe;
-            }
-            return item;
-        });
-        sessionStorage.setItem('examId', examId);
-        sessionStorage.setItem('questionPaperName', questionPaperName);
-        sessionStorage.setItem('pici', piciName);
-        sessionStorage.setItem('banji', banjiName);
-        window.location.href = `${window.location.pathname}#/app/test/testRank/stuRank`;
+        const { examId } = text;
+        window.location.href = `${window.location.pathname}#/app/test/testRank/stuRank?examId=${examId}`;
     }
 
     jumpMistake = (text: any) => {

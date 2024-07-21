@@ -1,8 +1,10 @@
-import React from 'react';
+import React, {useState, useEffect, useMemo, useCallback} from 'react';
 import { Table, Pagination, Input, Button, message, PageHeader, Select } from 'antd';
 import '../../style/pageStyle/StuRank.less';
 import copy from 'clipboard-copy';
 import { get, baseUrl } from '../../service/tools';
+import { useLocation } from 'react-router-dom';
+import qs from 'qs';
 
 const { Option } = Select;
 const mockRollList = [
@@ -31,336 +33,244 @@ const mockRollList = [
         className: "01班"
     },
 ]
-
-class StuRank extends React.Component {
-    state = {
-        routes: [
-            {
-                path: '/app/test/testRank',
-                breadcrumbName: '已发布考试/考试成绩',
-            },
-            {
-                path: '/stuRank',
-                breadcrumbName: '成绩排行',
-            },
-        ],
-        pageNo: 1,
-        totalCount: 1,
-        query: '',
-        sortKey: 'score',
-        sort: 'desc',
-        examId: sessionStorage.getItem('examId'),
-        testPaperName: sessionStorage.getItem('testPaperName'),
-        pici: [],
-        selPici: '',
-        banji: [],
-        selBanji: '',
-        selTeacher: {
-            teacherId: '',
-            realName: '',
+const StuRank = ()=>{
+    const [query, setQuery] = useState('');
+    const [pageNo, setPageNo] = useState(1);
+    const [totalCount, setTotalCount] = useState(1);
+    const [sortKey, setSortKey] = useState('score');
+    const [sort, setSort] = useState('desc');
+    const [examName, setExamName] = useState('');
+    const [batchList, setBatchList] = useState<any[]>([]);
+    const [allClasslist, setAllClasslist] = useState<any[]>([]);
+    const [selectedBatch, setSelectedBatch] = useState<number>();
+    const [selectedClass, setSelectedClass] = useState<number>();
+    const [data, setData] = useState([]);
+    
+    const routes =  [
+        {
+            path: '/app/test/testRank',
+            breadcrumbName: '已发布考试/考试成绩',
         },
-        columns1: [
-            {
-                title: '序号',
-                key: 'key',
-                render: (text: any, record: any, index: number) => <div>{index + 1 + (this.state.pageNo - 1) * 20}</div>,
-            },
-            {
-                title: '学员姓名',
-                dataIndex: 'username',
-                key: 'username',
-            },
-            {
-                title: '考试成绩',
-                dataIndex: 'score',
-                key: 'score',
-                sorter: true,
-            },
-            {
-                title: '考试时间',
-                dataIndex: 'finishTime',
-                key: 'finishTime',
-                sorter: true,
-            },
-            {
-                title: '学员批次',
-                dataIndex: 'batchName',
-                key: 'batchName',
-            },
-            {
-                title: '班级',
-                dataIndex: 'className',
-                key: 'className',
-            },
-            {
-                title: '操作',
-                key: 'control',
-                render: (text: any, record: any) => (
-                    <div className="edit">
-                        <div className="entry" onClick={() => this.goPaperDetail(record.username, record.examPaperId)}>
-                            查看卷面
-                        </div>
+        {
+            path: '/stuRank',
+            breadcrumbName: '成绩排行',
+        },
+    ];
+
+    const columns =  [
+        {
+            title: '序号',
+            key: 'key',
+            render: (text: any, record: any, index: number) => <div>{index + 1 + (pageNo - 1) * 20}</div>,
+        },
+        {
+            title: '学员姓名',
+            dataIndex: 'username',
+            key: 'username',
+        },
+        {
+            title: '考试成绩',
+            dataIndex: 'score',
+            key: 'score',
+            sorter: true,
+        },
+        {
+            title: '考试时间',
+            dataIndex: 'finishTime',
+            key: 'finishTime',
+            sorter: true,
+        },
+        {
+            title: '学员批次',
+            dataIndex: 'batchName',
+            key: 'batchName',
+        },
+        {
+            title: '班级',
+            dataIndex: 'className',
+            key: 'className',
+        },
+        {
+            title: '操作',
+            key: 'control',
+            render: (text: any, record: any) => (
+                <div className="edit">
+                    <div className="entry" onClick={() => goPaperDetail(record.username, record.examPaperId)}>
+                        查看卷面
                     </div>
-                ),
-            },
-        ],
-        data1: [],
-    };
-    componentWillMount() {
-        this.inited();
-    }
-
-    goPaperDetail = (name: string, examPaperId: string) => {
-        window.location.href = `${window.location.pathname}#/app/test/testPaper/stuDetail?name=${name}&examPaperId=${examPaperId}`;
-    }
-
-    async inited() {
-        const teacher = await this.getTeacher();
-        const selTeacher = teacher.find((item: any) => {
-            return item.teacherId === Number(localStorage.getItem('classTeacherId'));
+                </div>
+            ),
+        },
+    ];
+    const location = useLocation();
+    const examId = qs.parse(location.search.slice(1)).examId;
+    
+    const init =  async () => {
+        let { data } = await get({
+            url: `${baseUrl}/api/v1/exam/batch-class`,
+            config: {
+                params: {
+                    examId
+                }
+            }
         });
-        this.setState({
-            teacher,
-            selTeacher,
-        }, async () => {
-            const pici = await this.getPici(selTeacher.teacherId);
-            const banji = await this.getClass(pici[0].batchId);
-            this.setState({
-                pici,
-                banji,
-                selPici: pici[0].batchId,
-                selBanji: banji[0].classId,
-            }, async () => {
-                this.getTest();
-            })
-        })
-    }
-
-    /** 获取教师列表 */
-    async getTeacher() {
-        let res = await get({ url: baseUrl + `/api/v1/structure/teacher/list` });
-        const teacher = res?.data || [];
-        teacher.unshift({
-            realName: '全部',
-            teacherId: 0,
-        });
-        return teacher;
-    }
-
-    /** 获取批次列表 */
-    async getPici(teacherId: any) {
-        let res = await get({
-            url: `${baseUrl}/api/v1/structure/batch/list?teacherId=${teacherId}`,
-        });
-        const pici = res.data || [];
-        pici.unshift({
+        const { batchClass, examName } = data;
+        batchClass.unshift({
             describe: '全部',
             batchId: 0,
         });
-        return pici;
+        const allClasslist = batchClass.reduce((accumulator:any, currentValue:any)=>{
+            return accumulator.concat(currentValue?.classes || []);
+        }, [])
+        setExamName(examName);
+        setBatchList(batchClass);
+        setAllClasslist(allClasslist);
+        setSelectedBatch(batchClass?.[0]?.batchId);
+        setSelectedClass(batchClass?.[0]?.classes?.[0]?.classId || 0);
     }
 
-    /** 获取班级列表 */
-    async getClass(pici: any) {
-        const { selTeacher } = this.state;
-        let res = await get({
-            url: baseUrl + `/api/v1/structure/class/list?teacherId=${selTeacher.teacherId}&batchId=${pici}&pageNo=1&pageSize=99999`,
-        });
-        const banji = res?.data?.classList ?? [];
-        banji.unshift({
-            classCode: '',
-            classId: 0,
-            createDate: '',
-            describe: '全部',
-            studentCount: 0,
-        });
-        return banji;
-    }
-
-    /** 更换批次列表 */
-    async handlePiCi(val: any) {
-        let res = await this.getClass(val);
-        let selBanji = res[1] ? res[1].classId : 0;
-        if(!val){
-            selBanji = 0
+    const classList = useMemo(() => {
+        console.log('classList')
+        let list = []
+        if(selectedBatch === 0){
+            list = allClasslist
+        }else{
+            list = batchList?.find(item => item.batchId === selectedBatch)?.classes || [];
         }
-        this.setState({
-            selPici: val,
-            banji: res,
-            selBanji,
-        }, async () => {
-            this.handleBanji(selBanji);
-        });
-    }
+        return [{
+            describe: '全部',
+            classId: 0,
+        }, ...list]
+    }, [batchList, selectedBatch]);
 
-    /** 更换班级列表 */
-    async handleBanji(val: any) {
-        this.setState({
-            selBanji: val,
-        }, async () => {
-            this.getTest();
-        });
+    const handleChangeBatch = (batchId: number) => {
+        setSelectedBatch(batchId);
+        setSelectedClass(batchList?.find(item => item.batchId === batchId)?.classes?.[0]?.classId || 0);
     }
-
+    const goPaperDetail = (name: string, examPaperId: string) => {
+        window.location.href = `${window.location.pathname}#/app/test/testPaper/stuDetail?examPaperId=${examPaperId}&examId=${examId}&batchId=${selectedBatch}&classId=${selectedClass}&query=${query}`;
+    }
     /** 搜索 */
-    onTestQueryChange(event: any) {
-        this.setState({
-            query: event.target.value,
-        });
+    const onTestQueryChange = (event: any) => {
+        setQuery(event.target.value);
     }
-
     /** 排序更换触发 */
-    tableChange(pagination: any, filters: any, sorter: any, extra: any) {
+    const tableChange = (pagination: any, filters: any, sorter: any, extra: any) => {
         if (sorter?.columnKey) {
             const sort = (sorter?.order || '').replace('end', '');
-            this.setState(
-                {
-                    sortKey: sorter?.columnKey,
-                    sort,
-                },
-                () => {
-                    this.getTest();
-                }
-            );
+            setSortKey(sorter?.columnKey)
+            setSort(sort);
+            getTest();
         }
         console.log(pagination, filters, sorter, extra);
     }
 
     /** 获取成绩列表 */
-    async getTest() {
-        const { pageNo, query, sortKey, sort, examId, selPici, selBanji } = this.state;
+    const getTest = useCallback(async() => {
         let res = await get({
-            url: `${baseUrl}/api/v1/exam/paper/list?pageSize=20&pageNo=${pageNo}&examId=${examId}&batchId=${selPici}&classId=${selBanji}&query=${query}&sortKey=${sortKey}&sort=${sort}`,
+            url: `${baseUrl}/api/v1/exam/paper/list?pageSize=20&pageNo=${pageNo}&examId=${examId}&batchId=${selectedBatch}&classId=${selectedClass}&query=${query}&sortKey=${sortKey}&sort=${sort}`,
         });
-        console.log('------------->', res);
         const rollList = res?.data?.examPaperList || mockRollList;
         const totalCount = (res?.data?.totalCount || 0) / 20;
-        this.setState({
-            data1: rollList,
-            totalCount,
-        });
-    }
+        setData(rollList);
+        setTotalCount(totalCount);
+    }, [selectedClass, examId])
+
+    useEffect(() => {
+        getTest();
+    }, [selectedClass, getTest]);
 
     /** 点击搜索按钮 */
-    clickSearch() {
-        this.setState(
-            {
-                pageNo: 1,
-            },
-            () => {
-                this.getTest();
-            }
-        );
+    const clickSearch = () => {
+        setPageNo(1);
+        getTest();
     }
 
     /** 更换页面 */
-    nowPagChange(val: any) {
-        this.setState(
-            {
-                pageNo: val,
-            },
-            async () => {
-                /** 更新数据 */
-            }
-        );
+    const nowPagChange = (val: any) => {
+        setPageNo(val);
+        getTest();
     }
 
-    /** 复制函数 */
-    copyIdFn(id: any) {
-        copy(id)
-            .then(() => {
-                message.success('复制成功');
-            })
-            .catch(() => {
-                message.error('复制失败');
-            });
+    const jumpMistakeRank = () => {
+        window.location.href = `${window.location.pathname}#/app/test/testRank/mistakeRank?examId=${examId}`;
     }
 
-    jumpMistakeRank = () => {
-        const { examId, testPaperName, selPici, selBanji } = this.state;
-        sessionStorage.setItem('examId', examId || '');
-        sessionStorage.setItem('questionPaperName', testPaperName || '');
-        sessionStorage.setItem('pici', selPici || '');
-        sessionStorage.setItem('banji', selBanji || '');
-        window.location.href = `${window.location.pathname}#/app/test/testRank/mistakeRank`;
-    }
+    useEffect(() => {
+        init();
+    }, []);
 
-    render() {
-        const { columns1, data1, pageNo, routes, totalCount, query, pici, selPici, banji, selBanji } = this.state;
-        return (
-            <div className="stu-rank">
-                <div className="header">
-                    <PageHeader title="" breadcrumb={{ routes }} />
-                    <div className="sec">成绩排行</div>
+    return (
+        <div className="stu-rank">
+            <div className="header">
+                <PageHeader title="" breadcrumb={{ routes }} />
+                <div className="sec">{examName}</div>
+            </div>
+            <div className="body">
+                <div className="fir">
+                    <div>
+                        <span className="span">学员批次:</span>
+                        <Select
+                            style={{ width: 180 }}
+                            value={selectedBatch}
+                            onChange={handleChangeBatch}
+                        >
+                            {batchList.map((item: any) => (
+                                <Option key={item.batchId} value={item.batchId}>
+                                    {item.describe}
+                                </Option>
+                            ))}
+                        </Select>
+                        <span className="span2">班级:</span>
+                        <Select
+                            style={{ width: 180 }}
+                            value={selectedClass}
+                            onChange={v => setSelectedClass(v)}
+                        >
+                            {classList.map((item: any) => (
+                                <Option key={item.classId} value={item.classId}>
+                                    {item.describe}
+                                </Option>
+                            ))}
+                        </Select>
+                        <Input
+                            style={{ width: '240px', marginLeft: '30px' }}
+                            placeholder="请输入学生姓名"
+                            value={query}
+                            onChange={onTestQueryChange}
+                        />
+                        <Button
+                            className="gap-30"
+                            type="primary"
+                            onClick={clickSearch}
+                        >
+                            搜索
+                        </Button>
+                    </div>
+                    <div className="mistakeRank" onClick={jumpMistakeRank}>查看错题排行</div>
                 </div>
-                <div className="body">
-                    <div className="fir">
-                        <div>
-                            <span className="span">学员批次:</span>
-                            <Select
-                                defaultValue="请选择"
-                                style={{ width: 180 }}
-                                value={selPici || (pici[0] && (pici[0] as any).describe) || '请选择'}
-                                onChange={this.handlePiCi.bind(this)}
-                            >
-                                {pici.map((item: any) => (
-                                    <Option key={item.batchId} value={item.batchId}>
-                                        {item.describe}
-                                    </Option>
-                                ))}
-                            </Select>
-                            <span className="span2">班级:</span>
-                            <Select
-                                defaultValue="请选择"
-                                style={{ width: 180 }}
-                                value={selBanji || (banji[0] && (banji[0] as any).describe) || '请选择'}
-                                onChange={this.handleBanji.bind(this)}
-                            >
-                                {banji.map((item: any) => (
-                                    <Option key={item.classId} value={item.classId}>
-                                        {item.describe}
-                                    </Option>
-                                ))}
-                            </Select>
-                            <Input
-                                style={{ width: '240px', marginLeft: '30px' }}
-                                placeholder="请输入学生姓名"
-                                value={query}
-                                onChange={this.onTestQueryChange.bind(this)}
-                            />
-                            <Button
-                                className="gap-30"
-                                type="primary"
-                                onClick={this.clickSearch.bind(this)}
-                            >
-                                搜索
-                            </Button>
-                        </div>
-                        <div className="mistakeRank" onClick={this.jumpMistakeRank}>查看错题排行</div>
-                    </div>
-                    <div className="thr">
-                        <Table
-                            columns={columns1}
-                            dataSource={data1}
-                            pagination={false}
-                            size={'middle'}
-                            bordered={false}
-                            onChange={this.tableChange.bind(this)}
-                        />
-                    </div>
-                    <div className={data1.length ? 'pag' : 'display-none'}>
-                        <Pagination
-                            defaultCurrent={1}
-                            pageSize={20}
-                            current={pageNo}
-                            total={totalCount * 20}
-                            onChange={this.nowPagChange.bind(this)}
-                        />
-                    </div>
+                <div className="thr">
+                    <Table
+                        columns={columns}
+                        dataSource={data}
+                        pagination={false}
+                        size={'middle'}
+                        bordered={false}
+                        onChange={tableChange}
+                    />
+                </div>
+                <div className={data.length ? 'pag' : 'display-none'}>
+                    <Pagination
+                        defaultCurrent={1}
+                        pageSize={20}
+                        current={pageNo}
+                        total={totalCount * 20}
+                        onChange={nowPagChange}
+                    />
                 </div>
             </div>
-        );
-    }
+        </div>
+    );
 }
 
 export default StuRank;
