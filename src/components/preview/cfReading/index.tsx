@@ -25,12 +25,12 @@ const CfReading = (props: ICfReading) => {
             <div className="question">
                 {questions.map((item: any, index: number) => {
                     return (
-                        <div className="item">
+                        <div key={index} className="item">
                             <div>
                                 {index + 1}. {item.qStem}
                             </div>
                             {item.options.map((val: any) => {
-                                return <div className="answer">{`${val.key}. ${val.value}`}</div>;
+                                return <div key={val.key} className="answer">{`${val.key}. ${val.value}`}</div>;
                             })}
                         </div>
                     );
@@ -40,7 +40,7 @@ const CfReading = (props: ICfReading) => {
                 正确答案：
                 {questions.map((item: any, index: number) => {
                     return (
-                        <span style={{ marginRight: '12px' }}>
+                        <span key={index} style={{ marginRight: '12px' }}>
                             <span>({index + 1})</span>
                             <span style={{ marginLeft: '8px' }}>{item.rightKey};</span>
                         </span>

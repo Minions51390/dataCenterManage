@@ -11,7 +11,7 @@ export const Choice = ({ data }: QuestionData) => {
         <div>
             <div>{stem}</div>
             <div className={styles.choiceWrapper}>{options.map((item: any) => {
-                return <div className={styles.choiceItem}>{item.key}: {item.value}</div>
+                return <div key={item.key} className={styles.choiceItem}>{item.key}: {item.value}</div>
             })}</div>
         </div>
     )

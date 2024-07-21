@@ -24,7 +24,7 @@ const Pack = (props: IPack) => {
             <div className="options">
                 {options.map((item: any) => {
                     return (
-                        <div className="item">
+                        <div className="item" key={item.key}>
                             ({item.key}) {item.value}
                         </div>
                     );
@@ -34,7 +34,7 @@ const Pack = (props: IPack) => {
                 正确答案：
                 {rightInfo.map((item: any, index: number) => {
                     return (
-                        <span style={{marginRight: '12px'}}>
+                        <span key={item} style={{marginRight: '12px'}}>
                             <span>({index + 1})</span>
                             <span style={{marginLeft: '8px'}}>{item};</span>
                         </span>
