@@ -8,30 +8,10 @@ import cn from 'classnames';
 import { Choice, Pack, LongReading, CfReading } from '../questionTableCell';
 import { useLocation } from 'react-router-dom';
 import { ReactComponent as GenuineSvg } from '../../assets/svg/genuine.svg';
+import { MistakePreviewModal } from '../preview/mistakePreviewModal';
+import { QuestionType, getErrorCount } from '../../utils/question';
 import qs from 'qs';
 const { Option } = Select;
-
-const enum QuestionType {
-    Choice = 'choice',
-    Pack = 'pack',
-    LongReading = 'long_reading',
-    CfReading = 'cf_reading',
-    All = 'all',
-}
-
-const getErrorCount = (setType: QuestionType, data: any) => {
-    if (setType === QuestionType.Choice) {
-        return data.errorCount;
-    }
-
-    if (setType === QuestionType.Pack) {
-        return data.errorCount.reduce((prev: number, cur: number) => prev + cur);
-    }
-
-    if (setType === QuestionType.LongReading || setType === QuestionType.CfReading) {
-        return data.questions.reduce((prev: number, cur: any) => prev + cur.errorCount, 0);
-    }
-}
 
 const getQuestionContent = (setType: QuestionType, data: any) => {
     if (setType === QuestionType.LongReading) {
@@ -104,6 +84,8 @@ const MistakeRank = () => {
     const [batchList, setBatchList] = useState<any[]>([]);
     const [examName, setExamName] = useState('');
     const [filteredList, setFilteredList] = useState<any[]>([]);
+    const [previewModalVisible, setPreviewModalVisible] = useState(false);
+    const [previewData, setPreviewData] = useState<any>({});
 
     const location = useLocation();
     const examId = qs.parse(location.search.slice(1)).examId;
@@ -155,10 +137,15 @@ const MistakeRank = () => {
             breadcrumbName: '考试成绩',
         },
         {
-            path: '/stuRank',
-            breadcrumbName: `${sessionStorage.getItem('banji')}`,
+            path: '/mistakeRank',
+            breadcrumbName: '错题排行',
         },
     ];
+
+    const handlePreview = (data: any) => {
+        setPreviewData(data);
+        setPreviewModalVisible(true);
+    }
 
     const columns: TableColumnsType<any> = [
         {
@@ -209,7 +196,7 @@ const MistakeRank = () => {
             key: 'action',
             title: '操作',
             render: (_: any, record: any) => {
-                return <Button type="link">详情</Button>
+                return <Button type="link" onClick={() => handlePreview(record)}>详情</Button>
             },
             align: 'center',
         }
@@ -385,6 +372,7 @@ const MistakeRank = () => {
                     />
                 </div>
             </div>
+            <MistakePreviewModal previewData={previewData} visible={previewModalVisible} close={() => setPreviewModalVisible(false)} />
         </div>
     )
 };
