@@ -31,15 +31,17 @@ const Pack = (props: IPack) => {
                 })}
             </div>
             <div className="rightKey">
-                正确答案：
-                {rightInfo.map((item: any, index: number) => {
-                    return (
-                        <span key={item} style={{marginRight: '12px'}}>
-                            <span>({index + 1})</span>
-                            <span style={{marginLeft: '8px'}}>{item};</span>
-                        </span>
-                    );
-                })}
+                <div>
+                    正确答案：
+                    {rightInfo.map((item: any, index: number) => {
+                        return (
+                            <span key={item} style={{marginRight: '12px'}}>
+                                <span>({index + 1})</span>
+                                <span style={{marginLeft: '8px'}}>{item};</span>
+                            </span>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );

@@ -37,15 +37,17 @@ const CfReading = (props: ICfReading) => {
                 })}
             </div>
             <div className="rightKey">
-                正确答案：
-                {questions.map((item: any, index: number) => {
-                    return (
-                        <span key={index} style={{ marginRight: '12px' }}>
-                            <span>({index + 1})</span>
-                            <span style={{ marginLeft: '8px' }}>{item.rightKey};</span>
-                        </span>
-                    );
-                })}
+                <div>
+                    正确答案：
+                    {questions.map((item: any, index: number) => {
+                        return (
+                            <span key={index} style={{ marginRight: '12px' }}>
+                                <span>({index + 1})</span>
+                                <span style={{ marginLeft: '8px' }}>{item.rightKey};</span>
+                            </span>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );
