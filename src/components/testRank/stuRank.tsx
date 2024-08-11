@@ -53,7 +53,7 @@ const StuRank = ()=>{
         },
         {
             path: '/stuRank',
-            breadcrumbName: `${examName}成绩排行`,
+            breadcrumbName: `成绩排行`,
         },
     ];
 
