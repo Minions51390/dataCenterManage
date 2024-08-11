@@ -159,10 +159,12 @@ class QuestionAddLongReading extends React.Component {
                 saveLoading: true,
             });
             message.success('保存成功');
-            setTimeout(() => {
+			setTimeout(() => {
                 window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailLongReading`;
             }, 200);
-        }
+        } else {
+			message.error(res.msg);
+		}
     }
 
     /** 保存接口 */
