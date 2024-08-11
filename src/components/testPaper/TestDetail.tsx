@@ -617,6 +617,11 @@ class TestDetail extends React.Component {
                 parts: myPart,
             },
         });
+
+		if (res.state !== 0) {
+			return;
+		}
+
         this.getTestList();
         const testData = await this.getTestData();
         console.log(123123, testData);

@@ -50,7 +50,7 @@ const mockExamList = [
     },
 ];
 
-const statusTextList = ['全部', '待考试', '已考'];
+const statusTextList = ['全部', '进行中', '已结束'];
 
 class TestRank extends React.Component {
     state = {
@@ -118,11 +118,11 @@ class TestRank extends React.Component {
             },
             {
                 id: 1,
-                name: '待考试',
+                name: '进行中',
             },
             {
                 id: 2,
-                name: '已考',
+                name: '已结束',
             },
         ],
         status: 0,

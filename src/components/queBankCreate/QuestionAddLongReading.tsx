@@ -105,6 +105,10 @@ class QuestionAddLongReading extends React.Component {
                 key: 'B',
                 value: '',
             },
+			{
+                key: 'C',
+                value: '',
+            },
         ],
         saveLoading: false,
     };
@@ -153,16 +157,21 @@ class QuestionAddLongReading extends React.Component {
 
     /** 保存试题 */
     async saveQuestionBack() {
+		this.setState({
+			saveLoading: true,
+		});
         const res = await this.saveQuestionInterface();
+		this.setState({
+			saveLoading: false,
+		});
         if (res.state === 0) {
-            this.setState({
-                saveLoading: true,
-            });
             message.success('保存成功');
-            setTimeout(() => {
+			setTimeout(() => {
                 window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailLongReading`;
             }, 200);
-        }
+        } else {
+			message.error(res.msg);
+		}
     }
 
     /** 保存接口 */

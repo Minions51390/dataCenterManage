@@ -25,7 +25,7 @@ const dateFormat = 'YYYY-MM-DD';
 const dateFormat1 = 'YYYY-MM-DD HH:mm:ss';
 const dataFormat2 = 'YYYY-MM-DD HH:mm';
 const { RangePicker } = DatePicker;
-const disabledDate = (current:any) => {
+const disabledDate = (current: any) => {
     // Can not select days before today
     return current && current < moment().subtract(1, 'days');
 };
@@ -603,9 +603,9 @@ class MainSet extends React.Component {
     onCreateTimeChange(date: any, dateArr: any) {
         this.setState({
             createStartTime: dateArr[0],
-            createEndTime: dateArr[1]
+            createEndTime: dateArr[1],
         });
-        if(new Date(dateArr[1]) <= new Date()){
+        if (new Date(dateArr[1]) <= new Date()) {
             message.warn('截止时间已过期');
         }
     }
@@ -1074,7 +1074,11 @@ class MainSet extends React.Component {
                                     <div>考试时间：</div>
                                     <Space direction="vertical" size={12}>
                                         <RangePicker
-                                            defaultValue={[moment(), moment()]}
+                                            showTime={{
+                                                format: 'HH:mm',
+                                            }}
+                                            format={'YYYY-MM-DD HH:mm'}
+                                            defaultValue={[diyTime[0], diyTime[1]]}
                                             onChange={this.onDiyTimeChange.bind(this)}
                                         />
                                         {/* <DatePicker
@@ -1096,8 +1100,8 @@ class MainSet extends React.Component {
                                 <div style={{ marginTop: 18 }}>
                                     考试时间:{' '}
                                     <div className="state-co">
-                                        {moment(diyTime[0]).format(dateFormat)}-
-                                        {moment(diyTime[1]).format(dateFormat)}
+                                        {moment(diyTime[0]).format(dataFormat2)}-
+                                        {moment(diyTime[1]).format(dataFormat2)}
                                     </div>
                                 </div>
                             </div>
