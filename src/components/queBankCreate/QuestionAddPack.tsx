@@ -135,6 +135,18 @@ class QuestionAddPack extends React.Component {
                 key: 'L',
                 value: '',
             },
+			{
+                key: 'M',
+                value: '',
+            },
+			{
+                key: 'N',
+                value: '',
+            },
+			{
+                key: 'O',
+                value: '',
+            },
         ],
         saveLoading: false,
     };

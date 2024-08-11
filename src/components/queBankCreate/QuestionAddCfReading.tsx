@@ -413,7 +413,7 @@ class QuestionAddCfReading extends React.Component {
                                         type="dashed"
                                         icon={<PlusOutlined />}
                                     >
-                                        添加一个选项
+                                        添加一个小题
                                     </Button>
                                 </div>
                             </div>
