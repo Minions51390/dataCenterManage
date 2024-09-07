@@ -199,8 +199,6 @@ class QuestionAddPack extends React.Component {
             setTimeout(() => {
                 window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailPack`;
             }, 200);
-        } else {
-            message.error('题干编辑有误!');
         }
     }
 

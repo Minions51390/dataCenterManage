@@ -232,8 +232,6 @@ class BankDetailPack extends React.Component {
         });
         if (res.state === 0) {
             this.getQuestionList();
-        } else {
-            message.error('题干编辑有误!');
         }
     }
 

@@ -104,7 +104,7 @@ class TestPaper extends React.Component {
     async getTest() {
         const { testQuery, pageNo, selTeacher, queryType } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/question-paper/list?teacherId=${selTeacher.teacherId}&query=${testQuery}&queryType=${queryType}&pageSize=20&pageNo=${pageNo}`,
+            url: `${baseUrl}/api/v1/question-paper/list?teacherId=${selTeacher.teacherId}&query=${testQuery}&queryType=${queryType}&pageSize=20&pageNo=${pageNo}&sortOrder=desc&sortKey=updateTime`,
         });
         const questionBankList = res?.data?.questionPaperList || [];
         const totalCount = res?.data?.totalCount;

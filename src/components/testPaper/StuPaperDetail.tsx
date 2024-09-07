@@ -168,14 +168,14 @@ const StuPaperDetail = ({ query }: Props) => {
         });
         setList(result);
         setTotal(res?.data?.parts.length);
-        setScore(res?.data?.score)
+        setScore(res?.data?.score);
     }
     // 获取学生列表
     const getStudentList = useCallback(async () => {
         let res = await get({
             url: `${baseUrl}/api/v1/exam/paper/list?pageSize=99999&pageNo=1&examId=${examId}&batchId=${batchId}&classId=${classId}&query=${query.query}`,
         });
-        const selectedStudent = res?.data?.examPaperList?.find((item: any) => item.examPaperId === selectedExamPaperId)
+        const selectedStudent = res?.data?.examPaperList?.find((item: any) => item.examPaperId == selectedExamPaperId)
         setStudentList(res?.data?.examPaperList)
         setPaperName(selectedStudent?.username)
         setScore(selectedStudent?.score)

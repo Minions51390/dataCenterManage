@@ -261,6 +261,11 @@ const MistakeRank = () => {
 
     const handleQuestionTypeChange = (type: QuestionType) => {
         setSelectedQuestionType(type);
+        let filterRes = list;
+        if(type !== QuestionType.All){
+            filterRes = list.filter((item: any) => item.setType === type);
+        }
+        setFilteredList(filterRes);
         if (type !== QuestionType.Choice) {
             setQueryType('stem');
         }

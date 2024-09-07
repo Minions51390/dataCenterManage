@@ -89,6 +89,11 @@ class MainClass extends React.Component {
                 key: 'studentName',
             },
             {
+                title: '学号',
+                dataIndex: 'stuId',
+                key: 'stuId',
+            },
+            {
                 title: '申请日期',
                 dataIndex: 'date',
                 key: 'date',

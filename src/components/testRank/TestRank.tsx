@@ -388,10 +388,10 @@ class TestRank extends React.Component {
     async getTest() {
         const { pageNo, selTeacher, selPici, selBanji, queryType, query, sortKey, sort, status, startDate, endDate } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/exam/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${selBanji}&pageSize=20&pageNo=${pageNo}&startDate=${startDate}&endDate=${endDate}&queryType=${queryType}&query=${query}&status=${status}`,
+            url: `${baseUrl}/api/v1/exam/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${selBanji}&pageSize=20&pageNo=${pageNo}&examStartDate=${startDate}&examEndDate=${endDate}&queryType=${queryType}&query=${query}&status=${status}`,
         });
         console.log('------------->', res);
-        const examList = res?.data?.examList || mockExamList;
+        const examList = res?.data?.examList || [];
         const totalCount = res?.data?.totalCount;
         this.setState({
             data1: examList,
