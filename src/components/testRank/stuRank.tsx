@@ -46,7 +46,7 @@ const StuRank = ()=>{
     const [selectedClass, setSelectedClass] = useState<number>();
     const [data, setData] = useState([]);
     
-    const routes =  [
+    const routes = [
         {
             path: '/app/test/testRank',
             breadcrumbName: '已发布考试/考试成绩',
@@ -57,7 +57,7 @@ const StuRank = ()=>{
         },
     ];
 
-    const columns =  [
+    const columns = [
         {
             title: '序号',
             key: 'key',
@@ -105,7 +105,7 @@ const StuRank = ()=>{
     const location = useLocation();
     const examId = qs.parse(location.search.slice(1)).examId;
     
-    const init =  async () => {
+    const init = async () => {
         let { data } = await get({
             url: `${baseUrl}/api/v1/exam/batch-class`,
             config: {
@@ -148,7 +148,7 @@ const StuRank = ()=>{
         setSelectedClass(batchList?.find(item => item.batchId === batchId)?.classes?.[0]?.classId || 0);
     }
     const goPaperDetail = (name: string, examPaperId: string) => {
-        window.location.href = `${window.location.pathname}#/app/test/testPaper/stuDetail?examPaperId=${examPaperId}&examId=${examId}&batchId=${selectedBatch}&classId=${selectedClass}&query=${query}`;
+        window.location.href = `${window.location.pathname}#/app/test/testRank/stuDetail?examPaperId=${examPaperId}&examId=${examId}&batchId=${selectedBatch}&classId=${selectedClass}&query=${query}`;
     }
     /** 搜索 */
     const onTestQueryChange = (event: any) => {

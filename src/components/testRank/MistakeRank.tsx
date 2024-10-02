@@ -186,7 +186,7 @@ const MistakeRank = () => {
         {
             key: 'errorCount',
             dataIndex: 'errorCount',
-            title: '错题人数',
+            title: '错题人次',
             render: (_: any, record: any) => {
                 return getErrorCount(record.setType, record);
             },

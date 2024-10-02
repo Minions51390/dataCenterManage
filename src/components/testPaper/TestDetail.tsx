@@ -375,9 +375,8 @@ class TestDetail extends React.Component {
     async getQuestionBankList() {
         const { bankPeople, setType } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/question-set/list?query=&teacherId=${bankPeople}&setType=${setType}&sortKey=createTime&sortOrder=asc&pageSize=20&pageNo=1&all=on`,
+            url: `${baseUrl}/api/v1/question-set/list?query=&teacherId=${bankPeople}&setType=${setType}&sortKey=updateTime&sortOrder=desc&pageSize=20&pageNo=1&all=on`,
         });
-        console.log('------------->', res);
         const questionBankList = res?.data?.questionSetList || [];
         this.setState({
             bankList: questionBankList,

@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Pagination, Input, Button, PageHeader, Select, Tooltip, Divider, Skeleton } from 'antd';
+import { EyeOutlined, RollbackOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import { get, baseUrl } from '../../service/tools';
 import '../../style/pageStyle/StuPaperDetail.less';
 import { useLocation } from 'react-router-dom';
 import { Choice, Pack, LongReading, CfReading } from '../questionTableCell';
+import StuPaperDetailMore from './StuPaperDetailMore'
 import { ReactComponent as GenuineSvg } from '../../assets/svg/genuine.svg';
 import { QuestionType, getErrorCount } from '../../utils/question';
 import cn from 'classnames';
@@ -63,11 +65,11 @@ const StuPaperDetail = ({ query }: Props) => {
     const [paperName, setPaperName] = useState('');
     const [score, setScore] = useState(0);
     const [queryType, setQueryType] = useState('all');
-    const [pageNo, setPageNo] = useState(1);
-    const [total, setTotal] = useState(0);
-    const [pageSize, setPageSize] = useState(20);
-    const location = useLocation();
+    const [preview, setPreview] = useState(false);
+    const [stuCard, setStuCard] = useState([]);
+    const [stuPart, setStuPart] = useState([]);
     const {batchId, classId, examId, examPaperId } = query
+    
 
     const routes = [
         {
@@ -79,7 +81,7 @@ const StuPaperDetail = ({ query }: Props) => {
             breadcrumbName: `成绩排行`,
         },
         {
-            path: '/app/test/testPaper/stuDetail',
+            path: '/app/test/testRank/stuDetail',
             breadcrumbName: '卷面详情',
         },
     ];
@@ -124,8 +126,11 @@ const StuPaperDetail = ({ query }: Props) => {
             key: 'result',
             dataIndex: 'result',
             title: '判定',
-            render: (text: string, record: any) => record.rightKey === record.choiceKey ? 
-            <div style={{color: "#02CA00"}}>正确</div> : <div style={{color: "#FF0000"}}>错误</div>
+            render: (text: string, record: any) => {
+                console.log('record', record)
+                return record.rightKey === record.choiceKey ? 
+                <div style={{color: "#02CA00"}}>正确{record.rightKey === record.choiceKey}</div> : <div style={{color: "#FF0000"}}>错误{record.rightKey === record.choiceKey}</div>
+            }
         },
         {
             key: 'operation',
@@ -133,7 +138,7 @@ const StuPaperDetail = ({ query }: Props) => {
             title: '操作',
             render: (text: string, record: any) => (
                 <div className="edit">
-                    <div className='edit' onClick={(record) => showDetail(record)}>详情</div>
+                    <div className="edit" onClick={(record) => handlePreviewClick(record)}>详情</div>
                 </div>
             )
         },
@@ -142,17 +147,24 @@ const StuPaperDetail = ({ query }: Props) => {
     const init = async () => {
         await getStudentList();
     }
+    // 获取学生列表
+    const getStudentList = useCallback(async () => {
+        let res = await get({
+            url: `${baseUrl}/api/v1/exam/paper/list?pageSize=99999&pageNo=1&examId=${examId}&batchId=${batchId}&classId=${classId}&query=${query.query}`,
+        });
+        const selectedStudent = res?.data?.examPaperList?.find((item: any) => item.examPaperId == selectedExamPaperId)
+        setStudentList(res?.data?.examPaperList)
+        setPaperName(selectedStudent?.username)
+        setScore(selectedStudent?.score)
+    }, [batchId, classId, examId, query.query, selectedExamPaperId])
 
-    const showDetail = (record: any) => {
-        console.log(record);
-    };
-
-    const getData = async () => {
+    // 获取选中学生卷面详情
+    const getDetailData = async () => {
         const params = {
             examPaperId:selectedExamPaperId,
             queryType,
-            pageSize,
-            pageNo: pageNo,
+            pageNo: 1,
+            pageSize: 20,
         };
         let res = await get({
             url: `${baseUrl}/api/v1/exam/paper/question/list`,
@@ -167,28 +179,30 @@ const StuPaperDetail = ({ query }: Props) => {
             })
         });
         setList(result);
-        setTotal(res?.data?.parts.length);
         setScore(res?.data?.score);
     }
-    // 获取学生列表
-    const getStudentList = useCallback(async () => {
+
+    // 获取选中学生卷面预览
+    const getPreviewData = async () => {
         let res = await get({
-            url: `${baseUrl}/api/v1/exam/paper/list?pageSize=99999&pageNo=1&examId=${examId}&batchId=${batchId}&classId=${classId}&query=${query.query}`,
+            url: `${baseUrl}/api/v1/exam/paper/detail?paperId=${selectedExamPaperId}`,
         });
-        const selectedStudent = res?.data?.examPaperList?.find((item: any) => item.examPaperId == selectedExamPaperId)
-        setStudentList(res?.data?.examPaperList)
-        setPaperName(selectedStudent?.username)
-        setScore(selectedStudent?.score)
-    }, [selectedExamPaperId])
+        console.log('res?.data?.part', res?.data?.part)
+        setStuCard(res?.data?.card);
+        setStuPart(res?.data?.part);
+    }
+    
+    // 更换选中学生
     const handleSelectedStudentChange = (examPaperId: String) => {
         setSelectedExamPaperId(examPaperId);
     }
+    // 更换筛选
     const handleSelectChange = (v: string) => {
         setQueryType(v);
     }
+    // 上一位学生
     const handlePrevStudentClick = () => {
         const index = studentList.findIndex((item: any) => String(item.examPaperId) === selectedExamPaperId);
-        console.log(index)
         if (index > 0) {
             setSelectedExamPaperId(String(studentList[index - 1]?.examPaperId));
         }
@@ -196,9 +210,9 @@ const StuPaperDetail = ({ query }: Props) => {
             setSelectedExamPaperId(String(studentList[studentList.length - 1]?.examPaperId));
         }
     }
+    // 下一位学生
     const handleNextStudentClick = () => {
         const index = studentList.findIndex((item: any) => String(item.examPaperId) === selectedExamPaperId);
-        console.log(index)
         if (index < studentList.length - 1) {
             setSelectedExamPaperId(String(studentList[index + 1]?.examPaperId));
         }
@@ -206,16 +220,23 @@ const StuPaperDetail = ({ query }: Props) => {
             setSelectedExamPaperId(String(studentList[0]?.examPaperId));
         }
     }
-    const handlePaginationChange = (page: number, pageSize: number = 20) => {
-        setPageNo(page);
-        setPageSize(pageSize);
-    }
+    const handlePreviewClick = (record: any) => {
+        // if(!preview){
+        //     getPreviewData();
+        // }
+        setPreview(!preview);
+    };
     useEffect(()=>{
         init();
     }, [examPaperId])
     useEffect(() => {
-        getData();
-    }, [selectedExamPaperId, queryType, pageNo, pageSize]);
+        getDetailData();
+    }, [selectedExamPaperId, queryType]);
+    useEffect(() => {
+        if(preview){
+            getPreviewData();
+        }
+    }, [selectedExamPaperId, preview])
     return (
         <div className="stu-paper-detail">
             <div className="header">
@@ -246,36 +267,52 @@ const StuPaperDetail = ({ query }: Props) => {
                             </Select>
                         </div>
                     </div>
-                    
                     <div className="score">
-                        <span>考试成绩:</span>
-                        <span>{score}</span>
+                        <span className="score-text">考试成绩:</span>
+                        <span className="score-value">{score}</span>
+                    </div>
+                    <div className="preview">
+                        {
+                            preview ? <Button onClick={handlePreviewClick} icon={<RollbackOutlined />}>返回列表</Button> : <Button onClick={handlePreviewClick} icon={<EyeOutlined />}>预览卷面</Button>
+                        }
+                        
                     </div>
                 </div>
-                <div className="table">
-                    {
-                        list.map((part:any)=>(
-                            <Table
-                                columns={columns}
-                                dataSource={part.questionList}
-                                size={'middle'}
-                                bordered={false}
-                                pagination={false}
-                            />
-                        ))
-                    }
-                </div>
-                {/* <div className={list?.length ? 'pag' : 'display-none'}>
-                    <Pagination
-                        defaultCurrent={1}
-                        pageSize={pageSize}
-                        current={pageNo}
-                        total={total}
-                        onChange={handlePaginationChange}
-                        showQuickJumper
-                        showSizeChanger
-                    />
-                </div> */}
+                {
+                    preview ? (
+                        <StuPaperDetailMore card={stuCard} part={stuPart} score={score} />
+                    ) : (
+                        <div className="table">
+                            {
+                                list.map((part:any)=>(
+                                    <div className="table-wrapper">
+                                        <div className="table-title">{part.partName}{part.partDesc}</div>
+                                        {
+                                            part.questionList?.questions ? (
+                                                <Table
+                                                    columns={columns}
+                                                    dataSource={part.questionList?.questions}
+                                                    size={'middle'}
+                                                    bordered={false}
+                                                    pagination={false}
+                                                />
+                                            ): (
+                                                <Table
+                                                    columns={columns}
+                                                    dataSource={part.questionList}
+                                                    size={'middle'}
+                                                    bordered={false}
+                                                    pagination={false}
+                                                />
+                                            )
+                                        }
+                                        
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    )
+                }
             </div>
         </div>
     )

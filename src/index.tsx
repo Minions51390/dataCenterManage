@@ -59,7 +59,7 @@ const login = async () => {
     return res;
 };
 // 上线前注释掉
-// login();
+login();
 ReactDOM.render(
     // <AppContainer>
     <AlitaProvider>

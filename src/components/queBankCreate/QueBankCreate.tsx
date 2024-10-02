@@ -28,8 +28,8 @@ class QueBank extends React.Component {
         setTypeList: ['choice', 'pack', 'long_reading', 'cf_reading'],
         pageNo: 1,
         totalCount: 1,
-        sortKey: 'creator',
-        sortOrder: 'asc',
+        sortKey: 'updateTime',
+        sortOrder: 'desc',
         columns1: [
             {
                 title: '序号',
@@ -466,7 +466,7 @@ class QueBank extends React.Component {
                         真题题库:
                         <div style={{ width: '294px', marginLeft: '12px' }}>
                             <Radio.Group onChange={this.onGenuineChange.bind(this)} value={genuine} disabled={setType === 'choice' ? true : false}>
-                                <Radio value={true}>是</Radio>
+                                <Radio value>是</Radio>
                                 <Radio value={false}>否</Radio>
                             </Radio.Group>
                         </div>
