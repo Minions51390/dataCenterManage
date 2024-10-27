@@ -152,6 +152,7 @@ const StuRank = ()=>{
     }
     /** 搜索 */
     const onTestQueryChange = (event: any) => {
+        console.log('event', event.target.value)
         setQuery(event.target.value);
     }
     /** 排序更换触发 */
@@ -160,9 +161,7 @@ const StuRank = ()=>{
             const sort = (sorter?.order || '').replace('end', '');
             setSortKey(sorter?.columnKey)
             setSort(sort);
-            getTest();
         }
-        console.log(pagination, filters, sorter, extra);
     }
 
     /** 获取成绩列表 */
@@ -174,7 +173,7 @@ const StuRank = ()=>{
         const totalCount = (res?.data?.totalCount || 0) / 20;
         setData(rollList);
         setTotalCount(totalCount);
-    }, [selectedClass, examId])
+    }, [selectedClass, examId, query, sort, sortKey])
 
     useEffect(() => {
         getTest();

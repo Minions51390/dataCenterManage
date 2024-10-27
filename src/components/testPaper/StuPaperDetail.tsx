@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Table, Pagination, Input, Button, PageHeader, Select, Tooltip, Divider, Skeleton } from 'antd';
 import { EyeOutlined, RollbackOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
@@ -64,11 +64,11 @@ const StuPaperDetail = ({ query }: Props) => {
     const [selectedExamPaperId, setSelectedExamPaperId] = useState<String>(String(query?.examPaperId));
     const [paperName, setPaperName] = useState('');
     const [score, setScore] = useState(0);
-    const [queryType, setQueryType] = useState('all');
+    const [scrollToIndex, setScrollToIndex] = useState(0);
     const [preview, setPreview] = useState(false);
     const [stuCard, setStuCard] = useState([]);
     const [stuPart, setStuPart] = useState([]);
-    const {batchId, classId, examId, examPaperId } = query
+    const {batchId, classId, examId, examPaperId } = query;
     
 
     const routes = [
@@ -85,6 +85,12 @@ const StuPaperDetail = ({ query }: Props) => {
             breadcrumbName: '卷面详情',
         },
     ];
+    // 对错判定
+    const getJudging = (record: any) => {
+        return record.questions ? 
+            (record.questions.every((question:any)=> question.choiceKey === question.rightKey) ? true : false) :
+            record.rightKey === record.choiceKey ? true : false
+    }
 
     const columns: TableColumnsType<any> = [
         {
@@ -127,18 +133,29 @@ const StuPaperDetail = ({ query }: Props) => {
             dataIndex: 'result',
             title: '判定',
             render: (text: string, record: any) => {
-                console.log('record', record)
-                return record.rightKey === record.choiceKey ? 
-                <div style={{color: "#02CA00"}}>正确{record.rightKey === record.choiceKey}</div> : <div style={{color: "#FF0000"}}>错误{record.rightKey === record.choiceKey}</div>
-            }
+                return getJudging(record) ? 
+                    <div style={{color: "#02CA00"}}>正确{record.rightKey === record.choiceKey}</div> : 
+                    <div style={{color: "#FF0000"}}>错误{record.rightKey === record.choiceKey}</div>
+            },
+            filters: [
+                {
+                  text: '正确',
+                  value: true,
+                },
+                {
+                  text: '错误',
+                  value: false,
+                },
+            ],
+            onFilter: (value, record) => getJudging(record) === value,
         },
         {
             key: 'operation',
             dataIndex: 'operation',
             title: '操作',
-            render: (text: string, record: any) => (
+            render: (text: any, record: any, index:number) => (
                 <div className="edit">
-                    <div className="edit" onClick={(record) => handlePreviewClick(record)}>详情</div>
+                    <div className="edit" onClick={(record) => handlePreviewClick(record, index)}>详情</div>
                 </div>
             )
         },
@@ -162,7 +179,6 @@ const StuPaperDetail = ({ query }: Props) => {
     const getDetailData = async () => {
         const params = {
             examPaperId:selectedExamPaperId,
-            queryType,
             pageNo: 1,
             pageSize: 20,
         };
@@ -196,10 +212,6 @@ const StuPaperDetail = ({ query }: Props) => {
     const handleSelectedStudentChange = (examPaperId: String) => {
         setSelectedExamPaperId(examPaperId);
     }
-    // 更换筛选
-    const handleSelectChange = (v: string) => {
-        setQueryType(v);
-    }
     // 上一位学生
     const handlePrevStudentClick = () => {
         const index = studentList.findIndex((item: any) => String(item.examPaperId) === selectedExamPaperId);
@@ -220,10 +232,8 @@ const StuPaperDetail = ({ query }: Props) => {
             setSelectedExamPaperId(String(studentList[0]?.examPaperId));
         }
     }
-    const handlePreviewClick = (record: any) => {
-        // if(!preview){
-        //     getPreviewData();
-        // }
+    const handlePreviewClick = (record: any, index?:any) => {
+        setScrollToIndex(index || 0);
         setPreview(!preview);
     };
     useEffect(()=>{
@@ -231,7 +241,7 @@ const StuPaperDetail = ({ query }: Props) => {
     }, [examPaperId])
     useEffect(() => {
         getDetailData();
-    }, [selectedExamPaperId, queryType]);
+    }, [selectedExamPaperId]);
     useEffect(() => {
         if(preview){
             getPreviewData();
@@ -259,13 +269,6 @@ const StuPaperDetail = ({ query }: Props) => {
                         </div>
                         <Button onClick={handlePrevStudentClick}>上一位</Button>
                         <Button onClick={handleNextStudentClick}>下一位</Button>
-                        <div className="select">
-                            <div>筛选：</div>
-                            <Select style={{ width: 170 }} value={queryType} onChange={handleSelectChange}>
-                                <Option value="all">全部</Option>
-                                <Option value="error">只看错题</Option>
-                            </Select>
-                        </div>
                     </div>
                     <div className="score">
                         <span className="score-text">考试成绩:</span>
@@ -273,14 +276,16 @@ const StuPaperDetail = ({ query }: Props) => {
                     </div>
                     <div className="preview">
                         {
-                            preview ? <Button onClick={handlePreviewClick} icon={<RollbackOutlined />}>返回列表</Button> : <Button onClick={handlePreviewClick} icon={<EyeOutlined />}>预览卷面</Button>
+                            preview ? 
+                            <Button onClick={handlePreviewClick} icon={<RollbackOutlined />}>返回列表</Button> : 
+                            <Button onClick={handlePreviewClick} icon={<EyeOutlined />}>预览卷面</Button>
                         }
                         
                     </div>
                 </div>
                 {
                     preview ? (
-                        <StuPaperDetailMore card={stuCard} part={stuPart} score={score} />
+                        <StuPaperDetailMore card={stuCard} part={stuPart} score={score} scrollToIndex={scrollToIndex} />
                     ) : (
                         <div className="table">
                             {

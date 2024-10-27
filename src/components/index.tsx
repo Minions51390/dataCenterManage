@@ -52,6 +52,7 @@ import WritingExam from './writing/WritingExam';
 import WritingDetail from './writing/WritingDetail';
 import ExamRank from './writing/ExamRank';
 import ExamDetail from './writing/ExamDetail';
+import WritingCorpus from '../pages/writing/WritingCorpus'
 
 const WysiwygBundle = Loadable({
     // 按需加载富文本配置
@@ -108,6 +109,7 @@ export default {
     WritingPaper,
     WritingExam,
     WritingDetail,
+    WritingCorpus,
     ExamRank,
     ExamDetail,
 	QuestionAddPack,

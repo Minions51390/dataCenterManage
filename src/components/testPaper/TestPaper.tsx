@@ -362,31 +362,35 @@ class TestPaper extends React.Component {
                     onCancel={this.handleCreateCancel.bind(this)}
                 >
                     <div className="module-area">
-                        试卷名称:
-                        <Input
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            placeholder="请输入试卷名称"
-                            value={testName}
-                            onChange={this.onTestNameChange.bind(this)}
-                            maxLength={20}
-                        />
+                        <span className="module-area-title">试卷名称:</span>
+                        <div className="module-area-content">
+                            <Input
+                                className="gap-8"
+                                style={{ width: 294, marginRight: '18px'}}
+                                placeholder="请输入试卷名称"
+                                value={testName}
+                                onChange={this.onTestNameChange.bind(this)}
+                                maxLength={20}
+                            />
+                        </div>
                     </div>
                     <div className="module-area">
-                        基于某试卷新建：
-                        <Input
-                            className="gap-8"
-                            style={{ width: 294 }}
-                            placeholder="请输入试卷ID"
-                            value={baseQuestionPaperId}
-                            onChange={this.onBaseChange.bind(this)}
-                        />
-                        <Tooltip
-                            placement="top"
-                            title="可以选取已发布的试卷作为模板并在此基础上做试题修改"
-                        >
-                            <InfoCircleOutlined style={{marginLeft: '4px'}} />
-                        </Tooltip>
+                        <span className="module-area-title">基于某试卷新建:</span>
+                        <div className="module-area-content">
+                            <Input
+                                className="gap-8"
+                                style={{ width: 294 }}
+                                placeholder="请输入试卷ID"
+                                value={baseQuestionPaperId}
+                                onChange={this.onBaseChange.bind(this)}
+                            />
+                            <Tooltip
+                                placement="top"
+                                title="可以选取已发布的试卷作为模板并在此基础上做试题修改"
+                            >
+                                <InfoCircleOutlined style={{marginLeft: '4px'}} />
+                            </Tooltip>
+                        </div>
                     </div>
                 </Modal>
             </div>

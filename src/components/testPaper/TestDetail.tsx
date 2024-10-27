@@ -184,9 +184,12 @@ class TestDetail extends React.Component {
                 partName: 'Part 1',
                 selectedRowKeys: [],
                 selectedRows: [],
-                questionList: [],
+                questionList: [{
+                    content: '',
+                }],
             },
         ],
+        originParts: [],
         partsIndex: 0,
         showPreview: false,
         previewData: {},
@@ -342,6 +345,7 @@ class TestDetail extends React.Component {
                         ...val,
                         partsIndex: index,
                         key,
+                        content: val.stem || val.topic,
                     };
                 }),
                 selectedRowKeys: [],
@@ -350,6 +354,7 @@ class TestDetail extends React.Component {
         });
         const allCount = (res?.data?.totalCount || 0) / 20;
         this.setState({
+            originParts: parts,
             parts,
             allCount,
         });
@@ -415,6 +420,7 @@ class TestDetail extends React.Component {
                         setId: val.setId,
                         questionId: val.questionId,
                         setType: val.setType,
+                        content: val.stem || val.topic,
                     };
                 }),
             };
@@ -517,12 +523,23 @@ class TestDetail extends React.Component {
 
     /** 弹窗内搜索接口 */
     searchQuery(val: any) {
+        const { testQuery, originParts } = this.state;
         this.setState(
             {
                 pageNo: 1,
             },
             () => {
-                this.getTestList();
+                // 备注
+                const originPart = JSON.parse(JSON.stringify(originParts));
+                const filterParts = originPart.map((item:any) => {
+                    item.questionList = item.questionList.filter((item:any) => {
+                        return item.content.includes(testQuery);
+                    });
+                    return item;
+                });
+                this.setState({
+                    parts: filterParts,
+                });
             }
         );
     }

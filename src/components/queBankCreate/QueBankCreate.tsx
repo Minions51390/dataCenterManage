@@ -4,6 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { createBrowserHistory } from 'history';
 import '../../style/pageStyle/QueBankCreate.less';
 import { get, post, baseUrl } from '../../service/tools';
+import Highlighter from "react-highlight-words";
 import realKu from '../../style/imgs/realKu.png';
 export const history = createBrowserHistory();
 
@@ -41,12 +42,7 @@ class QueBank extends React.Component {
             {
                 title: '题库名称',
                 key: 'setName',
-                render: (text: any, record: any, index: number) => (
-                    <div className="title">
-                        {text.genuine ? <img src={realKu} alt="" /> : <div />}
-                        {text.setName}
-                    </div>
-                ),
+                render: this.questionListRender.bind(this),
             },
             {
                 title: '创建人',
@@ -133,6 +129,19 @@ class QueBank extends React.Component {
             data1: questionBankList,
             totalCount,
         });
+    }
+    questionListRender(text:any){
+        const { bankQuery } = this.state;
+        return(
+            <div className="title">
+                {text.genuine ? <img src={realKu} alt="" /> : <div />}
+                <Highlighter
+                    searchWords={[bankQuery]}
+                    autoEscape
+                    textToHighlight={text.setName}
+                />
+            </div>
+        )
     }
 
     /** 搜索 */
@@ -462,15 +471,18 @@ class QueBank extends React.Component {
                             ))}
                         </Select>
                     </div>
-                    <div className="module-area">
-                        真题题库:
-                        <div style={{ width: '294px', marginLeft: '12px' }}>
-                            <Radio.Group onChange={this.onGenuineChange.bind(this)} value={genuine} disabled={setType === 'choice' ? true : false}>
-                                <Radio value>是</Radio>
-                                <Radio value={false}>否</Radio>
-                            </Radio.Group>
-                        </div>
-                    </div>
+                    {
+                        setType === 'choice' ? null : 
+                            <div className="module-area">
+                                真题题库:
+                                <div style={{ width: '294px', marginLeft: '12px' }}>
+                                    <Radio.Group onChange={this.onGenuineChange.bind(this)} value={genuine}>
+                                        <Radio value>是</Radio>
+                                        <Radio value={false}>否</Radio>
+                                    </Radio.Group>
+                                </div>
+                            </div>
+                    }
                 </Modal>
             </div>
         );

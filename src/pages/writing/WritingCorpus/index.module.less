@@ -1,0 +1,70 @@
+.writing-corpus {
+    overflow-y: auto;
+    font-family: PingFangSC-Regular, PingFang SC;
+    .header {
+        height: 98px;
+        background: #FFFFFF;
+        overflow: hidden;
+        .header-breadcrumb {
+            margin-left: 32px;
+            height: 22px;
+            font-size: 14px;
+            font-weight: 400;
+            color: rgba(0, 0, 0, 0.45);
+            line-height: 22px;
+            margin-top: 16px;
+        }
+        .header-title {
+            margin: 0 32px;
+            height: 28px;
+            font-size: 20px;
+            font-family: PingFangSC-Medium, PingFang SC;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+            line-height: 28px;
+            margin-top: 16px;
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+    .content{
+        width: auto;
+        margin: 24px;
+        margin-bottom: 0;
+        background: #FFFFFF;
+        padding: 32px;
+        .content-search{
+
+        }
+        .content-table{
+            margin-top: 24px;
+            .writing-corpus-box{
+                text-align: left;
+                .box-name{
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                .box-title{
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                .box-desc{
+                    color: rgba(0, 0, 0, 0.45);
+                    overflow: hidden;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                }
+            }
+        }
+        .content-page{
+            display: flex;
+            flex-direction: row-reverse;
+            margin-top: 24px;
+        }
+    }
+    .copy{
+        color: #1890FF;
+        cursor: pointer;
+    }
+}

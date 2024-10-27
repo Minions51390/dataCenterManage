@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import '../../style/pageStyle/StuPaperDetailMore.less'
+
 
 const BankType = {
     choice: "choice",
@@ -237,7 +238,6 @@ const renderSectionTypeThree = (data:any, card:any, partName:any) => {
 }
 const renderFinishRes = (paperData:any) => {
     const {card, score, topPos} = paperData
-    console.log('renderFinishRes', paperData)
     return (
       <>
         <div
@@ -297,9 +297,10 @@ const renderFinishRes = (paperData:any) => {
         </div>
       </>
     );
-  }
+}
 const StuPaperDetailMore = (props: any) => {
-    const {card, part} = props
+    const {card, part, scrollToIndex} = props
+    const sectionRef = useRef(null);
     const computedSection = (part:any, index:any) => {
         let res = 0;
         for (let i = 0; i < index; i++) {
@@ -307,6 +308,11 @@ const StuPaperDetailMore = (props: any) => {
         }
         return res
     }
+    console.log('sectionRefout', sectionRef.current)
+    useEffect(() => {
+        console.log('scrollToIndex', scrollToIndex)
+        console.log('sectionRefin', sectionRef.current)
+    }, [scrollToIndex]);
     return (
         <div className="stu-paper-detail-more">
             <div className = "main">
@@ -319,7 +325,7 @@ const StuPaperDetailMore = (props: any) => {
                                 </div>
                                 <div className="title">{item.title}</div>
                             </div>
-                            <div className="section">
+                            <div className="section" ref={sectionRef} >
                                 {
                                     item.section.map((data:any, sectionIndex:any) => {
                                         if (data.type === BankType["pack"]) {
