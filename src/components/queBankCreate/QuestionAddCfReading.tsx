@@ -23,8 +23,8 @@ const GetRequest = () => {
 };
 
 const SELECT_TP: any = {
-    cet4: '四级',
-    cet6: '六级',
+    cet4: 'CET4',
+    cet6: 'CET6',
 };
 
 const SELECT_TP_LIST = ['cet4', 'cet6'];
@@ -277,7 +277,7 @@ class QuestionAddCfReading extends React.Component {
                                 value={genuine}
                                 disabled={fatherGenuine}
                             >
-                                <Radio value={true}>是</Radio>
+                                <Radio value>是</Radio>
                                 <Radio value={false}>否</Radio>
                             </Radio.Group>
                             <div className="ml-14">

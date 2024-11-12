@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import '../../style/pageStyle/StuPaperDetailMore.less'
 
 
@@ -7,7 +7,7 @@ const BankType = {
     pack: "pack",
     long_reading: "long_reading",
     cf_reading: "cf_reading",
-  };
+};
 const findAnswerVal = (answer:any, key:any) => {
     if (!key) {
       return;
@@ -15,7 +15,7 @@ const findAnswerVal = (answer:any, key:any) => {
     return answer.filter((item:any) => {
       return item.key === key;
     })[0];
-  }
+}
 /** 文章内容type=choice */
 const renderSectionChoice = (data:any, card:any, partName:any) => {
     return (
@@ -236,7 +236,7 @@ const renderSectionTypeThree = (data:any, card:any, partName:any) => {
         </div>
     );
 }
-const renderFinishRes = (paperData:any) => {
+const renderFinishRes = (paperData:any, setScrollToIndex:any) => {
     const {card, score, topPos} = paperData
     return (
       <>
@@ -267,6 +267,9 @@ const renderFinishRes = (paperData:any) => {
                           backgroundColor: `${
                             val.choiceKey !== val.rightKey ? "#FFF0F0" : "#FFF"
                           }`,
+                        }}
+                        onClick={() => {
+                            setScrollToIndex(index)
                         }}
                       >
                         <div
@@ -299,8 +302,11 @@ const renderFinishRes = (paperData:any) => {
     );
 }
 const StuPaperDetailMore = (props: any) => {
-    const {card, part, scrollToIndex} = props
-    const sectionRef = useRef(null);
+    const {card, part, scrollTo} = props;
+    const [count, setCount] = useState(0);
+    const [scrollToIndex, setScrollToIndex] = useState(scrollTo);
+    
+    const sectionRef = useRef<HTMLDivElement>(null);
     const computedSection = (part:any, index:any) => {
         let res = 0;
         for (let i = 0; i < index; i++) {
@@ -308,11 +314,18 @@ const StuPaperDetailMore = (props: any) => {
         }
         return res
     }
-    console.log('sectionRefout', sectionRef.current)
     useEffect(() => {
-        console.log('scrollToIndex', scrollToIndex)
-        console.log('sectionRefin', sectionRef.current)
-    }, [scrollToIndex]);
+        const timer = setTimeout(() => {
+            setCount(count + 1)
+        }, 200)
+        return () => clearTimeout(timer)
+    }, []);
+    useEffect(() => {
+        if(sectionRef.current){
+            const targetElement = sectionRef.current.children[scrollToIndex] as HTMLElement;
+            targetElement.scrollIntoView({behavior: 'smooth'})
+        }
+    }, [count, scrollToIndex]);
     return (
         <div className="stu-paper-detail-more">
             <div className = "main">
@@ -361,7 +374,7 @@ const StuPaperDetailMore = (props: any) => {
                 })}
             </div>
             <div className="response">
-                {renderFinishRes(props)}
+                {renderFinishRes(props, setScrollToIndex)}
           </div>
         </div>
     );

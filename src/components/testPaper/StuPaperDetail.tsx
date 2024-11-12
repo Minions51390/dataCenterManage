@@ -272,7 +272,7 @@ const StuPaperDetail = ({ query }: Props) => {
                     </div>
                     <div className="score">
                         <span className="score-text">考试成绩:</span>
-                        <span className="score-value">{score}</span>
+                        <span className="score-value">{score < 0 ? '未考试' : score}</span>
                     </div>
                     <div className="preview">
                         {
@@ -285,7 +285,7 @@ const StuPaperDetail = ({ query }: Props) => {
                 </div>
                 {
                     preview ? (
-                        <StuPaperDetailMore card={stuCard} part={stuPart} score={score} scrollToIndex={scrollToIndex} />
+                        <StuPaperDetailMore card={stuCard} part={stuPart} score={score} scrollTo={scrollToIndex} preview={preview} />
                     ) : (
                         <div className="table">
                             {

@@ -104,7 +104,18 @@ class TestPaper extends React.Component {
     async getTest() {
         const { testQuery, pageNo, selTeacher, queryType } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/question-paper/list?teacherId=${selTeacher.teacherId}&query=${testQuery}&queryType=${queryType}&pageSize=20&pageNo=${pageNo}&sortOrder=desc&sortKey=updateTime`,
+            url: `${baseUrl}/api/v1/question-paper/list`,
+            config:{
+                params:{
+                    teacherId: selTeacher.teacherId,
+                    query: testQuery,
+                    queryType,
+                    pageSize: 20,
+                    pageNo,
+                    sortOrder: 'desc',
+                    sortKey: 'updateTime',
+                }
+            }
         });
         const questionBankList = res?.data?.questionPaperList || [];
         const totalCount = res?.data?.totalCount;
@@ -158,6 +169,8 @@ class TestPaper extends React.Component {
     handleQueryType(val: any) {
         this.setState({
             queryType: val,
+        }, ()=>{
+            this.getTest();
         });
     }
 
@@ -165,6 +178,8 @@ class TestPaper extends React.Component {
     onTestQueryChange(event: any) {
         this.setState({
             testQuery: event.target.value,
+        }, ()=>{
+            this.getTest();
         });
     }
 
@@ -301,13 +316,13 @@ class TestPaper extends React.Component {
                                     onChange={this.onTestQueryChange.bind(this)}
                                 />
                             </Input.Group>
-                            <Button
+                            {/* <Button
                                 className="gap-30"
                                 type="primary"
                                 onClick={this.clickSearch.bind(this)}
                             >
                                 查询
-                            </Button>
+                            </Button> */}
                         </div>
                         <div onClick={this.showCreateModal.bind(this)}>
                             <Button className="gap-30" type="primary" icon={<PlusOutlined />}>

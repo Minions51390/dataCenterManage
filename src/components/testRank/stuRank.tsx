@@ -70,9 +70,11 @@ const StuRank = ()=>{
         },
         {
             title: '考试成绩',
-            dataIndex: 'score',
             key: 'score',
             sorter: true,
+            render: (text: any, record: any, index: number) => (
+                <div>{text.score < 0 ? '未考试' : text.score}</div>
+            ),
         },
         {
             title: '考试时间',

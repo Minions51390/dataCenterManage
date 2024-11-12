@@ -116,13 +116,21 @@ class QueBank extends React.Component {
         const { bankQuery, pageNo, sortKey, sortOrder, selTeacher, setTypeFilter, genuineFilter } =
             this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/question-set/list?teacherId=${
-                selTeacher.teacherId
-            }&query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}${
-                setTypeFilter ? '&setType=' + setTypeFilter : ''
-            }&genuine=${genuineFilter}&all=off`,
+            url: `${baseUrl}/api/v1/question-set/list`,
+            config:{
+                params:{
+                    teacherId: selTeacher.teacherId,
+                    query: bankQuery,
+                    sortKey,
+                    sortOrder,
+                    pageSize: 20,
+                    pageNo,
+                    setType: setTypeFilter,
+                    genuine: genuineFilter,
+                    all: 'off'
+                }
+            }
         });
-        console.log('------------->', res);
         const questionBankList = res?.data?.questionSetList || [];
         const totalCount = (res?.data?.totalCount || 0) / 20;
         this.setState({
@@ -148,6 +156,9 @@ class QueBank extends React.Component {
     onBankQueryChange(event: any) {
         this.setState({
             bankQuery: event.target.value,
+            pageNo: 1,
+        },()=>{
+            this.getQuestionBankList();
         });
     }
 
@@ -172,17 +183,14 @@ class QueBank extends React.Component {
 
     /** 确认新建 */
     async handleCreateOk(val: any) {
-        console.log('handleCreateOk', val);
         const { setName, setType } = this.state;
-        this.setState({
-            isVisible: false,
-        });
         const bankID = await this.confimeNew();
-        console.log('bankID', bankID);
         if (bankID) {
+            this.setState({
+                isVisible: false,
+            });
             sessionStorage.setItem('bankDetailId', bankID);
             sessionStorage.setItem('bankDetailName', setName);
-            console.log(123123, setType);
             if (setType === 'choice') {
                 window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
             } else if (setType === 'pack') {
@@ -360,13 +368,13 @@ class QueBank extends React.Component {
                                 value={bankQuery}
                                 onChange={this.onBankQueryChange.bind(this)}
                             />
-                            <Button
+                            {/* <Button
                                 className="gap-48"
                                 type="primary"
                                 onClick={this.clickSearch.bind(this)}
                             >
                                 查询
-                            </Button>
+                            </Button> */}
                         </div>
                         <div onClick={this.showCreateModal.bind(this)}>
                             <Button type="primary" icon={<PlusOutlined />}>
@@ -436,7 +444,7 @@ class QueBank extends React.Component {
                     </div>
                 </div>
                 <Modal
-                    title="新增词库"
+                    title="新增题库"
                     visible={isVisible}
                     cancelText="取消"
                     okText="确定"

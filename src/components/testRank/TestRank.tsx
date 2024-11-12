@@ -306,6 +306,8 @@ class TestRank extends React.Component {
     handleQueryType(val: any) {
         this.setState({
             queryType: val,
+        }, () => {
+            this.getTest();
         });
     }
 
@@ -313,6 +315,8 @@ class TestRank extends React.Component {
     onTestQueryChange(event: any) {
         this.setState({
             query: event.target.value,
+        }, ()=>{
+            this.getTest();
         });
     }
 
@@ -388,9 +392,24 @@ class TestRank extends React.Component {
     async getTest() {
         const { pageNo, selTeacher, selPici, selBanji, queryType, query, sortKey, sort, status, startDate, endDate } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/exam/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${selBanji}&pageSize=20&pageNo=${pageNo}&examStartDate=${startDate}&examEndDate=${endDate}&queryType=${queryType}&query=${query}&status=${status}&sortKey=${sortKey}&sort=${sort}`,
+            url: `${baseUrl}/api/v1/exam/list`,
+            config:{
+                params:{
+                    teacherId: selTeacher.teacherId,
+                    batchId: selPici,
+                    classId: selBanji,
+                    query,
+                    queryType,
+                    status,
+                    examStartDate: startDate,
+                    examEndDate: endDate,
+                    pageNo,
+                    pageSize: 20,
+                    sortKey,
+                    sort,
+                }
+            }
         });
-        console.log('------------->', res);
         const examList = res?.data?.examList || [];
         const totalCount = res?.data?.totalCount;
         this.setState({
@@ -623,13 +642,13 @@ class TestRank extends React.Component {
                                     onChange={this.onTestQueryChange.bind(this)}
                                 />
                             </Input.Group>
-                            <Button
+                            {/* <Button
                                 className="gap-30"
                                 type="primary"
                                 onClick={this.clickSearch.bind(this)}
                             >
                                 搜索
-                            </Button>
+                            </Button> */}
                         </div>
                         <div className="right">
                             <span className="span3">试卷状态:</span>
