@@ -165,6 +165,7 @@ class MainSet extends React.Component {
         });
 
         this.setState({
+            classId,
             jieduan: jieduanRes || [],
             selJieduan,
             curJieduan: selJieduan,
@@ -187,17 +188,13 @@ class MainSet extends React.Component {
                 },
                 {
                     path: `/class?classId=${GetRequest()['classId']}`,
-                    breadcrumbName: `${res.data.className}`,
+                    breadcrumbName: res?.data?.className ? `${res?.data?.className}` : '当前班级',
                 },
                 {
                     path: '/set',
                     breadcrumbName: '设置学习任务',
                 },
             ],
-        });
-
-        this.setState({
-            classId,
         });
     }
 
