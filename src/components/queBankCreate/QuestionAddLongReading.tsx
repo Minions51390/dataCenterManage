@@ -23,8 +23,8 @@ const GetRequest = () => {
 };
 
 const SELECT_TP: any = {
-    cet4: '四级',
-    cet6: '六级',
+    cet4: 'CET4',
+    cet6: 'CET6',
 };
 
 const SELECT_TP_LIST = ['cet4', 'cet6'];
@@ -169,9 +169,7 @@ class QuestionAddLongReading extends React.Component {
 			setTimeout(() => {
                 window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailLongReading`;
             }, 200);
-        } else {
-			message.error(res.msg);
-		}
+        }
     }
 
     /** 保存接口 */
@@ -387,7 +385,7 @@ class QuestionAddLongReading extends React.Component {
                                         value={genuine}
                                         disabled={fatherGenuine}
                                     >
-                                        <Radio value={true}>是</Radio>
+                                        <Radio value>是</Radio>
                                         <Radio value={false}>否</Radio>
                                     </Radio.Group>
                                 </div>
@@ -444,37 +442,38 @@ class QuestionAddLongReading extends React.Component {
                                     <div>
                                         <div className="item">
                                             <span className="title">{index + 1}：</span>
-                                            <TextArea
-                                                className="gap-8"
-                                                value={val.qStem}
-                                                style={{
-                                                    width: '92%',
-                                                    height: 100,
-                                                    resize: 'none',
-                                                }}
-                                                onChange={this.updateStem.bind(this, val, index)}
-                                            />
-                                            <span
-                                                className="del"
-                                                onClick={this.delStem.bind(this, index)}
-                                            >
-                                                <DeleteOutlined />
-                                            </span>
-                                        </div>
-                                        <div className="sel">
-                                            <Select
-                                                className="mt-8"
-                                                style={{ width: '95.5%' }}
-                                                placeholder="请选择匹配答案"
-                                                onChange={this.handelAnswer.bind(this, index)}
-                                                value={val.rightKey}
-                                            >
-                                                {A_Z.map((item: any, index: number) => (
-                                                    <Option key={index} value={item}>
-                                                        {item}
-                                                    </Option>
-                                                ))}
-                                            </Select>
+                                            <div className="item-content">
+                                                <div className="content-edit">
+                                                    <TextArea
+                                                        className="gap-8"
+                                                        value={val.qStem}
+                                                        style={{
+                                                            height: 100,
+                                                            resize: 'none',
+                                                        }}
+                                                        onChange={this.updateStem.bind(this, val, index)}
+                                                    />
+                                                    <Select
+                                                        className="mt-8 content-select"
+                                                        placeholder="请选择匹配答案"
+                                                        onChange={this.handelAnswer.bind(this, index)}
+                                                        value={val.rightKey}
+                                                    >
+                                                        {A_Z.map((item: any, index: number) => (
+                                                            <Option key={index} value={item}>
+                                                                {item}
+                                                            </Option>
+                                                        ))}
+                                                    </Select>
+                                                </div>
+                                                <span
+                                                    className="del"
+                                                    onClick={this.delStem.bind(this, index)}
+                                                >
+                                                    <DeleteOutlined />
+                                                </span>
+                                                
+                                            </div>
                                         </div>
                                     </div>
                                 ))}

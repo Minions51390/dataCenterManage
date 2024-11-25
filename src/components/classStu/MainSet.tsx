@@ -120,20 +120,18 @@ class MainSet extends React.Component {
         addJieduanModule: false,
         addCikuModule: false,
         jieduanText: '',
-        routes: [
-            {
-                path: '/app/class/main',
-                breadcrumbName: '班级和学员管理',
-            },
-            {
-                path: `/class?classId=${GetRequest()['classId']}`,
-                breadcrumbName: `${sessionStorage.getItem('className') || '新建班级'}`,
-            },
-            {
-                path: '/set',
-                breadcrumbName: '设置学习任务',
-            },
-        ],
+        routes: [{
+            path: '/app/class/main',
+            breadcrumbName: '班级和学员管理',
+        },
+        {
+            path: `/class?classId=${GetRequest()['classId']}`,
+            breadcrumbName: '当前班级',
+        },
+        {
+            path: '/set',
+            breadcrumbName: '设置学习任务',
+        },],
         pici: [],
         createExamName: '',
         createWritingId: '',
@@ -167,6 +165,7 @@ class MainSet extends React.Component {
         });
 
         this.setState({
+            classId,
             jieduan: jieduanRes || [],
             selJieduan,
             curJieduan: selJieduan,
@@ -182,10 +181,20 @@ class MainSet extends React.Component {
             paperId: res?.data?.specialTestID || '',
             bigCount: res?.data?.stageTestReciteVersion || 0,
             pici,
-        });
-
-        this.setState({
-            classId,
+            routes: [
+                {
+                    path: '/app/class/main',
+                    breadcrumbName: '班级和学员管理',
+                },
+                {
+                    path: `/class?classId=${GetRequest()['classId']}`,
+                    breadcrumbName: res?.data?.className ? `${res?.data?.className}` : '当前班级',
+                },
+                {
+                    path: '/set',
+                    breadcrumbName: '设置学习任务',
+                },
+            ],
         });
     }
 
@@ -555,6 +564,7 @@ class MainSet extends React.Component {
                 jieduanText: '',
                 secState: 1,
             });
+            
             this.handleJieduan(selJieduan);
             Modal.confirm({
                 title: '新增词库任务',
@@ -677,7 +687,6 @@ class MainSet extends React.Component {
             dbVal,
             firState,
             secState,
-            routes,
             paperId,
             paperName,
             diyTime,
@@ -695,6 +704,7 @@ class MainSet extends React.Component {
             createExamType,
             createStartTime,
             createEndTime,
+            routes
         } = this.state;
         return (
             <div className="main-set">

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Table, Pagination, Input, Button, Modal, PageHeader, Select } from 'antd';
 import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/BankDetailLongReading.less';
 import { get, post, put, baseUrl } from '../../service/tools';
+import Highlighter from "react-highlight-words";
 import LongReading from '../preview/longReading/index';
 import realItem from '../../style/imgs/realItem.png';
 import realKu from '../../style/imgs/realKu.png';
@@ -145,16 +146,28 @@ class BankDetailLongReading extends React.Component {
     }
     async inited() {
         const bankData = await this.getQuestionBank();
-        console.log('bankData', bankData);
         this.setState({ ...bankData });
         this.getQuestionList();
     }
 
     choiceRender(text: any) {
+        const { bankQuery } = this.state;
         return (
             <div className="title">
-                <div className="name">{text.title}</div>
-                <div className="stem">{text.topic}</div>
+                <div className="name">
+                    <Highlighter
+                        searchWords={[bankQuery]}
+                        autoEscape
+                        textToHighlight={text.title}
+                    />
+                </div>
+                <div className="stem">
+                    <Highlighter
+                        searchWords={[bankQuery]}
+                        autoEscape
+                        textToHighlight={text.topic}
+                    />
+                </div>
             </div>
         );
     }
@@ -616,34 +629,33 @@ class BankDetailLongReading extends React.Component {
                                     <div>
                                         <div className="item">
                                             <span className="title">{index + 1}：</span>
-                                            <TextArea
-                                                disabled={!canEdit}
-                                                className="gap-8"
-                                                value={val.qStem}
-                                                style={{
-                                                    width: '92%',
-                                                    height: 100,
-                                                    resize: 'none',
-                                                }}
-                                                onChange={this.updateStem.bind(this, val, index)}
-                                            />
+                                            <div className="item-content">
+                                                <TextArea
+                                                    disabled={!canEdit}
+                                                    className="gap-8"
+                                                    value={val.qStem}
+                                                    style={{
+                                                        height: 100,
+                                                        resize: 'none',
+                                                    }}
+                                                    onChange={this.updateStem.bind(this, val, index)}
+                                                />
+                                                <Select
+                                                    disabled={!canEdit}
+                                                    className="mt-8"
+                                                    placeholder="请选择匹配答案"
+                                                    onChange={this.handelAnswer.bind(this, index)}
+                                                    value={val.rightKey}
+                                                >
+                                                    {A_Z.map((item: any, index: number) => (
+                                                        <Option key={index} value={item}>
+                                                            {item}
+                                                        </Option>
+                                                    ))}
+                                                </Select>
+                                            </div>
                                         </div>
-                                        <div className="sel">
-                                            <Select
-                                                disabled={!canEdit}
-                                                className="mt-8"
-                                                style={{ width: '95.5%' }}
-                                                placeholder="请选择匹配答案"
-                                                onChange={this.handelAnswer.bind(this, index)}
-                                                value={val.rightKey}
-                                            >
-                                                {A_Z.map((item: any, index: number) => (
-                                                    <Option key={index} value={item}>
-                                                        {item}
-                                                    </Option>
-                                                ))}
-                                            </Select>
-                                        </div>
+                                        <div className="sel" />
                                     </div>
                                 ))}
                             </div>

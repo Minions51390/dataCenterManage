@@ -21,8 +21,8 @@ const BANK_TYPE_MAP: any = {
 };
 
 const SELECT_TP: any = {
-    cet4: '四级',
-    cet6: '六级',
+    cet4: 'CET4',
+    cet6: 'CET6',
 };
 
 const SELECT_TP_LIST = ['', 'cet4', 'cet6'];
@@ -184,9 +184,12 @@ class TestDetail extends React.Component {
                 partName: 'Part 1',
                 selectedRowKeys: [],
                 selectedRows: [],
-                questionList: [],
+                questionList: [{
+                    content: '',
+                }],
             },
         ],
+        originParts: [],
         partsIndex: 0,
         showPreview: false,
         previewData: {},
@@ -342,6 +345,7 @@ class TestDetail extends React.Component {
                         ...val,
                         partsIndex: index,
                         key,
+                        content: val.stem || val.topic,
                     };
                 }),
                 selectedRowKeys: [],
@@ -350,6 +354,7 @@ class TestDetail extends React.Component {
         });
         const allCount = (res?.data?.totalCount || 0) / 20;
         this.setState({
+            originParts: parts,
             parts,
             allCount,
         });
@@ -375,9 +380,8 @@ class TestDetail extends React.Component {
     async getQuestionBankList() {
         const { bankPeople, setType } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/question-set/list?query=&teacherId=${bankPeople}&setType=${setType}&sortKey=createTime&sortOrder=asc&pageSize=20&pageNo=1&all=on`,
+            url: `${baseUrl}/api/v1/question-set/list?query=&teacherId=${bankPeople}&setType=${setType}&sortKey=updateTime&sortOrder=desc&pageSize=20&pageNo=1&all=on`,
         });
-        console.log('------------->', res);
         const questionBankList = res?.data?.questionSetList || [];
         this.setState({
             bankList: questionBankList,
@@ -416,6 +420,7 @@ class TestDetail extends React.Component {
                         setId: val.setId,
                         questionId: val.questionId,
                         setType: val.setType,
+                        content: val.stem || val.topic,
                     };
                 }),
             };
@@ -518,12 +523,23 @@ class TestDetail extends React.Component {
 
     /** 弹窗内搜索接口 */
     searchQuery(val: any) {
+        const { testQuery, originParts } = this.state;
         this.setState(
             {
                 pageNo: 1,
             },
             () => {
-                this.getTestList();
+                // 备注
+                const originPart = JSON.parse(JSON.stringify(originParts));
+                const filterParts = originPart.map((item:any) => {
+                    item.questionList = item.questionList.filter((item:any) => {
+                        return item.content.includes(testQuery);
+                    });
+                    return item;
+                });
+                this.setState({
+                    parts: filterParts,
+                });
             }
         );
     }

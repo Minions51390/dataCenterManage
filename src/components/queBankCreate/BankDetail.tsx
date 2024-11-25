@@ -11,6 +11,7 @@ import {
 import '../../style/pageStyle/BankDetail.less';
 import { get, post, del, put, baseUrl } from '../../service/tools';
 import type { RcFile, UploadFile } from 'antd/es/upload/interface';
+import Highlighter from "react-highlight-words";
 import Choice from '../preview/choice';
 import realItem from '../../style/imgs/realItem.png';
 import realKu from '../../style/imgs/realKu.png';
@@ -122,9 +123,16 @@ class BankDetail extends React.Component {
     }
 
     choiceRender(text: any) {
+        const { bankQuery } = this.state;
         return (
             <div className="title">
-                <div className="que">{text.stem}</div>
+                <div className="que">
+                    <Highlighter
+                        searchWords={[bankQuery]}
+                        autoEscape
+                        textToHighlight={text.stem}
+                    />
+                </div>
                 <div className="choose">
                     <div className="tr">
                         <div>
@@ -585,23 +593,26 @@ class BankDetail extends React.Component {
                             >
                                 查询
                             </Button>
-                            <div className="gap-12">
-                                {genuine ? '真题' : ''}年份:
-                                <Select
-                                    defaultValue={selectYear}
-                                    className="gap-12"
-                                    style={{ width: 124 }}
-                                    placeholder="请选择学员批次"
-                                    onChange={this.handleSelectYear.bind(this)}
-                                    value={selectYear}
-                                >
-                                    {YEAR_MAP.map((item: any, index: number) => (
-                                        <Option key={index} value={item}>
-                                            {item || '不限'}
-                                        </Option>
-                                    ))}
-                                </Select>
-                            </div>
+                            {
+                                setType === 'choice' ? null :
+                                <div className="gap-12">
+                                    {genuine ? '真题' : ''}年份:
+                                    <Select
+                                        defaultValue={selectYear}
+                                        className="gap-12"
+                                        style={{ width: 124 }}
+                                        placeholder="请选择学员批次"
+                                        onChange={this.handleSelectYear.bind(this)}
+                                        value={selectYear}
+                                    >
+                                        {YEAR_MAP.map((item: any, index: number) => (
+                                            <Option key={index} value={item}>
+                                                {item || '不限'}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                </div>
+                            }
                             <div className="gap-12">
                                 {genuine ? '真题' : ''}类型:
                                 <Select

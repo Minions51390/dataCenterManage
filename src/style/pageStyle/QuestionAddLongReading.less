@@ -125,16 +125,27 @@
 						display: flex;
 						margin-top: 16px;
 						align-items: center;
-						justify-content: space-between;
 						padding: 0 6px;
-
-						.del {
-							cursor: pointer;
-						}
-					}
-
-					.sel {
-						margin-left: 5.5%;
+                        .item-content{
+                            width: 100%;
+                            display: flex;
+                            align-items: center;
+                            padding: 0 6px;
+                            flex:1;
+                            .content-edit{
+                                width: 100%;
+                                display: flex;
+                                align-items: center;
+                                flex-direction: column;
+                                .content-select{
+                                    width: 100%;
+                                }
+                            }
+                            .del {
+                                cursor: pointer;
+                                margin-left: 8px;
+                            }
+                        }
 					}
 
 					.add {

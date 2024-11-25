@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/BankDetailCfReading.less';
 import CfReading from '../preview/cfReading/index';
+import Highlighter from "react-highlight-words";
 import { get, post, put, baseUrl } from '../../service/tools';
 import realItem from '../../style/imgs/realItem.png';
 import realKu from '../../style/imgs/realKu.png';
@@ -121,10 +122,23 @@ class BankDetailCfReading extends React.Component {
     }
 
     choiceRender(text: any) {
+        const { bankQuery } = this.state;
         return (
             <div className="title">
-                <div className="name">{text.title}</div>
-                <div className="stem">{text.stem}</div>
+                <div className="name">
+                    <Highlighter
+                        searchWords={[bankQuery]}
+                        autoEscape
+                        textToHighlight={text.title}
+                    />
+                </div>
+                <div className="stem">
+                    <Highlighter
+                        searchWords={[bankQuery]}
+                        autoEscape
+                        textToHighlight={text.stem}
+                    />
+                </div>
             </div>
         );
     }

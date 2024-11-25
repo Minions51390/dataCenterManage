@@ -5,6 +5,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/BankDetailPack.less';
 import { get, post, put, baseUrl } from '../../service/tools';
 import type { RcFile } from 'antd/es/upload/interface';
+import Highlighter from "react-highlight-words";
 import Pack from '../preview/pack/index';
 import realItem from '../../style/imgs/realItem.png';
 import realKu from '../../style/imgs/realKu.png';
@@ -124,10 +125,23 @@ class BankDetailPack extends React.Component {
     }
 
     choiceRender(text: any) {
+        const { bankQuery } = this.state;
         return (
             <div className="title">
-                <div className="name">{text.title}</div>
-                <div className="stem">{text.stem}</div>
+                <div className="name">
+                    <Highlighter
+                        searchWords={[bankQuery]}
+                        autoEscape
+                        textToHighlight={text.title}
+                    />
+                </div>
+                <div className="stem">
+                    <Highlighter
+                        searchWords={[bankQuery]}
+                        autoEscape
+                        textToHighlight={text.stem}
+                    />
+                </div>
             </div>
         );
     }
@@ -232,8 +246,6 @@ class BankDetailPack extends React.Component {
         });
         if (res.state === 0) {
             this.getQuestionList();
-        } else {
-            message.error('题干编辑有误!');
         }
     }
 

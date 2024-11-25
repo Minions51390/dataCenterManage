@@ -52,7 +52,7 @@ export const MistakePreviewModal = ({ visible, close, previewData }: { visible: 
                 title: '题号',
                 dataIndex: 'questionNumber',
                 key: 'questionNumber',
-                render: (text: any) => '错题人数'
+                render: (text: any) => '错题人次'
             },
             ...arr,
             {

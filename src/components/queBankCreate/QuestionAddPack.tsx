@@ -23,8 +23,8 @@ const GetRequest = () => {
 };
 
 const SELECT_TP: any = {
-    cet4: '四级',
-    cet6: '六级',
+    cet4: 'CET4',
+    cet6: 'CET6',
 };
 
 const SELECT_TP_LIST = ['cet4', 'cet6'];
@@ -173,11 +173,25 @@ class QuestionAddPack extends React.Component {
     /** 保存试题 */
     saveQuestion() {
         const { options } = this.state;
-        if (options.length < 15) {
+        const empty = options.some((item: any)=>{
+            return item.value === '';
+        })
+        if(empty){
             Modal.confirm({
                 title: '新建题库',
                 icon: <ExclamationCircleOutlined />,
-                content: '试题不满足标准题型要求，请再次确认是否保存',
+                content: '选项不能为空，请再次确认是否保存',
+                okText: '确认',
+                cancelText: '取消',
+                onOk: () => {
+                    this.saveQuestionBack();
+                },
+            });
+        }else if (options.length < 15) {
+            Modal.confirm({
+                title: '新建题库',
+                icon: <ExclamationCircleOutlined />,
+                content: '试题选项小于15个，请再次确认是否保存',
                 okText: '确认',
                 cancelText: '取消',
                 onOk: () => {
@@ -185,8 +199,9 @@ class QuestionAddPack extends React.Component {
                 },
             });
             return;
+        }else{
+            this.saveQuestionBack();
         }
-        this.saveQuestionBack();
     }
 
     async saveQuestionBack() {
@@ -199,8 +214,6 @@ class QuestionAddPack extends React.Component {
             setTimeout(() => {
                 window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetailPack`;
             }, 200);
-        } else {
-            message.error('题干编辑有误!');
         }
     }
 
@@ -334,7 +347,7 @@ class QuestionAddPack extends React.Component {
                                         value={genuine}
                                         disabled={fatherGenuine}
                                     >
-                                        <Radio value={true}>是</Radio>
+                                        <Radio value>是</Radio>
                                         <Radio value={false}>否</Radio>
                                     </Radio.Group>
                                 </div>

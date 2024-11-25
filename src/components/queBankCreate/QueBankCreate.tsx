@@ -4,6 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { createBrowserHistory } from 'history';
 import '../../style/pageStyle/QueBankCreate.less';
 import { get, post, baseUrl } from '../../service/tools';
+import Highlighter from "react-highlight-words";
 import realKu from '../../style/imgs/realKu.png';
 export const history = createBrowserHistory();
 
@@ -28,8 +29,8 @@ class QueBank extends React.Component {
         setTypeList: ['choice', 'pack', 'long_reading', 'cf_reading'],
         pageNo: 1,
         totalCount: 1,
-        sortKey: 'creator',
-        sortOrder: 'asc',
+        sortKey: 'updateTime',
+        sortOrder: 'desc',
         columns1: [
             {
                 title: '序号',
@@ -41,12 +42,7 @@ class QueBank extends React.Component {
             {
                 title: '题库名称',
                 key: 'setName',
-                render: (text: any, record: any, index: number) => (
-                    <div className="title">
-                        {text.genuine ? <img src={realKu} alt="" /> : <div />}
-                        {text.setName}
-                    </div>
-                ),
+                render: this.questionListRender.bind(this),
             },
             {
                 title: '创建人',
@@ -120,13 +116,21 @@ class QueBank extends React.Component {
         const { bankQuery, pageNo, sortKey, sortOrder, selTeacher, setTypeFilter, genuineFilter } =
             this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/question-set/list?teacherId=${
-                selTeacher.teacherId
-            }&query=${bankQuery}&sortKey=${sortKey}&sortOrder=${sortOrder}&pageSize=20&pageNo=${pageNo}${
-                setTypeFilter ? '&setType=' + setTypeFilter : ''
-            }&genuine=${genuineFilter}&all=off`,
+            url: `${baseUrl}/api/v1/question-set/list`,
+            config:{
+                params:{
+                    teacherId: selTeacher.teacherId,
+                    query: bankQuery,
+                    sortKey,
+                    sortOrder,
+                    pageSize: 20,
+                    pageNo,
+                    setType: setTypeFilter,
+                    genuine: genuineFilter,
+                    all: 'off'
+                }
+            }
         });
-        console.log('------------->', res);
         const questionBankList = res?.data?.questionSetList || [];
         const totalCount = (res?.data?.totalCount || 0) / 20;
         this.setState({
@@ -134,11 +138,27 @@ class QueBank extends React.Component {
             totalCount,
         });
     }
+    questionListRender(text:any){
+        const { bankQuery } = this.state;
+        return(
+            <div className="title">
+                {text.genuine ? <img src={realKu} alt="" /> : <div />}
+                <Highlighter
+                    searchWords={[bankQuery]}
+                    autoEscape
+                    textToHighlight={text.setName}
+                />
+            </div>
+        )
+    }
 
     /** 搜索 */
     onBankQueryChange(event: any) {
         this.setState({
             bankQuery: event.target.value,
+            pageNo: 1,
+        },()=>{
+            this.getQuestionBankList();
         });
     }
 
@@ -163,17 +183,14 @@ class QueBank extends React.Component {
 
     /** 确认新建 */
     async handleCreateOk(val: any) {
-        console.log('handleCreateOk', val);
         const { setName, setType } = this.state;
-        this.setState({
-            isVisible: false,
-        });
         const bankID = await this.confimeNew();
-        console.log('bankID', bankID);
         if (bankID) {
+            this.setState({
+                isVisible: false,
+            });
             sessionStorage.setItem('bankDetailId', bankID);
             sessionStorage.setItem('bankDetailName', setName);
-            console.log(123123, setType);
             if (setType === 'choice') {
                 window.location.href = `${window.location.pathname}#/app/queBankCreate/bankDetail`;
             } else if (setType === 'pack') {
@@ -351,13 +368,13 @@ class QueBank extends React.Component {
                                 value={bankQuery}
                                 onChange={this.onBankQueryChange.bind(this)}
                             />
-                            <Button
+                            {/* <Button
                                 className="gap-48"
                                 type="primary"
                                 onClick={this.clickSearch.bind(this)}
                             >
                                 查询
-                            </Button>
+                            </Button> */}
                         </div>
                         <div onClick={this.showCreateModal.bind(this)}>
                             <Button type="primary" icon={<PlusOutlined />}>
@@ -427,7 +444,7 @@ class QueBank extends React.Component {
                     </div>
                 </div>
                 <Modal
-                    title="新增词库"
+                    title="新增题库"
                     visible={isVisible}
                     cancelText="取消"
                     okText="确定"
@@ -462,15 +479,18 @@ class QueBank extends React.Component {
                             ))}
                         </Select>
                     </div>
-                    <div className="module-area">
-                        真题题库:
-                        <div style={{ width: '294px', marginLeft: '12px' }}>
-                            <Radio.Group onChange={this.onGenuineChange.bind(this)} value={genuine} disabled={setType === 'choice' ? true : false}>
-                                <Radio value={true}>是</Radio>
-                                <Radio value={false}>否</Radio>
-                            </Radio.Group>
-                        </div>
-                    </div>
+                    {
+                        setType === 'choice' ? null : 
+                            <div className="module-area">
+                                真题题库:
+                                <div style={{ width: '294px', marginLeft: '12px' }}>
+                                    <Radio.Group onChange={this.onGenuineChange.bind(this)} value={genuine}>
+                                        <Radio value>是</Radio>
+                                        <Radio value={false}>否</Radio>
+                                    </Radio.Group>
+                                </div>
+                            </div>
+                    }
                 </Modal>
             </div>
         );

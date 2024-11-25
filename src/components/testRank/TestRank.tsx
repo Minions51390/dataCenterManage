@@ -306,6 +306,8 @@ class TestRank extends React.Component {
     handleQueryType(val: any) {
         this.setState({
             queryType: val,
+        }, () => {
+            this.getTest();
         });
     }
 
@@ -313,6 +315,8 @@ class TestRank extends React.Component {
     onTestQueryChange(event: any) {
         this.setState({
             query: event.target.value,
+        }, ()=>{
+            this.getTest();
         });
     }
 
@@ -388,10 +392,25 @@ class TestRank extends React.Component {
     async getTest() {
         const { pageNo, selTeacher, selPici, selBanji, queryType, query, sortKey, sort, status, startDate, endDate } = this.state;
         let res = await get({
-            url: `${baseUrl}/api/v1/exam/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${selBanji}&pageSize=20&pageNo=${pageNo}&startDate=${startDate}&endDate=${endDate}&queryType=${queryType}&query=${query}&status=${status}`,
+            url: `${baseUrl}/api/v1/exam/list`,
+            config:{
+                params:{
+                    teacherId: selTeacher.teacherId,
+                    batchId: selPici,
+                    classId: selBanji,
+                    query,
+                    queryType,
+                    status,
+                    examStartDate: startDate,
+                    examEndDate: endDate,
+                    pageNo,
+                    pageSize: 20,
+                    sortKey,
+                    sort,
+                }
+            }
         });
-        console.log('------------->', res);
-        const examList = res?.data?.examList || mockExamList;
+        const examList = res?.data?.examList || [];
         const totalCount = res?.data?.totalCount;
         this.setState({
             data1: examList,
@@ -485,8 +504,6 @@ class TestRank extends React.Component {
                 createStartTime: moment().format(modalDataFormat),
                 createEndTime: moment((new Date(FunGetDateStr(7, new Date()) + " 00:00:00") as any)).format(modalDataFormat),
                 modalSelPici: 0,
-                modalSelClass: [],
-                modalClassList: [],
             })
             this.getTest()
         }else{
@@ -625,13 +642,13 @@ class TestRank extends React.Component {
                                     onChange={this.onTestQueryChange.bind(this)}
                                 />
                             </Input.Group>
-                            <Button
+                            {/* <Button
                                 className="gap-30"
                                 type="primary"
                                 onClick={this.clickSearch.bind(this)}
                             >
                                 搜索
-                            </Button>
+                            </Button> */}
                         </div>
                         <div className="right">
                             <span className="span3">试卷状态:</span>
