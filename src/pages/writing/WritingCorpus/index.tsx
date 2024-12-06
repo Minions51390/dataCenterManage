@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { Table, Input, Select, Pagination, message } from 'antd';
+import { Table, Input, Select, Pagination, message, Tooltip } from 'antd';
 import style from './index.module.less';
 import { get, baseUrl } from '../../../service/tools';
 import copy from 'clipboard-copy';
@@ -30,8 +30,17 @@ const WritingCorpus = () => {
             render: (text: any, record: any, index: number) => (
                 <div className={style["writing-corpus-box"]}>
                     {/* {record.name? <div className={style["box-name"]} title={record.name}>{record.name}</div> :null} */}
-                    {record.title? <div className={style["box-title"]} title={record.title}>{record.title}</div>:null}
-                    {record.desc? <div className={style["box-desc"]} title={record.desc}>{record.desc}</div>:null}
+                    {record.title? <div className={style["box-title"]}>{record.title}</div>:null}
+                    <Tooltip
+                        title={record.desc} 
+                        overlayStyle={{
+                            fontSize: '14px',
+                            minWidth: '600px',
+                        }}
+                    >
+                        {record.desc? <div className={style["box-desc"]}>{record.desc}</div>:null}
+                    </Tooltip>
+                    
                 </div>
             ),
         },
@@ -52,10 +61,10 @@ const WritingCorpus = () => {
         },
         {
             title: '年份',
-            key: 'origin',
+            key: 'year',
             sorter: true,
             render: (text: any) => (
-                <div>{parseInt(text.origin)}</div>
+                <div>{parseInt(text.origin)|| ''}</div>
             )
         },
         {
@@ -110,6 +119,7 @@ const WritingCorpus = () => {
     }
     // 搜索词更改
     const searchQueryChange = (val:any) => {
+        setPageNo(1);
         setQuery(val.target.value);
     }
     //作文ID点击
