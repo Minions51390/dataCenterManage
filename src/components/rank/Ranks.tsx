@@ -1,7 +1,10 @@
 import React from 'react';
-import { Row, Col, Tabs, DatePicker, Table, Select, Pagination } from 'antd';
+import { Table, Select, Pagination, message, Button } from 'antd';
+import { ArrowDownOutlined } from '@ant-design/icons';
 import '../../style/pageStyle/Ranks.less';
 import { get, post, baseUrl } from '../../service/tools';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
 const { Option } = Select;
 class Ranks extends React.Component {
     state = {
@@ -15,7 +18,7 @@ class Ranks extends React.Component {
         banji: [],
         selBanji: '',
         semester: [],
-        selSemester: [],
+        selSemester: [] as number[],
         evaluation: 'desc',
         wordsCount: 'desc',
         studyTime: 'desc',
@@ -123,7 +126,6 @@ class Ranks extends React.Component {
             const pici = await this.getPici(selTeacher.teacherId);
             const banji = await this.getClass(pici[0].batchId || 0);
             const semester = await this.getSemester(banji[0].classId || 0);
-            // const selSemester = semester.length > 0 ? [semester.find((item: any)=>item.isCurrent)?.semesterId ?? 0] : [];
             this.setState({
                 teacher,
                 pici,
@@ -261,7 +263,7 @@ class Ranks extends React.Component {
             }
         );
     }
-    async handleSemester(val: any) {
+    async handleSemester(val: number[]) {
         let retVal = val;
         if(retVal.length > 1 && retVal.includes(0)){// 多选
             retVal = retVal.filter((item:any) => item !== 0)
@@ -273,6 +275,62 @@ class Ranks extends React.Component {
         }, async () => {
             this.getRank();
         });
+    }
+
+    async handleExportExcel() {
+        const { evaluation, wordsCount, studyTime, passRate, sptPassRate, selTeacher, pici, selPici, banji, selBanji, semester, selSemester } = this.state;
+        try {
+            message.success('表格数据正在下载，请稍后');
+            let selTeacherName = selTeacher.realName;
+            let selPiciName = '';
+            let selBanjiName = '';
+            let selSemesterName = '';
+            const piciItme = pici.find((item: any) => item.batchId === selPici);
+            const banjiItme = banji.find((item: any) => item.classId === selBanji);
+            const selSemesterArr = semester.filter((item: any) => {
+                return selSemester.includes(item?.semesterId ?? 0);
+            });
+            
+            if (piciItme) {
+                selPiciName = (piciItme as { describe: string }).describe;
+            }
+            if (banjiItme) {
+                selBanjiName = (banjiItme as { describe: string }).describe;
+            }
+            if (selSemesterArr.length > 0) {
+                selSemesterName = selSemesterArr.map((item: any) => item.semesterName).join(',');
+            }
+            let res = await get({
+                url: baseUrl + `/api/v1/semester-score/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${selBanji}&semesters=${JSON.stringify(selSemester)}&score=${evaluation}&wordsCount=${wordsCount}&studyTime=${studyTime}&stageTestPassRate=${sptPassRate}&testPassRate=${passRate}&pageNo=1&pageSize=999999`,
+            });
+            let data1 = res.data.semesterScoreList || [];
+    
+            const adjustedData = data1.map((item: any) => {
+                const newItem = {
+                    '排名': item.rank,
+                    '姓名': item.name,
+                    '综合评分(平均)': item.score,
+                    '阶段考成绩(平均)': `${item.stageTestPassRate.toFixed(2)}%`,
+                    '小测成绩(平均)': `${item.testTestPassRate.toFixed(2)}%`,
+                    '学习时长(累计)': `${item.studyTime}小时`,
+                    '累计背词数': item.wordsCount,
+                    '进入班级天数': item.registerDays,
+                    '平台的学习打卡天数(只有背词算)': item.punchCount,
+                };
+    
+                return newItem;
+            });
+    
+            const worksheet = XLSX.utils.json_to_sheet(adjustedData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            saveAs(blob, `${selTeacherName}-${selPiciName}-${selBanjiName}-${selSemesterName}表格数据.xlsx`);
+        }  catch (error) {
+            const msg = (error as { message: string | undefined }).message?? '导出表格数据时出现未知错误，请稍后再试';
+            message.error(msg);
+        }
     }
     nowPagChange(val: any) {
         this.setState(
@@ -348,7 +406,9 @@ class Ranks extends React.Component {
                                 </Option>
                             ))}
                         </Select>
-                        
+                        <Button style={{ marginLeft: 30 }} type="primary" icon={<ArrowDownOutlined />} onClick={this.handleExportExcel.bind(this)}>
+                            导出表格
+                        </Button>
                     </div>
                     <div className="thr">
                         <Table
