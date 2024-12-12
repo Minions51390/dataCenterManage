@@ -42,7 +42,7 @@ const menus: {
             icon: 'mobile',
             subs: [
                 { key: '/app/writing/writingPaper', title: '作文管理', icon: 'mobile', component: 'WritingPaper' },
-                // { key: '/app/writing/WritingCorpus', title: '倾橙作文库', icon: 'mobile', component: 'WritingCorpus' },
+                { key: '/app/writing/WritingCorpus', title: '倾橙作文库', icon: 'mobile', component: 'WritingCorpus' },
                 { key: '/app/writing/writingExam', title: '已发布作文/作文成绩', icon: 'mobile', component: 'WritingExam' },
             ]
         },
