@@ -280,7 +280,6 @@ class Ranks extends React.Component {
     async handleExportExcel() {
         const { evaluation, wordsCount, studyTime, passRate, sptPassRate, selTeacher, pici, selPici, banji, selBanji, semester, selSemester } = this.state;
         try {
-            message.success('表格数据正在下载，请稍后');
             let selTeacherName = selTeacher.realName;
             let selPiciName = '';
             let selBanjiName = '';
@@ -300,11 +299,11 @@ class Ranks extends React.Component {
             if (selSemesterArr.length > 0) {
                 selSemesterName = selSemesterArr.map((item: any) => item.semesterName).join(',');
             }
+            message.success('表格数据正在下载，请稍后');
             let res = await get({
                 url: baseUrl + `/api/v1/semester-score/list?teacherId=${selTeacher.teacherId}&batchId=${selPici}&classId=${selBanji}&semesters=${JSON.stringify(selSemester)}&score=${evaluation}&wordsCount=${wordsCount}&studyTime=${studyTime}&stageTestPassRate=${sptPassRate}&testPassRate=${passRate}&pageNo=1&pageSize=999999`,
             });
             let data1 = res.data.semesterScoreList || [];
-    
             const adjustedData = data1.map((item: any) => {
                 const newItem = {
                     '排名': item.rank,
@@ -327,9 +326,8 @@ class Ranks extends React.Component {
             const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
             const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
             saveAs(blob, `${selTeacherName}-${selPiciName}-${selBanjiName}-${selSemesterName}表格数据.xlsx`);
-        }  catch (error) {
-            const msg = (error as { message: string | undefined }).message?? '导出表格数据时出现未知错误，请稍后再试';
-            message.error(msg);
+        } catch (error) {
+            message.error('导出表格数据时出现未知错误，请稍后再试');
         }
     }
     nowPagChange(val: any) {
