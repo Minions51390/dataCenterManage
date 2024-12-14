@@ -1,0 +1,62 @@
+.word-quiz-drawer {
+    height: 100%;
+    overflow-y: auto;
+    font-family: PingFangSC-Regular, PingFang SC;
+    display: flex;
+    flex-direction: column;
+    .ant-drawer-header {
+        padding: 0;
+    }
+    .select-box{
+        display: flex;
+        align-items: center;
+        .span{
+            flex-shrink: 0;
+            margin-right: 10px;
+        }
+    }
+    .select-box:nth-of-type(2){
+        margin-top: 16px;
+    }
+    .pici-box{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 16px;
+        .pici-text{
+            font-weight: 500;
+        }
+        .select-box{
+            margin-top: 0px;
+            .span{
+                margin-right: 10px;
+            }
+        }
+        
+    }
+    .drawer-table{
+        margin-top: 16px;
+        flex: 1;
+        overflow-y: auto;
+        &::-webkit-scrollbar-thumb{
+            width: 8px;
+            background: #777;
+            border-radius: 4px;
+        }
+    }
+    .drawer-tool{
+        display: flex;
+        flex-direction: column;
+        height: 176px;
+        align-items: flex-end;
+        padding: 32px 0;
+        margin: 0 32px;
+        .drawer-pag{
+        }
+        .drawer-btn{
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+}

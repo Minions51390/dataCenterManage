@@ -2582,6 +2582,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/lodash.debounce@npm:^4.0.9":
+  version: 4.0.9
+  resolution: "@types/lodash.debounce@npm:4.0.9"
+  dependencies:
+    "@types/lodash": "npm:*"
+  checksum: 10c0/9fbb24e5e52616faf60ba5c82d8c6517f4b86fc6e9ab353b4c56c0760f63d9bf53af3f2d8f6c37efa48090359fb96dba1087d497758511f6c40677002191d042
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:*":
+  version: 4.17.13
+  resolution: "@types/lodash@npm:4.17.13"
+  checksum: 10c0/c3d0b7efe7933ac0369b99f2f7bff9240d960680fdb74b41ed4bd1b3ca60cca1e31fe4046d9abbde778f941a41bc2a75eb629abf8659fa6c27b66efbbb0802a9
+  languageName: node
+  linkType: hard
+
 "@types/minimatch@npm:^3.0.3":
   version: 3.0.5
   resolution: "@types/minimatch@npm:3.0.5"
@@ -6403,6 +6419,7 @@ __metadata:
     "@types/echarts": "npm:^4.1.15"
     "@types/file-saver": "npm:^2"
     "@types/jest": "npm:24.0.18"
+    "@types/lodash.debounce": "npm:^4.0.9"
     "@types/node": "npm:12.7.11"
     "@types/nprogress": "npm:^0.2.0"
     "@types/photoswipe": "npm:^4.0.29"
@@ -6503,7 +6520,7 @@ __metadata:
     style-loader: "npm:1.0.0"
     terser-webpack-plugin: "npm:1.4.1"
     ts-pnp: "npm:1.1.4"
-    typescript: "npm:3.9.7"
+    typescript: "npm:^5.7.2"
     umbrella-storage: "npm:^1.0.2"
     url-loader: "npm:2.1.0"
     webpack: "npm:4.41.0"
@@ -18438,16 +18455,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:3.9.7":
-  version: 3.9.7
-  resolution: "typescript@npm:3.9.7"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10c0/839accdee789dd3b29693cdd3c9649ecc2cfa799388f898112480f3902324d9172f10ca3f8de5ef93216b03cc78d4b8cd31fbef5c65a016acb31a04ebba816bd
-  languageName: node
-  linkType: hard
-
 "typescript@npm:^4.4.3":
   version: 4.4.4
   resolution: "typescript@npm:4.4.4"
@@ -18458,13 +18465,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A3.9.7#optional!builtin<compat/typescript>":
-  version: 3.9.7
-  resolution: "typescript@patch:typescript@npm%3A3.9.7#optional!builtin<compat/typescript>::version=3.9.7&hash=3bd3d3"
+"typescript@npm:^5.7.2":
+  version: 5.7.2
+  resolution: "typescript@npm:5.7.2"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10c0/18eb8ef219f28abca3564755b02c01cad8af4a0ab0a257e39385b79d36d557f177c5981ded2bafc455d233a2d991733fcbb594e3c238efb6522da48180b1a6ee
+  checksum: 10c0/a873118b5201b2ef332127ef5c63fb9d9c155e6fdbe211cbd9d8e65877283797cca76546bad742eea36ed7efbe3424a30376818f79c7318512064e8625d61622
   languageName: node
   linkType: hard
 
@@ -18475,6 +18482,16 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10c0/5eb1f150ac8d9a1bf79b971dcabe4158e10666d19733a1e9d36ea6b2c9f60e129889fe02c945b7b863d94749f582e633115a9dcb3c607e435246fdecb957dc27
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@npm%3A^5.7.2#optional!builtin<compat/typescript>":
+  version: 5.7.2
+  resolution: "typescript@patch:typescript@npm%3A5.7.2#optional!builtin<compat/typescript>::version=5.7.2&hash=5786d5"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10c0/f3b8082c9d1d1629a215245c9087df56cb784f9fb6f27b5d55577a20e68afe2a889c040aacff6d27e35be165ecf9dca66e694c42eb9a50b3b2c451b36b5675cb
   languageName: node
   linkType: hard
 

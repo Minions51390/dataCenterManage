@@ -25,13 +25,20 @@ const menus: {
         { key: '/app/class/main', title: '班级和学员管理', icon: 'mobile', component: 'ClassStu' },
         { key: '/app/ranks', title: '排行榜', icon: 'mobile', component: 'Ranks' },
         { key: '/app/dashboard', title: '数据中心', icon: 'mobile', component: 'Dashboard' },
-        { key: '/app/errorBook', title: '错词本', icon: 'mobile', component: 'ErrorBook' },
-        { key: '/app/queBankCreate', title: '题库建设', icon: 'mobile', component: 'QueBankCreate' },
+        { 
+            key: '/app/wordCenter',
+            title: '单词中心', 
+            icon: 'mobile', 
+            subs: [
+                { key: '/app/wordCenter/wordQuiz', title: '单词小测', icon: 'mobile', component: 'WordQuiz' },
+                { key: '/app/wordCenter/errorBook', title: '错词本', icon: 'mobile', component: 'ErrorBook' },
+            ]},
         {
             key: '/app/test',
             title: '考试中心',
             icon: 'mobile',
             subs: [
+                { key: '/app/queBankCreate', title: '题库建设', icon: 'mobile', component: 'QueBankCreate' },
                 { key: '/app/test/testPaper', title: '试卷管理', icon: 'mobile', component: 'TestPaper' },
                 { key: '/app/test/testRank', title: '已发布考试/考试成绩', icon: 'mobile', component: 'TestRank' },
             ]

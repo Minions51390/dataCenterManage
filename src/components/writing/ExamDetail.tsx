@@ -235,7 +235,7 @@ class examDetail extends React.Component {
 
     // 获取作文内容
     async getWritingDetail() {
-        const paperId = +getQueryString()?.paperId ?? 0;
+        const paperId = +(getQueryString()?.paperId?? 0);
         const res = await get({
             url: `${baseUrl}/api/v1/writing-exam/result/detail?paperId=${paperId}`
         })
