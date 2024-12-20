@@ -2,7 +2,7 @@ import React, {useState, useEffect } from 'react';
 import { Table, Input, Select, Pagination, message, Tooltip, DatePicker, Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import style from './index.module.less';
-import { get, baseUrl } from '../../../service/tools';
+import { get, post, baseUrl } from '../../../service/tools';
 import { dateFormat, FunGetDateStr } from '../../../utils/date';
 import useDebounce from '../../../hooks/useDebounce';
 import moment from 'moment';
@@ -246,6 +246,14 @@ const WordQuiz = () => {
         setData(data?.data || []);
         setTotalCount(data?.totalCount || 1);
     }
+    // 新增单词小测
+    const createWordTest = async (val: any) => {
+        let { data } = await post({
+            url: `${baseUrl}/api/v1/diy-word-test/create-word-test`,
+            data: {...val}
+        });
+        console.log('createWordTest', data);
+    }
     /** 搜索框值更改 */ 
     const searchQueryChange = (e:any) => {
         const newQuery = e.target.value;
@@ -272,7 +280,9 @@ const WordQuiz = () => {
     }
     const handleFormSubmit = (val:any) => {
         console.log('handleFormSubmit', val)
+        createWordTest(val);
     }
+
     return(
         <div className={style['word-quiz']}>
             <div className={style['header']}>

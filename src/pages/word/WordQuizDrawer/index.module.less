@@ -1,6 +1,6 @@
 .word-quiz-drawer {
     height: 100%;
-    overflow-y: auto;
+    justify-content: space-between;
     font-family: PingFangSC-Regular, PingFang SC;
     display: flex;
     flex-direction: column;
@@ -15,8 +15,22 @@
             margin-right: 10px;
         }
     }
-    .select-box:nth-of-type(2){
+    .select-box-divider{
+        height: 16px;
+    }
+    .set-box{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         margin-top: 16px;
+        .select-box{
+            display: flex;
+            align-items: center;
+            .span{
+                flex-shrink: 0;
+                margin-right: 10px;
+            }
+        }
     }
     .pici-box{
         display: flex;
@@ -34,7 +48,7 @@
         }
         
     }
-    .drawer-table{
+    .drawer-banji-table{
         margin-top: 16px;
         flex: 1;
         overflow-y: auto;
@@ -54,9 +68,13 @@
         .drawer-pag{
         }
         .drawer-btn{
+            width: 100%;
             margin-top: 40px;
             display: flex;
             justify-content: space-between;
+            .drawer-btn-right{
+                display: flex;
+            }
         }
     }
 }
