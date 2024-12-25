@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import { Checkbox, Row, Col, Tag, Alert, Button } from 'antd';
+import { Checkbox, Row, Col, Tag, Alert, Button, Pagination, Table } from 'antd';
+import styled from 'styled-components';
 import { TweenOneGroup } from 'rc-tween-one';
 import style from './index.module.less';
 import { RightOutlined } from '@ant-design/icons';
@@ -29,21 +30,58 @@ const WordSelection: React.FC<Props> = ({ wordList, pageSize = 20, onChecked, or
     const [rangePage, setRangePage] = useState(1);
     const [checkedList, setCheckedList] = useState<WordItem[]>([]);
     const [checkedListId, setCheckedListId] = useState<number[]>([]);
-
-    useEffect(() => {
-        init();
-    }, [pageSize]);
-
+    const [currentPageData, setCurrentPageData] = useState<any[]>([]);
+    const wordRangeRef = useRef<HTMLDivElement | null>(null);
+    const columns = [
+        {
+            title: '',
+            dataIndex: 'left',
+            render: (text: any, _:any, index: number) => {
+                if (!text || Object.keys(text).length === 0) return null;
+                return (
+                    <div className={style['word-check-item']}>
+                        <Checkbox key={text.wordId} value={text.wordId}>
+                            <div className={style['word-check-box']}>
+                                <div className={style['word-check-item-index']}>{(rangePage - 1) * pageSize + 2 * index + 1}</div>
+                                <div className={style['word-check-item-right']}>
+                                    <div className={style['item-word']}>{text.word}</div>
+                                    <div className={style['item-meaning']}>{text.meaning}</div>
+                                </div>
+                            </div>
+                        </Checkbox>
+                    </div>
+                );
+            },
+        },
+        {
+            title: '',
+            dataIndex: 'right',
+            render: (text: any, _:any, index: number) => {
+                if (!text || Object.keys(text).length === 0) return null;
+                return (
+                    <div className={style['word-check-item']}>
+                        <Checkbox key={text.wordId} value={text.wordId}>
+                            <div className={style['word-check-box']}>
+                                <div className={style['word-check-item-index']}>{(rangePage - 1) * pageSize + 2 * index + 2}</div>
+                                <div className={style['word-check-item-right']}>
+                                    <div className={style['item-word']}>{text.word}</div>
+                                    <div className={style['item-meaning']}>{text.meaning}</div>
+                                </div>
+                            </div>
+                        </Checkbox>
+                    </div>
+                );
+            },
+        },
+    ];
     useEffect(() => {
         const itemMap = new Map();
         wordList.forEach((obj) => {
             itemMap.set(obj.wordId, obj);
         });
-
         const result: WordItem[] = checkedListId.map((wordId) => {
             return itemMap.get(wordId) || null;
         }).filter((item) => item!== null) as WordItem[];
-
         setCheckedList(result);
     }, [checkedListId, wordList]);
 
@@ -51,10 +89,8 @@ const WordSelection: React.FC<Props> = ({ wordList, pageSize = 20, onChecked, or
         if(orderSignal && orderSignal > 0){
             const toBeAddNum = pageSize - checkedListId.length;
             const toBeAddWordId = [];
-
             // 创建一个已选id的集合，方便后续快速判断元素是否已选
             const selectedIdSet = new Set(checkedListId);
-
             // 遍历wordList，按照顺序添加未选中的id，直到达到需要添加的数量
             for (const wordItem of wordList) {
                 if (!selectedIdSet.has(wordItem.wordId) && toBeAddWordId.length < toBeAddNum) {
@@ -67,8 +103,16 @@ const WordSelection: React.FC<Props> = ({ wordList, pageSize = 20, onChecked, or
         }
     }, [orderSignal]);
 
+    useEffect(() => {
+        getCurrentPageData();
+    }, [rangePage, wordList]);
+
+    useEffect(() => {
+        getRangeList();
+    }, [pageSize, wordList]);
+
     /** 初始化 */
-    const init = () => {
+    const getRangeList = () => {
         const rangeList = [];
         const totalPages = Math.ceil(wordList.length / pageSize);
         for (let i = 0; i < totalPages; i++) {
@@ -84,15 +128,32 @@ const WordSelection: React.FC<Props> = ({ wordList, pageSize = 20, onChecked, or
         setRangeList(rangeList);
     }
 
+    /** 获取当前页单词数据*/
+    const getCurrentPageData = () => {
+        const splitData: any[] = [];
+        const startIndex = (rangePage - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const data = wordList.slice(startIndex, endIndex)
+        for (let i = 0; i < data.length; i += 2) {
+            splitData.push({
+                key: data[i].wordId,
+                left: data[i],
+                right: data[i + 1] || {}, // 如果右边没有数据，填空对象
+            });
+        }
+        setCurrentPageData(splitData)
+    };
+
     /** 单词范围更改 */
     const handleRangeChange = (range: any) => {
         setRangePage(range.page);
-        const div = document.getElementsByClassName('ant-row')[0];
-        const toDiv = div.children[(range.page - 1) * pageSize];
-        toDiv.scrollIntoView({
-            behavior:'smooth',
-            block:'start'
+        if (wordRangeRef.current) {
+        wordRangeRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+            inline: 'nearest'
         });
+    }
     };
 
     /** 单词变化 */
@@ -113,7 +174,6 @@ const WordSelection: React.FC<Props> = ({ wordList, pageSize = 20, onChecked, or
         const newCheckedList = checkedList.filter(item => item.wordId!== val); // 同时更新checkedList
         setCheckedList(newCheckedList);
     }
-
     return (
         <div className={style['word-selection']}>
             <div className={style['word-checkbox']}>
@@ -127,26 +187,19 @@ const WordSelection: React.FC<Props> = ({ wordList, pageSize = 20, onChecked, or
                     ))}
                 </div>
                 <div className={style['word-check']}>
-                    <div className={style['word-check-title']}>单词列表</div>
-                    <Checkbox.Group onChange={handleCheckboxChange} value={checkedListId}>
-                        <Row>
-                            {wordList.map((item, index) => (
-                                <Col span={12} key={item.wordId}>
-                                    <div className={style['word-check-item']}>
-                                        <Checkbox key={item.wordId} value={item.wordId}>
-                                            <div className={style['word-check-box']}>
-                                                <div className={style['word-check-item-index']}>{index + 1}</div>
-                                                <div className={style['word-check-item-right']}>
-                                                    <div className={style['item-word']}>{item.word}</div>
-                                                    <div className={style['item-meaning']}>{item.meaning}</div>
-                                                </div>
-                                            </div>
-                                        </Checkbox>
-                                    </div>
-                                </Col>
-                            ))}
-                        </Row>
-                    </Checkbox.Group>
+                    <div className={style['word-check-title']} ref={wordRangeRef}>单词列表</div>
+                    {
+                        <Checkbox.Group onChange={handleCheckboxChange} value={checkedListId}>
+                            <Table
+                                columns={columns}
+                                dataSource={currentPageData}
+                                showHeader={false}
+                                pagination={false}
+                                size={'middle'}
+                                bordered={false}
+                            />
+                        </Checkbox.Group>
+                    }
                 </div>
             </div>
             <Alert

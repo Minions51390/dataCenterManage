@@ -17,6 +17,12 @@
             overflow-y: auto;
             flex-shrink: 0;
             border-right: 1px solid #E9E9E9;
+            cursor: pointer;
+            &::-webkit-scrollbar-thumb{
+                width: 8px;
+                background: #777;
+                border-radius: 4px;
+            }
             .word-range-title{
                 height: 45px;
                 background: #FAFAFA;
@@ -28,6 +34,7 @@
                 color: rgba(0,0,0,0.85);
                 line-height: 22px;
                 margin-bottom: 8px;
+                width: 151px;
             }
             .word-range-item{
                 height: 38px;
@@ -44,6 +51,11 @@
             }
             .word-range-item-active{
                 background: rgba(24,144,255,0.1);
+            }
+            &::-webkit-scrollbar-thumb{
+                width: 8px;
+                background: #777;
+                border-radius: 4px;
             }
         }
         .word-check{
@@ -66,7 +78,6 @@
             .word-check-item{
                 display: flex;
                 align-items: center;
-                padding: 4px 16px;
                 .word-check-box{
                     display: flex;
                     align-items: center;
@@ -75,13 +86,12 @@
                         
                     }
                     .word-check-item-right{
-
+                        width: 180px;
                         .item-word{
                             font-weight: 500;
                             color: rgba(0,0,0,0.85);
                             text-overflow: ellipsis;
                             overflow: hidden;
-                            width: 195px;
                             white-space: nowrap;
                         }
                         .item-meaning{
@@ -92,6 +102,9 @@
                             font-size: 12px;
                             font-weight: 400;
                             color: rgba(0,0,0,0.45);
+                            text-overflow: ellipsis;
+                            overflow: hidden;
+                            white-space: nowrap;
                         }
                     }
                 }

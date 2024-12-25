@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Drawer, Button, Input, DatePicker, Divider, Alert, Select, Table, Pagination, message, Tooltip } from 'antd';
-import { get, baseUrl } from '../../../service/tools';
-import { dataFormatHms, FunGetDateStr } from '../../../utils/date';
+import { get, post, baseUrl } from '../../../service/tools';
+import { dateFormatHms, FunGetDateStr } from '../../../utils/date';
 import WordSelection from '../WordSelection/index';
 import style from './index.module.less';
 
@@ -20,7 +20,7 @@ interface DrawerProps {
             drawerEndTime: string; 
             selDrawerBanji: any[], 
             checkedWordList: number[], 
-            selDrawerSemester: string,
+            dictionaryId: number,
             testNum: number,
             testTime: number,
         }) => void;
@@ -31,8 +31,8 @@ interface DrawerProps {
 const DrawerForm: React.FC<DrawerProps> = ({ visible, onClose, onSubmit, title }) => {
     /*  Step 1 数据 **/
     const [drawerExamName, setDrawerExamName] = useState('');
-    const [drawerStartTime, setDrawerStartTime] = useState(moment().format(dataFormatHms));
-    const [drawerEndTime, setDrawerEndTime] = useState(moment((new Date(FunGetDateStr(7, new Date()) + " 00:00:00") as any)).format(dataFormatHms));
+    const [drawerStartTime, setDrawerStartTime] = useState(moment().format(dateFormatHms));
+    const [drawerEndTime, setDrawerEndTime] = useState(moment((new Date(FunGetDateStr(7, new Date()) + " 00:00:00") as any)).format(dateFormatHms));
     const [selDrawerTeacher] = useState({realName:'', teacherId: localStorage.getItem("classTeacherId")});
     const [drawerPici, setDrawerPici] = useState([]);
     const [selDrawerPici, setSelDrawerPici] = useState(0);
@@ -43,113 +43,12 @@ const DrawerForm: React.FC<DrawerProps> = ({ visible, onClose, onSubmit, title }
     const [drawerAllCount, setDrawerAllCount] = useState(0);
     /*  Step 2 数据 **/
     const [step, setStep] = useState(1);
-    const [drawerSemester, setDrawerSemester] = useState([]);
-    const [selDrawerSemester, setSelDrawerSemester] = useState('');
+    const [dictionaryList, setDictionaryList] = useState([]);
+    const [dictionaryId, setDictionaryId] = useState(0);
     const [testNum, setTestNum] = useState(40);
     const [testTime, setTestTime] = useState(20);
     const [orderSignal, setOrderSignal] = useState(0);
-    const [wordList, setWordList] = useState([
-        { word: 'hell1ohell1ohell1ohell1ohell1ohell1o', wordId: 1, meaning: 'n.你好' },
-        { word: 'hello2hello2hello2hello2', wordId: 2, meaning: 'n.你好' },
-        { word: 'hello3hello3hello3', wordId: 3, meaning: 'n.你好' },
-        { word: 'hello4hello4', wordId: 4, meaning: 'n.你好' },
-        { word: 'hello5', wordId: 5, meaning: 'n.你好' },
-        { word: 'hello6', wordId: 6, meaning: 'n.你好' },
-        { word: 'hello7', wordId: 7, meaning: 'n.你好' },
-        { word: 'hello8', wordId: 8, meaning: 'n.你好' },
-        { word: 'hello9', wordId: 9, meaning: 'n.你好' },
-        { word: 'hello0', wordId: 10, meaning: 'n.你好' },
-        { word: 'hello-', wordId: 11, meaning: 'n.你好' },
-        { word: 'hello12', wordId: 12, meaning: 'n.你好' },
-        { word: 'hello13', wordId: 13, meaning: 'n.你好' },
-        { word: 'hello', wordId: 14, meaning: 'n.你好' },
-        { word: 'hello', wordId: 15, meaning: 'n.你好' },
-        { word: 'hello', wordId: 16, meaning: 'n.你好' },
-        { word: 'hello', wordId: 17, meaning: 'n.你好' },
-        { word: 'hello', wordId: 18, meaning: 'n.你好' },
-        { word: 'hello', wordId: 19, meaning: 'n.你好' },
-        { word: 'hello', wordId: 20, meaning: 'n.你好' },
-        { word: 'hello', wordId: 21, meaning: 'n.你好' },
-        { word: 'hello', wordId: 22, meaning: 'n.你好' },
-        { word: 'hello', wordId: 23, meaning: 'n.你好' },
-        { word: 'hello', wordId: 24, meaning: 'n.你好' },
-        { word: 'hello', wordId: 25, meaning: 'n.你好' },
-        { word: 'hello', wordId: 26, meaning: 'n.你好' },
-        { word: 'hello', wordId: 27, meaning: 'n.你好' },
-        { word: 'hello', wordId: 28, meaning: 'n.你好' },
-        { word: 'hello', wordId: 29, meaning: 'n.你好' },
-        { word: 'hello', wordId: 30, meaning: 'n.你好' },
-        { word: 'hello', wordId: 31, meaning: 'n.你好' },
-        { word: 'hello', wordId: 32, meaning: 'n.你好' },
-        { word: 'hello', wordId: 33, meaning: 'n.你好' },
-        { word: 'hello', wordId: 34, meaning: 'n.你好' },
-        { word: 'hello', wordId: 35, meaning: 'n.你好' },
-        { word: 'hello', wordId: 36, meaning: 'n.你好' },
-        { word: 'hello', wordId: 37, meaning: 'n.你好' },
-        { word: 'hello', wordId: 38, meaning: 'n.你好' },
-        { word: 'hello', wordId: 39, meaning: 'n.你好' },
-        { word: 'hello', wordId: 40, meaning: 'n.你好' },
-        { word: 'hello', wordId: 41, meaning: 'n.你好' },
-        { word: 'hello', wordId: 42, meaning: 'n.你好' },
-        { word: 'hello', wordId: 43, meaning: 'n.你好' },
-        { word: 'hello', wordId: 44, meaning: 'n.你好' },
-        { word: 'hello', wordId: 45, meaning: 'n.你好' },
-        { word: 'hello', wordId: 46, meaning: 'n.你好' },
-        { word: 'hello', wordId: 47, meaning: 'n.你好' },
-        { word: 'hello', wordId: 48, meaning: 'n.你好' },
-        { word: 'hello', wordId: 49, meaning: 'n.你好' },
-        { word: 'hello', wordId: 50, meaning: 'n.你好' },
-        { word: 'hello', wordId: 51, meaning: 'n.你好' },
-        { word: 'hello', wordId: 52, meaning: 'n.你好' },
-        { word: 'hello', wordId: 53, meaning: 'n.你好' },
-        { word: 'hello', wordId: 54, meaning: 'n.你好' },
-        { word: 'hello', wordId: 55, meaning: 'n.你好' },
-        { word: 'hello', wordId: 56, meaning: 'n.你好' },
-        { word: 'hello', wordId: 57, meaning: 'n.你好' },
-        { word: 'hello', wordId: 58, meaning: 'n.你好' },
-        { word: 'hello', wordId: 59, meaning: 'n.你好' },
-        { word: 'hello', wordId: 60, meaning: 'n.你好' },
-        { word: 'hello', wordId: 61, meaning: 'n.你好' },
-        { word: 'hello', wordId: 62, meaning: 'n.你好' },
-        { word: 'hello', wordId: 63, meaning: 'n.你好' },
-        { word: 'hello', wordId: 64, meaning: 'n.你好' },
-        { word: 'hello', wordId: 65, meaning: 'n.你好' },
-        { word: 'hello', wordId: 66, meaning: 'n.你好' },
-        { word: 'hello', wordId: 67, meaning: 'n.你好' },
-        { word: 'hello', wordId: 68, meaning: 'n.你好' },
-        { word: 'hello', wordId: 69, meaning: 'n.你好' },
-        { word: 'hello', wordId: 70, meaning: 'n.你好' },
-        { word: 'hello', wordId: 71, meaning: 'n.你好' },
-        { word: 'hello', wordId: 72, meaning: 'n.你好' },
-        { word: 'hello', wordId: 73, meaning: 'n.你好' },
-        { word: 'hello', wordId: 74, meaning: 'n.你好' },
-        { word: 'hello', wordId: 75, meaning: 'n.你好' },
-        { word: 'hello', wordId: 76, meaning: 'n.你好' },
-        { word: 'hello', wordId: 77, meaning: 'n.你好' },
-        { word: 'hello', wordId: 78, meaning: 'n.你好' },
-        { word: 'hello', wordId: 79, meaning: 'n.你好' },
-        { word: 'hello', wordId: 80, meaning: 'n.你好' },
-        { word: 'hello', wordId: 81, meaning: 'n.你好' },
-        { word: 'hello', wordId: 82, meaning: 'n.你好' },
-        { word: 'hello', wordId: 83, meaning: 'n.你好' },
-        { word: 'hello', wordId: 84, meaning: 'n.你好' },
-        { word: 'hello', wordId: 85, meaning: 'n.你好' },
-        { word: 'hello', wordId: 86, meaning: 'n.你好' },
-        { word: 'hello', wordId: 87, meaning: 'n.你好' },
-        { word: 'hello', wordId: 88, meaning: 'n.你好' },
-        { word: 'hello', wordId: 89, meaning: 'n.你好' },
-        { word: 'hello', wordId: 90, meaning: 'n.你好' },
-        { word: 'hello', wordId: 91, meaning: 'n.你好' },
-        { word: 'hello', wordId: 92, meaning: 'n.你好' },
-        { word: 'hello', wordId: 93, meaning: 'n.你好' },
-        { word: 'hello', wordId: 94, meaning: 'n.你好' },
-        { word: 'hello', wordId: 95, meaning: 'n.你好' },
-        { word: 'hello', wordId: 96, meaning: 'n.你好' },
-        { word: 'hello', wordId: 97, meaning: 'n.你好' },
-        { word: 'hello', wordId: 98, meaning: 'n.你好' },
-        { word: 'hello', wordId: 99, meaning: 'n.你好' },
-        { word: 'hello', wordId: 100, meaning: 'n.你好' }
-    ]);
+    const [wordList, setWordList] = useState([]);
     const [checkedWordList, setCheckedWordList] = useState([]);
     const [drawerSearchWord, setDrawerSearchWord] = useState('');
     /*  常量 **/
@@ -179,13 +78,15 @@ const DrawerForm: React.FC<DrawerProps> = ({ visible, onClose, onSubmit, title }
 
     useEffect(() => {
         if(step > 1){
-            getSemester()
+            getDictionaryList();
         }
     }, [step]);
 
     useEffect(() => {
-        // getWordList();
-    }, [selDrawerSemester]);
+        if(dictionaryId > 0){
+            getWordList();
+        }
+    }, [dictionaryId]);
 
     /** 初始化 */
     const init = async () => {
@@ -228,28 +129,26 @@ const DrawerForm: React.FC<DrawerProps> = ({ visible, onClose, onSubmit, title }
         setDrawerBanji(banji);
         setDrawerAllCount(res?.data?.totalCount);
     }
+
     /** 获取词库任务列表 */
-    const getSemester = async () => {
-        let res = await get({
-            url: baseUrl + `/api/v1/structure/semester/list`,
-            config: {
-                params: {
-                    teacherId: selDrawerTeacher.teacherId,
-                    batchId: selDrawerPici,
-                    classId: 0,
-                }
+    const getDictionaryList = async () => {
+        let res = await post({
+            url: baseUrl + `/api/v1/custom-word-test/get-class-dic`,
+            data: {
+                classIds: selDrawerBanji
             }
         })
-        setDrawerSemester(res?.data || []);
-        setSelDrawerSemester(res?.data[0]?.semesterId)
+        setDictionaryList(res?.data ||[]);
+        setDictionaryId(res?.data[0]?.dictionaryId)
     }
+    
     /** 获取词库单词列表 */
     const getWordList = async () => {
         let res = await get({
             url: baseUrl + `/api/v1/material/word/list`,
             config: {
                 params: {
-                    dictionaryId: selDrawerSemester,
+                    dictionaryId,
                     startIdx: 0,
                     endIdx: 99999,
                 }
@@ -263,8 +162,8 @@ const DrawerForm: React.FC<DrawerProps> = ({ visible, onClose, onSubmit, title }
     };
     /** 时间更改 */
     const handleDateChange = (val:any) => {
-        setDrawerStartTime(moment(new Date(val[0]._d) as any).format(dataFormatHms));
-        setDrawerEndTime(moment(new Date(val[1]._d) as any).format(dataFormatHms));
+        setDrawerStartTime(moment(new Date(val[0]._d) as any).format(dateFormatHms));
+        setDrawerEndTime(moment(new Date(val[1]._d) as any).format(dateFormatHms));
     };
     /** 批次更改 */
     const handlePiCiChange = (val:any) => {
@@ -273,7 +172,7 @@ const DrawerForm: React.FC<DrawerProps> = ({ visible, onClose, onSubmit, title }
     };
     /** 词库更改*/
     const handleSemesterChange = (val:any) => {
-        setSelDrawerSemester(val);
+        setDictionaryId(val);
     };
     /** 考试单词个数更改*/
     const handleTestNumChange = (val:any) => {
@@ -323,7 +222,7 @@ const DrawerForm: React.FC<DrawerProps> = ({ visible, onClose, onSubmit, title }
     }
     /** step2 发布 */
     const handleConfirm = () => {
-        onSubmit({ drawerExamName, drawerStartTime, drawerEndTime, selDrawerBanji, checkedWordList, selDrawerSemester, testNum, testTime });
+        onSubmit({ drawerExamName, drawerStartTime, drawerEndTime, selDrawerBanji, checkedWordList, dictionaryId, testNum, testTime });
     };
 
     /** 考试名称 */
@@ -355,11 +254,11 @@ const DrawerForm: React.FC<DrawerProps> = ({ visible, onClose, onSubmit, title }
                         <span className={style['span']}>考试时间:</span>
                         <RangePicker
                             defaultValue={[
-                                moment(new Date(FunGetDateStr(-6, new Date())), dataFormatHms),
-                                moment(new Date(), dataFormatHms),
+                                moment(new Date(), dateFormatHms),
+                                moment(new Date(FunGetDateStr(7, new Date())), dateFormatHms),
                             ]}
                             onChange={handleDateChange}
-                            format={dataFormatHms}
+                            format={dateFormatHms}
                         />
                     </div>
                     <Divider />
@@ -425,12 +324,12 @@ const DrawerForm: React.FC<DrawerProps> = ({ visible, onClose, onSubmit, title }
                         <Select
                             defaultValue="请选择"
                             style={{ width: 586 }}
-                            value={ selDrawerSemester || '请选择'}
+                            value={ dictionaryId || '请选择'}
                             onChange={handleSemesterChange}
                         >
-                            {drawerSemester.map((item: any) => (
-                                <Option key={item.semesterId} value={item.semesterId}>
-                                    {item.semesterName}
+                            {dictionaryList.map((item: any) => (
+                                <Option key={item.dictionaryId} value={item.dictionaryId}>
+                                    {item.dictionaryName}
                                 </Option>
                             ))}
                         </Select>

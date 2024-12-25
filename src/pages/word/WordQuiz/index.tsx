@@ -3,7 +3,7 @@ import { Table, Input, Select, Pagination, message, Tooltip, DatePicker, Button 
 import { PlusOutlined } from '@ant-design/icons';
 import style from './index.module.less';
 import { get, post, baseUrl } from '../../../service/tools';
-import { dateFormat, FunGetDateStr } from '../../../utils/date';
+import { dateFormat, dateFormatHms, FunGetDateStr } from '../../../utils/date';
 import useDebounce from '../../../hooks/useDebounce';
 import moment from 'moment';
 import DrawerForm from '../WordQuizDrawer/index';
@@ -38,8 +38,8 @@ const WordQuiz = () => {
     const [selBanji, setSelBanji] = useState('');
     const [lock, setLock] = useState(false);
     const [lastChangeTimestamp, setLastChangeTimestamp] = useState(0)
-    const [startTime, setStartTime] = useState(moment().format(dateFormat));
-    const [endTime, setEndTime] = useState(moment((new Date(FunGetDateStr(30, new Date()) + " 00:00:00") as any)).format(dateFormat));
+    const [startTime, setStartTime] = useState(moment((new Date(FunGetDateStr(-21, new Date()) + " 00:00:00") as any)).format(dateFormatHms));
+    const [endTime, setEndTime] = useState(moment((new Date(FunGetDateStr(8, new Date()) + " 00:00:00") as any)).format(dateFormatHms));
     const [pageNo, setPageNo] = useState(1);
     const [totalCount, setTotalCount] = useState(1);
     const [sortKey, setSortKey] = useState('score');
@@ -112,6 +112,7 @@ const WordQuiz = () => {
 
     useEffect(() => {
         if(lastChangeTimestamp){
+            console.log('lastChangeTimestamp', startTime, endTime)
             getTableData();
         }
     }, [lastChangeTimestamp, debouncedQuery, status, startTime, endTime]);
@@ -122,7 +123,7 @@ const WordQuiz = () => {
         const selTeacher = teacher.find((item:any) => {
             return item.teacherId === Number(localStorage.getItem("classTeacherId"))
         });
-        setTeacher(teacher);
+        setSelTeacher(selTeacher);
         const pici = await getPici(selTeacher.teacherId);
         const banji = await getClass(pici[0].batchId || 0);
         setTeacher(teacher);
@@ -219,19 +220,19 @@ const WordQuiz = () => {
     }
     /** 时间更改 */
     const handleDateChange = (val:any) => {
-        setStartTime(moment(new Date(val[0]._d) as any).format(dateFormat));
-        setEndTime(moment(new Date(val[1]._d) as any).format(dateFormat));
+        console.log('handleDateChange', val)
+        setStartTime(moment(new Date(val[0]._d) as any).format(dateFormatHms));
+        setEndTime(moment(new Date(val[1]._d) as any).format(dateFormatHms));
     }
     /** 获取表格数据 */
     const getTableData = async () => {
-        let { data } = await get({
-            url: `${baseUrl}/api/v1/writing/self-list`,
-            config: {
-                params: {
-                    query,
-                    queryType,
-                    sortKey,
-                    order,
+        let { data } = await post({
+            url: `${baseUrl}/api/v1/custom-word-test/get-list`,
+            data: {
+                query,
+                    // queryType,
+                    // sortKey,
+                    // order,
                     teacherId: selTeacher.teacherId,
                     batchId: selPici,
                     classId: selBanji,
@@ -240,8 +241,7 @@ const WordQuiz = () => {
                     status,
                     pageNo,
                     pageSize: 20,
-                }
-            }
+            },
         });
         setData(data?.data || []);
         setTotalCount(data?.totalCount || 1);
@@ -249,8 +249,16 @@ const WordQuiz = () => {
     // 新增单词小测
     const createWordTest = async (val: any) => {
         let { data } = await post({
-            url: `${baseUrl}/api/v1/diy-word-test/create-word-test`,
-            data: {...val}
+            url: `${baseUrl}/api/v1/custom-word-test/create-word-test`,
+            data: {
+                testName: val.drawerExamName,
+                startTime: val.drawerStartTime,
+                endTime: val.drawerEndTime,
+                classIds: val.selDrawerBanji,
+                dictionaryId: val.dictionaryId,
+                testTime: val.testTime,
+                wordIds: val.checkedWordList
+            }
         });
         console.log('createWordTest', data);
     }
@@ -278,8 +286,8 @@ const WordQuiz = () => {
     const handleCloseDrawer = () => {
         setVisible(false);
     }
+    /** 发布确认 */
     const handleFormSubmit = (val:any) => {
-        console.log('handleFormSubmit', val)
         createWordTest(val);
     }
 
@@ -384,8 +392,8 @@ const WordQuiz = () => {
                         <span className={style['span']}>时间:</span>
                         <RangePicker
                             defaultValue={[
-                                moment(new Date(FunGetDateStr(-29, new Date())), dateFormat),
-                                moment(new Date(), dateFormat),
+                                moment(new Date(FunGetDateStr(-21, new Date())), dateFormatHms),
+                                moment(new Date(FunGetDateStr(8, new Date())), dateFormatHms),
                             ]}
                             onChange={handleDateChange}
                             format={dateFormat}
