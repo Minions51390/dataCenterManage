@@ -21,7 +21,6 @@ const menus: {
 } = {
     menus: [
         // 菜单相关路由
-
         { key: '/app/class/main', title: '班级和学员管理', icon: 'mobile', component: 'ClassStu' },
         { key: '/app/ranks', title: '排行榜', icon: 'mobile', component: 'Ranks' },
         { key: '/app/dashboard', title: '数据中心', icon: 'mobile', component: 'Dashboard' },
@@ -30,7 +29,7 @@ const menus: {
             title: '单词中心', 
             icon: 'mobile', 
             subs: [
-                { key: '/app/wordCenter/wordQuiz', title: '单词小测', icon: 'mobile', component: 'WordQuiz' },
+                { key: '/app/wordCenter/wordQuiz', title: '单词小测', icon: 'mobile', component: 'WordQuiz',},
                 { key: '/app/wordCenter/errorBook', title: '错词本', icon: 'mobile', component: 'ErrorBook' },
             ]},
         {
@@ -73,6 +72,8 @@ const menus: {
         { key: '/app/writing/writingDetail', title: '作文物料详情', icon: 'mobile', component: 'WritingDetail' },
         { key: '/app/writing/writingExam/examRank', title: '作文成绩排行', icon: 'mobile', component: 'ExamRank' },
         { key: '/app/writing/examDetail', title: '作文成绩详情', icon: 'mobile', component: 'ExamDetail' },
+        { key: '/app/wordCenter/wordQuizDetail', title: '单词小测详情', icon: 'mobile', component: 'WordQuizDetail' },
+        
         
     ], // 非菜单相关路由
 };

@@ -1,5 +1,6 @@
 import React, {useState, useEffect } from 'react';
-import { Table, Input, Select, Pagination, message, Tooltip, DatePicker, Button } from 'antd';
+import { withRouter } from 'react-router-dom';
+import { Table, Input, Select, Pagination, message, Tooltip, DatePicker, Button, Popconfirm, PageHeader} from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import style from './index.module.less';
 import { get, post, baseUrl } from '../../../service/tools';
@@ -10,7 +11,7 @@ import DrawerForm from '../WordQuizDrawer/index';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-const WordQuiz = () => {
+const WordQuiz = (props:any) => {
     const [query, setQuery] = useState('');
     const [queryType] = useState('writingName');
     const debouncedQuery = useDebounce(query, 500);
@@ -46,7 +47,13 @@ const WordQuiz = () => {
     const [order, setOrder] = useState('desc');
     const [data, setData] = useState([]);
     
-    
+    const statusTextList = ['全部', '进行中', '已结束'];
+    const routes = [
+        {
+            path: '/app/wordCenter/wordQuiz',
+            breadcrumbName: '单词小测',
+        },
+    ];
     const columns = [
         {
             title: '序号',
@@ -54,56 +61,60 @@ const WordQuiz = () => {
             render: (text: any, record: any, index: number) => <div>{index + 1 + (pageNo - 1) * 20}</div>,
         },
         {
-            title: '作文',
-            dataIndex: 'name',
-            key: 'name',
-            render: (text: any, record: any, index: number) => (
-                <div className={style["writing-corpus-box"]}>
-                    {/* {record.name? <div className={style["box-name"]} title={record.name}>{record.name}</div> :null} */}
-                    {record.title? <div className={style["box-title"]}>{record.title}</div>:null}
-                    <Tooltip
-                        title={record.desc} 
-                        overlayStyle={{
-                            fontSize: '14px',
-                            minWidth: '600px',
-                        }}
-                    >
-                        {record.desc? <div className={style["box-desc"]}>{record.desc}</div>:null}
-                    </Tooltip>
-                    
+            title: '考试名称',
+            dataIndex: 'wordTestName',
+            key: 'wordTestName',
+        },
+        {
+            title: '班级',
+            dataIndex: 'className',
+            key: 'className',
+        },
+        {
+            title: '学习阶段',
+            dataIndex: 'semesterName',
+            key: 'semesterName',
+        },
+        {
+            title: '考试起止时间',
+            key: 'startTime',
+            render: (text: any) => (
+                <div className={style['time']}>
+                    <div>{text.startTime}</div>
+                    <div>～</div>
+                    <div>{text.endTime}</div>
                 </div>
             ),
         },
         {
-            title: '等级',
-            dataIndex: 'level',
-            key: 'level',
-            filters: [
-                {
-                  text: 'cet4',
-                  value: 'cet4',
-                },
-                {
-                  text: 'cet6',
-                  value: 'cet6',
-                },
-            ],
+            title: '试卷状态',
+            key: 'status',
+            render: (text: any) => <div>{statusTextList[text.status]}</div>,
         },
         {
-            title: '年份',
-            key: 'year',
-            sorter: true,
+            title: '操作',
+            key: 'control',
             render: (text: any) => (
-                <div>{parseInt(text.origin)|| ''}</div>
-            )
+                <div className={style['edit']}>
+                    <div>
+                        {text.status === 1 ? (
+                            <Popconfirm
+                                placement="topLeft"
+                                title="是否确认删除？删除后无法恢复!"
+                                okText="确认"
+                                cancelText="取消"
+                                onConfirm={()=>handleDeleteConfirm(text.wordTestId)}
+                            >
+                                <div>删除</div>
+                            </Popconfirm>
+                        ) : (
+                            <div className={style['gray']}>删除</div>
+                        )}
+                    </div>
+                    <div onClick={()=>handleDetailClick(text.wordTestId)}>详情</div>
+                </div>
+            ),
         },
-        {
-            title: '练习次数',
-            dataIndex: 'referCount',
-            key: 'referCount',
-            sorter: true,
-        },
-        
     ];
 
     useEffect(() => {
@@ -112,7 +123,6 @@ const WordQuiz = () => {
 
     useEffect(() => {
         if(lastChangeTimestamp){
-            console.log('lastChangeTimestamp', startTime, endTime)
             getTableData();
         }
     }, [lastChangeTimestamp, debouncedQuery, status, startTime, endTime]);
@@ -220,7 +230,6 @@ const WordQuiz = () => {
     }
     /** 时间更改 */
     const handleDateChange = (val:any) => {
-        console.log('handleDateChange', val)
         setStartTime(moment(new Date(val[0]._d) as any).format(dateFormatHms));
         setEndTime(moment(new Date(val[1]._d) as any).format(dateFormatHms));
     }
@@ -248,7 +257,7 @@ const WordQuiz = () => {
     }
     // 新增单词小测
     const createWordTest = async (val: any) => {
-        let { data } = await post({
+        let { data, state, msg } = await post({
             url: `${baseUrl}/api/v1/custom-word-test/create-word-test`,
             data: {
                 testName: val.drawerExamName,
@@ -260,7 +269,14 @@ const WordQuiz = () => {
                 wordIds: val.checkedWordList
             }
         });
-        console.log('createWordTest', data);
+        if(state === 0){
+            message.success('发布小测成功');
+            setVisible(false);
+            setLastChangeTimestamp(Date.now());
+        }else{
+            message.error(`发布小测失败:${msg}`);
+            setVisible(false);
+        }
     }
     /** 搜索框值更改 */ 
     const searchQueryChange = (e:any) => {
@@ -283,6 +299,7 @@ const WordQuiz = () => {
     const showCreateDrawer = () => {
         setVisible(true);
     }
+    /** 关闭抽测弹窗 */
     const handleCloseDrawer = () => {
         setVisible(false);
     }
@@ -290,11 +307,32 @@ const WordQuiz = () => {
     const handleFormSubmit = (val:any) => {
         createWordTest(val);
     }
+    /** 删除小测 */
+    const handleDeleteConfirm = async (wordTestId:number) => {
+        let { data, state, msg } = await post({
+            url: `${baseUrl}/api/v1/custom-word-test/delete-word-test`,
+            data: {
+                wordTestId
+            }
+        });
+        if(state === 0){
+            message.success('删除小测成功');
+            setVisible(false);
+            setLastChangeTimestamp(Date.now());
+        }else{
+            message.error(`删除小测失败:${msg}`);
+            setVisible(false);
+        }
+    }
+    /** 跳转卷面详情 */
+    const handleDetailClick = (wordTestId:any) => {
+        props.history.push(`/app/wordCenter/wordQuizDetail?wordTestId=${wordTestId}`);
+    }
 
     return(
         <div className={style['word-quiz']}>
             <div className={style['header']}>
-                <div className={style['header-breadcrumb']}>单词抽测</div>
+                <PageHeader title="" breadcrumb={{ routes }} />
                 <div className={style['header-title']}>
                     单词抽测
                     <div onClick={showCreateDrawer}>
@@ -424,4 +462,4 @@ const WordQuiz = () => {
     )
 };
 
-export default WordQuiz;
+export default withRouter(WordQuiz);

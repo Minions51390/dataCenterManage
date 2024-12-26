@@ -1,0 +1,84 @@
+.word-quiz-detail {
+    overflow-y: auto;
+    font-family: PingFangSC-Regular, PingFang SC;
+    .header {
+        height: 178px;
+        background: #FFFFFF;
+        overflow: hidden;
+        .header-title {
+            margin: 0 32px;
+            height: 28px;
+            font-size: 20px;
+            font-family: PingFangSC-Medium, PingFang SC;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+            line-height: 28px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            padding: 20px 32px;
+            height: 92px;
+            .header-content-box{
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                .header-content-text{
+                    color: rgba(0, 0, 0, 0.85);
+                    height: 50%;
+                    span{
+                        color: rgba(0, 0, 0, 0.65);
+                    }
+                }
+                .sp {
+                    color: rgba(0, 0, 0, 0.45);
+                }
+                .hard {
+                    font-size: 20px;
+                    color: rgba(0, 0, 0, 0.85);
+                }
+            }
+            div {
+                &:nth-of-type(1) {
+                    width: 360px;
+                }
+                &:nth-of-type(2) {
+                    flex: 1;
+                }
+                &:nth-of-type(3) {
+                    width: 70px;
+                }
+            }
+        }
+    }
+    .content{
+        width: auto;
+        margin: 24px;
+        margin-bottom: 0;
+        background: #FFFFFF;
+        padding: 32px;
+        .content-table{
+            margin-top: 24px;
+            th {
+                text-align: center;
+                color: #032352 !important;
+            }
+            td {
+                text-align: center;
+                color: #032352 !important;
+            }
+            .edit {
+                height: 22px;
+                font-size: 14px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #1890ff;
+                line-height: 22px;
+                cursor: pointer;
+            }
+        }
+    }
+}
