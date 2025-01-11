@@ -347,7 +347,12 @@ class Ranks extends React.Component {
             <div className="rank-wrapper">
                 <div className="header">
                     <div className="fir">排行榜</div>
-                    <div className="sec">排行榜</div>
+                    <div className="sec">
+                        <div>排行榜</div>
+                        <Button type="primary" icon={<ArrowDownOutlined />} onClick={this.handleExportExcel.bind(this)}>
+                            导出表格
+                        </Button>
+                    </div>
                 </div>
                 <div className="body">
                     <div className="sec">
@@ -404,9 +409,6 @@ class Ranks extends React.Component {
                                 </Option>
                             ))}
                         </Select>
-                        <Button style={{ marginLeft: 30 }} type="primary" icon={<ArrowDownOutlined />} onClick={this.handleExportExcel.bind(this)}>
-                            导出表格
-                        </Button>
                     </div>
                     <div className="thr">
                         <Table
