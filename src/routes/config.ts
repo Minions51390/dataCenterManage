@@ -72,9 +72,8 @@ const menus: {
         { key: '/app/writing/writingDetail', title: '作文物料详情', icon: 'mobile', component: 'WritingDetail' },
         { key: '/app/writing/writingExam/examRank', title: '作文成绩排行', icon: 'mobile', component: 'ExamRank' },
         { key: '/app/writing/examDetail', title: '作文成绩详情', icon: 'mobile', component: 'ExamDetail' },
-        { key: '/app/wordCenter/wordQuizDetail', title: '单词小测详情', icon: 'mobile', component: 'WordQuizDetail' },
-        
-        
+        { key: '/app/wordCenter/wordQuiz/wordQuizDetail', title: '小测详情', icon: 'mobile', component: 'WordQuizDetail' },
+        { key: '/app/wordCenter/wordQuiz/wordQuizPaper', title: '卷面详情', icon: 'mobile', component: 'WordQuizPaper' },
     ], // 非菜单相关路由
 };
 

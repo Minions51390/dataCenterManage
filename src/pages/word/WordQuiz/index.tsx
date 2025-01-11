@@ -324,9 +324,9 @@ const WordQuiz = (props:any) => {
             setVisible(false);
         }
     }
-    /** 跳转卷面详情 */
+    /** 跳转小测详情 */
     const handleDetailClick = (wordTestId:any) => {
-        props.history.push(`/app/wordCenter/wordQuizDetail?wordTestId=${wordTestId}`);
+        props.history.push(`/app/wordCenter/wordQuiz/wordQuizDetail?wordTestId=${wordTestId}`);
     }
 
     return(
@@ -334,7 +334,7 @@ const WordQuiz = (props:any) => {
             <div className={style['header']}>
                 <PageHeader title="" breadcrumb={{ routes }} />
                 <div className={style['header-title']}>
-                    单词抽测
+                    单词小测
                     <div onClick={showCreateDrawer}>
                         <Button className="gap-30" type="primary" icon={<PlusOutlined />}>
                             发布任务

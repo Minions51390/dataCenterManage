@@ -52,9 +52,10 @@ import WritingExam from './writing/WritingExam';
 import WritingDetail from './writing/WritingDetail';
 import ExamRank from './writing/ExamRank';
 import ExamDetail from './writing/ExamDetail';
-import WritingCorpus from '../pages/writing/WritingCorpus'
-import WordQuiz from '../pages/word/WordQuiz'
-import WordQuizDetail from '../pages/word/WordQuizDetail'
+import WritingCorpus from '../pages/writing/WritingCorpus';
+import WordQuiz from '../pages/word/WordQuiz';
+import WordQuizDetail from '../pages/word/WordQuizDetail';
+import WordQuizPaper from '../pages/word/WordQuizPaper';
 
 const WysiwygBundle = Loadable({
     // 按需加载富文本配置
@@ -114,6 +115,7 @@ export default {
     WritingCorpus,
     WordQuiz,
     WordQuizDetail,
+    WordQuizPaper,
     ExamRank,
     ExamDetail,
 	QuestionAddPack,
